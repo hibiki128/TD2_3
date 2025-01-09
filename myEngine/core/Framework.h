@@ -13,7 +13,8 @@
 #include"CollisionManager.h"
 #include"ModelManager.h"
 #include"TextureManager.h"
-#include"offScreen.h"
+#include"myEngine/offscreen/OffScreen.h"
+#include <line/DrawLine3D.h>
 
 class Framework
 {
@@ -70,6 +71,8 @@ protected:
 	Audio* audio = nullptr;
 	DirectXCommon* dxCommon = nullptr;
 	WinApp* winApp = nullptr;
+	DrawLine3D* line3d_ = nullptr;
+
 	// シーンファクトリー
 	AbstractSceneFactory* sceneFactory_ = nullptr;
 
@@ -84,6 +87,7 @@ protected:
 	
 	std::unique_ptr<CollisionManager> collisionManager_;
 	std::unique_ptr<OffScreen> offscreen_;
+	std::unique_ptr<OffScreen> offscreen2_;
 
 	bool endRequest_;
 };

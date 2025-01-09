@@ -3,16 +3,27 @@
 #include"fstream"
 #include"sstream"
 #include "TextureManager.h"
+#include"myEngine/Frame/Frame.h"
+#include"Object3dCommon.h"
+
+
+bool Model::isGltf = false;
+std::unordered_set<std::string> Model::jointNames = {};
+
 
 void Model::Initialize(ModelCommon* modelCommon, const std::string& directorypath, const std::string& filename)
 {
 	// 引数で受け取ってメンバ変数に記録する
 	modelCommon_ = modelCommon;
 
+	directorypath_ = directorypath;
+	filename_ = filename;
+	srvManager_ = SrvManager::GetInstance();
 	// モデル読み込み
-	modelData = LoadObjFile(directorypath, filename);
+	modelData = LoadModelFile(directorypath_, filename_);
 
 	CreateVartexData();
+	CreateIndexResource();
 
 	TextureManager::GetInstance()->LoadTexture(modelData.material.textureFilePath);
 
@@ -22,12 +33,28 @@ void Model::Initialize(ModelCommon* modelCommon, const std::string& directorypat
 
 void Model::Draw()
 {
-
-	modelCommon_->GetDxCommon()->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferView); // VBVを設定
-	// SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
-	srvManager_->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetTextureIndexByFilePath(modelData.material.textureFilePath));
+	D3D12_VERTEX_BUFFER_VIEW vbvs[2] = {
+	vertexBufferView, // VertexDataのVBV
+	skin_->GetSkinCluster().influenceBufferView
+	};
+	if (!animator_->HaveAnimation()) {
+		modelCommon_->GetDxCommon()->GetCommandList()->IASetVertexBuffers(0, 1, vbvs); // VBVを設定
+		modelCommon_->GetDxCommon()->GetCommandList()->IASetIndexBuffer(&indexBufferView);
+		// SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
+		srvManager_->SetGraphicsRootDescriptorTable(2, modelData.material.textureIndex);
+	}
+	else {
+		modelCommon_->GetDxCommon()->GetCommandList()->IASetVertexBuffers(0, 2, vbvs); // VBVを設定
+		modelCommon_->GetDxCommon()->GetCommandList()->IASetIndexBuffer(&indexBufferView);
+		// SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
+		srvManager_->SetGraphicsRootDescriptorTable(2, modelData.material.textureIndex);
+		srvManager_->SetGraphicsRootDescriptorTable(6, skin_->GetSrvIndex());
+	}
 	// 描画！（DrawCall/ドローコール）
-	modelCommon_->GetDxCommon()->GetCommandList()->DrawInstanced(UINT(modelData.vertices.size()), 1, 0, 0);
+	modelCommon_->GetDxCommon()->GetCommandList()->DrawIndexedInstanced(UINT(modelData.indices.size()), 1, 0, 0, 0);
+	if (animator_->HaveAnimation()) {
+		Object3dCommon::GetInstance()->DrawCommonSetting();
+	}
 }
 
 void Model::CreateVartexData()
@@ -47,7 +74,17 @@ void Model::CreateVartexData()
 	std::memcpy(vertexData, modelData.vertices.data(), sizeof(VertexData) * modelData.vertices.size());
 }
 
-Model::MaterialData Model::LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename)
+void Model::CreateIndexResource()
+{
+	indexResource = modelCommon_->GetDxCommon()->CreateBufferResource(sizeof(uint32_t) * modelData.indices.size());
+	indexBufferView.BufferLocation = indexResource->GetGPUVirtualAddress();
+	indexBufferView.SizeInBytes = UINT(sizeof(uint32_t) * modelData.indices.size());
+	indexBufferView.Format = DXGI_FORMAT_R32_UINT;
+	indexResource->Map(0, nullptr, reinterpret_cast<void**>(&indexData));
+	std::memcpy(indexData, modelData.indices.data(), sizeof(uint32_t) * modelData.indices.size());
+}
+
+MaterialData Model::LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename)
 {
 	MaterialData materialData; // 構築するMaterialData
 	std::string line; // ファイルから読んだ1行を格納するもの
@@ -76,87 +113,128 @@ Model::MaterialData Model::LoadMaterialTemplateFile(const std::string& directory
 }
 
 
-Model::ModelData Model::LoadObjFile(const std::string& directoryPath, const std::string& filename)
+ModelData Model::LoadModelFile(const std::string& directoryPath, const std::string& filename)
 {
 	ModelData modelData;
-	std::vector<Vector4> positions; // 位置
-	std::vector<Vector3> normals; // 法線
-	std::vector<Vector2> texcoords; // テクスチャ座標
-	std::string line; // ファイルから読んだ1行目を格納するもの
 
-	// ファイル名からフォルダ部分を取得
-	std::string folderPath;
-	size_t lastSlashPos = filename.find_last_of("/\\");
-	if (lastSlashPos != std::string::npos) {
-		// ファイル名の前にフォルダがある場合は、そのフォルダ部分を使用する
-		folderPath = filename.substr(0, lastSlashPos);
+	// 拡張子に応じたisGltfフラグの設定
+	isGltf = false;
+	if (filename.size() >= 5 && filename.substr(filename.size() - 5) == ".gltf") {
+		isGltf = true;
+	}
+	else if (filename.size() >= 4 && filename.substr(filename.size() - 4) == ".obj") {
+		isGltf = false;
+	}
+	else {
+		assert(false && "Unsupported file format"); // サポート外のフォーマットの場合にアサート
 	}
 
-	std::ifstream file(directoryPath + filename); // ファイルを開く
-	assert(file.is_open()); // ファイルが開けなかったら停止
+	Assimp::Importer importer;
+	std::string filePath = directoryPath + "/" + filename;
+	const aiScene* scene = importer.ReadFile(filePath.c_str(), aiProcess_FlipWindingOrder | aiProcess_FlipUVs);
 
-	while (std::getline(file, line)) {
-		std::string identifier;
-		std::istringstream s(line);
-		s >> identifier; // 先頭の識別子を読み込む
+	// メッシュが存在しない場合
+	if (!scene || !scene->HasMeshes()) {
+		// デフォルトのテクスチャを設定
+		modelData.material.textureFilePath = directoryPath + "/white1x1.png";
+		return modelData;
+	}
 
-		// identifierに応じた処理
-		if (identifier == "v") {
-			Vector4 position;
-			s >> position.x >> position.y >> position.z;
-			position.x *= -1.0f;
-			position.w = 1.0f;
-			positions.push_back(position);
+	// メッシュの処理
+	for (uint32_t meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex) {
+		aiMesh* mesh = scene->mMeshes[meshIndex];
+		assert(mesh->HasNormals()); // 法線がないMeshは今回は非対応
+		assert(mesh->HasTextureCoords(0)); // TexcoordがないMeshは今回は非対応
+		modelData.vertices.resize(mesh->mNumVertices);
+		for (uint32_t vertexIndex = 0; vertexIndex < mesh->mNumVertices; ++vertexIndex) {
+			aiVector3D& position = mesh->mVertices[vertexIndex];
+			aiVector3D& normal = mesh->mNormals[vertexIndex];
+			aiVector3D& texcoord = mesh->mTextureCoords[0][vertexIndex];
+			// 右手系->左手系への変換を忘れずに
+			modelData.vertices[vertexIndex].position = { -position.x,position.y,position.z,1.0f };
+			modelData.vertices[vertexIndex].normal = { -normal.x,normal.y,normal.z };
+			modelData.vertices[vertexIndex].texcoord = { texcoord.x,texcoord.y };
 		}
-		else if (identifier == "vt") {
-			Vector2 texcoord;
-			s >> texcoord.x >> texcoord.y;
-			texcoord.y = 1.0f - texcoord.y;
-			texcoords.push_back(texcoord);
-		}
-		else if (identifier == "vn") {
-			Vector3 normal;
-			s >> normal.x >> normal.y >> normal.z;
-			normal.x *= -1.0f;
-			normals.push_back(normal);
-		}
-		else if (identifier == "f") {
-			VertexData triangle[3];
-			// 面は三角形限定。その他は未対応
-			for (int32_t faceVertex = 0; faceVertex < 3; ++faceVertex) {
-				std::string vertexDefinition;
-				s >> vertexDefinition;
-				// 頂点の要素へのIndexは「位置/UV/法線」で格納されているので、分解してIndexを取得する
-				std::istringstream v(vertexDefinition);
-				uint32_t elementIndices[3];
-				for (int32_t element = 0; element < 3; ++element) {
-					std::string index;
-					std::getline(v, index, '/'); // 区切りでインデックスを読んでいく
-					elementIndices[element] = std::stoi(index);
-				}
-				// 要素へのIndexから、実際の要素の値を取得して、頂点を構築する
-				Vector4 position = positions[elementIndices[0] - 1];
-				Vector2 texcoord = texcoords[elementIndices[1] - 1];
-				Vector3 normal = normals[elementIndices[2] - 1];
-				VertexData vertex = { position, texcoord, normal };
-				modelData.vertices.push_back(vertex);
-				triangle[faceVertex] = { position, texcoord, normal };
+		for (uint32_t faceIndex = 0; faceIndex < mesh->mNumFaces; ++faceIndex) {
+			aiFace& face = mesh->mFaces[faceIndex];
+			assert(face.mNumIndices == 3);
+			for (uint32_t element = 0; element < face.mNumIndices; ++element) {
+				uint32_t vertexIndex = face.mIndices[element];
+				modelData.indices.push_back(vertexIndex);
 			}
 		}
-		else if (identifier == "mtllib") {
-			// materialTemplateLibraryファイルの名前を取得する
-			std::string materialFilename;
-			s >> materialFilename;
 
-			if (!folderPath.empty()) {
-				// ファイル名の前にフォルダがあればそれを追加する
-				modelData.material = LoadMaterialTemplateFile(directoryPath + folderPath, materialFilename);
+		for (uint32_t boneIndex = 0; boneIndex < mesh->mNumBones; ++boneIndex) {
+			aiBone* bone = mesh->mBones[boneIndex];
+			std::string jointName = bone->mName.C_Str();
+
+			// ジョイント名の重複確認
+			assert(jointNames.find(jointName) == jointNames.end() && "Duplicate joint name detected!");
+			jointNames.insert(jointName);
+
+			JointWeightData& jointWeightData = modelData.skinClusterData[jointName];
+
+			// バインドポーズ行列の逆行列の計算
+			aiMatrix4x4 bindPoseMatrixAssimp = bone->mOffsetMatrix.Inverse();
+			aiVector3D scale, translate;
+			aiQuaternion rotate;
+			bindPoseMatrixAssimp.Decompose(scale, rotate, translate);
+
+			Matrix4x4 bindPoseMatrix = MakeAffineMatrix(
+				{ scale.x, scale.y, scale.z },
+				{ rotate.x, -rotate.y, -rotate.z, rotate.w },
+				{ -translate.x, translate.y, translate.z });
+
+			jointWeightData.inverseBindPoseMatrix = Inverse(bindPoseMatrix);
+
+			// ウェイト情報の格納
+			for (uint32_t weightIndex = 0; weightIndex < bone->mNumWeights; ++weightIndex) {
+				jointWeightData.vertexWeights.push_back({
+					bone->mWeights[weightIndex].mWeight,
+					bone->mWeights[weightIndex].mVertexId
+					});
 			}
-			else {
-				// ファイル名の前にフォルダがあればそれを追加する
-				modelData.material = LoadMaterialTemplateFile(directoryPath, materialFilename);
-			}
+		}
+
+	}
+	// 処理後にクリア
+	jointNames.clear();
+
+	// マテリアルの処理
+	for (uint32_t materialIndex = 0; materialIndex < scene->mNumMaterials; ++materialIndex) {
+		aiMaterial* material = scene->mMaterials[materialIndex];
+		if (material->GetTextureCount(aiTextureType_DIFFUSE) != 0) {
+			aiString textureFilePath;
+			material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFilePath);
+			modelData.material.textureFilePath = directoryPath + textureFilePath.C_Str();
 		}
 	}
+	if (modelData.material.textureFilePath.empty()) {
+		// テクスチャがない場合はデフォルトのテクスチャを設定
+		modelData.material.textureFilePath = directoryPath + "/white1x1.png";
+	}
+	modelData.rootNode = ReadNode(scene->mRootNode);
 	return modelData;
+}
+
+Node Model::ReadNode(aiNode* node)
+{
+	Node result;
+
+	aiVector3D scale, translate;
+	aiQuaternion rotate;
+	node->mTransformation.Decompose(scale, rotate, translate);
+	result.transform.scale = { scale.x,scale.y,scale.z };
+	result.transform.rotate = { rotate.x,-rotate.y,-rotate.z,rotate.w };
+	result.transform.translate = { -translate.x,translate.y,translate.z };
+
+	result.localMatrix = MakeAffineMatrix(result.transform.scale, result.transform.rotate, result.transform.translate);
+
+	result.name = node->mName.C_Str(); // node名を格納
+	result.children.resize(node->mNumChildren);// 子供の数だけ確保
+	for (uint32_t childIndex = 0; childIndex < node->mNumChildren; ++childIndex) {
+		// 再帰的に読んで階層構造を作っていく
+		result.children[childIndex] = ReadNode(node->mChildren[childIndex]);
+	}
+	return result;
 }

@@ -41,6 +41,11 @@ public:// メンバ関数
 	void Draw();
 
 	/// <summary>
+	/// 描画
+	/// </summary>
+	void DrawForOffScreen();
+
+	/// <summary>
 	/// 遷移描画
 	/// </summary>
 	void DrawTransition();

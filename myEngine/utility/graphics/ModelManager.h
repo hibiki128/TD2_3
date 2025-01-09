@@ -44,11 +44,8 @@ public:
 	/// </summary>
 	/// <param name="filePath"></param>
 	void LoadModel(const std::string& filePath);
-
 public:
-	// モデルデータ
-	std::map<std::string, std::unique_ptr<Model>> models;
-
+	std::unordered_map<std::string, std::unique_ptr<Model>> models;
 private:
 	ModelCommon* modelCommon = nullptr;
 	SrvManager* srvManager = nullptr;

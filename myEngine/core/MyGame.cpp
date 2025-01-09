@@ -57,6 +57,8 @@ void MyGame::Draw()
 	dxCommon->PreDraw();
 	offscreen_->SetProjection(sceneManager_->GetBaseScene()->GetViewProjection()->matProjection_);
 	offscreen_->Draw();
+	dxCommon->TransitionDepthBarrier();
+	sceneManager_->DrawForOffScreen();
 
 #ifdef _DEBUG
 	ImGuiManager::GetInstance()->Draw();

@@ -80,6 +80,13 @@ void SceneManager::Draw()
 	}
 }
 
+void SceneManager::DrawForOffScreen()
+{
+	if (scene_) {
+		scene_->DrawForOffScreen();
+	}
+}
+
 void SceneManager::DrawTransition()
 {
 	if (!transition_->IsEnd()) {

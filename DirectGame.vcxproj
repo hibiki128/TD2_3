@@ -63,14 +63,16 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>/utf-8 /ignore:4049 /ignore:4098</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)myEngine\2d;$(ProjectDir)myEngine\3d;$(ProjectDir)myEngine\3d\light;$(ProjectDir)myEngine\3d\particle;$(ProjectDir)myEngine\3d\model;$(ProjectDir)myEngine\3d\transform;$(ProjectDir)myEngine\3d\camera;$(ProjectDir)myEngine\base;$(ProjectDir)myEngine\input;$(ProjectDir)myEngine\utility;$(ProjectDir)myEngine\utility\graphics;$(ProjectDir)myEngine\utility\debug;$(ProjectDir)myEngine\utility\string;$(ProjectDir)scene;$(ProjectDir)myEngine\core;$(ProjectDir)myEngine\utility\edit;$(ProjectDir)myEngine\utility\collider;$(ProjectDir)myEngine\utility\scene;$(ProjectDir)particle;$(ProjectDir)math;$(ProjectDir)myEngine\utility\imgui;$(ProjectDir)externals\imgui;$(ProjectDir)externals\DirectXTex;$(ProjectDir)myEngine\Audio;$(ProjectDir)scene\MyGame;$(ProjectDir)scene\MyGame;$(ProjectDir)scene</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)myEngine\2d;$(ProjectDir)myEngine\3d;$(ProjectDir)myEngine\3d\light;$(ProjectDir)myEngine\3d\particle;$(ProjectDir)myEngine\3d\model;$(ProjectDir)myEngine\3d\transform;$(ProjectDir)myEngine\3d\camera;$(ProjectDir)myEngine\base;$(ProjectDir)myEngine\input;$(ProjectDir)myEngine\utility;$(ProjectDir)myEngine\utility\graphics;$(ProjectDir)myEngine\utility\debug;$(ProjectDir)myEngine\utility\string;$(ProjectDir)scene;$(ProjectDir)myEngine\core;$(ProjectDir)myEngine\utility\edit;$(ProjectDir)myEngine\utility\collider;$(ProjectDir)myEngine\utility\scene;$(ProjectDir)particle;$(ProjectDir)math;$(ProjectDir)externals\assimp\include;$(ProjectDir)myEngine\utility\imgui;$(ProjectDir)externals\imgui;$(ProjectDir)externals\DirectXTex;$(ProjectDir)myEngine\Audio;$(ProjectDir)scene\MyGame;$(ProjectDir)scene\MyGame;$(ProjectDir)scene</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
+      <AdditionalLibraryDirectories>$(ProjectDir)externals\assimp\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>assimp-vc143-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxcompiler.dll" "$(TargetDir)dxcompiler.dll"
@@ -89,13 +91,15 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <AdditionalOptions>/utf-8</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)myEngine\2d;$(ProjectDir)myEngine\3d;$(ProjectDir)myEngine\3d\light;$(ProjectDir)myEngine\3d\particle;$(ProjectDir)myEngine\3d\model;$(ProjectDir)myEngine\3d\transform;$(ProjectDir)myEngine\3d\camera;$(ProjectDir)myEngine\base;$(ProjectDir)myEngine\input;$(ProjectDir)myEngine\utility;$(ProjectDir)myEngine\utility\graphics;$(ProjectDir)myEngine\utility\debug;$(ProjectDir)myEngine\utility\string;$(ProjectDir)scene;$(ProjectDir)myEngine\core;$(ProjectDir)myEngine\utility\edit;$(ProjectDir)myEngine\utility\collider;$(ProjectDir)myEngine\utility\scene;$(ProjectDir)particle;$(ProjectDir)math;$(ProjectDir)externals\DirectXTex;$(ProjectDir)myEngine\Audio;$(ProjectDir)scene\MyGame;$(ProjectDir)scene\MyGame;$(ProjectDir)scene</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)myEngine\2d;$(ProjectDir)myEngine\3d;$(ProjectDir)myEngine\3d\light;$(ProjectDir)myEngine\3d\particle;$(ProjectDir)myEngine\3d\model;$(ProjectDir)myEngine\3d\transform;$(ProjectDir)myEngine\3d\camera;$(ProjectDir)myEngine\base;$(ProjectDir)myEngine\input;$(ProjectDir)myEngine\utility;$(ProjectDir)myEngine\utility\graphics;$(ProjectDir)myEngine\utility\debug;$(ProjectDir)myEngine\utility\string;$(ProjectDir)scene;$(ProjectDir)myEngine\core;$(ProjectDir)myEngine\utility\edit;$(ProjectDir)myEngine\utility\collider;$(ProjectDir)myEngine\utility\scene;$(ProjectDir)particle;$(ProjectDir)math;$(ProjectDir)externals\assimp\include;$(ProjectDir)externals\DirectXTex;$(ProjectDir)myEngine\Audio;$(ProjectDir)scene\MyGame;$(ProjectDir)scene\MyGame;$(ProjectDir)scene</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(ProjectDir)externals\assimp\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxcompiler.dll" "$(TargetDir)dxcompiler.dll"
@@ -103,9 +107,15 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="application\Enemy.cpp" />
+    <ClCompile Include="myEngine\3d\model\animation\ModelAnimation.cpp" />
+    <ClCompile Include="myEngine\3d\model\animation\Bone.cpp" />
+    <ClCompile Include="myEngine\3d\model\animation\Animator.cpp" />
+    <ClCompile Include="application\Base\BaseObject.cpp" />
     <ClCompile Include="math\random.cpp" />
     <ClCompile Include="myEngine\3d\camera\DebugCamera.cpp" />
     <ClCompile Include="myEngine\3d\light\LightGroup.cpp" />
+    <ClCompile Include="myEngine\3d\line\DrawLine3D.cpp" />
     <ClCompile Include="myEngine\Frame\Frame.cpp" />
     <ClCompile Include="myEngine\input\Mouse.cpp" />
     <ClCompile Include="myEngine\utility\collider\Collider.cpp" />
@@ -155,34 +165,47 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="myEngine\core\MyGame.cpp" />
     <ClCompile Include="myEngine\3d\line\LineManager.cpp" />
     <ClCompile Include="myEngine\utility\scene\SceneTransition.cpp" />
-    <ClCompile Include="OffScreen.cpp" />
+    <ClCompile Include="myEngine\offscreen\OffScreen.cpp" />
+    <ClCompile Include="application\Player.cpp" />
     <ClCompile Include="scene\BaseScene.cpp" />
     <ClCompile Include="scene\GameScene.cpp" />
     <ClCompile Include="scene\TitleScene.cpp" />
+    <ClCompile Include="myEngine\3d\model\animation\Skin.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
-    <None Include="resources\shaders\FullScreen.hlsli">
+    <None Include="resources\shaders\OffScreen\FullScreen.hlsli">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </None>
-    <None Include="Resources\shaders\Object3d.hlsli">
+    <None Include="resources\shaders\Line\Line3d.hlsli">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </None>
-    <None Include="resources\shaders\Particle.hlsli">
+    <None Include="resources\shaders\Object\Object3d.hlsli">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </None>
-    <None Include="resources\shaders\Sprite.hlsli">
+    <None Include="resources\shaders\Particle\Particle.hlsli">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </None>
+    <None Include="resources\shaders\Sprite\Sprite.hlsli">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="application\Enemy.h" />
+    <ClInclude Include="myEngine\3d\model\animation\ModelAnimation.h" />
+    <ClInclude Include="myEngine\3d\model\animation\Bone.h" />
+    <ClInclude Include="myEngine\3d\model\animation\Animator.h" />
+    <ClInclude Include="application\Base\BaseObject.h" />
     <ClInclude Include="math\random.h" />
     <ClInclude Include="myEngine\3d\camera\DebugCamera.h" />
     <ClInclude Include="myEngine\3d\light\LightGroup.h" />
+    <ClInclude Include="myEngine\3d\line\DrawLine3D.h" />
+    <ClInclude Include="myEngine\3d\model\ModelStructs.h" />
     <ClInclude Include="myEngine\Frame\Frame.h" />
     <ClInclude Include="myEngine\input\Mouse.h" />
     <ClInclude Include="myEngine\utility\collider\Collider.h" />
@@ -238,73 +261,93 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="myEngine\core\MyGame.h" />
     <ClInclude Include="myEngine\3d\line\LineManager.h" />
     <ClInclude Include="myEngine\utility\scene\SceneTransition.h" />
-    <ClInclude Include="OffScreen.h" />
+    <ClInclude Include="myEngine\offscreen\OffScreen.h" />
+    <ClInclude Include="application\Player.h" />
     <ClInclude Include="scene\BaseScene.h" />
     <ClInclude Include="scene\GameScene.h" />
     <ClInclude Include="scene\TitleScene.h" />
+    <ClInclude Include="myEngine\3d\model\animation\Skin.h" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="resources\shaders\BoxFilter.PS.hlsl">
+    <FxCompile Include="resources\shaders\OffScreen\BoxFilter.PS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
-    <FxCompile Include="resources\shaders\CopyImage.PS.hlsl">
+    <FxCompile Include="resources\shaders\OffScreen\CopyImage.PS.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
-    <FxCompile Include="resources\shaders\DepthBasedOutline.PS.hlsl">
+    <FxCompile Include="resources\shaders\OffScreen\DepthBasedOutline.PS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
-    <FxCompile Include="resources\shaders\FullScreen.VS.hlsl">
+    <FxCompile Include="resources\shaders\OffScreen\FullScreen.VS.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
-    <FxCompile Include="resources\shaders\GaussianFilter.PS.hlsl">
+    <FxCompile Include="resources\shaders\OffScreen\GaussianFilter.PS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
-    <FxCompile Include="resources\shaders\Grayscale.PS.hlsl">
+    <FxCompile Include="resources\shaders\OffScreen\Grayscale.PS.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
-    <FxCompile Include="resources\shaders\LuminanceBasedOutline.PS.hlsl">
+    <FxCompile Include="resources\shaders\Line\Line3d.PS.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="resources\shaders\Line\Line3d.VS.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="resources\shaders\OffScreen\LuminanceBasedOutline.PS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
-    <FxCompile Include="Resources\shaders\Object3d.PS.hlsl">
+    <FxCompile Include="resources\shaders\Object\Object3d.PS.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
-    <FxCompile Include="Resources\shaders\Object3d.VS.hlsl">
+    <FxCompile Include="resources\shaders\Object\Object3d.VS.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
-    <FxCompile Include="resources\shaders\Particle.PS.hlsl">
+    <FxCompile Include="resources\shaders\OffScreen\RadialBlur.PS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
-    <FxCompile Include="resources\shaders\Particle.VS.hlsl">
+    <FxCompile Include="resources\shaders\Particle\Particle.PS.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
-    <FxCompile Include="resources\shaders\Sprite.PS.hlsl">
+    <FxCompile Include="resources\shaders\Particle\Particle.VS.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
-    <FxCompile Include="resources\shaders\Sprite.VS.hlsl">
+    <FxCompile Include="resources\shaders\Object\SkinningObject3d.VS.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </FxCompile>
-    <FxCompile Include="resources\shaders\Vignette.PS.hlsl">
+    <FxCompile Include="resources\shaders\Sprite\Sprite.PS.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="resources\shaders\Sprite\Sprite.VS.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="resources\shaders\OffScreen\Vignette.PS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>

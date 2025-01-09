@@ -29,11 +29,19 @@ void Object3dCommon::Initialize()
 	graphicsPipelineState[2] = psoManager_->CreateGraphicsPipeLine(graphicsPipelineState[2], rootSignature, BlendMode::kSubtract);
 	graphicsPipelineState[3] = psoManager_->CreateGraphicsPipeLine(graphicsPipelineState[3], rootSignature, BlendMode::kMultiply);
 	graphicsPipelineState[4] = psoManager_->CreateGraphicsPipeLine(graphicsPipelineState[4], rootSignature, BlendMode::kScreen);
+
+	skinningRootSignature = psoManager_->CreateSkinningRootSignature(skinningRootSignature);
+	skinningGraphicsPipelineState = psoManager_->CreateSkinningGraphicsPipeLine(skinningGraphicsPipelineState, skinningRootSignature);
 }
 
 void Object3dCommon::DrawCommonSetting()
 {
 	psoManager_->DrawCommonSetting(graphicsPipelineState[0], rootSignature);
+}
+
+void Object3dCommon::skinningDrawCommonSetting()
+{
+	psoManager_->DrawCommonSetting(skinningGraphicsPipelineState, skinningRootSignature);
 }
 
 void Object3dCommon::SetBlendMode(BlendMode blendMode)

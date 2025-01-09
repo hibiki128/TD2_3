@@ -32,6 +32,11 @@ public: // メンバ関数
 	/// </summary>
 	void Draw()override;
 
+	/// <summary>
+	/// オフスクリーン上に描画
+	/// </summary>
+	void DrawForOffScreen()override;
+
 	ViewProjection* GetViewProjection()override { return &vp_; }
 private:
 	void Debug();

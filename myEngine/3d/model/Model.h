@@ -5,29 +5,22 @@
 #include "Vector3.h"
 #include "Vector2.h"
 #include"SrvManager.h"
+#include"assimp/Importer.hpp"
+#include"assimp/scene.h"
+#include"assimp/postprocess.h"
+#include "map"
+#include"Quaternion.h"
+#include "span"
+#include"array"
+#include"animation/Animator.h"
+#include"animation/Bone.h"
+#include"animation/Skin.h"
+#include"ModelStructs.h"
+
+#include <unordered_set>
 class Model
 {
 private:
-
-	// 頂点データ
-	struct VertexData {
-		Vector4 position;
-		Vector2 texcoord;
-		Vector3 normal;
-	};
-
-	struct MaterialData
-	{
-		std::string textureFilePath;
-		uint32_t textureIndex = 0;
-	};
-
-	struct ModelData
-	{
-		std::vector<VertexData> vertices;
-		MaterialData material;
-	};
-
 	ModelCommon* modelCommon_;
 
 	// Objファイルのデータ
@@ -40,7 +33,24 @@ private:
 	VertexData* vertexData = nullptr;
 	// バッファリソースの使い道を補足するバッファビュー
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView;
-	
+
+	// バッファリソース
+	Microsoft::WRL::ComPtr<ID3D12Resource> indexResource = nullptr;
+	uint32_t* indexData;
+	// バッファリソースの使い道を補足するバッファビュー
+	D3D12_INDEX_BUFFER_VIEW indexBufferView;
+
+	std::string filename_;
+	std::string directorypath_;
+
+	static bool isGltf;
+
+	Matrix4x4 localMatrix;
+
+	Animator* animator_;
+	Skin* skin_;
+	Bone* bone_;
+	static std::unordered_set<std::string> jointNames;
 
 public:
 	/// <summary>
@@ -54,8 +64,14 @@ public:
 	/// </summary>
 	void Draw();
 
-	ModelData GetModelData() { return modelData; }
 	void SetSrv(SrvManager* srvManager) { srvManager_ = srvManager; }
+	void SetAnimator(Animator* animator) { animator_ = animator; }
+	void SetSkin(Skin* skin) { skin_ = skin; }
+	void SetBone(Bone* bone) { bone_ = bone; }
+
+	ModelData GetModelData() { return modelData; }
+
+	bool IsGltf() { return isGltf; }
 
 private:
 
@@ -63,6 +79,11 @@ private:
 	/// 頂点データ作成
 	/// </summary>
 	void CreateVartexData();
+
+	/// <summary>
+    /// indexの作成
+    /// </summary>
+	void CreateIndexResource();
 
 	/// <summary>
 	/// .mtlファイルの読み取り
@@ -78,7 +99,13 @@ private:
 	/// <param name="directoryPath"></param>
 	/// <param name="filename"></param>
 	/// <returns></returns>
-	static ModelData LoadObjFile(const std::string& directoryPath, const std::string& filename);
+	static ModelData LoadModelFile(const std::string& directoryPath, const std::string& filename);
 
+	/// <summary>
+	/// ノード読み取り
+	/// </summary>
+	/// <param name="node"></param>
+	/// <returns></returns>
+	static Node ReadNode(aiNode* node);
 };
 

@@ -81,11 +81,38 @@
     <Filter Include="ソースファイル\scene">
       <UniqueIdentifier>{95837f6f-3d18-4d1a-8bca-710414435010}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ソースファイル\myEngine\offscreen">
+      <UniqueIdentifier>{f3377a96-430d-4131-a498-b9bbfca1239a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソースファイル\application">
+      <UniqueIdentifier>{ca298d3a-6a09-4beb-b1fc-25b93b845b9f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソースファイル\myEngine\3d\model\animation">
+      <UniqueIdentifier>{1a146714-3e9d-4763-b4ed-a0790ee4f5c0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="リソース ファイル\Object">
+      <UniqueIdentifier>{0226e07c-4ede-45da-825c-2e1f5be040df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="リソース ファイル\Sprite">
+      <UniqueIdentifier>{26eb816e-f16f-4759-86ab-980798da84a6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="リソース ファイル\Particle">
+      <UniqueIdentifier>{a9306e47-6760-4a8e-88b0-bcafc82f4997}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="リソース ファイル\Line">
+      <UniqueIdentifier>{acf81abf-30cd-4e8d-9eb3-371234ccf0fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="リソース ファイル\OffScreen">
+      <UniqueIdentifier>{9ad29c48-6718-4748-b2ff-1126d4c8443b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソースファイル\myEngine\3d\color">
+      <UniqueIdentifier>{c6eb0c55-e4f7-42f8-a51f-9d419b7f4321}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ソースファイル\application\Base">
+      <UniqueIdentifier>{faf8b8dc-bf7d-4fc7-ad07-1dd625a6b9a6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>ソースファイル</Filter>
-    </ClCompile>
     <ClCompile Include="externals\imgui\imgui.cpp">
       <Filter>imgui</Filter>
     </ClCompile>
@@ -188,17 +215,11 @@
     <ClCompile Include="myEngine\utility\graphics\PipeLineManager.cpp">
       <Filter>ソースファイル\myEngine\utility\graphics</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="myEngine\utility\edit\Liner.cpp">
       <Filter>ソースファイル\myEngine\utility\edit</Filter>
     </ClCompile>
     <ClCompile Include="math\Quaternion.cpp">
       <Filter>ソースファイル\math</Filter>
-    </ClCompile>
-    <ClCompile Include="myEngine\3d\transform\ObjColor.cpp">
-      <Filter>ソースファイル\myEngine\3d\transform</Filter>
     </ClCompile>
     <ClCompile Include="myEngine\3d\transform\WorldTransform.cpp">
       <Filter>ソースファイル\myEngine\3d\transform</Filter>
@@ -248,29 +269,67 @@
     <ClCompile Include="myEngine\utility\scene\SceneTransition.cpp">
       <Filter>ソースファイル\myEngine\utility\scene</Filter>
     </ClCompile>
-    <ClCompile Include="OffScreen.cpp">
-      <Filter>ソースファイル</Filter>
+    <ClCompile Include="myEngine\3d\light\LightGroup.cpp">
+      <Filter>ソースファイル\myEngine\light</Filter>
+    </ClCompile>
+    <ClCompile Include="myEngine\3d\line\DrawLine3D.cpp">
+      <Filter>ソースファイル\myEngine\3d\line</Filter>
     </ClCompile>
     <ClCompile Include="myEngine\3d\light\LightGroup.cpp">
       <Filter>ソースファイル\myEngine\light</Filter>
     </ClCompile>
-    <ClCompile Include="myEngine\3d\light\LightGroup.cpp">
+    <ClCompile Include="myEngine\offscreen\OffScreen.cpp">
+      <Filter>ソースファイル\myEngine\offscreen</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Base\BaseObject.cpp">
+      <Filter>ソースファイル\application\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
       <Filter>ソースファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="myEngine\3d\model\animation\Animator.cpp">
+      <Filter>ソースファイル\myEngine\3d\model\animation</Filter>
+    </ClCompile>
+    <ClCompile Include="myEngine\3d\model\animation\Bone.cpp">
+      <Filter>ソースファイル\myEngine\3d\model\animation</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>ソースファイル\myEngine\3d\model\animation</Filter>
+    </ClCompile>
+    <ClCompile Include="myEngine\3d\model\animation\Skin.cpp">
+      <Filter>ソースファイル\myEngine\3d\model\animation</Filter>
+    </ClCompile>
+    <ClCompile Include="myEngine\3d\model\animation\ModelAnimation.cpp">
+      <Filter>ソースファイル\myEngine\3d\model\animation</Filter>
+    </ClCompile>
+    <ClCompile Include="myEngine\3d\transform\ObjColor.cpp">
+      <Filter>ソースファイル\myEngine\3d\color</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Player.cpp">
+      <Filter>ソースファイル\application</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Enemy.cpp">
+      <Filter>ソースファイル\application</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include=".editorconfig" />
-    <None Include="Resources\shaders\Object3d.hlsli">
-      <Filter>リソース ファイル</Filter>
+    <None Include="resources\shaders\Particle\Particle.hlsli">
+      <Filter>リソース ファイル\Particle</Filter>
     </None>
-    <None Include="resources\shaders\Particle.hlsli">
-      <Filter>リソース ファイル</Filter>
+    <None Include="resources\shaders\Sprite\Sprite.hlsli">
+      <Filter>リソース ファイル\Sprite</Filter>
     </None>
-    <None Include="resources\shaders\Sprite.hlsli">
-      <Filter>リソース ファイル</Filter>
+    <None Include="resources\shaders\Object\Object3d.hlsli">
+      <Filter>リソース ファイル\Object</Filter>
     </None>
-    <None Include="resources\shaders\FullScreen.hlsli">
-      <Filter>リソース ファイル</Filter>
+    <None Include="resources\shaders\Line\Line3d.hlsli">
+      <Filter>リソース ファイル\Line</Filter>
+    </None>
+    <None Include="resources\shaders\OffScreen\FullScreen.hlsli">
+      <Filter>リソース ファイル\OffScreen</Filter>
+    </None>
+    <None Include=".editorconfig">
+      <Filter>ソースファイル</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -339,9 +398,6 @@
     </ClInclude>
     <ClInclude Include="myEngine\3d\particle\ParticleManager.h">
       <Filter>ソースファイル\myEngine\3d\particle</Filter>
-    </ClInclude>
-    <ClInclude Include="myEngine\3d\transform\ObjColor.h">
-      <Filter>ソースファイル\myEngine\3d\transform</Filter>
     </ClInclude>
     <ClInclude Include="myEngine\3d\transform\WorldTransform.h">
       <Filter>ソースファイル\myEngine\3d\transform</Filter>
@@ -451,60 +507,106 @@
     <ClInclude Include="math\Vector4.h">
       <Filter>ソースファイル\math</Filter>
     </ClInclude>
-    <ClInclude Include="OffScreen.h">
-      <Filter>ソースファイル</Filter>
-    </ClInclude>
-    <ClInclude Include="myEngine\3d\light\LightGroup.h" />
-    <ClInclude Include="math\Quaternion.h" />
     <ClInclude Include="myEngine\3d\light\LightGroup.h">
       <Filter>ソースファイル\myEngine\light</Filter>
     </ClInclude>
     <ClInclude Include="math\Quaternion.h">
       <Filter>ソースファイル\math</Filter>
     </ClInclude>
+    <ClInclude Include="myEngine\3d\line\DrawLine3D.h">
+      <Filter>ソースファイル\myEngine\3d\line</Filter>
+    </ClInclude>
+    <ClInclude Include="myEngine\3d\light\LightGroup.h">
+      <Filter>ソースファイル\myEngine\light</Filter>
+    </ClInclude>
+    <ClInclude Include="math\Quaternion.h">
+      <Filter>ソースファイル\math</Filter>
+    </ClInclude>
+    <ClInclude Include="myEngine\offscreen\OffScreen.h">
+      <Filter>ソースファイル\myEngine\offscreen</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Base\BaseObject.h">
+      <Filter>ソースファイル\application\Base</Filter>
+    </ClInclude>
+    <ClInclude Include="myEngine\3d\model\animation\Animator.h">
+      <Filter>ソースファイル\myEngine\3d\model\animation</Filter>
+    </ClInclude>
+    <ClInclude Include="myEngine\3d\model\animation\Bone.h">
+      <Filter>ソースファイル\myEngine\3d\model\animation</Filter>
+    </ClInclude>
+    <ClInclude Include="myEngine\3d\model\ModelStructs.h">
+      <Filter>ソースファイル\myEngine\3d\model\animation</Filter>
+    </ClInclude>
+    <ClInclude Include="myEngine\3d\model\animation\Skin.h">
+      <Filter>ソースファイル\myEngine\3d\model\animation</Filter>
+    </ClInclude>
+    <ClInclude Include="myEngine\3d\model\animation\ModelAnimation.h">
+      <Filter>ソースファイル\myEngine\3d\model\animation</Filter>
+    </ClInclude>
+    <ClInclude Include="myEngine\3d\transform\ObjColor.h">
+      <Filter>ソースファイル\myEngine\3d\color</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Player.h">
+      <Filter>ソースファイル\application</Filter>
+    </ClInclude>
+    <ClInclude Include="application\Enemy.h">
+      <Filter>ソースファイル\application</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Resources\shaders\Object3d.PS.hlsl">
-      <Filter>リソース ファイル</Filter>
+    <FxCompile Include="resources\shaders\Particle\Particle.PS.hlsl">
+      <Filter>リソース ファイル\Particle</Filter>
     </FxCompile>
-    <FxCompile Include="Resources\shaders\Object3d.VS.hlsl">
-      <Filter>リソース ファイル</Filter>
+    <FxCompile Include="resources\shaders\Particle\Particle.VS.hlsl">
+      <Filter>リソース ファイル\Particle</Filter>
     </FxCompile>
-    <FxCompile Include="resources\shaders\Particle.PS.hlsl">
-      <Filter>リソース ファイル</Filter>
+    <FxCompile Include="resources\shaders\Sprite\Sprite.PS.hlsl">
+      <Filter>リソース ファイル\Sprite</Filter>
     </FxCompile>
-    <FxCompile Include="resources\shaders\Particle.VS.hlsl">
-      <Filter>リソース ファイル</Filter>
+    <FxCompile Include="resources\shaders\Sprite\Sprite.VS.hlsl">
+      <Filter>リソース ファイル\Sprite</Filter>
     </FxCompile>
-    <FxCompile Include="resources\shaders\Sprite.VS.hlsl">
-      <Filter>リソース ファイル</Filter>
+    <FxCompile Include="resources\shaders\Object\Object3d.PS.hlsl">
+      <Filter>リソース ファイル\Object</Filter>
     </FxCompile>
-    <FxCompile Include="resources\shaders\Sprite.PS.hlsl">
-      <Filter>リソース ファイル</Filter>
+    <FxCompile Include="resources\shaders\Object\Object3d.VS.hlsl">
+      <Filter>リソース ファイル\Object</Filter>
     </FxCompile>
-    <FxCompile Include="resources\shaders\Vignette.PS.hlsl">
-      <Filter>リソース ファイル</Filter>
+    <FxCompile Include="resources\shaders\Line\Line3d.PS.hlsl">
+      <Filter>リソース ファイル\Line</Filter>
     </FxCompile>
-    <FxCompile Include="resources\shaders\CopyImage.PS.hlsl">
-      <Filter>リソース ファイル</Filter>
+    <FxCompile Include="resources\shaders\Line\Line3d.VS.hlsl">
+      <Filter>リソース ファイル\Line</Filter>
     </FxCompile>
-    <FxCompile Include="resources\shaders\FullScreen.VS.hlsl">
-      <Filter>リソース ファイル</Filter>
+    <FxCompile Include="resources\shaders\Object\SkinningObject3d.VS.hlsl">
+      <Filter>リソース ファイル\Object</Filter>
     </FxCompile>
-    <FxCompile Include="resources\shaders\Grayscale.PS.hlsl">
-      <Filter>リソース ファイル</Filter>
+    <FxCompile Include="resources\shaders\OffScreen\BoxFilter.PS.hlsl">
+      <Filter>リソース ファイル\OffScreen</Filter>
     </FxCompile>
-    <FxCompile Include="resources\shaders\BoxFilter.PS.hlsl">
-      <Filter>リソース ファイル</Filter>
+    <FxCompile Include="resources\shaders\OffScreen\CopyImage.PS.hlsl">
+      <Filter>リソース ファイル\OffScreen</Filter>
     </FxCompile>
-    <FxCompile Include="resources\shaders\GaussianFilter.PS.hlsl">
-      <Filter>リソース ファイル</Filter>
+    <FxCompile Include="resources\shaders\OffScreen\DepthBasedOutline.PS.hlsl">
+      <Filter>リソース ファイル\OffScreen</Filter>
     </FxCompile>
-    <FxCompile Include="resources\shaders\LuminanceBasedOutline.PS.hlsl">
-      <Filter>リソース ファイル</Filter>
+    <FxCompile Include="resources\shaders\OffScreen\FullScreen.VS.hlsl">
+      <Filter>リソース ファイル\OffScreen</Filter>
     </FxCompile>
-    <FxCompile Include="resources\shaders\DepthBasedOutline.PS.hlsl">
-      <Filter>リソース ファイル</Filter>
+    <FxCompile Include="resources\shaders\OffScreen\GaussianFilter.PS.hlsl">
+      <Filter>リソース ファイル\OffScreen</Filter>
+    </FxCompile>
+    <FxCompile Include="resources\shaders\OffScreen\Grayscale.PS.hlsl">
+      <Filter>リソース ファイル\OffScreen</Filter>
+    </FxCompile>
+    <FxCompile Include="resources\shaders\OffScreen\LuminanceBasedOutline.PS.hlsl">
+      <Filter>リソース ファイル\OffScreen</Filter>
+    </FxCompile>
+    <FxCompile Include="resources\shaders\OffScreen\Vignette.PS.hlsl">
+      <Filter>リソース ファイル\OffScreen</Filter>
+    </FxCompile>
+    <FxCompile Include="resources\shaders\OffScreen\RadialBlur.PS.hlsl">
+      <Filter>リソース ファイル\OffScreen</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
@@ -514,7 +616,7 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="myEngine.rc">
-      <Filter>リソース ファイル</Filter>
+      <Filter>リソース ファイル\OffScreen</Filter>
     </ResourceCompile>
   </ItemGroup>
 </Project>

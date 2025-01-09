@@ -1,6 +1,7 @@
 #include "GameScene.h"
 #include <LightGroup.h>
 #include"SceneManager.h"
+#include <line/DrawLine3D.h>
 
 void GameScene::Finalize()
 {
@@ -20,10 +21,12 @@ void GameScene::Initialize()
 	debugCamera_->Initialize(&vp_);
 }
 
-void GameScene::Update() 
+void GameScene::Update()
 {
+#ifdef _DEBUG
 	// デバッグ
 	Debug();
+#endif // _DEBUG
 
 	// カメラ更新
 	CameraUpdate();
@@ -36,7 +39,12 @@ void GameScene::Draw()
 {
 	/// -------描画処理開始-------
 
-	/// 3Dオブジェクトの描画準備
+	/// Spriteの描画準備
+	spCommon_->DrawCommonSetting();
+	//-----Spriteの描画開始-----
+
+	//------------------------
+
 	objCommon_->DrawCommonSetting();
 	//-----3DObjectの描画開始-----
 
@@ -48,12 +56,35 @@ void GameScene::Draw()
 
 	//-----------------------------
 
+	//-----線描画-----
+	DrawLine3D::GetInstance()->Draw(vp_);
+	//---------------
+
+	/// ----------------------------------
+
+	/// -------描画処理終了-------
+}
+
+void GameScene::DrawForOffScreen()
+{
+	/// -------描画処理開始-------
+
 	/// Spriteの描画準備
 	spCommon_->DrawCommonSetting();
-	//-----Spriteの描画開始----
+	//-----Spriteの描画開始-----
 
 	//------------------------
 
+	objCommon_->DrawCommonSetting();
+	//-----3DObjectの描画開始-----
+
+	//--------------------------
+
+	/// Particleの描画準備
+	ptCommon_->DrawCommonSetting();
+	//------Particleの描画開始-------
+
+	//-----------------------------
 
 
 	/// ----------------------------------
@@ -63,9 +94,9 @@ void GameScene::Draw()
 
 void GameScene::Debug()
 {
-	ImGui::Begin("TitleScene:Debug");
-	LightGroup::GetInstance()->imgui();
+	ImGui::Begin("GameScene:Debug");
 	debugCamera_->imgui();
+	LightGroup::GetInstance()->imgui();
 	ImGui::End();
 }
 

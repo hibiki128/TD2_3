@@ -27,6 +27,11 @@ public:
 	/// </summary>
 	virtual void Draw();
 
+	/// <summary>
+	/// 描画
+	/// </summary>
+	virtual void DrawForOffScreen();
+
 	virtual void SetSceneManager(SceneManager* sceneManager) { sceneManager_ = sceneManager; }
 
 	virtual ViewProjection* GetViewProjection() = 0;

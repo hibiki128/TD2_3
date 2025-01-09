@@ -8,6 +8,9 @@
 #include"DebugCamera.h"
 #include"Object3d.h"
 #include"WorldTransform.h"
+#include"ParticleEmitter.h"
+#include <application/Player.h>
+#include <application/Enemy.h>
 
 class TitleScene :public BaseScene
 {
@@ -32,6 +35,12 @@ public: // メンバ関数
 	/// 描画
 	/// </summary>
 	void Draw()override;
+
+	/// <summary>
+	/// オフスクリーン上に描画
+	/// </summary>
+	void DrawForOffScreen()override;
+
 	ViewProjection* GetViewProjection()override { return &vp_; }
 
 private:
@@ -54,6 +63,13 @@ private:
 	WorldTransform wt1_;
 	WorldTransform wt2_;
 
-	std::unique_ptr<Object3d> suzannu_;
+	std::unique_ptr<Object3d> walk_;
 	std::unique_ptr<Object3d> sphere_;
+
+	std::unique_ptr<ParticleEmitter> emitter_;
+
+	std::unique_ptr<Player> player_;
+	std::unique_ptr<Enemy> enemy_;
+
+	bool roop = true;
 };

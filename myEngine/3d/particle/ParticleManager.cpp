@@ -39,11 +39,31 @@ void ParticleManager::Update(const ViewProjection& viewProjection)
 				particleIterator = particleGroup.particles.erase(particleIterator);
 				continue;
 			}
+			// パーティクルの生存時間に基づく進行度 t を計算
 			float t = (*particleIterator).currentTime / (*particleIterator).lifeTime;
 			t = std::clamp(t, 0.0f, 1.0f);
 
-			(*particleIterator).transform.scale_ = (1.0f - t) * (*particleIterator).startScale + t * (*particleIterator).endScale;
+			// 拡縮処理
+			// 拡縮処理
+			if (isSinMove_) {
+				// Sin波の周波数制御 (速度調整)
+				float waveScale = 0.5f * (sin(t * DirectX::XM_PI * 18.0f) + 1.0f);  // 0 ～ 1 の範囲
 
+				// 最大スケールが寿命に応じて縮小し、最終的に0になる
+				float maxScale = (1.0f - t);  // 1 -> 0 に線形に縮小
+
+				// Sin波スケールと最大スケールの積を適用
+				(*particleIterator).transform.scale_ =
+					(*particleIterator).startScale * waveScale * maxScale;
+			}
+
+			else {
+				// 通常の線形補間
+				(*particleIterator).transform.scale_ =
+					(1.0f - t) * (*particleIterator).startScale + t * (*particleIterator).endScale;
+				// アルファ値の計算
+				(*particleIterator).color.w = (*particleIterator).initialAlpha - ((*particleIterator).currentTime / (*particleIterator).lifeTime);
+			}
 
 			(*particleIterator).Acce = (1.0f - t) * (*particleIterator).startAcce + t * (*particleIterator).endAcce;
 			if (isRandomRotate_) {
@@ -64,8 +84,7 @@ void ParticleManager::Update(const ViewProjection& viewProjection)
 			(*particleIterator).currentTime += kDeltaTime;
 
 
-			// アルファ値の計算
-			(*particleIterator).color.w = (*particleIterator).initialAlpha - ((*particleIterator).currentTime / (*particleIterator).lifeTime);
+
 
 			// ワールド行列の計算
 			Matrix4x4 worldMatrix{};

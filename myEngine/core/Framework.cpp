@@ -1,8 +1,8 @@
 #include "Framework.h"
-#include"GlobalVariables.h"
 #include"ImGuiManager.h"
 #include <D3DResourceLeakChecker.h>
 #include"myEngine/Frame/Frame.h"
+
 
 void Framework::Run()
 {
@@ -110,10 +110,13 @@ void Framework::Initialize()
 	offscreen_ = std::make_unique<OffScreen>();
 	offscreen_->Initialize();
 	///------------------------
+	
+	///-------DrawLine3D-------
+	line3d_ = DrawLine3D::GetInstance();
+	line3d_->Initialize();
+	///------------------------
 
 	LightGroup::GetInstance()->Initialize();
-
-	GlobalVariables::GetInstance()->LoadFiles();
 	
 	/// 時間の初期化
 	Frame::Init();
@@ -138,6 +141,7 @@ void Framework::Finalize()
 #ifdef _DEBUG
 	ImGuiManager::GetInstance()->Finalize();
 #endif // _DEBUG
+	line3d_->Finalize();
 	srvManager->Finalize();
 	audio->Finalize();
 	LightGroup::GetInstance()->Finalize();
@@ -154,7 +158,6 @@ void Framework::Update()
 	Frame::Update();
 #ifdef _DEBUG
 	ImGuiManager::GetInstance()->Begin();
-	GlobalVariables::GetInstance()->Update();
 #endif // _DEBUG
 	offscreen_->DrawCommonSetting();
 	sceneManager_->Update();
@@ -194,9 +197,12 @@ void Framework::DisplayFPS()
 #ifdef _DEBUG
 	ImGuiIO& io = ImGui::GetIO();
 
-	// ウィンドウ固定
+	// FPSを取得
+	float fps = Frame::GetFPS();  // FPSの取得
+
+	// FPSを表示するウィンドウを固定位置に設定
 	ImGui::SetNextWindowPos(ImVec2(1230, 0), ImGuiCond_Always);
-	ImGui::SetNextWindowBgAlpha(0.0f); // 背景を完全透明に設定
+	ImGui::SetNextWindowBgAlpha(0.0f); // 背景を透明に設定
 
 	// ウィンドウフラグを設定
 	ImGui::Begin("FPS Overlay", nullptr,
@@ -205,15 +211,16 @@ void Framework::DisplayFPS()
 		ImGuiWindowFlags_NoMove |            // ウィンドウの移動を禁止
 		ImGuiWindowFlags_NoScrollbar |       // スクロールバーを非表示
 		ImGuiWindowFlags_NoCollapse |        // 折りたたみボタンを非表示
-		ImGuiWindowFlags_AlwaysAutoResize |  // 必要なサイズに自動調整
+		ImGuiWindowFlags_AlwaysAutoResize |  // 自動サイズ調整
 		ImGuiWindowFlags_NoBackground        // 背景を非表示
 	);
 
-	// 文字色を緑に設定
-	ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(100, 255, 100, 255));
-	ImGui::Text("%.1f", io.Framerate);
+	// FPSを緑色で表示
+	ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(50, 255, 50, 255));  // 緑色に設定
+	ImGui::Text("%.1f", fps);  // FPSを表示
 	ImGui::PopStyleColor();
 
 	ImGui::End();
+
 #endif // _DEBUG
 }

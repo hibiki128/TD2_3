@@ -35,6 +35,11 @@ public: // メンバ関数
 	void DrawCommonSetting();
 
 	/// <summary>
+	/// 共通描画設定
+	/// </summary>
+	void skinningDrawCommonSetting();
+
+	/// <summary>
 	///  getter
 	/// </summary>
 	/// <returns></returns>
@@ -54,6 +59,12 @@ private:
 
 	// グラフィックスパイプライン
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineState[5];
+
+	// ルートシグネチャ
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> skinningRootSignature = nullptr;
+
+	// グラフィックスパイプライン
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> skinningGraphicsPipelineState = nullptr;
 
 	BlendMode blendMode_ = BlendMode::kNormal;
 

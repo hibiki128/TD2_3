@@ -3,16 +3,10 @@
 #include"WorldTransform.h"
 #include"Object3d.h"
 #include"ViewProjection.h"
-#include"GlobalVariables.h"
-struct AABB {
-	Vector3 min; //!< 最小点
-	Vector3 max; //!< 最大点
-};
-struct OBB {
-	Vector3 center;          //!< 中心点
-	Vector3 orientations[3]; //!< 座標軸。正規化・直行必須
-	Vector3 size;            //!< 座標軸方向の長さの半分。中心から面までの距離
-};
+#include <fstream>
+#include <filesystem>
+#include "externals/nlohmann/json.hpp"
+
 class Collider {
 public:
 
@@ -26,28 +20,16 @@ public:
 	/// <summary>
 	/// 初期化
 	/// </summary>
-	void Initialize();
+	void Initialize(const std::string className);
 
 	/// <summary>
 	/// ワールドトランスフォームの更新
 	/// </summary>
 	void UpdateWorldTransform();
 
-	/// <summary>
-	/// 描画
-	/// </summary>
-	/// <param name="model"></param>
-	/// <param name="viewProjection"></param>
-	void DrawSphere(const ViewProjection& viewProjection);
+	void DebugDraw(const ViewProjection& viewProjection);
 
-	/// <summary>
-	/// 描画
-	/// </summary>
-	/// <param name="model"></param>
-	/// <param name="viewProjection"></param>
-	void DrawAABB(const ViewProjection& viewProjection);
-
-	void DrawOBB(const ViewProjection& viewProjection);
+	void OffsetImgui();
 
 	/// <summary>
 	/// 当たってる間
@@ -67,20 +49,7 @@ public:
 	/// <param name="other"></param>
 	virtual void OnCollisionOut([[maybe_unused]] Collider* other) {};
 
-	/// <summary>
-	/// 当たったかどうか色で分かるようにしたいなら呼んでください
-	/// </summary>
-	void SetHitColor() {
-		color_.SetColor({ 1.0f,0.0f,0.0f,1.0f });
-	}
-
-	/// <summary>
-	/// 元の色
-	/// </summary>
-	void SetDefaultColor() {
-		color_.SetColor({ 0.0f,0.0f,0.0f,1.0f });
-	}
-
+#pragma region ゲッター
 	/// <summary>
 	/// getter
 	/// </summary>
@@ -91,14 +60,32 @@ public:
 	virtual Vector3 GetCenterPosition() const = 0;
 	virtual Vector3 GetCenterRotation() const = 0;
 
-	// 種別IDを取得
-	uint32_t GetTypeID() const { return typeID_; }
-	// 種別IDを設定
-	void SetTypeID(uint32_t typeID) { typeID_ = typeID; }
-
-	Vector3 GetCenter() { return Cubewt_.translation_; }
 	AABB GetAABB() { return aabb; }
 	OBB GetOBB() { return obb; }
+	Sphere GetSphere() { return sphere; }
+	bool IsCollisionEnabled() const { return isCollisionEnabled_; }
+	bool IsColliding() const { return isColliding; }
+	bool WasColliding() const { return wasColliding; }
+	bool IsOBB() { return isOBB; }
+	bool IsSphere() { return isSphere; }
+	bool IsAABB() { return isAABB; }
+	bool IsVisible() { return isVisible; }
+#pragma endregion
+
+#pragma region セッター
+
+
+	void SetIsCollidingInCurrentFrame(bool isColliding) {
+		isCollidingInCurrentFrame_ = isColliding;
+	}
+
+	bool IsCollidingInCurrentFrame() const {
+		return isCollidingInCurrentFrame_;
+	}
+
+	void ResetCollisionFlag() {
+		isCollidingInCurrentFrame_ = false;
+	}
 
 	/// <summary>
 	/// setter
@@ -107,46 +94,58 @@ public:
 	void SetRadius(float radius) { radius_ = radius; }
 	void SetIsColliding(bool colliding) { wasColliding = isColliding; isColliding = colliding; }
 	void SetCollisionEnabled(bool enabled) { isCollisionEnabled_ = enabled; }
-	void SetAABBScale(Vector3 scale) { scale_ = scale; }
+	void SetHitColor() { color_ = { 1.0f,0.0f,0.0f,1.0f }; }
+	void SetDefaultColor() { color_ = { 1.0f,1.0f,1.0f,1.0f }; }
 
-	bool IsCollisionEnabled() const { return isCollisionEnabled_; }
-	bool IsColliding() const { return isColliding; }
-	bool WasColliding() const { return wasColliding; }
+#pragma endregion
 
 private:
-	void ApplyVariables();
 	void MakeOBBOrientations(OBB& obb, const Vector3& rotate);
+	void UpdateOBB();
+	void SaveToJson();
+	void LoadFromJson();
+
+#pragma region デバッグ描画
+	void DrawSphere(const ViewProjection& viewProjection);
+
+	void DrawAABB(const ViewProjection& viewProjection);
+
+	void DrawOBB(const ViewProjection& viewProjection);
+
+	void DrawRotationCenter(const ViewProjection& viewProjection);
+
+	// 球を描画する関数
+	void DrawSphereAtCenter(const ViewProjection& viewProjection, const Vector3& center, float radius);
+#pragma endregion
 
 private:
+	using json = nlohmann::json;
 
 	// 衝突半径
 	float radius_ = 1.0f;
-	// ワールドトランスフォーム
-	WorldTransform Cubewt_;
-	WorldTransform AABBwt_;
-	WorldTransform OBBwt_;
-	// 種別ID
-	uint32_t typeID_ = 0u;
+
 	std::unique_ptr<Object3d>sphere_;
 	std::unique_ptr<Object3d>AABB_;
 	std::unique_ptr<Object3d>OBB_;
 
-	GlobalVariables* variables_;
-	std::string groupName;
 	AABB aabb;
 	OBB obb;
-	Vector3 aabbCenter;
-	Vector3 aabbScale;
-	Vector3 scale_ = { 1.0f,1.0f,1.0f };
+	Sphere sphere;
+	Vector4 color_ = { 1.0f,1.0f,1.0f,1.0f };
 
 	static int counter; // 静的カウンタ
-	Vector3 SphereOffset = { 0.0f,0.0f,0.0f };
+	Sphere SphereOffset;
 	AABB AABBOffset;
 	OBB OBBOffset;
-
-	ObjColor color_;
+	std::string className_;
 
 	bool isCollisionEnabled_ = true;  // デフォルトではコリジョンを有効化
 	bool isColliding = false;   // 現在のフレームの衝突状態
 	bool wasColliding = false;  // 前フレームの衝突状態
+	bool isCollidingInCurrentFrame_ = false; // 現フレームで衝突しているか
+
+	bool isAABB = true;
+	bool isOBB = true;
+	bool isSphere = true;
+	bool isVisible = true;
 };

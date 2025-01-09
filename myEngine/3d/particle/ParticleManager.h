@@ -38,6 +38,7 @@ public:
 	void SetAcceMultipy(bool isAcceMultipy) { isAcceMultipy_ = isAcceMultipy; }
 	void SetRandomSize(bool isRandomSize) { isRandomSize_ = isRandomSize; }
 	void SetAllRandomSize(bool isAllRandomSize) { isRandomAllSize_ = isAllRandomSize; }
+	void SetSinMove(bool isSinMove) { isSinMove_ = isSinMove; }
 
 private:
 	/// <summary>
@@ -141,6 +142,7 @@ private:
 	bool isAcceMultipy_ = false;
 	bool isRandomSize_ = false;
 	bool isRandomAllSize_ = false;
+	bool isSinMove_ = false;
 
 public:
 	// nameで指定した名前のパーティクルグループにパーティクルを発生させる関数

@@ -42,14 +42,10 @@ void ViewProjection::UpdateMatrix()
 
 void ViewProjection::TransferMatrix()
 {
-	matWorld_ = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, rotation_, translation_);
-	matView_ = Inverse(matWorld_);
-	matProjection_ = MakePerspectiveFovMatrix(fovAngleY, aspectRatio, nearZ, farZ);
-
 	if (constMap) {
 		constMap->view = matView_;
 		constMap->projection = matProjection_;
-
+		constMap->cameraPos = translation_;
 	}
 }
 

@@ -17,7 +17,14 @@ void ImGuiManager::Initialize(WinApp* winApp)
 	// Docking機能を有効化
 	ImGuiIO& io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; // Docking機能を有効化
+	io.Fonts->Clear(); // 既存のフォントをクリア
 
+	io.Fonts->AddFontFromFileTTF("resources/fonts/PixelMplus12-Regular.ttf", 14.0f, nullptr, io.Fonts->GetGlyphRangesJapanese());
+
+	// フォントの生成
+	unsigned char* tex_pixels = nullptr;
+	int tex_width, tex_height;
+	io.Fonts->GetTexDataAsRGBA32(&tex_pixels, &tex_width, &tex_height);
 	// ImGuiのスタイルを設定
 	ImGui::StyleColorsDark();
 

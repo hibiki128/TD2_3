@@ -25,7 +25,8 @@ enum class ShaderMode {
 	kSmooth,
 	kGauss,
 	kOutLine,
-	kDepth
+	kDepth,
+	kBlur,
 };
 
 class PipeLineManager
@@ -77,6 +78,26 @@ public:
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> CreateRenderGraphicsPipeLine(Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineState, Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature, ShaderMode shaderMode_);
 
 	/// <summary>
+	/// ルートシグネチャの作成
+	/// </summary>
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> CreateSkinningRootSignature(Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature);
+
+	/// <summary>
+	/// グラフィックスパイプラインの作成
+	/// </summary>
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> CreateSkinningGraphicsPipeLine(Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineState, Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature);
+
+	/// <summary>
+	/// ルートシグネチャの作成
+	/// </summary>
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> CreateLine3dRootSignature(Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature);
+
+	/// <summary>
+	/// グラフィックスパイプラインの作成
+	/// </summary>
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> CreateLine3dGraphicsPipeLine(Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineState, Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature);
+
+	/// <summary>
 	/// 共通描画設定
 	/// </summary>
 	void DrawCommonSetting(Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineState, Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignatur);
@@ -87,6 +108,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> CreateSmoothRootSignature(Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature);
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> CreateGaussRootSignature(Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature);
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> CreateDepthRootSignature(Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature);
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> CreateBlurRootSignature(Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature);
 
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> CreateNoneGraphicsPipeLine(Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineState, Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature);
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> CreateGrayGraphicsPipeLine(Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineState, Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature);
@@ -95,6 +117,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> CreateGaussGraphicsPipeLine(Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineState, Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature);
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> CreateOutLineGraphicsPipeLine(Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineState, Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature);
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> CreateDepthGraphicsPipeLine(Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineState, Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature);
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> CreateBlurGraphicsPipeLine(Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineState, Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature);
 private:
 	DirectXCommon* dxCommon_;
 };

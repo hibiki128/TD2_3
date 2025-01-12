@@ -29,6 +29,9 @@ public:
 	void Update();
 	void Draw(const ViewProjection& vp);
 
+	// 範囲内のブロックを反転
+	void InvertBlocksInArea(const Vector3& center);
+
 private:
 	// マップチップのデータ構造
 	struct MapChip {

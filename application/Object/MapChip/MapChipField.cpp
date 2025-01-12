@@ -48,6 +48,43 @@ void MapChipField::Draw(const ViewProjection& vp)
 	}
 }
 
+void MapChipField::InvertBlocksInArea(const Vector3& center)
+{
+	// 中心位置からマップ上のマス位置を計算
+	int centerX = static_cast<int>(std::round(center.x / kChipSize));
+	int centerY = static_cast<int>(std::round(-center.y / kChipSize));
+
+	// プレイヤーの位置を中心に3x3マスを探索
+	const int range = 1; // -1~1の範囲を探索するため
+
+	// 3x3マス内のブロックを探索
+	for (int y = -range; y <= range; ++y) {
+		for (int x = -range; x <= range; ++x) {
+			// 対象位置を計算
+			int targetX = centerX + x;
+			int targetY = centerY + y;
+
+			// マップ範囲外を無視
+			if(targetX < 0 || targetX >= static_cast<int>(kWidth) ||
+				targetY < 0 || targetY >= static_cast<int>(kHeight)) {
+				continue;
+			}
+
+			// ブロックを取得して反転処理
+			MapChip& chip = mapChips_[targetY][targetX];
+			// 黒ブロック->白ブロックに変更
+			if (chip.type == ChipType::Black) {
+				chip.type = ChipType::White;
+				chip.object->SetObjColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+			// 白ブロック->黒ブロックに変更
+			} else if (chip.type == ChipType::White) {
+				chip.type = ChipType::Black;
+				chip.object->SetObjColor({ 0.0f, 0.0f, 0.0f, 1.0f });
+			}
+		}
+	}
+}
+
 void MapChipField::LoadFromCSV(const std::string& filePath)
 {
 	std::ifstream file(filePath);
@@ -76,6 +113,7 @@ void MapChipField::LoadFromCSV(const std::string& filePath)
 			if (chip.type != ChipType::Empty) {
 				chip.object = std::make_unique<BaseObject>();
 				chip.object->Init("MapChip");
+				chip.object->SetScale({ 0.925f, 0.925f, 0.925f }); // 一旦分かりやすいように少し小さくする
 				chip.object->SetWorldPosition({ x * kChipSize, -y * kChipSize, 0.0f });
 
 				// モデルと色を設定
@@ -90,7 +128,7 @@ void MapChipField::LoadFromCSV(const std::string& filePath)
 					break;
 				case ChipType::Gray:
 					chip.object->CreateModel("debug/Cube.obj");
-					chip.object->SetObjColor({ 0.5f, 0.5f, 0.5f, 1.0f }); // 灰色
+					chip.object->SetObjColor({ 0.0f, 1.0f, 0.0f, 1.0f }); // 一旦分かりやすく緑に変更
 					break;
 				default:
 					break;

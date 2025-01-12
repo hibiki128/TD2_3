@@ -17,7 +17,7 @@ void GameScene::Initialize()
 	ptCommon_ = ParticleCommon::GetInstance();
 	input_ = Input::GetInstance();
 	vp_.Initialize();
-	vp_.translation_ = { 0.0f, 0.0f, -50.0f };
+	vp_.translation_ = { 12.0f, -6.5f, -30.0f };
 
 	debugCamera_ = std::make_unique<DebugCamera>();
 	debugCamera_->Initialize(&vp_);
@@ -54,7 +54,7 @@ void GameScene::Update()
 	/// 
 
 	// プレイヤー更新
-	player_->Update();
+	player_->Update(mapChipField_.get());
 
 	// マップチップフィールド更新
 	mapChipField_->Update();
@@ -79,7 +79,7 @@ void GameScene::Draw()
 	/// 
 
 	// プレイヤー描画
-	/*player_->Draw(vp_);*/
+	player_->Draw(vp_);
 
 	// マップチップフィールド描画
 	mapChipField_->Draw(vp_);

@@ -9,7 +9,7 @@
 #include"Object3d.h"
 #include"WorldTransform.h"
 #include"ParticleEmitter.h"
-#include <application/Player.h>
+//#include <application/Player.h>
 #include <application/Enemy.h>
 
 class TitleScene :public BaseScene
@@ -68,7 +68,7 @@ private:
 
 	std::unique_ptr<ParticleEmitter> emitter_;
 
-	std::unique_ptr<Player> player_;
+	/*std::unique_ptr<Player> player_;*/
 	std::unique_ptr<Enemy> enemy_;
 
 	bool roop = true;

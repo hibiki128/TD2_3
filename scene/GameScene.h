@@ -8,6 +8,10 @@
 #include"ViewProjection.h"
 #include"DebugCamera.h"
 
+// Application
+#include "application/Object/Player/Player.h"
+#include "application/Object/MapChip/MapChipField.h"
+
 class GameScene : public BaseScene
 {
 public: // メンバ関数
@@ -55,4 +59,15 @@ private:
 	// ビュープロジェクション
 	ViewProjection vp_;
 	std::unique_ptr<DebugCamera> debugCamera_;
+
+	///
+	///	各オブジェクト
+	/// 
+	
+	// プレイヤー
+	std::unique_ptr<Player> player_;
+
+	// マップチップフィールド
+	std::unique_ptr<MapChipField> mapChipField_;
+
 };

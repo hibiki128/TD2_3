@@ -108,6 +108,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="application\Enemy.cpp" />
+    <ClCompile Include="application\Object\MapChip\MapChipField.cpp" />
     <ClCompile Include="myEngine\3d\model\animation\ModelAnimation.cpp" />
     <ClCompile Include="myEngine\3d\model\animation\Bone.cpp" />
     <ClCompile Include="myEngine\3d\model\animation\Animator.cpp" />
@@ -166,7 +167,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="myEngine\3d\line\LineManager.cpp" />
     <ClCompile Include="myEngine\utility\scene\SceneTransition.cpp" />
     <ClCompile Include="myEngine\offscreen\OffScreen.cpp" />
-    <ClCompile Include="application\Player.cpp" />
+    <ClCompile Include="application\Object\Player\Player.cpp" />
     <ClCompile Include="scene\BaseScene.cpp" />
     <ClCompile Include="scene\GameScene.cpp" />
     <ClCompile Include="scene\TitleScene.cpp" />
@@ -197,6 +198,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application\Enemy.h" />
+    <ClInclude Include="application\Object\MapChip\MapChipField.h" />
     <ClInclude Include="myEngine\3d\model\animation\ModelAnimation.h" />
     <ClInclude Include="myEngine\3d\model\animation\Bone.h" />
     <ClInclude Include="myEngine\3d\model\animation\Animator.h" />
@@ -262,7 +264,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="myEngine\3d\line\LineManager.h" />
     <ClInclude Include="myEngine\utility\scene\SceneTransition.h" />
     <ClInclude Include="myEngine\offscreen\OffScreen.h" />
-    <ClInclude Include="application\Player.h" />
+    <ClInclude Include="application\Object\Player\Player.h" />
     <ClInclude Include="scene\BaseScene.h" />
     <ClInclude Include="scene\GameScene.h" />
     <ClInclude Include="scene\TitleScene.h" />

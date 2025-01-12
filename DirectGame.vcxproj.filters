@@ -305,11 +305,14 @@
     <ClCompile Include="myEngine\3d\transform\ObjColor.cpp">
       <Filter>ソースファイル\myEngine\3d\color</Filter>
     </ClCompile>
-    <ClCompile Include="application\Player.cpp">
-      <Filter>ソースファイル\application</Filter>
-    </ClCompile>
     <ClCompile Include="application\Enemy.cpp">
       <Filter>ソースファイル\application</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Object\Player\Player.cpp">
+      <Filter>ソースファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Object\MapChip\MapChipField.cpp">
+      <Filter>ソースファイル</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -546,12 +549,11 @@
     <ClInclude Include="myEngine\3d\transform\ObjColor.h">
       <Filter>ソースファイル\myEngine\3d\color</Filter>
     </ClInclude>
-    <ClInclude Include="application\Player.h">
-      <Filter>ソースファイル\application</Filter>
-    </ClInclude>
     <ClInclude Include="application\Enemy.h">
       <Filter>ソースファイル\application</Filter>
     </ClInclude>
+    <ClInclude Include="application\Object\Player\Player.h" />
+    <ClInclude Include="application\Object\MapChip\MapChipField.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Particle\Particle.PS.hlsl">

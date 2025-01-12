@@ -38,8 +38,8 @@ void TitleScene::Initialize()
 	emitter_ = std::make_unique<ParticleEmitter>();
 	emitter_->Initialize("test", "debug/sphere.obj");
 
-	player_ = std::make_unique<Player>();
-	player_->Init("player");
+	/*player_ = std::make_unique<Player>();
+	player_->Init("player");*/
 	enemy_ = std::make_unique<Enemy>();
 	enemy_->Init("enemy");
 }
@@ -66,7 +66,7 @@ void TitleScene::Update()
 	walk_->AnimationUpdate(roop);
 	sphere_->AnimationUpdate(roop);
 
-	player_->Update();
+	/*player_->Update();*/
 	enemy_->Update();
 	
 	wt1_.UpdateMatrix();
@@ -94,7 +94,7 @@ void TitleScene::Draw()
 	sphere_->Draw(wt2_, vp_);
 	sphere_->DrawSkeleton(wt2_, vp_);
 
-	player_->Draw(vp_);
+	/*player_->Draw(vp_);*/
 	enemy_->Draw(vp_);
 	//--------------------------
 
@@ -161,7 +161,7 @@ void TitleScene::Debug()
 	ImGui::End();
 
 	emitter_->imgui();
-	player_->DebugImGui();
+	/*player_->DebugImGui();*/
 	enemy_->DebugImGui();
 }
 

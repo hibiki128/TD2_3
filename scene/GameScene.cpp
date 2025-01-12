@@ -16,9 +16,24 @@ void GameScene::Initialize()
 	spCommon_ = SpriteCommon::GetInstance();
 	ptCommon_ = ParticleCommon::GetInstance();
 	input_ = Input::GetInstance();
+	vp_.Initialize();
+	vp_.translation_ = { 0.0f, 0.0f, -50.0f };
 
 	debugCamera_ = std::make_unique<DebugCamera>();
 	debugCamera_->Initialize(&vp_);
+
+	///
+	///	各オブジェクト初期化
+	/// 
+
+	// プレイヤー
+	player_ = std::make_unique<Player>();
+	player_->Init("player");
+
+	// マップチップフィールド
+	mapChipField_ = std::make_unique<MapChipField>();
+	mapChipField_->Init("resources/Maps/stage1.csv");
+
 }
 
 void GameScene::Update()
@@ -33,6 +48,17 @@ void GameScene::Update()
 
 	// シーン切り替え
 	ChangeScene();
+
+	///
+	///	各オブジェクト更新
+	/// 
+
+	// プレイヤー更新
+	player_->Update();
+
+	// マップチップフィールド更新
+	mapChipField_->Update();
+
 }
 
 void GameScene::Draw()
@@ -47,6 +73,16 @@ void GameScene::Draw()
 
 	objCommon_->DrawCommonSetting();
 	//-----3DObjectの描画開始-----
+
+	///
+	///	各オブジェクト描画
+	/// 
+
+	// プレイヤー描画
+	/*player_->Draw(vp_);*/
+
+	// マップチップフィールド描画
+	mapChipField_->Draw(vp_);
 
 	//--------------------------
 
@@ -98,6 +134,9 @@ void GameScene::Debug()
 	debugCamera_->imgui();
 	LightGroup::GetInstance()->imgui();
 	ImGui::End();
+
+	// プレイヤーデバッグ情報
+	player_->DebugImGui();
 }
 
 void GameScene::CameraUpdate()

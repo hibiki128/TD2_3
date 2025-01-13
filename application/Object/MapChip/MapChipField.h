@@ -53,13 +53,18 @@ private:
 		/// 
 		bool isAnimating = false;
 		float animationTime = 0.0f;
-		float currentScale = 1.0f;
+
+		float delayTime = 0.0f;
+		bool isDelaying = false;
+
 		enum class AnimationState {
 			None,
 			Shrinking,
 			ColorChange,
 			Expanding
 		} animState = AnimationState::None;
+
+		float currentScale = 1.0f;
 	};
 
 	// マップチップの二次元配列

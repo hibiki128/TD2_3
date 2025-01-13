@@ -170,7 +170,7 @@ void MapChipField::InvertBlocksWithCapture()
 	// 8方向を表すオフセット（x, y）
 	const std::vector<std::pair<int, int>> directions = {
 		{0, -1}, {0, 1}, {-1, 0}, {1, 0}, // 上下左右
-		{-1, -1}, {-1, 1}, {1, -1}, {1, 1} // 斜め方向
+		//{-1, -1}, {-1, 1}, {1, -1}, {1, 1} // 斜め方向
 	};
 
 	// ステージ全体のブロックを探索
@@ -233,10 +233,11 @@ void MapChipField::InvertBlock(int x, int y)
 		}
 
 		if (!chip.isAnimating && chip.type != ChipType::Empty) {
-			// アニメーションを開始
-			chip.isAnimating = true;
-			chip.animState = MapChip::AnimationState::Shrinking;
-			chip.animationTime = 0.0f;
+			// アニメーション開始の遅延処理
+			chip.isDelaying = true;
+			chip.delayTime = 0.3f; // ここで指定した時間遅延
+
+			chip.isAnimating = true; // 遅延後にアニメーションを開始するため有効化
 		}
 	}
 }
@@ -255,8 +256,27 @@ void MapChipField::UpdateChipAnimation(MapChip& chip)
 		return;
 	}
 
+	///
+	///	アニメーション開始の遅延処理
+	/// 
+
+	if (chip.isDelaying) {
+		chip.delayTime -= 1.0f / 60.0f; // フレーム減少
+
+		if (chip.delayTime <= 0.0f) {
+			chip.isDelaying = false; // 遅延終了
+			chip.animState = MapChip::AnimationState::Shrinking;
+			chip.animationTime = 0.0f;
+		}
+		return; // 遅延中はここで処理を終了する
+	}
+
 	constexpr float shrinkDuration = 0.2f; // 縮小時間
 	constexpr float expandDuration = 0.2f; // 拡大時間
+
+	///
+	///	アニメーション処理開始
+	/// 
 
 	chip.animationTime += 1.0f / 60.0f; // フレーム進行
 

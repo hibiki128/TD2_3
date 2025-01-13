@@ -121,7 +121,7 @@ void MapChipField::LoadFromCSV(const std::string& filePath)
 			if (chip.type != ChipType::Empty) {
 				chip.object = std::make_unique<BaseObject>();
 				chip.object->Init("MapChip");
-				chip.object->SetScale({ 1.0f, 1.0f, 1.0f });
+				chip.object->SetScale({ 0.925f, 0.925f, 0.925f });
 				chip.object->SetWorldPosition({ x * kChipSize, -y * kChipSize, 0.0f });
 
 				// モデルと色を設定
@@ -301,7 +301,7 @@ void MapChipField::UpdateChipAnimation(MapChip& chip)
 			}
 		// 実際に収縮を行う
 		} else {
-			chip.currentScale = EaseOutQuad(1.0f, 0.5f, chip.animationTime, shrinkDuration); // スケールを { 1.0f -> 0.5f } へ縮小
+			chip.currentScale = EaseOutQuad(0.925f, 0.5f, chip.animationTime, shrinkDuration); // スケールを { 1.0f -> 0.5f } へ縮小
 			chip.object->SetScale({ chip.currentScale, chip.currentScale, chip.currentScale });
 		}
 	///
@@ -315,7 +315,7 @@ void MapChipField::UpdateChipAnimation(MapChip& chip)
 			chip.isAnimating = false; // アニメーション終了
 		// 実際に拡大を行う
 		} else {
-			chip.currentScale = EaseOutQuad(0.5f, 1.0f, chip.animationTime, expandDuration); // スケールを { 0.5f -> 1.0f } へ拡大
+			chip.currentScale = EaseOutQuad(0.5f, 0.925f, chip.animationTime, expandDuration); // スケールを { 0.5f -> 1.0f } へ拡大
 			chip.object->SetScale({ chip.currentScale, chip.currentScale, chip.currentScale });
 		}
 	///

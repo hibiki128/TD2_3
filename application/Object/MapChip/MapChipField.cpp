@@ -5,6 +5,9 @@
 #include <sstream>
 #include <iostream>
 
+// Engine
+#include "math/Easing.h"
+
 // ブロックの大きさを定義
 const float MapChipField::kChipSize = 2.0f;
 
@@ -30,10 +33,19 @@ void MapChipField::Update()
 		for (auto& chip : row) {
 			// 空白ブロックではない場合のみ更新
 			if (chip.type != ChipType::Empty) {
-				chip.object->Update();
+				// アニメーションの進行
+				if (chip.isAnimating) {
+					UpdateChipAnimation(chip);
+				// 通常の更新
+				} else {
+					chip.object->Update();
+				}
 			}
 		}
 	}
+
+	// 挟み込みが起こった場合に挟まれたブロックの色反転を行う（たぶんここで呼んでるといつか問題起きるので呼び出し位置を検討）
+	InvertBlocksWithCapture();
 }
 
 void MapChipField::Draw(const ViewProjection& vp)
@@ -70,16 +82,12 @@ void MapChipField::InvertBlocksInArea(const Vector3& center)
 				continue;
 			}
 
-			// ブロックを取得して反転処理
+			// ブロックを取得して反転処理（アニメーション開始）
 			MapChip& chip = mapChips_[targetY][targetX];
-			// 黒ブロック->白ブロックに変更
-			if (chip.type == ChipType::Black) {
-				chip.type = ChipType::White;
-				chip.object->SetObjColor({ 1.0f, 1.0f, 1.0f, 1.0f });
-			// 白ブロック->黒ブロックに変更
-			} else if (chip.type == ChipType::White) {
-				chip.type = ChipType::Black;
-				chip.object->SetObjColor({ 0.0f, 0.0f, 0.0f, 1.0f });
+			if (!chip.isAnimating && chip.type != ChipType::Empty) {
+				chip.isAnimating = true;
+				chip.animState = MapChip::AnimationState::Shrinking;
+				chip.animationTime = 0.0f;
 			}
 		}
 	}
@@ -113,7 +121,7 @@ void MapChipField::LoadFromCSV(const std::string& filePath)
 			if (chip.type != ChipType::Empty) {
 				chip.object = std::make_unique<BaseObject>();
 				chip.object->Init("MapChip");
-				chip.object->SetScale({ 0.925f, 0.925f, 0.925f }); // 一旦分かりやすいように少し小さくする
+				chip.object->SetScale({ 1.0f, 1.0f, 1.0f });
 				chip.object->SetWorldPosition({ x * kChipSize, -y * kChipSize, 0.0f });
 
 				// モデルと色を設定
@@ -230,4 +238,59 @@ void MapChipField::InvertBlock(int x, int y)
 bool MapChipField::IsValidPosition(int x, int y) const
 {
 	return x >= 0 && x < static_cast<int>(kWidth) && y >= 0 && y < static_cast<int>(kHeight);
+}
+
+void MapChipField::UpdateChipAnimation(MapChip& chip)
+{
+	constexpr float shrinkDuration = 0.2f; // 縮小時間
+	constexpr float expandDuration = 0.2f; // 拡大時間
+
+	chip.animationTime += 1.0f / 60.0f; // フレーム進行
+
+	/* ブロックの縮小->色変更->拡大の順番で処理を行う */
+
+	///
+	/// ブロックの収縮状態
+	/// 
+	if (chip.animState == MapChip::AnimationState::Shrinking) {
+		// 終了した場合
+		if (chip.animationTime >= shrinkDuration) {
+			chip.animationTime = 0.0f; // タイマーリセット
+			chip.animState = MapChip::AnimationState::ColorChange; // 次の状態に移行
+
+			// ブロックの色変更
+			if (chip.type == ChipType::Black) {
+				chip.type = ChipType::White;
+				chip.object->SetObjColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+			} else if (chip.type == ChipType::White) {
+				chip.type = ChipType::Black;
+				chip.object->SetObjColor({ 0.0f, 0.0f, 0.0f, 1.0f });
+			}
+		// 実際に収縮を行う
+		} else {
+			chip.currentScale = EaseOutQuad(1.0f, 0.5f, chip.animationTime, shrinkDuration); // スケールを { 1.0f -> 0.5f } へ縮小
+			chip.object->SetScale({ chip.currentScale, chip.currentScale, chip.currentScale });
+		}
+	///
+	/// ブロックの拡大状態
+	/// 
+	} else if (chip.animState == MapChip::AnimationState::Expanding) {
+		// 終了した場合
+		if (chip.animationTime >= expandDuration) {
+			chip.animationTime = 0.0f; // タイマーリセット
+			chip.animState = MapChip::AnimationState::None; // 次の状態に移行
+			chip.isAnimating = false; // アニメーション終了
+		// 実際に拡大を行う
+		} else {
+			chip.currentScale = EaseOutQuad(0.5f, 1.0f, chip.animationTime, expandDuration); // スケールを { 0.5f -> 1.0f } へ拡大
+			chip.object->SetScale({ chip.currentScale, chip.currentScale, chip.currentScale });
+		}
+	///
+	/// ブロックの色変更状態
+	/// 
+	} else if (chip.animState == MapChip::AnimationState::ColorChange) {
+		// 次の状態に移行
+		chip.animState = MapChip::AnimationState::Expanding;
+		chip.animationTime = 0.0f;
+	}
 }

@@ -47,6 +47,19 @@ private:
 	struct MapChip {
 		std::unique_ptr<BaseObject> object;
 		ChipType type;
+
+		///
+		/// アニメーション関連
+		/// 
+		bool isAnimating = false;
+		float animationTime = 0.0f;
+		float currentScale = 1.0f;
+		enum class AnimationState {
+			None,
+			Shrinking,
+			ColorChange,
+			Expanding
+		} animState = AnimationState::None;
 	};
 
 	// マップチップの二次元配列
@@ -72,5 +85,12 @@ private:
 	void InvertBlock(int x, int y);
 	// 指定された座標が有効範囲内か確認
 	bool IsValidPosition(int x, int y) const;
+
+	///
+	///	アニメーション関連
+	/// 
+	
+	// ブロックの色反転時に { 縮小->色反転->拡大 } を行うアニメーション
+	void UpdateChipAnimation(MapChip& chip);
 };
 

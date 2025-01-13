@@ -7,8 +7,9 @@ void Player::Init(const std::string className)
 	BaseObject::Init(className);
 	BaseObject::CreateModel("debug/Cube.obj");
 	BaseObject::CreateCollider();
+	BaseObject::SetObjColor({ 1.0f, 0.0f, 0.0f, 1.0f });
 
-	// 初期位置の設定（一旦ここで）
+	// 初期位置の設定（一旦雑にここで）
 	const int x = 1;
 	const int y = 6;
 	BaseObject::SetWorldPosition({ x * MapChipField::kChipSize, y * -MapChipField::kChipSize, 0.0f });
@@ -85,7 +86,7 @@ void Player::InvertBlocksInArea(MapChipField* mapChipField)
 				mapChipField->InvertBlocksInArea(position);
 
 				// 挟み込んだブロックの反転処理
-				mapChipField->InvertBlocksWithCapture();
+				/*mapChipField->InvertBlocksWithCapture();*/
 			}
 		}
 

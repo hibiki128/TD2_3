@@ -223,14 +223,20 @@ void MapChipField::ProcessCapture(int startX, int startY, ChipType targetType, C
 
 void MapChipField::InvertBlock(int x, int y)
 {
+	// 有効範囲内のブロックのみ
 	if (IsValidPosition(x, y)) {
 		MapChip& chip = mapChips_[y][x];
-		if (chip.type == ChipType::Black) {
-			chip.type = ChipType::White;
-			chip.object->SetObjColor({ 1.0f, 1.0f, 1.0f, 1.0f });
-		} else if (chip.type == ChipType::White) {
-			chip.type = ChipType::Black;
-			chip.object->SetObjColor({ 0.0f, 0.0f, 0.0f, 1.0f });
+
+		// 動かないブロックの場合はスキップ
+		if (chip.type == ChipType::Gray) {
+			return;
+		}
+
+		if (!chip.isAnimating && chip.type != ChipType::Empty) {
+			// アニメーションを開始
+			chip.isAnimating = true;
+			chip.animState = MapChip::AnimationState::Shrinking;
+			chip.animationTime = 0.0f;
 		}
 	}
 }
@@ -242,6 +248,13 @@ bool MapChipField::IsValidPosition(int x, int y) const
 
 void MapChipField::UpdateChipAnimation(MapChip& chip)
 {
+	// 動かないブロックの場合はスキップ
+	if (chip.type == ChipType::Gray) {
+		chip.isAnimating = false; // 念のためアニメーション状態のリセット
+		chip.animState = MapChip::AnimationState::None;
+		return;
+	}
+
 	constexpr float shrinkDuration = 0.2f; // 縮小時間
 	constexpr float expandDuration = 0.2f; // 拡大時間
 

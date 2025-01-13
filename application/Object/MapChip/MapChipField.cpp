@@ -156,3 +156,78 @@ MapChipField::ChipType MapChipField::GetChipTypeFromInt(int value)
 	default: return ChipType::Empty;
 	}
 }
+
+void MapChipField::InvertBlocksWithCapture()
+{
+	// 8方向を表すオフセット（x, y）
+	const std::vector<std::pair<int, int>> directions = {
+		{0, -1}, {0, 1}, {-1, 0}, {1, 0}, // 上下左右
+		{-1, -1}, {-1, 1}, {1, -1}, {1, 1} // 斜め方向
+	};
+
+	// ステージ全体のブロックを探索
+	for (int y = 0; y < kHeight; ++y) {
+		for (int x = 0; x < kWidth; ++x) {
+			// 起点が黒ブロックの場合に白を挟み込む
+			if (mapChips_[y][x].type == ChipType::Black) {
+				ProcessCapture(x, y, ChipType::White, ChipType::Black, directions);
+			}
+			// 起点が白ブロックの場合に黒を挟み込む
+			else if (mapChips_[y][x].type == ChipType::White) {
+				ProcessCapture(x, y, ChipType::Black, ChipType::White, directions);
+			}
+		}
+	}
+}
+
+void MapChipField::ProcessCapture(int startX, int startY, ChipType targetType, ChipType ownType, const std::vector<std::pair<int, int>>& directions)
+{
+	for (const auto& dir : directions) {
+		std::vector<std::pair<int, int>> capturedBlocks;
+
+		// 現在位置から方向に沿って探索
+		int currX = startX + dir.first;
+		int currY = startY + dir.second;
+
+		while (IsValidPosition(currX, currY)) {
+			// 対象タイプのブロックが見つかれば一時的にキャプチャ
+			if (mapChips_[currY][currX].type == targetType) {
+				capturedBlocks.emplace_back(currX, currY);
+			}
+			// 自分のタイプのブロックが見つかれば挟み込み成立
+			else if (mapChips_[currY][currX].type == ownType) {
+				for (const auto& block : capturedBlocks) {
+					InvertBlock(block.first, block.second);
+				}
+				break;
+			}
+			// 空白や他のタイプのブロックの場合、挟み込み失敗
+			else {
+				break;
+			}
+
+			// 次の位置に進む
+			currX += dir.first;
+			currY += dir.second;
+		}
+	}
+}
+
+void MapChipField::InvertBlock(int x, int y)
+{
+	if (IsValidPosition(x, y)) {
+		MapChip& chip = mapChips_[y][x];
+		if (chip.type == ChipType::Black) {
+			chip.type = ChipType::White;
+			chip.object->SetObjColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+		} else if (chip.type == ChipType::White) {
+			chip.type = ChipType::Black;
+			chip.object->SetObjColor({ 0.0f, 0.0f, 0.0f, 1.0f });
+		}
+	}
+}
+
+bool MapChipField::IsValidPosition(int x, int y) const
+{
+	return x >= 0 && x < static_cast<int>(kWidth) && y >= 0 && y < static_cast<int>(kHeight);
+}

@@ -83,6 +83,9 @@ void Player::InvertBlocksInArea(MapChipField* mapChipField)
 				Vector3 position = BaseObject::GetWorldPosition();
 				// 範囲内のブロックの反転を行う
 				mapChipField->InvertBlocksInArea(position);
+
+				// 挟み込んだブロックの反転処理
+				mapChipField->InvertBlocksWithCapture();
 			}
 		}
 

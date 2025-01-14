@@ -164,6 +164,7 @@ void MapPrev::UpdateMapChipsPosition()
 
 				// 位置のみを更新し、オブジェクトの回転には影響を与えない
 				chip.object->SetWorldPosition(rotatedPos);
+
 			}
 		}
 	}

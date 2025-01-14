@@ -92,7 +92,7 @@ public:
 	/// </summary>
 	/// <param name="radius"></param>
 	void SetRadius(float radius) { radius_ = radius; }
-	void SetIsColliding(bool colliding) { wasColliding = isColliding; isColliding = colliding; }
+	void SetIsColliding(bool colliding) { isColliding = colliding; wasColliding = isColliding; }
 	void SetCollisionEnabled(bool enabled) { isCollisionEnabled_ = enabled; }
 	void SetHitColor() { color_ = { 1.0f,0.0f,0.0f,1.0f }; }
 	void SetDefaultColor() { color_ = { 1.0f,1.0f,1.0f,1.0f }; }

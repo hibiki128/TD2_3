@@ -13,7 +13,7 @@ void MyGame::Initialize()
 	sceneFactory_ = new SceneFactory();
 	// シーンマネージャに最初のシーンをセット
 	sceneManager_->SetSceneFactory(sceneFactory_);
-	sceneManager_->NextSceneReservation("GAME");
+	sceneManager_->NextSceneReservation("SELECT");
 	// -----------------------
 
 }
@@ -51,14 +51,14 @@ void MyGame::Draw()
 	}
 	sceneManager_->Draw();
 
-	spriteCommon->DrawCommonSetting();
-	sceneManager_->DrawTransition();
 
 	dxCommon->PreDraw();
 	offscreen_->SetProjection(sceneManager_->GetBaseScene()->GetViewProjection()->matProjection_);
 	offscreen_->Draw();
 	dxCommon->TransitionDepthBarrier();
 	sceneManager_->DrawForOffScreen();
+	spriteCommon->DrawCommonSetting();
+	sceneManager_->DrawTransition();
 
 #ifdef _DEBUG
 	ImGuiManager::GetInstance()->Draw();

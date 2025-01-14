@@ -4,9 +4,10 @@
 #include "Input.h"
 #include "Object3dCommon.h"
 #include "SpriteCommon.h"
+#include "Sprite.h"
 #include "ParticleCommon.h"
-#include"ViewProjection.h"
-#include"DebugCamera.h"
+#include "ViewProjection.h"
+#include "DebugCamera.h"
 
 // Application
 #include "application/Object/Player/Player.h"
@@ -70,4 +71,10 @@ private:
 	// マップチップフィールド
 	std::unique_ptr<MapChipField> mapChipField_;
 
+	///
+	///	スプライト（中間プレイ会のため一時的に）
+	/// 
+
+	// 操作説明スプライト
+	std::unique_ptr<Sprite> spriteGuide_;
 };

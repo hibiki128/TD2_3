@@ -34,6 +34,18 @@ void GameScene::Initialize()
 	mapChipField_ = std::make_unique<MapChipField>();
 	mapChipField_->Init("resources/Maps/stage1.csv");
 
+	///
+	///	スプライト初期化
+	/// 
+
+	// 操作説明スプライト
+	spriteGuide_ = std::make_unique<Sprite>();
+	spriteGuide_->Initialize(
+		"temp_guide.png", 
+		{260.0f, 660.0f}, 
+		{1.0f, 1.0f, 1.0f, 1.0f}, 
+		{0.5f, 0.5f}
+	);
 }
 
 void GameScene::Update()
@@ -58,7 +70,6 @@ void GameScene::Update()
 
 	// マップチップフィールド更新
 	mapChipField_->Update();
-
 }
 
 void GameScene::Draw()
@@ -68,6 +79,9 @@ void GameScene::Draw()
 	/// Spriteの描画準備
 	spCommon_->DrawCommonSetting();
 	//-----Spriteの描画開始-----
+
+	// 操作説明スプライトの描画
+	spriteGuide_->Draw();
 
 	//------------------------
 
@@ -151,7 +165,7 @@ void GameScene::CameraUpdate()
 
 void GameScene::ChangeScene()
 {
-	if (input_->TriggerKey(DIK_SPACE)) {
+	/*if (input_->TriggerKey(DIK_SPACE)) {
 		sceneManager_->NextSceneReservation("TITLE");
-	}
+	}*/
 }

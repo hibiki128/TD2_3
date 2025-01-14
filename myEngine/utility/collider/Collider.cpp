@@ -6,6 +6,16 @@
 int Collider::counter = -1;  // 初期値を-1に変更
 
 Collider::Collider() {
+	
+}
+
+Collider::~Collider()
+{
+	CollisionManager::RemoveCollider(this);
+	counter--;  // カウンターをデクリメント
+}
+
+void Collider::Initialize(const std::string className) {
 	CollisionManager::AddCollider(this);
 
 	counter++;
@@ -19,15 +29,6 @@ Collider::Collider() {
 	OBBOffset.scaleCenter = { 0.0f,0.0f,0.0f };
 	OBBOffset.size = { 1.0f,1.0f,1.0f };
 
-}
-
-Collider::~Collider()
-{
-	CollisionManager::RemoveCollider(this);
-	counter--;  // カウンターをデクリメント
-}
-
-void Collider::Initialize(const std::string className) {
 	className_ = className;
 	LoadFromJson();
 }

@@ -15,7 +15,7 @@ MapPrev::MapPrev()
 	: center_({
 		0.0f,
 		0.0f,
-		25.0f
+		60.0f
 		})
 {
 }
@@ -161,12 +161,15 @@ void MapPrev::UpdateMapChipsPosition()
 			if (chip.type != ChipType::Empty) {
 				Vector3 originalPos = CalculateChipPosition(x, y);
 				Vector3 rotatedPos = RotateAroundCenter(originalPos, rotationAngleY_);
+
+				// 位置のみを更新し、オブジェクトの回転には影響を与えない
 				chip.object->SetWorldPosition(rotatedPos);
-				chip.object->SetRotationY(degreesToRadians(rotationAngleY_));
 			}
 		}
 	}
 }
+
+
 
 Vector3 MapPrev::CalculateChipPosition(int x, int y)
 {

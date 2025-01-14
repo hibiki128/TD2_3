@@ -44,6 +44,7 @@ public: // メンバ関数
 	ViewProjection* GetViewProjection()override { return &vp_; }
 
 private:
+
 	void Debug();
 
 	void CameraUpdate();

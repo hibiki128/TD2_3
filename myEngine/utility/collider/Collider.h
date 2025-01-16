@@ -145,7 +145,7 @@ private:
 	bool isCollidingInCurrentFrame_ = false; // 現フレームで衝突しているか
 
 	bool isAABB = true;
-	bool isOBB = true;
-	bool isSphere = true;
+	bool isOBB = false;
+	bool isSphere = false;
 	bool isVisible = true;
 };

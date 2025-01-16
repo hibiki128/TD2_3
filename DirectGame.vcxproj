@@ -109,6 +109,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   <ItemGroup>
     <ClCompile Include="application\Enemy.cpp" />
     <ClCompile Include="application\Object\MapChip\MapChipField.cpp" />
+    <ClCompile Include="application\Object\MapChip\Block\Block.cpp" />
     <ClCompile Include="myEngine\3d\model\animation\ModelAnimation.cpp" />
     <ClCompile Include="myEngine\3d\model\animation\Bone.cpp" />
     <ClCompile Include="myEngine\3d\model\animation\Animator.cpp" />
@@ -199,6 +200,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   <ItemGroup>
     <ClInclude Include="application\Enemy.h" />
     <ClInclude Include="application\Object\MapChip\MapChipField.h" />
+    <ClInclude Include="application\Object\MapChip\Block\Block.h" />
     <ClInclude Include="myEngine\3d\model\animation\ModelAnimation.h" />
     <ClInclude Include="myEngine\3d\model\animation\Bone.h" />
     <ClInclude Include="myEngine\3d\model\animation\Animator.h" />

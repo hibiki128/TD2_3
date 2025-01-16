@@ -60,6 +60,20 @@ void MapChipField::Draw(const ViewProjection& vp)
 	}
 }
 
+std::vector<Block*> MapChipField::GetBlocks() const { 
+	std::vector<Block*> blocks; 
+
+	for (const auto& row : mapChips_) {
+		for (const auto& chip : row) {
+			if (chip.object) {
+				blocks.push_back(chip.object.get());
+			}
+		}
+	}
+
+	return blocks;
+}
+
 void MapChipField::InvertBlocksInArea(const Vector3& center)
 {
 	// 中心位置からマップ上のマス位置を計算
@@ -119,10 +133,11 @@ void MapChipField::LoadFromCSV(const std::string& filePath)
 
 			// 空白ブロックの場合にはスキップ
 			if (chip.type != ChipType::Empty) {
-				chip.object = std::make_unique<BaseObject>();
-				chip.object->Init("MapChip");
-				chip.object->SetScale({ 0.925f, 0.925f, 0.925f });
+				chip.object = std::make_unique<Block>();
+				chip.object->Init("Block");
+				chip.object->SetScale({1.0f, 1.0f, 1.0f});
 				chip.object->SetWorldPosition({ x * kChipSize, -y * kChipSize, 0.0f });
+				chip.object->CreateCollider();
 
 				// モデルと色を設定
 				switch (chip.type) {
@@ -301,7 +316,7 @@ void MapChipField::UpdateChipAnimation(MapChip& chip)
 			}
 		// 実際に収縮を行う
 		} else {
-			chip.currentScale = EaseOutQuad(0.925f, 0.5f, chip.animationTime, shrinkDuration); // スケールを { 1.0f -> 0.5f } へ縮小
+			chip.currentScale = EaseOutQuad(1.0f, 0.5f, chip.animationTime, shrinkDuration); // スケールを { 1.0f -> 0.5f } へ縮小
 			chip.object->SetScale({ chip.currentScale, chip.currentScale, chip.currentScale });
 		}
 	///
@@ -315,7 +330,7 @@ void MapChipField::UpdateChipAnimation(MapChip& chip)
 			chip.isAnimating = false; // アニメーション終了
 		// 実際に拡大を行う
 		} else {
-			chip.currentScale = EaseOutQuad(0.5f, 0.925f, chip.animationTime, expandDuration); // スケールを { 0.5f -> 1.0f } へ拡大
+			chip.currentScale = EaseOutQuad(0.5f, 1.0f, chip.animationTime, expandDuration); // スケールを { 0.5f -> 1.0f } へ拡大
 			chip.object->SetScale({ chip.currentScale, chip.currentScale, chip.currentScale });
 		}
 	///

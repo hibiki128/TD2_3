@@ -11,7 +11,7 @@ void Player::Init(const std::string className)
 
 	// 初期位置の設定（一旦雑にここで）
 	const int x = 1;
-	const int y = 6;
+	const int y = 3;
 	BaseObject::SetWorldPosition({ x * MapChipField::kChipSize, y * -MapChipField::kChipSize, 0.0f });
 }
 
@@ -26,10 +26,27 @@ void Player::Update(MapChipField* mapChipField)
 	Move();
 
 	///
-	///	範囲内のブロックを反転
+	///	重力
+	/// 
+
+	/*ApplyGravity();*/
+
+	///
+	///	衝突判定（床・壁・天井）（あとで整理）
+	/// 
+
+
+
+	///
+	///	範囲内のブロックを反転する操作
 	/// 
 	
 	InvertBlocksInArea(mapChipField);
+
+
+	#ifdef _DEBUG
+
+	#endif
 }
 
 void Player::Draw(const ViewProjection& viewProjection)
@@ -84,6 +101,16 @@ void Player::Move()
 	BaseObject::SetWorldPosition(position);
 }
 
+void Player::ApplyGravity() {
+	const float gravity = -0.01f; // 一旦適当に設定
+	velocity_.y += gravity;
+
+	// 現在位置の取得
+	Vector3 position = BaseObject::GetWorldPosition();
+	// 現在位置に速度を適用
+	BaseObject::SetWorldPositionY(position.y + velocity_.y);
+}
+
 void Player::InvertBlocksInArea(MapChipField* mapChipField)
 {
 	static bool wasRightShoulderPressed = false; // 前フレームのボタン状態を記録
@@ -126,4 +153,14 @@ void Player::InvertBlocksInArea(MapChipField* mapChipField)
 
 	// 現在の状態を記録
 	wasSpacePressed = isSpacePressed;
+}
+
+void Player::OnCollision(Collider* other) { 
+	if (Block* block = dynamic_cast<Block*>(other)) {
+		if (BaseObject::IsColliding()) {
+			ImGui::Begin("player");
+			ImGui::Text("colliding");
+			ImGui::End();
+		}
+	}
 }

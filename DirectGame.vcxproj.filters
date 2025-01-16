@@ -314,6 +314,9 @@
     <ClCompile Include="application\Object\MapChip\MapChipField.cpp">
       <Filter>ソースファイル</Filter>
     </ClCompile>
+    <ClCompile Include="application\Object\MapChip\Block\Block.cpp">
+      <Filter>ソースファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\shaders\Particle\Particle.hlsli">
@@ -554,6 +557,7 @@
     </ClInclude>
     <ClInclude Include="application\Object\Player\Player.h" />
     <ClInclude Include="application\Object\MapChip\MapChipField.h" />
+    <ClInclude Include="application\Object\MapChip\Block\Block.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Particle\Particle.PS.hlsl">

@@ -7,6 +7,7 @@
 
 // Application
 #include "application/Base/BaseObject.h"
+#include "application/Object/MapChip/Block/Block.h"
 
 class MapChipField
 {
@@ -33,6 +34,9 @@ public:
 	void Update();
 	void Draw(const ViewProjection& vp);
 
+	// 全てのブロックのBaseObjectポインタを取得
+	std::vector<Block*> GetBlocks() const;
+
 	///
 	///	ブロックの反転処理（プレイヤー側で呼び出す）
 	/// 
@@ -45,7 +49,7 @@ public:
 private:
 	// マップチップのデータ構造
 	struct MapChip {
-		std::unique_ptr<BaseObject> object;
+		std::unique_ptr<Block> object;
 		ChipType type;
 
 		///

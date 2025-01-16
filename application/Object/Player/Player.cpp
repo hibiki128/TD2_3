@@ -153,6 +153,15 @@ void Player::Jump() {
 			// 現在の状態を記録
 			wasAPressed = isAPressed;
 		}
+
+		///
+		///	Wキーを押したらジャンプ
+		/// 
+		
+		if (input_->TriggerKey(DIK_W)) {
+			isJumping_ = true;
+			velocity_.y = jumpVelocity_; // ジャンプ初速を設定
+		}
 	}
 }
 

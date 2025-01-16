@@ -1,61 +1,52 @@
 #include "Player.h"
 
-void Player::Init(const std::string className)
-{
+void Player::Init(const std::string className) {
 	input_ = Input::GetInstance();
 
 	BaseObject::Init(className);
 	BaseObject::CreateModel("debug/Cube.obj");
 	BaseObject::CreateCollider();
-	BaseObject::SetObjColor({ 1.0f, 0.0f, 0.0f, 1.0f });
+	BaseObject::SetObjColor({1.0f, 0.0f, 0.0f, 1.0f});
 
 	// 初期位置の設定（一旦雑にここで）
 	const int x = 1;
 	const int y = 3;
-	BaseObject::SetWorldPosition({ x * MapChipField::kChipSize, y * -MapChipField::kChipSize, 0.0f });
+	BaseObject::SetWorldPosition({x * MapChipField::kChipSize, y * -MapChipField::kChipSize, 0.0f});
 }
 
-void Player::Update(MapChipField* mapChipField)
-{
+void Player::Update(MapChipField* mapChipField) {
 	BaseObject::Update();
 
 	///
 	///	移動
-	/// 
-	
+	///
+
 	Move();
 
 	///
 	///	重力
-	/// 
+	///
 
 	/*ApplyGravity();*/
 
 	///
 	///	衝突判定（床・壁・天井）（あとで整理）
-	/// 
-
-
+	///
 
 	///
 	///	範囲内のブロックを反転する操作
-	/// 
-	
+	///
+
 	InvertBlocksInArea(mapChipField);
 
+#ifdef _DEBUG
 
-	#ifdef _DEBUG
-
-	#endif
+#endif
 }
 
-void Player::Draw(const ViewProjection& viewProjection)
-{
-	BaseObject::Draw(viewProjection);
-}
+void Player::Draw(const ViewProjection& viewProjection) { BaseObject::Draw(viewProjection); }
 
-void Player::Move()
-{
+void Player::Move() {
 	// 現在の位置を取得
 	Vector3 position = BaseObject::GetWorldPosition();
 	// 移動速度の設定
@@ -111,8 +102,7 @@ void Player::ApplyGravity() {
 	BaseObject::SetWorldPositionY(position.y + velocity_.y);
 }
 
-void Player::InvertBlocksInArea(MapChipField* mapChipField)
-{
+void Player::InvertBlocksInArea(MapChipField* mapChipField) {
 	static bool wasRightShoulderPressed = false; // 前フレームのボタン状態を記録
 
 	XINPUT_STATE joyState;
@@ -138,8 +128,8 @@ void Player::InvertBlocksInArea(MapChipField* mapChipField)
 
 	///
 	///	キーボード入力によるブロック反転（中間プレイ会に一時的に）
-	/// 
-	
+	///
+
 	static bool wasSpacePressed = false;
 	bool isSpacePressed = input_->TriggerKey(DIK_SPACE);
 	if (isSpacePressed && !wasSpacePressed) {
@@ -155,12 +145,10 @@ void Player::InvertBlocksInArea(MapChipField* mapChipField)
 	wasSpacePressed = isSpacePressed;
 }
 
-void Player::OnCollision(Collider* other) { 
+void Player::OnCollision(Collider* other) {
 	if (Block* block = dynamic_cast<Block*>(other)) {
-		if (BaseObject::IsColliding()) {
-			ImGui::Begin("player");
-			ImGui::Text("colliding");
-			ImGui::End();
-		}
+		ImGui::Begin("player");
+		ImGui::Text("colliding");
+		ImGui::End();
 	}
 }

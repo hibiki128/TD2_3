@@ -129,11 +129,11 @@ void CollisionManager::CheckCollisionPair(Collider* colliderA, Collider* collide
 			colliderA->OnCollisionEnter(colliderB);
 			colliderB->OnCollisionEnter(colliderA);
 		}
-		else {
+		
 			// 既に衝突している場合
 			colliderA->OnCollision(colliderB);
 			colliderB->OnCollision(colliderA);
-		}
+		
 	}
 	else {
 		// 衝突が終わった場合

@@ -363,15 +363,6 @@ Quaternion Slerp(Quaternion q0, Quaternion q1, float t)
 	}
 }
 
-Matrix4x4 MakeWorldMatrix(const Vector3& position, const Matrix4x4& rotationMatrix)
-{
-	Matrix4x4 worldMatrix = rotationMatrix;
-	worldMatrix.m[3][0] = position.x;
-	worldMatrix.m[3][1] = position.y;
-	worldMatrix.m[3][2] = position.z;
-	return worldMatrix;
-}
-
 //
 //void VectorScreenPrintf(int x, int y, const Vector3& vector, const char* label) {
 //	Novice::ScreenPrintf(x, y, "%.02f", vector.x);

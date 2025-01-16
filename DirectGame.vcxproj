@@ -107,7 +107,6 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="application\Enemy.cpp" />
     <ClCompile Include="application\Object\MapChip\MapChipField.cpp" />
     <ClCompile Include="application\SelectScene\MapPrev.cpp" />
     <ClCompile Include="myEngine\3d\model\animation\ModelAnimation.cpp" />
@@ -199,7 +198,6 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="application\Enemy.h" />
     <ClInclude Include="application\Object\MapChip\MapChipField.h" />
     <ClInclude Include="application\SelectScene\MapPrev.h" />
     <ClInclude Include="myEngine\3d\model\animation\ModelAnimation.h" />

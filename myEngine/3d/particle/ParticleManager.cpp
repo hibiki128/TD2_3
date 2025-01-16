@@ -320,13 +320,13 @@ ParticleManager::MaterialData ParticleManager::LoadMaterialTemplateFile(const st
 			std::string textureFilename;
 			s >> textureFilename;
 			// 連結してファイルパスにする
-			materialData.textureFilePath = directoryPath + "/" + textureFilename;
+			materialData.textureFilePath = textureFilename;
 		}
 	}
 
 	// テクスチャが張られていない場合の処理
 	if (materialData.textureFilePath.empty()) {
-		materialData.textureFilePath = directoryPath + "/../images/white1x1.png";
+		materialData.textureFilePath = "resources/images/debug/white1x1.png";
 	}
 
 	return materialData;

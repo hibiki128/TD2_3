@@ -70,6 +70,10 @@ public:
 	bool IsSphere() { return isSphere; }
 	bool IsAABB() { return isAABB; }
 	bool IsVisible() { return isVisible; }
+
+	void SetOBBSize(const Vector3& size) { OBBOffset.size = size; }
+	void SetSphereSize(const float& radius) { SphereOffset.radius = radius; }
+
 #pragma endregion
 
 #pragma region セッター
@@ -92,7 +96,7 @@ public:
 	/// </summary>
 	/// <param name="radius"></param>
 	void SetRadius(float radius) { radius_ = radius; }
-	void SetIsColliding(bool colliding) { isColliding = colliding; wasColliding = isColliding; }
+	void SetIsColliding(bool colliding) { isColliding = colliding;  wasColliding = isColliding; }
 	void SetCollisionEnabled(bool enabled) { isCollisionEnabled_ = enabled; }
 	void SetHitColor() { color_ = { 1.0f,0.0f,0.0f,1.0f }; }
 	void SetDefaultColor() { color_ = { 1.0f,1.0f,1.0f,1.0f }; }
@@ -144,8 +148,8 @@ private:
 	bool wasColliding = false;  // 前フレームの衝突状態
 	bool isCollidingInCurrentFrame_ = false; // 現フレームで衝突しているか
 
-	bool isAABB = true;
+	bool isAABB = false;
 	bool isOBB = true;
-	bool isSphere = true;
+	bool isSphere = false;
 	bool isVisible = true;
 };

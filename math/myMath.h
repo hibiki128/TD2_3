@@ -107,8 +107,6 @@ float degreesToRadians(float degrees);
 
 Quaternion Slerp(Quaternion q0, Quaternion q1, float t);
 
-Matrix4x4 MakeWorldMatrix(const Vector3& position, const Matrix4x4& rotationMatrix);
-
 //// デバッグ用
 //void VectorScreenPrintf(int x, int y, const Vector3& vector, const char* label);
 //void MatrixScreenPrintf(int x, int y, const Matrix4x4& matrix, const char* label);

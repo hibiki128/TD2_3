@@ -305,9 +305,6 @@
     <ClCompile Include="myEngine\3d\transform\ObjColor.cpp">
       <Filter>ソースファイル\myEngine\3d\color</Filter>
     </ClCompile>
-    <ClCompile Include="application\Enemy.cpp">
-      <Filter>ソースファイル\application</Filter>
-    </ClCompile>
     <ClCompile Include="application\Object\Player\Player.cpp">
       <Filter>ソースファイル</Filter>
     </ClCompile>
@@ -554,9 +551,6 @@
     </ClInclude>
     <ClInclude Include="myEngine\3d\transform\ObjColor.h">
       <Filter>ソースファイル\myEngine\3d\color</Filter>
-    </ClInclude>
-    <ClInclude Include="application\Enemy.h">
-      <Filter>ソースファイル\application</Filter>
     </ClInclude>
     <ClInclude Include="application\Object\Player\Player.h" />
     <ClInclude Include="application\Object\MapChip\MapChipField.h" />

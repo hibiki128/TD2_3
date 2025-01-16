@@ -34,6 +34,9 @@ public:
 	void Draw(const ViewProjection& vp);
 	void Debug();
 
+	bool GetIsSelect() { return isSelect_; }
+	void SetIsSelect(bool isSelect) { isSelect_ = isSelect; }
+
 private:
 	// マップチップのデータ構造
 	struct MapChip {
@@ -66,9 +69,26 @@ private:
 	// 中心を基準にY軸回転を行う関数を追加
 	Vector3 RotateAroundCenter(const Vector3& position, float angle);
 
+	void MapMove();
+
 	void RotationMap();
 
+	void ApproachMap();
+
+	void LeaveMap();
+
+	void DecisionMap();
 private:
-	float timer_ = 0.0f;
+
+	// -----各イージング用 T-----
+	float rotationT_ = 0.0f;
+	float approachT_ = 0.0f;
+	float leaveT_ = 0.0f;
+	float dicisionT_ = 0.0f;
+
+	// -----イージング用フラグ-----
+	bool isSelect_ = false;
+	bool isDecision = false;
+	float startAngle_;
 };
 

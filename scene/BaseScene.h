@@ -34,11 +34,10 @@ public:
 
 	virtual void SetSceneManager(SceneManager* sceneManager) { sceneManager_ = sceneManager; }
 
-	virtual ViewProjection* GetViewProjection() = 0;
+	virtual ViewProjection* GetViewProjection() = 0; 
 
 protected:
 	// シーンマネージャ
 	SceneManager* sceneManager_ = nullptr;
-
 };
 

@@ -35,6 +35,12 @@ void MapPrev::Init(const std::string& csvFilePath)
 
 	// CSVファイルからマップの読み込み
 	LoadFromCSV(csvFilePath);
+	rotationT_ = 0.0f;
+	approachT_ = 0.0f;
+	leaveT_ = 0.0f;
+	dicisionT_ = 0.0f;
+	center_.x = 0.5f;
+	center_.y = -0.75f;
 }
 
 void MapPrev::Update()
@@ -52,7 +58,8 @@ void MapPrev::Update()
 	centerObj_->SetWorldPosition({ center_.x * kChipSize, center_.y * kChipSize, center_.z });
 	centerObj_->Update();
 
-	RotationMap();
+	MapMove();
+
 	UpdateMapChipsPosition();
 }
 
@@ -62,6 +69,9 @@ void MapPrev::Debug()
 	ImGui::Begin("プレビューマップ");
 	ImGui::DragFloat3("中心点", &center_.x, 0.1f);
 	ImGui::DragFloat("回転角度", &rotationAngleY_);
+	ImGui::DragFloat("タイマー", &rotationT_, 0.1f);
+	ImGui::Checkbox("選択中", &isSelect_);
+	ImGui::Checkbox("決定", &isDecision);
 	ImGui::End();
 }
 
@@ -76,7 +86,7 @@ void MapPrev::Draw(const ViewProjection& vp)
 			}
 		}
 	}
-	centerObj_->Draw(vp);
+	//centerObj_->Draw(vp);
 }
 
 void MapPrev::LoadFromCSV(const std::string& filePath)
@@ -197,19 +207,110 @@ Vector3 MapPrev::RotateAroundCenter(const Vector3& position, float angle)
 	return { rotatedX, position.y, rotatedZ };
 }
 
-void MapPrev::RotationMap()
+void MapPrev::MapMove()
 {
-	const float startAngle = 25.0f;
-	const float endAngle = -25.0f;
-	const float easeTMax = 1.0f;
-
-	if (timer_ < easeTMax) {
-		timer_ += Frame::DeltaTime();
+	if (!isDecision) {
+		dicisionT_ = 0.0f;
+		if (isSelect_) {
+			leaveT_ = 0.0f;
+			ApproachMap();
+			if (approachT_ > 1.0f) {
+				RotationMap();
+			}
+		}
+		else {
+			approachT_ = 0.0f;
+			rotationT_ = 0.0f;
+			startAngle_ = rotationAngleY_;
+			LeaveMap();
+		}
 	}
 	else {
-		timer_ = 0.0f;
+		DecisionMap();
+	}
+}
+
+void MapPrev::RotationMap()
+{
+	const float targetAngle = 15.0f; // 目標角度
+	const float easeTMax = 1.5f;
+
+	// 初回の呼び出し時に前回の角度を開始角度として使用
+
+	static bool isReversing = false;
+
+	// タイマーを更新
+	rotationT_ += Frame::DeltaTime();
+
+	// タイマーが上限を超えたら方向を反転し、角度を切り替え
+	if (rotationT_ >= easeTMax) {
+		rotationT_ = 0.0f;  // タイマーをリセット
+		isReversing = !isReversing;  // 方向を反転
+
+		// 新しい開始角度を設定
+		startAngle_ = rotationAngleY_;
 	}
 
-	rotationAngleY_ = EaseOutQuad<float>(startAngle, endAngle, timer_, easeTMax);
+	// 終了角度を設定
+	float endAngle = isReversing ? -targetAngle : targetAngle;
+
+	// イージング関数を使用して回転角度を計算
+	rotationAngleY_ = EaseInOutQuad<float>(startAngle_, endAngle, rotationT_, easeTMax);
+}
+
+void MapPrev::ApproachMap()
+{
+	const float startPos = center_.z;
+	const float endPos = 30.0f;
+	const float easeTMax = 1.5f;
+
+	// タイマーが上限を超えないように繰り返し増減させる
+	approachT_ += Frame::DeltaTime();
+
+	// timer_がeaseTMaxを超えたら方向を反転
+	if (approachT_ >= easeTMax) {
+		approachT_ = easeTMax;
+	}
+
+	center_.z = EaseInSine<float>(startPos, endPos, approachT_, easeTMax);
+
+}
+
+void MapPrev::LeaveMap()
+{
+	const float startAngle = rotationAngleY_;
+	const float endAngle = 0.0f;
+	const float startPos = center_.z;
+	const float endPos = 60.0f;
+	const float easeTMax = 1.5f;
+
+	// タイマーが上限を超えないように繰り返し増減させる
+	leaveT_ += Frame::DeltaTime();
+
+	// timer_がeaseTMaxを超えたら方向を反転
+	if (leaveT_ >= easeTMax) {
+		leaveT_ = easeTMax;
+	}
+
+	rotationAngleY_ = EaseInSine<float>(startAngle, endAngle, leaveT_, easeTMax);
+	center_.z = EaseInSine<float>(startPos, endPos, leaveT_, easeTMax);
+
+}
+
+void MapPrev::DecisionMap()
+{
+	const float startPos = center_.z;
+	const float endPos = 0.0f;
+	const float easeTMax = 0.5f;
+	const float startAngle = rotationAngleY_;
+	const float endAngle = 0.0f;
+
+	dicisionT_ += Frame::DeltaTime();
+	if (dicisionT_ >= easeTMax) {
+		dicisionT_ = easeTMax;
+	}
+
+	rotationAngleY_ = EaseInSine<float>(startAngle, endAngle, dicisionT_, easeTMax);
+	center_.z = EaseOutQuint<float>(startPos, endPos, dicisionT_, easeTMax);
 
 }

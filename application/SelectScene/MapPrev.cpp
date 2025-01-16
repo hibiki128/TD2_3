@@ -7,6 +7,7 @@
 
 // Engine
 #include "math/Easing.h"
+#include <myEngine/Frame/Frame.h>
 
 // ブロックの大きさを定義
 const float MapPrev::kChipSize = 2.0f;
@@ -47,22 +48,20 @@ void MapPrev::Update()
 		}
 	}
 
-
 	// 中心オブジェクトの更新
 	centerObj_->SetWorldPosition({ center_.x * kChipSize, center_.y * kChipSize, center_.z });
 	centerObj_->Update();
+
+	RotationMap();
+	UpdateMapChipsPosition();
 }
 
 
 void MapPrev::Debug()
 {
 	ImGui::Begin("プレビューマップ");
-	if (ImGui::DragFloat3("中心点", &center_.x, 0.1f)) {
-		UpdateMapChipsPosition();
-	}
-	if (ImGui::DragFloat("回転角度", &rotationAngleY_)) {
-		UpdateMapChipsPosition();
-	}
+	ImGui::DragFloat3("中心点", &center_.x, 0.1f);
+	ImGui::DragFloat("回転角度", &rotationAngleY_);
 	ImGui::End();
 }
 
@@ -196,4 +195,21 @@ Vector3 MapPrev::RotateAroundCenter(const Vector3& position, float angle)
 	float rotatedZ = xOffset * sinTheta + zOffset * cosTheta + center_.z;
 
 	return { rotatedX, position.y, rotatedZ };
+}
+
+void MapPrev::RotationMap()
+{
+	const float startAngle = 25.0f;
+	const float endAngle = -25.0f;
+	const float easeTMax = 1.0f;
+
+	if (timer_ < easeTMax) {
+		timer_ += Frame::DeltaTime();
+	}
+	else {
+		timer_ = 0.0f;
+	}
+
+	rotationAngleY_ = EaseOutQuad<float>(startAngle, endAngle, timer_, easeTMax);
+
 }

@@ -48,7 +48,7 @@ private:
 	float rotationAngleY_;
 
 	std::unique_ptr<BaseObject> centerObj_;
-
+	
 private:
 	///
 	///	CSVファイルからマップチップの読み込み
@@ -66,5 +66,9 @@ private:
 	// 中心を基準にY軸回転を行う関数を追加
 	Vector3 RotateAroundCenter(const Vector3& position, float angle);
 
+	void RotationMap();
+
+private:
+	float timer_ = 0.0f;
 };
 

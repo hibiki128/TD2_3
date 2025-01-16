@@ -105,9 +105,10 @@ D3D12_GPU_DESCRIPTOR_HANDLE TextureManager::GetSrvHandleGPU(const std::string& f
 
 const DirectX::TexMetadata& TextureManager::GetMetaData(const std::string& filePath)
 {
+    std::string fullPath = ("resources/images/" + filePath);
 	// 指定されたファイルパスが存在するかチェック
-	assert(textureDatas.find(filePath) != textureDatas.end());
+	assert(textureDatas.find(fullPath) != textureDatas.end());
 
-	TextureData& textureData = textureDatas[filePath];
+	TextureData& textureData = textureDatas[fullPath];
 	return textureData.metadata;
 }

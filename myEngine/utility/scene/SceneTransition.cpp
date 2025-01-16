@@ -8,7 +8,7 @@ SceneTransition::~SceneTransition() {}
 
 void SceneTransition::Initialize() {
 	sprite_ = std::make_unique<Sprite>();
-	sprite_->Initialize("white1x1.png", { 0, 0 });
+	sprite_->Initialize("debug/white1x1.png", { 0, 0 });
 	sprite_->SetSize(Vector2(1280, 720)); // 画面全体を覆うサイズ
 	sprite_->SetColor(Vector3(0.0f, 0.0f, 0.0f)); // 黒い色
 	sprite_->SetAlpha(0.0f); // 最初は完全に透明

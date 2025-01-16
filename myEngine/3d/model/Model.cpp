@@ -136,7 +136,7 @@ ModelData Model::LoadModelFile(const std::string& directoryPath, const std::stri
 	// メッシュが存在しない場合
 	if (!scene || !scene->HasMeshes()) {
 		// デフォルトのテクスチャを設定
-		modelData.material.textureFilePath = "resources/images/white1x1.png";
+		modelData.material.textureFilePath = "resources/images/debug/white1x1.png";
 		return modelData;
 	}
 
@@ -207,12 +207,12 @@ ModelData Model::LoadModelFile(const std::string& directoryPath, const std::stri
 			aiString textureFilePath;
 			material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFilePath);
 			// std::string 型に変換し、パスを結合
-			modelData.material.textureFilePath = "resources/images/" + std::string(textureFilePath.C_Str());
+			modelData.material.textureFilePath =textureFilePath.C_Str();
 		}
 	}
 	if (modelData.material.textureFilePath.empty()) {
 		// テクスチャがない場合はデフォルトのテクスチャを設定
-		modelData.material.textureFilePath = "resources/images/white1x1.png";
+		modelData.material.textureFilePath = "debug/white1x1.png";
 	}
 	modelData.rootNode = ReadNode(scene->mRootNode);
 	return modelData;

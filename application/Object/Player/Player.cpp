@@ -12,6 +12,15 @@ void Player::Init(const std::string className) {
 	const int x = 1;
 	const int y = 3;
 	BaseObject::SetWorldPosition({x * MapChipField::kChipSize, y * -MapChipField::kChipSize, 0.0f});
+
+	///
+	///	各パラメーター初期化
+	///		
+	jumpVelocity_ = 0.3f; // ジャンプ初速
+	gravity_ = -0.01f; // 重力
+
+	// Jsonからパラメーターの読み込み
+	LoadFromJson();
 }
 
 void Player::Update(MapChipField* mapChipField) {
@@ -24,14 +33,18 @@ void Player::Update(MapChipField* mapChipField) {
 	Move();
 
 	///
-	///	重力
+	///	ジャンプ
+	/// 
+
+	Jump();
+
+	///
+	///	重力の適用とブロックへの着地
 	///
 
-	/*ApplyGravity();*/
+	ApplyGravity(mapChipField);
 
-	///
-	///	衝突判定（床・壁・天井）（あとで整理）
-	///
+
 
 	///
 	///	範囲内のブロックを反転する操作
@@ -44,7 +57,34 @@ void Player::Update(MapChipField* mapChipField) {
 #endif
 }
 
-void Player::Draw(const ViewProjection& viewProjection) { BaseObject::Draw(viewProjection); }
+void Player::Draw(const ViewProjection& viewProjection) { 
+	BaseObject::Draw(viewProjection); 
+}
+
+void Player::DebugImGui() {
+	// デフォルトデバッグ表示（トランスフォーム、コライダー）
+	BaseObject::DebugImGui(); 
+
+	// 追加分デバッグ表示
+	ImGui::Begin("player");
+	if (ImGui::BeginTabBar(className_.c_str())) {
+		if (ImGui::BeginTabItem("パラメーター調整")) {
+
+			// なんか追加する場合こっから
+			ImGui::DragFloat("ジャンプ初速", &jumpVelocity_, 0.01f);
+			ImGui::DragFloat("重力", &gravity_, 0.001f);
+
+			if (ImGui::Button("セーブ")) {
+				SaveToJson();
+				std::string message = std::format("Parameters saved.");
+				MessageBoxA(nullptr, message.c_str(), "Object", 0);
+			}
+			ImGui::EndTabItem();
+		}
+		ImGui::EndTabBar();
+	}
+	ImGui::End();
+}
 
 void Player::Move() {
 	// 現在の位置を取得
@@ -92,14 +132,69 @@ void Player::Move() {
 	BaseObject::SetWorldPosition(position);
 }
 
-void Player::ApplyGravity() {
-	const float gravity = -0.01f; // 一旦適当に設定
-	velocity_.y += gravity;
+void Player::Jump() { 
+	static bool wasAPressed = false; // 前フレームのボタン状態を記録
+	XINPUT_STATE joyState;
+
+	// ジャンプ可能かチェック
+	if (!isJumping_ && isOnGround_) {
+		///
+		///	Aボタンを押したらジャンプ
+		/// 
+		if (input_->GetJoystickState(0, joyState)) {
+			bool isAPressed = joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A;
+
+			// ボタンが押された瞬間を検出
+			if (isAPressed && !wasAPressed) {
+				isJumping_ = true;
+				velocity_.y = jumpVelocity_; // ジャンプ初速を設定
+			}
+
+			// 現在の状態を記録
+			wasAPressed = isAPressed;
+		}
+	}
+}
+
+void Player::ApplyGravity(MapChipField* mapChipField) { 
+	// Y方向速度に重力の適用
+	velocity_.y += gravity_;
 
 	// 現在位置の取得
 	Vector3 position = BaseObject::GetWorldPosition();
-	// 現在位置に速度を適用
-	BaseObject::SetWorldPositionY(position.y + velocity_.y);
+
+	// ブロックとの衝突判定
+	const auto blocks = mapChipField->GetBlocks(); // 全てのブロックを取得
+	for (const auto& block : blocks) {
+		// ブロックの位置とサイズを取得
+		Vector3 blockPosition = block->GetWorldPosition();
+		const float blockSize = MapChipField::kChipSize;
+
+		// プレイヤーがブロックの上部に接触しているか確認
+		if (position.x + kWidth / 2 > blockPosition.x - blockSize / 2 &&
+			position.x - kWidth / 2 < blockPosition.x + blockSize / 2 &&
+			position.y - kHeight / 2 <= blockPosition.y + blockSize / 2 &&
+		    position.y - kHeight / 2 > blockPosition.y) {
+
+			// ジャンプ中でない場合のみ落下を止めて位置を調整
+			if (!isJumping_) {
+				position.y = blockPosition.y + blockSize / 2 + kWidth / 2;
+				velocity_.y = 0.0f; // 落下速度をリセット
+				isOnGround_ = true; // 地面に接触している
+			}
+
+			isJumping_ = false;
+			break;
+
+		// 地面に着地していない場合
+		} else {
+			isOnGround_ = false; // 地面に接触していない
+		}
+	}
+
+	// 更新後の位置を適用
+	position.y += velocity_.y;
+	BaseObject::SetWorldPositionY(position.y);
 }
 
 void Player::InvertBlocksInArea(MapChipField* mapChipField) {
@@ -145,10 +240,33 @@ void Player::InvertBlocksInArea(MapChipField* mapChipField) {
 	wasSpacePressed = isSpacePressed;
 }
 
-void Player::OnCollision(Collider* other) {
-	if (Block* block = dynamic_cast<Block*>(other)) {
-		ImGui::Begin("player");
-		ImGui::Text("colliding");
-		ImGui::End();
+void Player::SaveToJson() {
+	json j;
+
+	// なんか追加する場合こっから
+	j["jumpVelocity"] = {jumpVelocity_};
+	j["gravity"] = {gravity_};
+
+	// ディレクトリを作成し、JSONファイルを保存
+	std::filesystem::create_directories("resources/jsons/Parameters/");
+	std::ofstream outFile("resources/jsons/Parameters/" + className_ + ".json");
+	outFile << j.dump(4);
+}
+
+void Player::LoadFromJson() {
+	std::ifstream inFile("resources/jsons/Parameters/" + className_ + ".json");
+	if (!inFile.is_open()) {
+		return; // JSONファイルがない場合は早期リターン
+	}
+
+	json j;
+	inFile >> j;
+
+	// 各種JSONから読み込み
+	if (j.contains("jumpVelocity") && j["jumpVelocity"].is_array()) {
+		jumpVelocity_ = j["jumpVelocity"][0];
+	}
+	if (j.contains("gravity") && j["gravity"].is_array()) {
+		gravity_ = j["gravity"][0];
 	}
 }

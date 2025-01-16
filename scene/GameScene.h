@@ -70,11 +70,4 @@ private:
 
 	// マップチップフィールド
 	std::unique_ptr<MapChipField> mapChipField_;
-
-	///
-	///	スプライト（中間プレイ会のため一時的に）
-	/// 
-
-	// 操作説明スプライト
-	std::unique_ptr<Sprite> spriteGuide_;
 };

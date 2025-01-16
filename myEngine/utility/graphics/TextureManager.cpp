@@ -10,7 +10,7 @@ uint32_t TextureManager::kSRVIndexTop = 1;
 void TextureManager::LoadTexture(const std::string& filePath)
 {
     // ファイル名を取り出して、resources/images/を付ける
-    std::string newFilePath = "resources/images/" + filePath.substr(filePath.find_last_of("/\\") + 1);
+    std::string newFilePath = "resources/images/" + filePath;
 
     // 読み込み済みテクスチャを検索
     if (textureDatas.contains(newFilePath)) {
@@ -81,7 +81,7 @@ void TextureManager::Finalize()
 uint32_t TextureManager::GetTextureIndexByFilePath(const std::string& filePath)
 {
     // ファイル名を取り出して、resources/images/を付ける
-    std::string newFilePath = "resources/images/" + filePath.substr(filePath.find_last_of("/\\") + 1);
+    std::string newFilePath = "resources/images/" + filePath;
 
     // unordered_mapを使って直接インデックスを取得
     auto it = textureDatas.find(newFilePath);

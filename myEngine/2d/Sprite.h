@@ -139,7 +139,7 @@ private:
 	float rotation = 0.0f;
 	Vector2 size = { 640.0f,360.0f };
 
-	std::string directoryPath_ = "resources/images";
+	//std::string directoryPath_ = "resources/images";
 	std::string fullpath;
 	Vector2 anchorPoint_ = { 0.0f,0.0f };
 

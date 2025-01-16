@@ -8,7 +8,7 @@ void Sprite::Initialize(const std::string& textureFilePath, Vector2 position, Ve
 	// 引数で受け取ってメンバ変数に記録する
 	spriteCommon_ = SpriteCommon::GetInstance();
 
-	fullpath = directoryPath_ + "/" + textureFilePath;
+	fullpath = textureFilePath;
 
 	TextureManager::GetInstance()->LoadTexture(fullpath);
 
@@ -110,7 +110,7 @@ void Sprite::Draw()
 
 void Sprite::SetTexturePath(std::string textureFilePath)
 {
-	fullpath = directoryPath_ + "/" + textureFilePath;
+	fullpath =  textureFilePath;
 	TextureManager::GetInstance()->GetTextureIndexByFilePath(fullpath);
 
 }

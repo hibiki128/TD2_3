@@ -180,10 +180,15 @@ void Framework::Update()
 
 void Framework::LoadResource()
 {
+	// モデル読み込み
+	modelManager_->LoadModel("debug/cube.obj");
 	
+	// テクスチャ読み込み
+	textureManager_->LoadTexture("debug/uvChecker.png");
 }
 
-void  Framework::PlaySounds() {
+void  Framework::PlaySounds() 
+{
 	
 }
 

@@ -46,6 +46,10 @@ private:
 
 	void ChangeScene();
 
+	void MapLoad();
+
+	void MapSelect();
+
 private:
 	Audio* audio_;
 	Input* input_;
@@ -57,5 +61,8 @@ private:
 	std::unique_ptr<DebugCamera> debugCamera_;
 
 	// マップチップフィールド
-	std::unique_ptr<MapPrev> mapPrev_;
+	std::vector<std::unique_ptr<MapPrev>> mapPrevs_;
+
+	int stageNum = 3;
+	int currentStage = 0;
 };

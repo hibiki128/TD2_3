@@ -32,10 +32,11 @@ public:
 	void Init(const std::string& csvFilePath);
 	void Update();
 	void Draw(const ViewProjection& vp);
-	void Debug();
+	void Debug(std::string& name);
 
 	bool GetIsSelect() { return isSelect_; }
 	void SetIsSelect(bool isSelect) { isSelect_ = isSelect; }
+	void SetPosition(const Vector3 position) { center_ = position; }
 
 private:
 	// マップチップのデータ構造

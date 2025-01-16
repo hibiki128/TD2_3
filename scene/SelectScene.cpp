@@ -22,8 +22,10 @@ void SelectScene::Initialize()
 	debugCamera_ = std::make_unique<DebugCamera>();
 	debugCamera_->Initialize(&vp_);
 
-	mapPrev_ = std::make_unique<MapPrev>();
-	mapPrev_->Init("resources/Maps/stage1.csv");
+	MapLoad();
+
+	/*mapPrevs_ = std::make_unique<MapPrev>();
+	mapPrevs_->Init("resources/Maps/stage1.csv");*/
 }
 
 void SelectScene::Finalize()
@@ -47,9 +49,11 @@ void SelectScene::Update()
 	///
 	///	各オブジェクト更新
 	/// 
-
+	MapSelect();
 	// マップチップフィールド更新
-	mapPrev_->Update();
+	for (auto& mapPrev : mapPrevs_) {
+		mapPrev->Update();
+	}
 }
 
 void SelectScene::Draw()
@@ -70,14 +74,16 @@ void SelectScene::Draw()
 	/// 
 
 	// マップチップフィールド描画
-	mapPrev_->Draw(vp_);
+	for (auto& mapPrev : mapPrevs_) {
+		mapPrev->Draw(vp_);
+	}
 
 	//--------------------------
 
 	/// Particleの描画準備
 	ptCommon_->DrawCommonSetting();
 	//------Particleの描画開始-------
-	
+
 	//-----------------------------
 
 	//-----線描画-----
@@ -101,7 +107,7 @@ void SelectScene::DrawForOffScreen()
 
 	objCommon_->DrawCommonSetting();
 	//-----3DObjectの描画開始-----
-	
+
 	//--------------------------
 
 	/// Particleの描画準備
@@ -122,8 +128,15 @@ void SelectScene::Debug()
 	ImGui::Begin("SelectScene:Debug");
 	debugCamera_->imgui();
 	LightGroup::GetInstance()->imgui();
+	ImGui::Text("CurrentStage %d", currentStage);
 	ImGui::End();
-	mapPrev_->Debug();
+
+	int index = 1;
+	for (auto& mapPrev : mapPrevs_) {
+		std::string name = "マッププレビュー " + std::to_string(index);
+		mapPrev->Debug(name);
+		++index;
+	}
 }
 
 void SelectScene::CameraUpdate()
@@ -140,5 +153,38 @@ void SelectScene::ChangeScene()
 {
 	if (input_->TriggerKey(DIK_SPACE)) {
 		sceneManager_->NextSceneReservation("GAME");
+	}
+}
+
+void SelectScene::MapLoad()
+{
+	const Vector3 Space = { 25.0f,0.0f,0.0f };
+	for (int i = 0; i < stageNum; i++) {
+		std::unique_ptr<MapPrev>mapPrev;
+		mapPrev = std::make_unique<MapPrev>();
+		mapPrev->Init("resources/Maps/stage1.csv");
+		mapPrev->SetPosition(Space * i);
+		mapPrevs_.push_back(std::move(mapPrev));
+	}
+}
+
+void SelectScene::MapSelect()
+{
+	for (size_t i = 0; i < mapPrevs_.size(); ++i) {
+		mapPrevs_[i]->SetIsSelect(false);
+	}
+
+	mapPrevs_[currentStage]->SetIsSelect(true);
+	if (input_->TriggerKey(DIK_RIGHT)) {
+		currentStage++;
+	}
+	if (input_->TriggerKey(DIK_LEFT)) {
+		currentStage--;
+	}
+	if (currentStage >= stageNum) {
+		currentStage = 0;
+	}
+	else if (currentStage < 0) {
+		currentStage = stageNum - 1;
 	}
 }

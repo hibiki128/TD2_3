@@ -28,7 +28,7 @@ void MapPrev::Init(const std::string& csvFilePath)
 	for (int y = 0; y < kHeight; ++y) {
 		mapChips_[y].resize(kWidth);
 	}
-
+	
 	centerObj_ = std::make_unique<BaseObject>();
 	centerObj_->Init("center");
 	centerObj_->CreateModel("debug/sphere.obj");
@@ -64,9 +64,9 @@ void MapPrev::Update()
 }
 
 
-void MapPrev::Debug()
+void MapPrev::Debug(std::string& name)
 {
-	ImGui::Begin("プレビューマップ");
+	ImGui::Begin(name.c_str());
 	ImGui::DragFloat3("中心点", &center_.x, 0.1f);
 	ImGui::DragFloat("回転角度", &rotationAngleY_);
 	ImGui::DragFloat("タイマー", &rotationT_, 0.1f);

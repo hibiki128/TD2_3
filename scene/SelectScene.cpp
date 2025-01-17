@@ -26,8 +26,8 @@ void SelectScene::Initialize()
 
 	MapLoad();
 
-	/*mapPrevs_ = std::make_unique<MapPrev>();
-	mapPrevs_->Init("resources/Maps/stage1.csv");*/
+	startPos = 0.0f;
+	endPos = 0.0f;
 }
 
 void SelectScene::Finalize()
@@ -52,7 +52,7 @@ void SelectScene::Update()
 	///	各オブジェクト更新
 	/// 
 	MapSelect();
-	//CameraMove();
+	CameraMove();
 	// マップチップフィールド更新
 	for (auto& mapPrev : mapPrevs_) {
 		mapPrev->Update();
@@ -222,32 +222,31 @@ void SelectScene::MapSelect()
 
 void SelectScene::CameraMove()
 {
-	// カメラの現在の位置
-	float startPos = vp_.translation_.x;
-	float endPos = startPos;  // 初期値として移動しない
-
 	const float easeTMax = 0.5f;  // イージングの最大時間（スムーズさを調整）
 
 	// 右キーが押されたとき
 	if (input_->TriggerKey(DIK_RIGHT) && !isMoveCamera_) {
-		endPos = vp_.translation_.x + 50.0f;  // 右に50単位移動
-		isMoveCamera_ = true;  // 移動フラグをオン
-		cameraT_ = 0.0f;  // イージングタイマーをリセット
+		startPos = vp_.translation_.x;
+		endPos = currentStage * 50.0f;
+		cameraT_ = 0.0f;
+		isMoveCamera_ = true;
 	}
 	// 左キーが押されたとき
 	if (input_->TriggerKey(DIK_LEFT) && !isMoveCamera_) {
-		endPos = vp_.translation_.x - 50.0f;  // 左に50単位移動
-		isMoveCamera_ = true;  // 移動フラグをオン
-		cameraT_ = 0.0f;  // イージングタイマーをリセット
+		startPos = vp_.translation_.x;
+		endPos = currentStage * 50.0f;
+		cameraT_ = 0.0f;
+		isMoveCamera_ = true;
 	}
+
+	vp_.translation_.x = EaseInSine<float>(startPos, endPos, cameraT_, easeTMax);
 
 	// イージングによる補間
 	if (isMoveCamera_) {
-		cameraT_ += Frame::DeltaTime();  // タイマー更新
+		cameraT_ += Frame::DeltaTime();
 		if (cameraT_ >= easeTMax) {
-			cameraT_ = easeTMax;  // タイマーが最大を超えないように
-			isMoveCamera_ = false;  // 移動完了後、移動フラグをオフ
+			cameraT_ = easeTMax;
+			isMoveCamera_ = false;
 		}
-		vp_.translation_.x = EaseInSine(startPos, endPos, cameraT_, easeTMax);  // イージングで位置を補間
 	}
 }

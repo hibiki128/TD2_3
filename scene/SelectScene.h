@@ -67,6 +67,8 @@ private:
 
 	int stageNum = 3;
 	int currentStage = 0;
-	float cameraT_ = 0;
+	float cameraT_ = 0.0f;
 	bool isMoveCamera_ = false;
+	float startPos = 0.0f;
+	float endPos = 0.0f;
 };

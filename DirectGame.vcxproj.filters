@@ -317,6 +317,9 @@
     <ClCompile Include="application\SelectScene\MapPrev.cpp">
       <Filter>ソースファイル</Filter>
     </ClCompile>
+    <ClCompile Include="application\Pause\Pause.cpp">
+      <Filter>ソースファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\shaders\Particle\Particle.hlsli">
@@ -558,6 +561,7 @@
       <Filter>ソースファイル\scene</Filter>
     </ClInclude>
     <ClInclude Include="application\SelectScene\MapPrev.h" />
+    <ClInclude Include="application\Pause\Pause.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Particle\Particle.PS.hlsl">

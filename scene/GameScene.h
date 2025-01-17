@@ -12,6 +12,7 @@
 // Application
 #include "application/Object/Player/Player.h"
 #include "application/Object/MapChip/MapChipField.h"
+#include"application/Pause/Pause.h"
 
 class GameScene : public BaseScene
 {
@@ -70,6 +71,9 @@ private:
 
 	// マップチップフィールド
 	std::unique_ptr<MapChipField> mapChipField_;
+
+	// ポーズ
+	std::unique_ptr<Pause> pause_;
 
 	///
 	///	スプライト（中間プレイ会のため一時的に）

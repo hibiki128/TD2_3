@@ -34,6 +34,10 @@ void GameScene::Initialize()
 	mapChipField_ = std::make_unique<MapChipField>();
 	mapChipField_->Init("resources/Maps/stage1.csv");
 
+	// ポーズ
+	pause_ = std::make_unique<Pause>();
+	pause_->Init();
+
 	///
 	///	スプライト初期化
 	/// 
@@ -70,6 +74,9 @@ void GameScene::Update()
 
 	// マップチップフィールド更新
 	mapChipField_->Update();
+
+	// ポーズ更新
+	pause_->Update();
 }
 
 void GameScene::Draw()
@@ -105,6 +112,9 @@ void GameScene::Draw()
 	//------Particleの描画開始-------
 
 	//-----------------------------
+
+	// ポーズ描画
+	pause_->Draw();
 
 	//-----線描画-----
 	DrawLine3D::GetInstance()->Draw(vp_);

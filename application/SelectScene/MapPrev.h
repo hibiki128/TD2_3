@@ -35,8 +35,11 @@ public:
 	void Debug(std::string& name);
 
 	bool GetIsSelect() { return isSelect_; }
+	bool GetDecision() { return isDecision_; }
 	void SetIsSelect(bool isSelect) { isSelect_ = isSelect; }
+	void SetDecision(bool isDecision) { isDecision_ = isDecision; }
 	void SetPosition(const Vector3 position) { center_ = position; }
+	bool IsFinish() { return isFinish_; }
 
 private:
 	// マップチップのデータ構造
@@ -79,6 +82,8 @@ private:
 	void LeaveMap();
 
 	void DecisionMap();
+
+	void FinishScene();
 private:
 
 	// -----各イージング用 T-----
@@ -89,7 +94,10 @@ private:
 
 	// -----イージング用フラグ-----
 	bool isSelect_ = false;
-	bool isDecision = false;
+	bool isDecision_ = false;
 	float startAngle_;
+
+	bool isFinish_ = false;
+	float finishT_ = 0.0f;
 };
 

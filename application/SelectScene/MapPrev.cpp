@@ -28,7 +28,7 @@ void MapPrev::Init(const std::string& csvFilePath)
 	for (int y = 0; y < kHeight; ++y) {
 		mapChips_[y].resize(kWidth);
 	}
-	
+
 	centerObj_ = std::make_unique<BaseObject>();
 	centerObj_->Init("center");
 	centerObj_->CreateModel("debug/sphere.obj");
@@ -41,6 +41,8 @@ void MapPrev::Init(const std::string& csvFilePath)
 	dicisionT_ = 0.0f;
 	center_.x = 0.5f;
 	center_.y = -0.75f;
+	finishT_ = 0.0f;
+	isFinish_ = false;
 }
 
 void MapPrev::Update()
@@ -61,6 +63,8 @@ void MapPrev::Update()
 	MapMove();
 
 	UpdateMapChipsPosition();
+
+	FinishScene();
 }
 
 
@@ -71,7 +75,7 @@ void MapPrev::Debug(std::string& name)
 	ImGui::DragFloat("回転角度", &rotationAngleY_);
 	ImGui::DragFloat("タイマー", &rotationT_, 0.1f);
 	ImGui::Checkbox("選択中", &isSelect_);
-	ImGui::Checkbox("決定", &isDecision);
+	ImGui::Checkbox("決定", &isDecision_);
 	ImGui::End();
 }
 
@@ -209,7 +213,7 @@ Vector3 MapPrev::RotateAroundCenter(const Vector3& position, float angle)
 
 void MapPrev::MapMove()
 {
-	if (!isDecision) {
+	if (!isDecision_) {
 		dicisionT_ = 0.0f;
 		if (isSelect_) {
 			leaveT_ = 0.0f;
@@ -313,4 +317,14 @@ void MapPrev::DecisionMap()
 	rotationAngleY_ = EaseInSine<float>(startAngle, endAngle, dicisionT_, easeTMax);
 	center_.z = EaseOutQuint<float>(startPos, endPos, dicisionT_, easeTMax);
 
+}
+
+void MapPrev::FinishScene()
+{
+	if (isDecision_) {
+		finishT_ += Frame::DeltaTime();
+		if (finishT_ > 1.0f) {
+			isFinish_ = true;
+		}
+	}
 }

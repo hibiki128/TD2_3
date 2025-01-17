@@ -50,6 +50,8 @@ private:
 
 	void MapSelect();
 
+	void CameraMove();
+
 private:
 	Audio* audio_;
 	Input* input_;
@@ -65,4 +67,6 @@ private:
 
 	int stageNum = 3;
 	int currentStage = 0;
+	float cameraT_ = 0;
+	bool isMoveCamera_ = false;
 };

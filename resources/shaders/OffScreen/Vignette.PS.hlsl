@@ -25,7 +25,6 @@ PixelShaderOutput main(VertexShaderOutput input)
     output.color = gTexture.Sample(gSampler, input.texcoord);
     
     // テクスチャ座標から計算してvignette効果を強調
-    // テクスチャ座標が(0, 0)から(1, 1)に正規化されているので、それに基づいて周囲から中心に向けて減衰
     float2 center = vignetteCenter; // 画面の中心を基準に計算
     float2 offset = input.texcoord - center;
 
@@ -41,6 +40,19 @@ PixelShaderOutput main(VertexShaderOutput input)
 
     // vignette効果をカラーに適用
     output.color.rgb *= vignette;
+
+    // セピア調に変換 (明るさを強調した色調に調整)
+    float value = dot(output.color.rgb, float3(0.2125f, 0.7154f, 0.0721f));
+    float3 sepia = value * float3(1.2f, 1.0f, 0.6f); // 赤みを強調して褐色を強化
+
+    // セピア調を強調した色を適用（明るさも強化）
+    output.color.rgb = sepia * 1.4f; // 明るさを少し強調
+
+    // 色の区別を保ちつつビネット効果を反映
+    output.color.rgb *= vignette;
+
+    // 透明度を上げる（完全不透明にする）
+    output.color.a = 0.1f; // 完全不透明
 
     return output;
 }

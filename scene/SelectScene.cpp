@@ -8,6 +8,8 @@
 #endif // _DEBUG
 #include <LightGroup.h>
 #include"line/DrawLine3D.h"
+#include <myEngine/Frame/Frame.h>
+#include"math/Easing.h"
 
 void SelectScene::Initialize()
 {
@@ -50,6 +52,7 @@ void SelectScene::Update()
 	///	各オブジェクト更新
 	/// 
 	MapSelect();
+	//CameraMove();
 	// マップチップフィールド更新
 	for (auto& mapPrev : mapPrevs_) {
 		mapPrev->Update();
@@ -129,6 +132,9 @@ void SelectScene::Debug()
 	debugCamera_->imgui();
 	LightGroup::GetInstance()->imgui();
 	ImGui::Text("CurrentStage %d", currentStage);
+	ImGui::DragFloat3("カメラ位置", &vp_.translation_.x, 0.1f);
+	ImGui::DragFloat("タイマー", &cameraT_, 0.1f);
+	ImGui::Checkbox("カメラ動いてるか", &isMoveCamera_);
 	ImGui::End();
 
 	int index = 1;
@@ -151,8 +157,10 @@ void SelectScene::CameraUpdate()
 
 void SelectScene::ChangeScene()
 {
-	if (input_->TriggerKey(DIK_SPACE)) {
-		sceneManager_->NextSceneReservation("GAME");
+	for (auto& mapPrev : mapPrevs_) {
+		if (mapPrev->IsFinish()) {
+			sceneManager_->NextSceneReservation("GAME");
+		}
 	}
 }
 
@@ -170,21 +178,76 @@ void SelectScene::MapLoad()
 
 void SelectScene::MapSelect()
 {
-	for (size_t i = 0; i < mapPrevs_.size(); ++i) {
-		mapPrevs_[i]->SetIsSelect(false);
+	// いずれかの mapPrevs_ の GetDecision() が true かを確認
+	bool anyDecisionMade = false;
+	for (const auto& mapPrev : mapPrevs_) {
+		if (mapPrev->GetDecision()) {
+			anyDecisionMade = true;
+			break;
+		}
 	}
 
-	mapPrevs_[currentStage]->SetIsSelect(true);
-	if (input_->TriggerKey(DIK_RIGHT)) {
-		currentStage++;
+	// anyDecisionMade が true の場合はスペースキー処理以外をスキップ
+	if (!anyDecisionMade) {
+		// すべての mapPrevs_ の選択状態を false に設定
+		for (size_t i = 0; i < mapPrevs_.size(); ++i) {
+			mapPrevs_[i]->SetIsSelect(false);
+		}
+
+		// currentStage のみ選択状態を true に設定
+		mapPrevs_[currentStage]->SetIsSelect(true);
+
+		// キー入力に応じて currentStage を変更
+		if (input_->TriggerKey(DIK_RIGHT) && !isMoveCamera_) {
+			currentStage++;
+		}
+		if (input_->TriggerKey(DIK_LEFT) && !isMoveCamera_) {
+			currentStage--;
+		}
+
+		// currentStage が範囲外にならないように制限
+		if (currentStage >= stageNum) {
+			currentStage = 0; // 末尾を超えたら最初に戻る
+		}
+		else if (currentStage < 0) {
+			currentStage = stageNum - 1; // 先頭を超えたら末尾に戻る
+		}
 	}
-	if (input_->TriggerKey(DIK_LEFT)) {
-		currentStage--;
+
+	// DIK_SPACE 入力処理（いつでも可能）
+	if (input_->TriggerKey(DIK_SPACE)) {
+		mapPrevs_[currentStage]->SetDecision(true);
 	}
-	if (currentStage >= stageNum) {
-		currentStage = 0;
+}
+
+void SelectScene::CameraMove()
+{
+	// カメラの現在の位置
+	float startPos = vp_.translation_.x;
+	float endPos = startPos;  // 初期値として移動しない
+
+	const float easeTMax = 0.5f;  // イージングの最大時間（スムーズさを調整）
+
+	// 右キーが押されたとき
+	if (input_->TriggerKey(DIK_RIGHT) && !isMoveCamera_) {
+		endPos = vp_.translation_.x + 50.0f;  // 右に50単位移動
+		isMoveCamera_ = true;  // 移動フラグをオン
+		cameraT_ = 0.0f;  // イージングタイマーをリセット
 	}
-	else if (currentStage < 0) {
-		currentStage = stageNum - 1;
+	// 左キーが押されたとき
+	if (input_->TriggerKey(DIK_LEFT) && !isMoveCamera_) {
+		endPos = vp_.translation_.x - 50.0f;  // 左に50単位移動
+		isMoveCamera_ = true;  // 移動フラグをオン
+		cameraT_ = 0.0f;  // イージングタイマーをリセット
+	}
+
+	// イージングによる補間
+	if (isMoveCamera_) {
+		cameraT_ += Frame::DeltaTime();  // タイマー更新
+		if (cameraT_ >= easeTMax) {
+			cameraT_ = easeTMax;  // タイマーが最大を超えないように
+			isMoveCamera_ = false;  // 移動完了後、移動フラグをオフ
+		}
+		vp_.translation_.x = EaseInSine(startPos, endPos, cameraT_, easeTMax);  // イージングで位置を補間
 	}
 }

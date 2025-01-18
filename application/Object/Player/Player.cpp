@@ -10,7 +10,7 @@ void Player::Init(const std::string className) {
 	BaseObject::SetObjColor({1.0f, 0.0f, 0.0f, 1.0f});
 
 	// 初期位置の設定（一旦雑にここで）
-	const int x = 1;
+	const int x = 6;
 	const int y = 4;
 	BaseObject::SetWorldPosition({x * MapChipField::kChipSize, y * -MapChipField::kChipSize, 0.0f});
 
@@ -27,7 +27,18 @@ void Player::Init(const std::string className) {
 
 void Player::Update(MapChipField* mapChipField) {
 	BaseObject::Update();
+
+	///
+	///	毎フレーム初期化処理
+	/// 
+
 	mapChipField_ = mapChipField;
+
+	if (collisionMapInfo_.hittingGround_) {
+		velocity_.y = 0.0f;
+	} else if (collisionMapInfo_.hittingCeiling_) {
+		velocity_.y = 0.0f;
+	}
 
 	///
 	///	入力操作
@@ -36,53 +47,16 @@ void Player::Update(MapChipField* mapChipField) {
 	HandleInput();
 
 	///
-	///	全てのブロックとの衝突判定
+	///	重力を常に受ける
+	///		
+
+	velocity_.y += gravityAcceleration_;
+
+	///
+	///	全てのブロックとの衝突判定とプレイヤーの押し戻し
 	/// 
 	
-	/// X移動
-	BaseObject::transform_.translation_.x += velocity_.x;
-
-	/// 衝突判定
-	CollisionMapInfo collisionMapInfoX = GetMapCollisionInfo();
-
-	/// 押し戻し
-	if (collisionMapInfoX.hittingLeft_) {
-		Vector3 blockPosition = collisionMapInfoX.blockX->GetWorldPosition();
-		float blockRight = blockPosition.x + MapChipField::kChipSize / 2;
-		BaseObject::transform_.translation_.x = blockRight + kWidth / 2 + kBlank; // 左側に衝突した場合、右に押し戻し
-	} else if (collisionMapInfoX.hittingRight_){
-		Vector3 blockPosition = collisionMapInfoX.blockX->GetWorldPosition();
-		float blockLeft = blockPosition.x - MapChipField::kChipSize / 2;
-		BaseObject::transform_.translation_.x = blockLeft - kWidth / 2 - kBlank; // 右側に衝突した場合、左に押し戻し
-	}
-
-	/// Y移動
-	BaseObject::transform_.translation_.y += velocity_.y;
-
-	/// 衝突判定
-	CollisionMapInfo collisionMapInfoY = GetMapCollisionInfo();
-
-	/// 押し戻し
-	if (collisionMapInfoY.hittingGround_) {
-		Vector3 blockPosition = collisionMapInfoY.blockY->GetWorldPosition();
-		float blockBottom = blockPosition.y + MapChipField::kChipSize / 2;
-		BaseObject::transform_.translation_.y = blockBottom + kHeight / 2 + kBlank; // 地面の位置に押し戻し
-	} else if (collisionMapInfoY.hittingCeiling_) {
-		Vector3 blockPosition = collisionMapInfoY.blockY->GetWorldPosition();
-		float blockTop = blockPosition.y - MapChipField::kChipSize / 2;
-		BaseObject::transform_.translation_.y = blockTop - kHeight / 2 - kBlank; // 天井の位置に押し戻し
-	}
-
-	/// プレイヤーの衝突判定を格納
-	collisionMapInfo_.hittingGround_ = collisionMapInfoY.hittingGround_;
-	collisionMapInfo_.hittingCeiling_ = collisionMapInfoY.hittingCeiling_;
-
-	collisionMapInfo_.hittingLeft_ = collisionMapInfoX.hittingLeft_;
-	collisionMapInfo_.hittingRight_ = collisionMapInfoX.hittingRight_;
-
-	/// 速度リセット
-	velocity_.x = 0.0f;
-	velocity_.y = 0.0f;
+	CheckCollisionAndResolve();
 
 #ifdef _DEBUG
 	ImGui::Begin("player");
@@ -145,18 +119,16 @@ void Player::HandleInput()
 		velocity_.x = kMoveSpeed;
 	}
 
-	if (input_->PushKey(DIK_W)) {
-		velocity_.y = kMoveSpeed;
-	}
-	if (input_->PushKey(DIK_S)) {
-		velocity_.y = -kMoveSpeed;
-	}
-
 	///
 	///	ジャンプ入力
 	/// 
 	
-
+	if (input_->TriggerKey(DIK_W)) {
+		// 地面にいる場合のみ
+		if (collisionMapInfo_.hittingGround_) {
+			velocity_.y = jumpAcceleration; // 上昇開始
+		}
+	}
 
 	///
 	///	範囲内のブロック反転入力
@@ -171,6 +143,54 @@ void Player::HandleInput()
 		}
 	}
 #pragma endregion
+}
+
+void Player::CheckCollisionAndResolve()
+{
+	/// X移動
+	BaseObject::transform_.translation_.x += velocity_.x;
+
+	/// 衝突判定
+	CollisionMapInfo collisionMapInfoX = GetMapCollisionInfo();
+
+	/// 押し戻し
+	if (collisionMapInfoX.hittingLeft_) {
+		Vector3 blockPosition = collisionMapInfoX.blockX->GetWorldPosition();
+		float blockRight = blockPosition.x + MapChipField::kChipSize / 2;
+		BaseObject::transform_.translation_.x = blockRight + kWidth / 2 + kBlank; // 左側に衝突した場合、右に押し戻し
+	} else if (collisionMapInfoX.hittingRight_) {
+		Vector3 blockPosition = collisionMapInfoX.blockX->GetWorldPosition();
+		float blockLeft = blockPosition.x - MapChipField::kChipSize / 2;
+		BaseObject::transform_.translation_.x = blockLeft - kWidth / 2 - kBlank; // 右側に衝突した場合、左に押し戻し
+	}
+
+	/// Y移動
+	BaseObject::transform_.translation_.y += velocity_.y;
+
+	/// 衝突判定
+	CollisionMapInfo collisionMapInfoY = GetMapCollisionInfo();
+
+	/// 押し戻し
+	if (collisionMapInfoY.hittingGround_) {
+		Vector3 blockPosition = collisionMapInfoY.blockY->GetWorldPosition();
+		float blockBottom = blockPosition.y + MapChipField::kChipSize / 2;
+		BaseObject::transform_.translation_.y = blockBottom + kHeight / 2 + kBlank; // 地面の位置に押し戻し
+	} else if (collisionMapInfoY.hittingCeiling_) {
+		Vector3 blockPosition = collisionMapInfoY.blockY->GetWorldPosition();
+		float blockTop = blockPosition.y - MapChipField::kChipSize / 2;
+		BaseObject::transform_.translation_.y = blockTop - kHeight / 2 - kBlank; // 天井の位置に押し戻し
+	}
+
+	/// 衝突判定を格納
+	collisionMapInfo_.hittingGround_ = collisionMapInfoY.hittingGround_;
+	collisionMapInfo_.hittingCeiling_ = collisionMapInfoY.hittingCeiling_;
+
+	collisionMapInfo_.hittingLeft_ = collisionMapInfoX.hittingLeft_;
+	collisionMapInfo_.hittingRight_ = collisionMapInfoX.hittingRight_;
+
+	/// 速度リセット
+	velocity_.x = 0.0f;
+	/*velocity_.y = 0.0f;*/
 }
 
  Player::CollisionMapInfo Player::GetMapCollisionInfo()

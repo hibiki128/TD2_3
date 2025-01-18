@@ -1,8 +1,8 @@
 {
-    "gravity": [
-        -0.014999999664723873
+    "gravityAcceleration": [
+        -0.009999999776482582
     ],
-    "jumpVelocity": [
+    "jumpAcceleration": [
         0.30000001192092896
     ]
 }

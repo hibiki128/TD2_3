@@ -1,3 +1,4 @@
+#define NOMINMAX
 #include "Player.h"
 
 void Player::Init(const std::string className) {
@@ -10,14 +11,15 @@ void Player::Init(const std::string className) {
 
 	// 初期位置の設定（一旦雑にここで）
 	const int x = 1;
-	const int y = 3;
+	const int y = 4;
 	BaseObject::SetWorldPosition({x * MapChipField::kChipSize, y * -MapChipField::kChipSize, 0.0f});
 
 	///
 	///	各パラメーター初期化
 	///		
-	jumpVelocity_ = 0.3f; // ジャンプ初速
-	gravity_ = -0.01f; // 重力
+	
+	gravityAcceleration_ = -0.01f; // 重力
+	jumpAcceleration = 0.3f; // ジャンプ初速
 
 	// Jsonからパラメーターの読み込み
 	LoadFromJson();
@@ -25,35 +27,74 @@ void Player::Init(const std::string className) {
 
 void Player::Update(MapChipField* mapChipField) {
 	BaseObject::Update();
+	mapChipField_ = mapChipField;
 
 	///
-	///	移動
-	///
-
-	Move();
-
-	///
-	///	ジャンプ
+	///	入力操作
 	/// 
 
-	Jump();
+	HandleInput();
 
 	///
-	///	重力の適用とブロックへの着地
-	///
+	///	全てのブロックとの衝突判定
+	/// 
+	
+	/// X移動
+	BaseObject::transform_.translation_.x += velocity_.x;
 
-	ApplyGravity(mapChipField);
+	/// 衝突判定
+	CollisionMapInfo collisionMapInfoX = GetMapCollisionInfo();
 
+	/// 押し戻し
+	if (collisionMapInfoX.hittingLeft_) {
+		Vector3 blockPosition = collisionMapInfoX.blockX->GetWorldPosition();
+		float blockRight = blockPosition.x + MapChipField::kChipSize / 2;
+		BaseObject::transform_.translation_.x = blockRight + kWidth / 2 + kBlank; // 左側に衝突した場合、右に押し戻し
+	} else if (collisionMapInfoX.hittingRight_){
+		Vector3 blockPosition = collisionMapInfoX.blockX->GetWorldPosition();
+		float blockLeft = blockPosition.x - MapChipField::kChipSize / 2;
+		BaseObject::transform_.translation_.x = blockLeft - kWidth / 2 - kBlank; // 右側に衝突した場合、左に押し戻し
+	}
 
+	/// Y移動
+	BaseObject::transform_.translation_.y += velocity_.y;
 
-	///
-	///	範囲内のブロックを反転する操作
-	///
+	/// 衝突判定
+	CollisionMapInfo collisionMapInfoY = GetMapCollisionInfo();
 
-	InvertBlocksInArea(mapChipField);
+	/// 押し戻し
+	if (collisionMapInfoY.hittingGround_) {
+		Vector3 blockPosition = collisionMapInfoY.blockY->GetWorldPosition();
+		float blockBottom = blockPosition.y + MapChipField::kChipSize / 2;
+		BaseObject::transform_.translation_.y = blockBottom + kHeight / 2 + kBlank; // 地面の位置に押し戻し
+	} else if (collisionMapInfoY.hittingCeiling_) {
+		Vector3 blockPosition = collisionMapInfoY.blockY->GetWorldPosition();
+		float blockTop = blockPosition.y - MapChipField::kChipSize / 2;
+		BaseObject::transform_.translation_.y = blockTop - kHeight / 2 - kBlank; // 天井の位置に押し戻し
+	}
+
+	/// プレイヤーの衝突判定を格納
+	collisionMapInfo_.hittingGround_ = collisionMapInfoY.hittingGround_;
+	collisionMapInfo_.hittingCeiling_ = collisionMapInfoY.hittingCeiling_;
+
+	collisionMapInfo_.hittingLeft_ = collisionMapInfoX.hittingLeft_;
+	collisionMapInfo_.hittingRight_ = collisionMapInfoX.hittingRight_;
+
+	/// 速度リセット
+	velocity_.x = 0.0f;
+	velocity_.y = 0.0f;
 
 #ifdef _DEBUG
+	ImGui::Begin("player");
 
+	ImGui::DragFloat3("velocity", &velocity_.x);
+
+	ImGui::Text("hittingGround : %d", collisionMapInfo_.hittingGround_);
+	ImGui::Text("hittingCeiling : %d", collisionMapInfo_.hittingCeiling_);
+	ImGui::Text("hittingLeft : %d", collisionMapInfo_.hittingLeft_);
+	ImGui::Text("hittingRight : %d", collisionMapInfo_.hittingRight_);
+
+	ImGui::End();
 #endif
 }
 
@@ -71,8 +112,8 @@ void Player::DebugImGui() {
 		if (ImGui::BeginTabItem("パラメーター調整")) {
 
 			// なんか追加する場合こっから
-			ImGui::DragFloat("ジャンプ初速", &jumpVelocity_, 0.01f);
-			ImGui::DragFloat("重力", &gravity_, 0.001f);
+			ImGui::DragFloat("重力加速度", &gravityAcceleration_, 0.001f);
+			ImGui::DragFloat("ジャンプ初速", &jumpAcceleration, 0.01f);
 
 			if (ImGui::Button("セーブ")) {
 				SaveToJson();
@@ -86,175 +127,123 @@ void Player::DebugImGui() {
 	ImGui::End();
 }
 
-void Player::Move() {
-	// 現在の位置を取得
-	Vector3 position = BaseObject::GetWorldPosition();
-	// 移動速度の設定
-	const float kMoveSpeed = 0.15f; // 要調整
+void Player::HandleInput()
+{
+#pragma region ゲームパッド入力
 
-	XINPUT_STATE joyState;
-	if (input_->GetJoystickState(0, joyState)) {
-		// 左スティックの入力値を取得
-		float leftStickX = joyState.Gamepad.sThumbLX;
-		float leftStickY = joyState.Gamepad.sThumbLY;
+#pragma endregion
 
-		// デッドゾーンの設定
-		const float deadZone = 4000.0f;
 
-		if (abs(leftStickX) > deadZone || abs(leftStickY) > deadZone) {
-			// スティックの値を正規化して移動速度を調整
-			const float maxStickValue = 32767.0f;
-			float moveX = (abs(leftStickX) > deadZone) ? (leftStickX / maxStickValue) * kMoveSpeed : 0.0f;
-			float moveY = (abs(leftStickY) > deadZone) ? (leftStickY / maxStickValue) * kMoveSpeed : 0.0f;
+# pragma region キーボード入力
+	///
+	///	左右移動入力
+	/// 
 
-			// 移動量を反映
-			position.x += moveX;
-			position.y += moveY;
+	if (input_->PushKey(DIK_A)) {
+		velocity_.x = -kMoveSpeed;}
+	if (input_->PushKey(DIK_D)) {
+		velocity_.x = kMoveSpeed;
+	}
 
-			// 新しい位置を設定
-			BaseObject::SetWorldPosition(position);
-		}
+	if (input_->PushKey(DIK_W)) {
+		velocity_.y = kMoveSpeed;
+	}
+	if (input_->PushKey(DIK_S)) {
+		velocity_.y = -kMoveSpeed;
 	}
 
 	///
-	///	キーボード入力による移動（中間プレイ会に一時的に）
-	///
+	///	ジャンプ入力
+	/// 
+	
 
-	if (input_->PushKey(DIK_W))
-		position.y += kMoveSpeed;
-	if (input_->PushKey(DIK_S))
-		position.y -= kMoveSpeed;
-	if (input_->PushKey(DIK_A))
-		position.x -= kMoveSpeed;
-	if (input_->PushKey(DIK_D))
-		position.x += kMoveSpeed;
-
-	BaseObject::SetWorldPosition(position);
-}
-
-void Player::Jump() { 
-	static bool wasAPressed = false; // 前フレームのボタン状態を記録
-	XINPUT_STATE joyState;
-
-	// ジャンプ可能かチェック
-	if (!isJumping_ && isOnGround_) {
-		///
-		///	Aボタンを押したらジャンプ
-		/// 
-		if (input_->GetJoystickState(0, joyState)) {
-			bool isAPressed = joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A;
-
-			// ボタンが押された瞬間を検出
-			if (isAPressed && !wasAPressed) {
-				isJumping_ = true;
-				velocity_.y = jumpVelocity_; // ジャンプ初速を設定
-			}
-
-			// 現在の状態を記録
-			wasAPressed = isAPressed;
-		}
-
-		///
-		///	Wキーを押したらジャンプ
-		/// 
-		
-		if (input_->TriggerKey(DIK_W)) {
-			isJumping_ = true;
-			velocity_.y = jumpVelocity_; // ジャンプ初速を設定
-		}
-	}
-}
-
-void Player::ApplyGravity(MapChipField* mapChipField) { 
-	// Y方向速度に重力の適用
-	velocity_.y += gravity_;
-
-	// 現在位置の取得
-	Vector3 position = BaseObject::GetWorldPosition();
-
-	// ブロックとの衝突判定
-	const auto blocks = mapChipField->GetBlocks(); // 全てのブロックを取得
-	for (const auto& block : blocks) {
-		// ブロックの位置とサイズを取得
-		Vector3 blockPosition = block->GetWorldPosition();
-		const float blockSize = MapChipField::kChipSize;
-
-		// プレイヤーがブロックの上部に接触しているか確認
-		if (position.x + kWidth / 2 > blockPosition.x - blockSize / 2 &&
-			position.x - kWidth / 2 < blockPosition.x + blockSize / 2 &&
-			position.y - kHeight / 2 <= blockPosition.y + blockSize / 2 &&
-		    position.y - kHeight / 2 > blockPosition.y) {
-
-			// ジャンプ中でない場合のみ落下を止めて位置を調整
-			if (!isJumping_) {
-				position.y = blockPosition.y + blockSize / 2 + kWidth / 2;
-				velocity_.y = 0.0f; // 落下速度をリセット
-				isOnGround_ = true; // 地面に接触している
-			}
-
-			isJumping_ = false;
-			break;
-
-		// 地面に着地していない場合
-		} else {
-			isOnGround_ = false; // 地面に接触していない
-		}
-	}
-
-	// 更新後の位置を適用
-	position.y += velocity_.y;
-	BaseObject::SetWorldPositionY(position.y);
-}
-
-void Player::InvertBlocksInArea(MapChipField* mapChipField) {
-	static bool wasRightShoulderPressed = false; // 前フレームのボタン状態を記録
-
-	XINPUT_STATE joyState;
-	if (input_->GetJoystickState(0, joyState)) {
-		bool isRightShoulderPressed = joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER;
-
-		// ボタンが押された瞬間を検出
-		if (isRightShoulderPressed && !wasRightShoulderPressed) {
-			if (mapChipField) {
-				// 現在の位置を取得
-				Vector3 position = BaseObject::GetWorldPosition();
-				// 範囲内のブロックの反転を行う
-				mapChipField->InvertBlocksInArea(position);
-
-				// 挟み込んだブロックの反転処理
-				/*mapChipField->InvertBlocksWithCapture();*/
-			}
-		}
-
-		// 現在の状態を記録
-		wasRightShoulderPressed = isRightShoulderPressed;
-	}
 
 	///
-	///	キーボード入力によるブロック反転（中間プレイ会に一時的に）
-	///
-
-	static bool wasSpacePressed = false;
-	bool isSpacePressed = input_->TriggerKey(DIK_SPACE);
-	if (isSpacePressed && !wasSpacePressed) {
-		if (mapChipField) {
+	///	範囲内のブロック反転入力
+	/// 
+	
+	if (input_->TriggerKey(DIK_SPACE)) {
+		if (mapChipField_) {
 			// 現在の位置を取得
 			Vector3 position = BaseObject::GetWorldPosition();
 			// 範囲内のブロックの反転を行う
-			mapChipField->InvertBlocksInArea(position);
+			mapChipField_->InvertBlocksInArea(position);
+		}
+	}
+#pragma endregion
+}
+
+ Player::CollisionMapInfo Player::GetMapCollisionInfo()
+{
+	 CollisionMapInfo info;
+
+	// 現在位置の取得
+	Vector3 position = this->transform_.translation_;
+	// プレイヤーの4つの角を計算
+	Vector3 corners[4] = {
+		{position.x - kWidth / 2, position.y + kHeight / 2, position.z}, // 左上
+		{position.x + kWidth / 2, position.y + kHeight / 2, position.z}, // 右上
+		{position.x - kWidth / 2, position.y - kHeight / 2, position.z}, // 左下
+		{position.x + kWidth / 2, position.y - kHeight / 2, position.z}  // 右下
+	};
+
+	// 全てのブロックを取得
+	const auto blocks = mapChipField_->GetBlocks();
+	const float blockSize = MapChipField::kChipSize;
+
+	
+	// 全てのブロックとの衝突判定
+	for (const auto& block : blocks) {
+		// ブロックの位置と範囲を計算
+		Vector3 blockPosition = block->GetWorldPosition();
+		float blockLeft = blockPosition.x - blockSize / 2;
+		float blockRight = blockPosition.x + blockSize / 2;
+		float blockTop = blockPosition.y + blockSize / 2;
+		float blockBottom = blockPosition.y - blockSize / 2;
+
+		// 各角の衝突を判定
+		for (int i = 0; i < 4; ++i) {
+			if (corners[i].x >= blockLeft && corners[i].x <= blockRight &&
+				corners[i].y >= blockBottom && corners[i].y <= blockTop) {
+				// 上下判定
+				if (i < 2) {
+					info.hittingCeiling_ = true;  // 左上・右上
+					info.blockY = block; // Y方向で衝突したブロックを格納
+				}
+				if (i >= 2) {
+					info.hittingGround_ = true; // 左下・右下
+					info.blockY = block; // Y方向で衝突したブロックを格納
+				}
+				// 左右判定
+				if (corners[i].x < blockPosition.x) {
+					info.hittingRight_ = true;
+					info.blockX = block; // X方向で衝突したブロックを格納
+				}
+				if (corners[i].x > blockPosition.x) {
+					info.hittingLeft_ = true;
+					info.blockX = block; // X方向で衝突したブロックを格納
+				}
+			}
 		}
 	}
 
-	// 現在の状態を記録
-	wasSpacePressed = isSpacePressed;
+	return info;
+}
+
+void Player::OnCollision(Collider* other)
+{
+	// ブロックとの衝突判定
+	if (Block* block = dynamic_cast<Block*>(other)) {
+
+	}
 }
 
 void Player::SaveToJson() {
 	json j;
 
 	// なんか追加する場合こっから
-	j["jumpVelocity"] = {jumpVelocity_};
-	j["gravity"] = {gravity_};
+	j["gravityAcceleration"] = { gravityAcceleration_ };
+	j["jumpAcceleration"] = {jumpAcceleration};
 
 	// ディレクトリを作成し、JSONファイルを保存
 	std::filesystem::create_directories("resources/jsons/Parameters/");
@@ -272,10 +261,10 @@ void Player::LoadFromJson() {
 	inFile >> j;
 
 	// 各種JSONから読み込み
-	if (j.contains("jumpVelocity") && j["jumpVelocity"].is_array()) {
-		jumpVelocity_ = j["jumpVelocity"][0];
+	if (j.contains("gravityAcceleration") && j["gravityAcceleration"].is_array()) {
+		gravityAcceleration_ = j["gravityAcceleration"][0];
 	}
-	if (j.contains("gravity") && j["gravity"].is_array()) {
-		gravity_ = j["gravity"][0];
+	if (j.contains("jumpVelocity") && j["jumpVelocity"].is_array()) {
+		jumpAcceleration = j["jumpVelocity"][0];
 	}
 }

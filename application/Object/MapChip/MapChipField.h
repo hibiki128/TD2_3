@@ -8,6 +8,7 @@
 // Application
 #include "application/Base/BaseObject.h"
 #include "application/Object/MapChip/Block/Block.h"
+#include "application/Object/Goal/Goal.h"
 
 class MapChipField
 {
@@ -28,6 +29,8 @@ public:
 
 	// 全てのブロックのBaseObjectポインタを取得
 	std::vector<Block*> GetBlocks() const;
+	// ゴールオブジェクトの取得
+	Goal* GetGoal() const { return goal_.get(); }
 
 	///
 	///	ブロックの反転処理（プレイヤー側で呼び出す）
@@ -64,6 +67,8 @@ private:
 
 	// マップチップの二次元配列
 	std::vector<std::vector<MapChip>> mapChips_;
+	// ゴールオブジェクト
+	std::unique_ptr<Goal> goal_;
 
 private:
 	///

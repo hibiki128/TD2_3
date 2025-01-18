@@ -12,6 +12,7 @@ public:
 		Black, // 黒ブロック
 		White, // 白ブロック
 		Gray,  // 灰ブロック（動かないブロック）
+		Goal,  // ゴール
 	};
 
 	void Init(const std::string className) override;

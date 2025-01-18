@@ -34,6 +34,7 @@ void Player::Update(MapChipField* mapChipField) {
 
 	mapChipField_ = mapChipField;
 
+	// 接地しているか天井に接触した際にはY方向速度をリセット
 	if (collisionMapInfo_.hittingGround_) {
 		velocity_.y = 0.0f;
 	} else if (collisionMapInfo_.hittingCeiling_) {
@@ -99,6 +100,36 @@ void Player::DebugImGui() {
 		ImGui::EndTabBar();
 	}
 	ImGui::End();
+}
+
+bool Player::IsGoalReached()
+{
+	// 現在位置の取得
+	Vector3 position = this->transform_.translation_;
+	// プレイヤーの4つの角を計算
+	Vector3 corners[4] = {
+		{position.x - kWidth / 2, position.y + kHeight / 2, position.z}, // 左上
+		{position.x + kWidth / 2, position.y + kHeight / 2, position.z}, // 右上
+		{position.x - kWidth / 2, position.y - kHeight / 2, position.z}, // 左下
+		{position.x + kWidth / 2, position.y - kHeight / 2, position.z}  // 右下
+	};
+
+	// ゴール位置の取得
+	Vector3 goalPosition = mapChipField_->GetGoal()->GetWorldPosition();
+	float goalLeft = goalPosition.x - MapChipField::kChipSize / 2;
+	float goalRight = goalPosition.x + MapChipField::kChipSize / 2;
+	float goalTop = goalPosition.y + MapChipField::kChipSize / 2;
+	float goalBottom = goalPosition.y - MapChipField::kChipSize / 2;
+
+	// 各角がゴール内にあるかを判定
+	for (const auto& corner : corners) {
+		if (corner.x >= goalLeft && corner.x <= goalRight &&
+			corner.y >= goalBottom && corner.y <= goalTop) {
+			return true; // 4つ角のどれかが触れていたらtrue
+		}
+	}
+
+	return false;
 }
 
 void Player::HandleInput()

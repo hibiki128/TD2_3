@@ -55,6 +55,13 @@ void GameScene::Update()
 	// プレイヤー更新
 	player_->Update(mapChipField_.get());
 
+	// プレイヤーがゴールに到達した際の処理
+	if (player_->IsGoalReached()) {
+		ImGui::Begin("GameScene:Debug");
+		ImGui::Text("Goal");
+		ImGui::End();
+	}
+
 	// マップチップフィールド更新
 	mapChipField_->Update();
 }

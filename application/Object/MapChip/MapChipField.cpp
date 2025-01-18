@@ -46,6 +46,10 @@ void MapChipField::Update()
 
 	// 挟み込みが起こった場合に挟まれたブロックの色反転を行う（たぶんここで呼んでるといつか問題起きるので呼び出し位置を検討）
 	InvertBlocksWithCapture();
+
+
+	// ゴールオブジェクト更新
+	goal_->Update();
 }
 
 void MapChipField::Draw(const ViewProjection& vp)
@@ -58,6 +62,10 @@ void MapChipField::Draw(const ViewProjection& vp)
 			}
 		}
 	}
+
+
+	// ゴールオブジェクト描画
+	goal_->Draw(vp);
 }
 
 std::vector<Block*> MapChipField::GetBlocks() const { 
@@ -158,6 +166,16 @@ void MapChipField::LoadFromCSV(const std::string& filePath)
 				}
 			}
 
+			/*ゴールオブジェクトの生成*/
+			if (chipValue == 4) {
+				goal_ = std::make_unique<Goal>();
+				goal_->Init("Goal");
+				goal_->CreateModel("debug/ICO.obj");
+				goal_->SetWorldPosition({ x * kChipSize, -y * kChipSize, 0.0f });
+				goal_->CreateCollider();
+				goal_->SetObjColor({ 1.0f, 1.0f, 0.0f, 1.0f }); // 黄色にしておく
+			}
+
 			// マップチップの二次元配列に格納
 			mapChips_[y][x] = std::move(chip);
 			++x;
@@ -175,6 +193,7 @@ Block::ChipType MapChipField::GetChipTypeFromInt(int value)
 	case 1: return Block::ChipType::Black;
 	case 2: return Block::ChipType::White;
 	case 3: return Block::ChipType::Gray;
+	case 4: return Block::ChipType::Empty; // ゴールオブジェクトは空白扱いとする
 
 	default: return Block::ChipType::Empty;
 	}

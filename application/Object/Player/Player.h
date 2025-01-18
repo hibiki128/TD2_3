@@ -27,6 +27,8 @@ public:
 	void Draw(const ViewProjection& viewProjection)override;
 	void DebugImGui()override;
 
+	// プレイヤーがゴールに到達しているか
+	bool IsGoalReached();
 private:
 	// 入力
 	Input* input_;

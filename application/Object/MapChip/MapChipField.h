@@ -16,14 +16,6 @@ public:
 	static const uint32_t kHeight = 8; // 縦マス数
 	static const float kChipSize; // 各マップチップのサイズ
 
-	// マップチップの種類を定義
-	enum class ChipType {
-		Empty, // 空白ブロック
-		Black, // 黒ブロック
-		White, // 白ブロック
-		Gray,  // 灰ブロック（動かないブロック）
-	};
-
 	///
 	/// 基本的な関数
 	///
@@ -50,7 +42,6 @@ private:
 	// マップチップのデータ構造
 	struct MapChip {
 		std::unique_ptr<Block> object;
-		ChipType type;
 
 		///
 		/// アニメーション関連
@@ -82,14 +73,14 @@ private:
 	// CSVからマップチップデータを読み込む
 	void LoadFromCSV(const std::string& filePath);
 	// ChipTypeを整数値から取得する関数
-	ChipType GetChipTypeFromInt(int value);
+	Block::ChipType GetChipTypeFromInt(int value);
 
 	///
 	///	ブロックの挟み込み反転処理
 	/// 
 	
 	// 挟み込み処理を汎用化
-	void ProcessCapture(int startX, int startY, ChipType targetType, ChipType ownType, const std::vector<std::pair<int, int>>& directions);
+	void ProcessCapture(int startX, int startY, Block::ChipType targetType, Block::ChipType ownType, const std::vector<std::pair<int, int>>& directions);
 	// 指定された座標のブロックを反転する
 	void InvertBlock(int x, int y);
 	// 指定された座標が有効範囲内か確認

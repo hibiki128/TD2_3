@@ -32,7 +32,7 @@ void MapChipField::Update()
 	for (auto& row : mapChips_) {
 		for (auto& chip : row) {
 			// 空白ブロックではない場合のみ更新
-			if (chip.type != ChipType::Empty) {
+			if (chip.object->type_ != Block::ChipType::Empty) {
 				// アニメーションの進行
 				if (chip.isAnimating) {
 					UpdateChipAnimation(chip);
@@ -53,7 +53,7 @@ void MapChipField::Draw(const ViewProjection& vp)
 	for (const auto& row : mapChips_) {
 		for (const auto& chip : row) {
 			// 空白ブロックではない場合のみ描画
-			if (chip.type != ChipType::Empty) {
+			if (chip.object->type_ != Block::ChipType::Empty) {
 				chip.object->Draw(vp);
 			}
 		}
@@ -98,7 +98,7 @@ void MapChipField::InvertBlocksInArea(const Vector3& center)
 
 			// ブロックを取得して反転処理（アニメーション開始）
 			MapChip& chip = mapChips_[targetY][targetX];
-			if (!chip.isAnimating && chip.type != ChipType::Empty) {
+			if (!chip.isAnimating && chip.object->type_ != Block::ChipType::Empty) {
 				chip.isAnimating = true;
 				chip.animState = MapChip::AnimationState::Shrinking;
 				chip.animationTime = 0.0f;
@@ -124,32 +124,32 @@ void MapChipField::LoadFromCSV(const std::string& filePath)
 
 		while (std::getline(lineStream, cell, ',') && x < kWidth) {
 			int chipValue = std::stoi(cell);
-			ChipType chipType = GetChipTypeFromInt(chipValue);
+			Block::ChipType chipType = GetChipTypeFromInt(chipValue);
 
 			MapChip chip;
-			chip.type = chipType;
+			chip.object = std::make_unique<Block>();
+			chip.object->type_ = chipType;
 
 			/*BaseObjectの初期化*/
 
 			// 空白ブロックの場合にはスキップ
-			if (chip.type != ChipType::Empty) {
-				chip.object = std::make_unique<Block>();
+			if (chip.object->type_ != Block::ChipType::Empty) {
 				chip.object->Init("Block");
 				chip.object->SetScale({1.0f, 1.0f, 1.0f});
 				chip.object->SetWorldPosition({ x * kChipSize, -y * kChipSize, 0.0f });
 				chip.object->CreateCollider();
 
 				// モデルと色を設定
-				switch (chip.type) {
-				case ChipType::Black:
+				switch (chip.object->type_) {
+				case Block::ChipType::Black:
 					chip.object->CreateModel("debug/Cube.obj");
 					chip.object->SetObjColor({ 0.0f, 0.0f, 0.0f, 1.0f }); // 黒色
 					break;
-				case ChipType::White:
+				case Block::ChipType::White:
 					chip.object->CreateModel("debug/Cube.obj");
 					chip.object->SetObjColor({ 1.0f, 1.0f, 1.0f, 1.0f }); // 白色
 					break;
-				case ChipType::Gray:
+				case Block::ChipType::Gray:
 					chip.object->CreateModel("debug/Cube.obj");
 					chip.object->SetObjColor({ 0.0f, 1.0f, 0.0f, 1.0f }); // 一旦分かりやすく緑に変更
 					break;
@@ -168,15 +168,15 @@ void MapChipField::LoadFromCSV(const std::string& filePath)
 	file.close();
 }
 
-MapChipField::ChipType MapChipField::GetChipTypeFromInt(int value)
+Block::ChipType MapChipField::GetChipTypeFromInt(int value)
 {
 	switch (value) {
-	case 0: return ChipType::Empty;
-	case 1: return ChipType::Black;
-	case 2: return ChipType::White;
-	case 3: return ChipType::Gray;
+	case 0: return Block::ChipType::Empty;
+	case 1: return Block::ChipType::Black;
+	case 2: return Block::ChipType::White;
+	case 3: return Block::ChipType::Gray;
 
-	default: return ChipType::Empty;
+	default: return Block::ChipType::Empty;
 	}
 }
 
@@ -192,18 +192,18 @@ void MapChipField::InvertBlocksWithCapture()
 	for (int y = 0; y < kHeight; ++y) {
 		for (int x = 0; x < kWidth; ++x) {
 			// 起点が黒ブロックの場合に白を挟み込む
-			if (mapChips_[y][x].type == ChipType::Black) {
-				ProcessCapture(x, y, ChipType::White, ChipType::Black, directions);
+			if (mapChips_[y][x].object->type_ == Block::ChipType::Black) {
+				ProcessCapture(x, y, Block::ChipType::White, Block::ChipType::Black, directions);
 			}
 			// 起点が白ブロックの場合に黒を挟み込む
-			else if (mapChips_[y][x].type == ChipType::White) {
-				ProcessCapture(x, y, ChipType::Black, ChipType::White, directions);
+			else if (mapChips_[y][x].object->type_ == Block::ChipType::White) {
+				ProcessCapture(x, y, Block::ChipType::Black, Block::ChipType::White, directions);
 			}
 		}
 	}
 }
 
-void MapChipField::ProcessCapture(int startX, int startY, ChipType targetType, ChipType ownType, const std::vector<std::pair<int, int>>& directions)
+void MapChipField::ProcessCapture(int startX, int startY, Block::ChipType targetType, Block::ChipType ownType, const std::vector<std::pair<int, int>>& directions)
 {
 	for (const auto& dir : directions) {
 		std::vector<std::pair<int, int>> capturedBlocks;
@@ -214,11 +214,11 @@ void MapChipField::ProcessCapture(int startX, int startY, ChipType targetType, C
 
 		while (IsValidPosition(currX, currY)) {
 			// 対象タイプのブロックが見つかれば一時的にキャプチャ
-			if (mapChips_[currY][currX].type == targetType) {
+			if (mapChips_[currY][currX].object->type_ == targetType) {
 				capturedBlocks.emplace_back(currX, currY);
 			}
 			// 自分のタイプのブロックが見つかれば挟み込み成立
-			else if (mapChips_[currY][currX].type == ownType) {
+			else if (mapChips_[currY][currX].object->type_ == ownType) {
 				for (const auto& block : capturedBlocks) {
 					InvertBlock(block.first, block.second);
 				}
@@ -243,11 +243,11 @@ void MapChipField::InvertBlock(int x, int y)
 		MapChip& chip = mapChips_[y][x];
 
 		// 動かないブロックの場合はスキップ
-		if (chip.type == ChipType::Gray) {
+		if (chip.object->type_ == Block::ChipType::Gray) {
 			return;
 		}
 
-		if (!chip.isAnimating && chip.type != ChipType::Empty) {
+		if (!chip.isAnimating && chip.object->type_ != Block::ChipType::Empty) {
 			// アニメーション開始の遅延処理
 			chip.isDelaying = true;
 			chip.delayTime = 0.3f; // ここで指定した時間遅延
@@ -265,7 +265,7 @@ bool MapChipField::IsValidPosition(int x, int y) const
 void MapChipField::UpdateChipAnimation(MapChip& chip)
 {
 	// 動かないブロックの場合はスキップ
-	if (chip.type == ChipType::Gray) {
+	if (chip.object->type_ == Block::ChipType::Gray) {
 		chip.isAnimating = false; // 念のためアニメーション状態のリセット
 		chip.animState = MapChip::AnimationState::None;
 		return;
@@ -307,11 +307,11 @@ void MapChipField::UpdateChipAnimation(MapChip& chip)
 			chip.animState = MapChip::AnimationState::ColorChange; // 次の状態に移行
 
 			// ブロックの色変更
-			if (chip.type == ChipType::Black) {
-				chip.type = ChipType::White;
+			if (chip.object->type_ == Block::ChipType::Black) {
+				chip.object->type_ = Block::ChipType::White;
 				chip.object->SetObjColor({ 1.0f, 1.0f, 1.0f, 1.0f });
-			} else if (chip.type == ChipType::White) {
-				chip.type = ChipType::Black;
+			} else if (chip.object->type_ == Block::ChipType::White) {
+				chip.object->type_ = Block::ChipType::Black;
 				chip.object->SetObjColor({ 0.0f, 0.0f, 0.0f, 1.0f });
 			}
 		// 実際に収縮を行う

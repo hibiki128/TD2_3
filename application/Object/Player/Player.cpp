@@ -210,7 +210,6 @@ void Player::CheckCollisionAndResolve()
 	// 全てのブロックを取得
 	const auto blocks = mapChipField_->GetBlocks();
 	const float blockSize = MapChipField::kChipSize;
-
 	
 	// 全てのブロックとの衝突判定
 	for (const auto& block : blocks) {

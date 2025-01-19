@@ -62,12 +62,12 @@ void Player::Update(MapChipField* mapChipField) {
 #ifdef _DEBUG
 	ImGui::Begin("player");
 
-	ImGui::DragFloat3("velocity", &velocity_.x);
+	/*ImGui::DragFloat3("velocity", &velocity_.x);
 
 	ImGui::Text("hittingGround : %d", collisionMapInfo_.hittingGround_);
 	ImGui::Text("hittingCeiling : %d", collisionMapInfo_.hittingCeiling_);
 	ImGui::Text("hittingLeft : %d", collisionMapInfo_.hittingLeft_);
-	ImGui::Text("hittingRight : %d", collisionMapInfo_.hittingRight_);
+	ImGui::Text("hittingRight : %d", collisionMapInfo_.hittingRight_);*/
 
 	ImGui::End();
 #endif

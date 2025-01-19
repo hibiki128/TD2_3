@@ -70,4 +70,11 @@ private:
 
 	// マップチップフィールド
 	std::unique_ptr<MapChipField> mapChipField_;
+
+// JSON
+private:
+	using json = nlohmann::json;
+
+	void SaveToJson();
+	void LoadFromJson();
 };

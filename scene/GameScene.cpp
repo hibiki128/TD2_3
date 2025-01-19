@@ -33,6 +33,11 @@ void GameScene::Initialize()
 	// マップチップフィールド
 	mapChipField_ = std::make_unique<MapChipField>();
 	mapChipField_->Init("resources/Maps/stage1.csv");
+
+
+
+	// Jsonから保存情報の読み込み
+	LoadFromJson();
 }
 
 void GameScene::Update()
@@ -138,6 +143,27 @@ void GameScene::Debug()
 	ImGui::Begin("GameScene:Debug");
 	debugCamera_->imgui();
 	LightGroup::GetInstance()->imgui();
+
+	///
+	///	追加分
+	/// 
+
+	if (ImGui::BeginTabBar("Camera")) {
+		if (ImGui::BeginTabItem("カメラ")) {
+
+			// なんか追加する場合こっから
+			ImGui::DragFloat3("位置", &vp_.translation_.x, 0.1f);
+
+			if (ImGui::Button("セーブ")) {
+				SaveToJson();
+				std::string message = std::format("Camera saved.");
+				MessageBoxA(nullptr, message.c_str(), "Object", 0);
+			}
+			ImGui::EndTabItem();
+		}
+		ImGui::EndTabBar();
+	}
+
 	ImGui::End();
 
 	// プレイヤーデバッグ情報
@@ -159,4 +185,35 @@ void GameScene::ChangeScene()
 	/*if (input_->TriggerKey(DIK_SPACE)) {
 		sceneManager_->NextSceneReservation("TITLE");
 	}*/
+}
+
+void GameScene::SaveToJson()
+{
+	json j;
+
+	// なんか追加する場合こっから
+	j["gravityAcceleration"] = { vp_.translation_.x, vp_.translation_.y, vp_.translation_.z };
+
+	// ディレクトリを作成し、JSONファイルを保存
+	std::filesystem::create_directories("resources/jsons/Camera/");
+	std::ofstream outFile("resources/jsons/Camera/camera.json");
+	outFile << j.dump(4);
+}
+
+void GameScene::LoadFromJson()
+{
+	std::ifstream inFile("resources/jsons/Camera/camera.json");
+	if (!inFile.is_open()) {
+		return; // JSONファイルがない場合は早期リターン
+	}
+
+	json j;
+	inFile >> j;
+
+	// 各種JSONから読み込み
+	if (j.contains("gravityAcceleration") && j["gravityAcceleration"].is_array()) {
+		vp_.translation_ = {
+			j["gravityAcceleration"][0], j["gravityAcceleration"][1], j["gravityAcceleration"][2]
+		};
+	}
 }

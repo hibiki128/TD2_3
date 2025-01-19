@@ -20,6 +20,8 @@ protected:
 	WorldTransform transform_;
 	//カラー
 	ObjColor objColor_;
+	// ライティング
+	bool isLighting_;
 
 	std::string className_;
 
@@ -66,6 +68,7 @@ public:
 	void SetRotation(Vector3 rotate) { transform_.rotation_ = rotate; }
 	void SetRotationY(float rotate) { transform_.rotation_.y = rotate; }
 	void SetScale(Vector3 scale) { transform_.scale_ = scale; }
+	void SetLighting(bool isLighting) { isLighting_ = isLighting; }
 
 private:
 	void DebugTransform();

@@ -114,7 +114,7 @@ void GameScene::Draw()
 	//-----------------------------
 
 	// ポーズ描画
-	pause_->Draw();
+	pause_->Draw(vp_);
 
 	//-----線描画-----
 	DrawLine3D::GetInstance()->Draw(vp_);

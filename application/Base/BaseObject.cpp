@@ -8,6 +8,9 @@ void BaseObject::Init(const std::string className) {
 	//カラーのセット
 	objColor_.Initialize();
 	objColor_.SetColor(Vector4(1, 1, 1, 1));
+	// ライティングのセット
+	isLighting_ = true;
+
 	LoadFromJson();
 }
 
@@ -20,7 +23,7 @@ void BaseObject::Update() {
 }
 
 void BaseObject::Draw(const ViewProjection& viewProjection) {
-	obj3d_->Draw(transform_, viewProjection, &objColor_);
+	obj3d_->Draw(transform_, viewProjection, &objColor_,isLighting_);
 }
 
 Vector3 BaseObject::GetWorldPosition() const {

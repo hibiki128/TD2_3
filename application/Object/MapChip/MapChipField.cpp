@@ -17,12 +17,6 @@ MapChipField::MapChipField()
 
 void MapChipField::Init(const std::string& csvFilePath)
 {
-	// 二次元配列の要素数を設定
-	mapChips_.resize(kHeight);
-	for (int y = 0; y < kHeight; ++y) {
-		mapChips_[y].resize(kWidth);
-	}
-
 	// CSVファイルからマップの読み込み
 	LoadFromCSV(csvFilePath);
 }
@@ -99,8 +93,8 @@ void MapChipField::InvertBlocksInArea(const Vector3& center)
 			int targetY = centerY + y;
 
 			// マップ範囲外を無視
-			if(targetX < 0 || targetX >= static_cast<int>(kWidth) ||
-				targetY < 0 || targetY >= static_cast<int>(kHeight)) {
+			if(targetX < 0 || targetX >= static_cast<int>(mapWidth) ||
+				targetY < 0 || targetY >= static_cast<int>(mapHeight)) {
 				continue;
 			}
 
@@ -124,13 +118,23 @@ void MapChipField::LoadFromCSV(const std::string& filePath)
 
 	std::string line;
 	int y = 0;
+	int maxHeight = 0; // 最大の行数を記録する変数
 
-	while (std::getline(file, line) && y < kHeight) {
+	// 最初にファイルの行数を数える
+	while (std::getline(file, line)) {
+		++maxHeight;
+	}
+	file.clear();
+	file.seekg(0);
+
+	// 二次元配列の要素数を設定
+	mapChips_.resize(maxHeight);
+	while (std::getline(file, line) && y < maxHeight) {
 		std::istringstream lineStream(line);
 		std::string cell;
 		int x = 0;
 
-		while (std::getline(lineStream, cell, ',') && x < kWidth) {
+		while (std::getline(lineStream, cell, ',')) {
 			int chipValue = std::stoi(cell);
 			Block::ChipType chipType = GetChipTypeFromInt(chipValue);
 
@@ -177,13 +181,17 @@ void MapChipField::LoadFromCSV(const std::string& filePath)
 			}
 
 			// マップチップの二次元配列に格納
-			mapChips_[y][x] = std::move(chip);
+			mapChips_[y].push_back(std::move(chip));
 			++x;
 		}
 		++y;
 	}
 
 	file.close();
+
+	// mapWidthとmapHeightを再設定
+	mapWidth = mapChips_[0].size();
+	mapHeight = mapChips_.size();
 }
 
 Block::ChipType MapChipField::GetChipTypeFromInt(int value)
@@ -208,8 +216,8 @@ void MapChipField::InvertBlocksWithCapture()
 	};
 
 	// ステージ全体のブロックを探索
-	for (int y = 0; y < kHeight; ++y) {
-		for (int x = 0; x < kWidth; ++x) {
+	for (int y = 0; y < mapHeight; ++y) {
+		for (int x = 0; x < mapWidth; ++x) {
 			// 起点が黒ブロックの場合に白を挟み込む
 			if (mapChips_[y][x].object->type_ == Block::ChipType::Black) {
 				ProcessCapture(x, y, Block::ChipType::White, Block::ChipType::Black, directions);
@@ -278,7 +286,7 @@ void MapChipField::InvertBlock(int x, int y)
 
 bool MapChipField::IsValidPosition(int x, int y) const
 {
-	return x >= 0 && x < static_cast<int>(kWidth) && y >= 0 && y < static_cast<int>(kHeight);
+	return x >= 0 && x < static_cast<int>(mapWidth) && y >= 0 && y < static_cast<int>(mapHeight);
 }
 
 void MapChipField::UpdateChipAnimation(MapChip& chip)

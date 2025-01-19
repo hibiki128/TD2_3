@@ -13,8 +13,8 @@
 class MapChipField
 {
 public:
-	static const uint32_t kWidth = 13; // 横マス数
-	static const uint32_t kHeight = 8; // 縦マス数
+	size_t mapWidth = 13; // 横マス数
+	size_t mapHeight = 8; // 縦マス数
 	static const float kChipSize; // 各マップチップのサイズ
 
 	///

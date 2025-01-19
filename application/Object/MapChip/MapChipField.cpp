@@ -76,18 +76,18 @@ std::vector<Block*> MapChipField::GetBlocks() const {
 	return blocks;
 }
 
-void MapChipField::InvertBlocksInArea(const Vector3& center)
+void MapChipField::InvertBlocksInArea(const Vector3& center, int xRange, int yRange)
 {
 	// 中心位置からマップ上のマス位置を計算
 	int centerX = static_cast<int>(std::round(center.x / kChipSize));
 	int centerY = static_cast<int>(std::round(-center.y / kChipSize));
 
-	// プレイヤーの位置を中心に3x3マスを探索
-	const int range = 1; // -1~1の範囲を探索するため
+	int halfXRange = xRange / 2;
+	int halfYRange = yRange / 2;
 
 	// 3x3マス内のブロックを探索
-	for (int y = -range; y <= range; ++y) {
-		for (int x = -range; x <= range; ++x) {
+	for (int y = -halfYRange; y <= halfYRange; ++y) {
+		for (int x = -halfXRange; x <= halfXRange; ++x) {
 			// 対象位置を計算
 			int targetX = centerX + x;
 			int targetY = centerY + y;

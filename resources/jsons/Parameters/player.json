@@ -4,5 +4,11 @@
     ],
     "jumpAcceleration": [
         0.30000001192092896
+    ],
+    "xInvertRange": [
+        3
+    ],
+    "yInvertRange": [
+        3
     ]
 }

@@ -36,8 +36,8 @@ public:
 	///	ブロックの反転処理（プレイヤー側で呼び出す）
 	/// 
 
-	// 3x3範囲内のブロックの色を反転（
-	void InvertBlocksInArea(const Vector3& center);
+	// プレイヤー範囲内のブロックの色を反転（
+	void InvertBlocksInArea(const Vector3& center, int xRange, int yRange);
 	// 反転させて挟み込んだブロックの色の反転を行う
 	void InvertBlocksWithCapture();
 

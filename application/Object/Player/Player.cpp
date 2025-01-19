@@ -1,6 +1,9 @@
 #define NOMINMAX
 #include "Player.h"
 
+// Engine
+#include "myEngine/3d/line/DrawLine3D.h"
+
 void Player::Init(const std::string className) {
 	input_ = Input::GetInstance();
 
@@ -20,6 +23,9 @@ void Player::Init(const std::string className) {
 	
 	gravityAcceleration_ = -0.01f; // 重力
 	jumpAcceleration = 0.3f; // ジャンプ初速
+
+	xInvertRange_ = 3;
+	yInvertRange_ = 3;
 
 	// Jsonからパラメーターの読み込み
 	LoadFromJson();
@@ -75,6 +81,9 @@ void Player::Update(MapChipField* mapChipField) {
 
 void Player::Draw(const ViewProjection& viewProjection) { 
 	BaseObject::Draw(viewProjection); 
+
+	// 反転可能範囲を描画
+	DrawInvertArea();
 }
 
 void Player::DebugImGui() {
@@ -89,6 +98,9 @@ void Player::DebugImGui() {
 			// なんか追加する場合こっから
 			ImGui::DragFloat("重力加速度", &gravityAcceleration_, 0.001f);
 			ImGui::DragFloat("ジャンプ初速", &jumpAcceleration, 0.01f);
+
+			ImGui::DragInt("X方向反転範囲", &xInvertRange_, 2, 1, 101);
+			ImGui::DragInt("Y方向反転範囲", &yInvertRange_, 2, 1, 101);
 
 			if (ImGui::Button("セーブ")) {
 				SaveToJson();
@@ -170,7 +182,7 @@ void Player::HandleInput()
 			// 現在の位置を取得
 			Vector3 position = BaseObject::GetWorldPosition();
 			// 範囲内のブロックの反転を行う
-			mapChipField_->InvertBlocksInArea(position);
+			mapChipField_->InvertBlocksInArea(position, xInvertRange_, yInvertRange_);
 		}
 	}
 #pragma endregion
@@ -222,6 +234,38 @@ void Player::CheckCollisionAndResolve()
 	/// 速度リセット
 	velocity_.x = 0.0f;
 	/*velocity_.y = 0.0f;*/
+}
+
+void Player::DrawInvertArea()
+{
+	// プレイヤーの位置を取得
+	Vector3 playerPositon = this->transform_.translation_;
+
+	// AABBの範囲を計算
+	float minX = playerPositon.x - xInvertRange_;
+	float maxX = playerPositon.x + xInvertRange_;
+	float minY = playerPositon.y - yInvertRange_;
+	float maxY = playerPositon.y + yInvertRange_;
+	float minZ = playerPositon.z - 1.0f;
+	float maxZ = playerPositon.z + 1.0f;
+
+	// AABBの頂点を計算
+	std::vector<Vector3> vertices = {
+		{minX, minY, minZ}, {maxX, minY, minZ}, {maxX, maxY, minZ}, {minX, maxY, minZ}, // 底面
+		{minX, minY, maxZ}, {maxX, minY, maxZ}, {maxX, maxY, maxZ}, {minX, maxY, maxZ}  // 上面
+	};
+
+	// AABBのエッジリスト
+	std::vector<std::pair<int, int>> edges = {
+		{0, 1}, {1, 2}, {2, 3}, {3, 0}, // 底面
+		{4, 5}, {5, 6}, {6, 7}, {7, 4}, // 上面
+		{0, 4}, {1, 5}, {2, 6}, {3, 7}  // 側面
+	};
+
+	// エッジを描画
+	for (const auto& edge : edges) {
+		DrawLine3D::GetInstance()->SetPoints(vertices[edge.first], vertices[edge.second], { 1.0f, 1.0f, 1.0f, 1.0f });
+	}
 }
 
  Player::CollisionMapInfo Player::GetMapCollisionInfo()
@@ -280,13 +324,13 @@ void Player::CheckCollisionAndResolve()
 	return info;
 }
 
-void Player::OnCollision(Collider* other)
-{
-	// ブロックとの衝突判定
-	if (Block* block = dynamic_cast<Block*>(other)) {
-
-	}
-}
+//void Player::OnCollision(Collider* other)
+//{
+//	// ブロックとの衝突判定
+//	if (Block* block = dynamic_cast<Block*>(other)) {
+//
+//	}
+//}
 
 void Player::SaveToJson() {
 	json j;
@@ -294,6 +338,9 @@ void Player::SaveToJson() {
 	// なんか追加する場合こっから
 	j["gravityAcceleration"] = { gravityAcceleration_ };
 	j["jumpAcceleration"] = {jumpAcceleration};
+
+	j["xInvertRange"] = { xInvertRange_ };
+	j["yInvertRange"] = { yInvertRange_ };
 
 	// ディレクトリを作成し、JSONファイルを保存
 	std::filesystem::create_directories("resources/jsons/Parameters/");
@@ -316,5 +363,12 @@ void Player::LoadFromJson() {
 	}
 	if (j.contains("jumpVelocity") && j["jumpVelocity"].is_array()) {
 		jumpAcceleration = j["jumpVelocity"][0];
+	}
+
+	if (j.contains("xInvertRange") && j["xInvertRange"].is_array()) {
+		xInvertRange_ = j["xInvertRange"][0];
+	}
+	if (j.contains("yInvertRange") && j["yInvertRange"].is_array()) {
+		yInvertRange_ = j["yInvertRange"][0];
 	}
 }

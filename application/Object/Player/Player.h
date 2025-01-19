@@ -27,7 +27,7 @@ public:
 	void Draw(const ViewProjection& viewProjection)override;
 	void DebugImGui()override;
 
-	// プレイヤーがゴールに到達しているか
+	// プレイヤーがゴールに到達しているか判定
 	bool IsGoalReached();
 private:
 	// 入力
@@ -54,6 +54,10 @@ private:
 	float gravityAcceleration_; // 重力加速度
 	float jumpAcceleration; // ジャンプ初速
 
+	// 反転可能範囲
+	int xInvertRange_;
+	int yInvertRange_;
+
 private:
 	// 入力操作
 	void HandleInput();
@@ -61,7 +65,10 @@ private:
 	void CheckCollisionAndResolve();
 
 	// 衝突判定
-	void OnCollision([[maybe_unused]] Collider* other)override;
+	/*void OnCollision([[maybe_unused]] Collider* other)override;*/
+
+	// 反転可能範囲のAABBを描画
+	void DrawInvertArea();
 
 	// マップチップフィールドを保持
 	MapChipField* mapChipField_ = nullptr;

@@ -198,10 +198,10 @@ void SelectScene::MapSelect()
 		mapPrevs_[currentStage]->SetIsSelect(true);
 
 		// キー入力に応じて currentStage を変更
-		if (input_->TriggerKey(DIK_RIGHT) && !isMoveCamera_) {
+		if (input_->TriggerKey(DIK_D) && !isMoveCamera_) {
 			currentStage++;
 		}
-		if (input_->TriggerKey(DIK_LEFT) && !isMoveCamera_) {
+		if (input_->TriggerKey(DIK_A) && !isMoveCamera_) {
 			currentStage--;
 		}
 
@@ -225,14 +225,14 @@ void SelectScene::CameraMove()
 	const float easeTMax = 0.5f;  // イージングの最大時間（スムーズさを調整）
 
 	// 右キーが押されたとき
-	if (input_->TriggerKey(DIK_RIGHT) && !isMoveCamera_) {
+	if (input_->TriggerKey(DIK_D) && !isMoveCamera_) {
 		startPos = vp_.translation_.x;
 		endPos = currentStage * 50.0f;
 		cameraT_ = 0.0f;
 		isMoveCamera_ = true;
 	}
 	// 左キーが押されたとき
-	if (input_->TriggerKey(DIK_LEFT) && !isMoveCamera_) {
+	if (input_->TriggerKey(DIK_A) && !isMoveCamera_) {
 		startPos = vp_.translation_.x;
 		endPos = currentStage * 50.0f;
 		cameraT_ = 0.0f;

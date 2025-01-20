@@ -45,10 +45,10 @@ void GameScene::Initialize()
 	// 操作説明スプライト
 	spriteGuide_ = std::make_unique<Sprite>();
 	spriteGuide_->Initialize(
-		"temp_guide.png", 
-		{260.0f, 660.0f}, 
-		{1.0f, 1.0f, 1.0f, 1.0f}, 
-		{0.5f, 0.5f}
+		"temp_guide.png",
+		{ 260.0f, 660.0f },
+		{ 1.0f, 1.0f, 1.0f, 1.0f },
+		{ 0.5f, 0.5f }
 	);
 }
 
@@ -69,11 +69,13 @@ void GameScene::Update()
 	///	各オブジェクト更新
 	/// 
 
-	// プレイヤー更新
-	player_->Update(mapChipField_.get());
+	if (!pause_->IsPause()) {
+		// プレイヤー更新
+		player_->Update(mapChipField_.get());
 
-	// マップチップフィールド更新
-	mapChipField_->Update();
+		// マップチップフィールド更新
+		mapChipField_->Update();
+	}
 
 	// ポーズ更新
 	pause_->Update();
@@ -178,4 +180,7 @@ void GameScene::ChangeScene()
 	/*if (input_->TriggerKey(DIK_SPACE)) {
 		sceneManager_->NextSceneReservation("TITLE");
 	}*/
+	if (pause_->GetItem() == -2 && input_->TriggerKey(DIK_SPACE)) {
+		sceneManager_->NextSceneReservation("SELECT");
+	}
 }

@@ -32,7 +32,7 @@ public:
 	// ゴールオブジェクトの取得
 	Goal* GetGoal() const { return goal_.get(); }
 	// プレイヤー初期位置を返す
-	Vector3 GetPlayerInitialPositon() { return playerInitialPosition_; }
+	Vector3 GetPlayerInitialPosition() { return playerInitialPosition_; }
 	// マップの状態を初期状態に戻す
 	void ResetMapChip();
 

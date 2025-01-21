@@ -35,6 +35,8 @@ public:
 	void SetInitialPosition(Vector3 playerInitialPosition) { this->transform_.translation_ = playerInitialPosition; }
 
 private:
+	const float kDeltaTime = 1.0f / 60.0f;
+
 	// 入力
 	Input* input_;
 
@@ -85,8 +87,10 @@ private:
 
 	// 反転可能範囲のAABBを描画
 	void DrawInvertArea();
-	// マップとプレイヤーの位置をリセットする
 	void ResetMapChip();
+	
+	// リセット時のトランジションにかける時間
+	const float kResetTransitionTime = 0.3f;
 
 private:
 	using json = nlohmann::json;

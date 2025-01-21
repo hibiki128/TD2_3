@@ -33,7 +33,7 @@ void GameScene::Initialize()
 	// プレイヤー（マップチップフィールドから初期位置を取得するので後）
 	player_ = std::make_unique<Player>();
 	player_->Init("player");
-	player_->SetInitialPosition(mapChipField_->GetPlayerInitialPositon()); // csvから読み込んだ初期位置を設定
+	player_->SetInitialPosition(mapChipField_->GetPlayerInitialPosition()); // csvから読み込んだ初期位置を設定
 
 	// Jsonから保存情報の読み込み
 	LoadFromJson();

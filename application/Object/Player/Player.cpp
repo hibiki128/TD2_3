@@ -17,14 +17,14 @@ void Player::Init(const std::string className) {
 	///
 
 	gravityAcceleration_ = -0.01f; // 重力
-	jumpAcceleration_ = 0.3f;       // ジャンプ初速
+	jumpAcceleration_ = 0.3f;      // ジャンプ初速
 
 	xInvertRange_ = 3;
 	yInvertRange_ = 3;
 
 	///
 	///	その他
-	///		
+	///
 
 	// SquareTransition初期化
 	squareTransition_ = std::make_unique<SquareTransition>();
@@ -35,8 +35,14 @@ void Player::Init(const std::string className) {
 }
 
 void Player::Update(MapChipField* mapChipField) {
+	///
+	///	毎フレーム更新処理
+	///
+
 	BaseObject::Update();
 	squareTransition_->Update();
+	// リセット時処理
+	ResetMapChip();
 
 	///
 	///	毎フレーム初期化処理
@@ -79,6 +85,9 @@ void Player::Update(MapChipField* mapChipField) {
 	ImGui::Text("hittingLeft : %d", collisionMapInfo_.hittingLeft_);
 	ImGui::Text("hittingRight : %d", collisionMapInfo_.hittingRight_);
 
+	ImGui::Text("isFinished : %d", squareTransition_->IsFinished());
+	ImGui::Text("currentStatus : %d", squareTransition_->GetCurrentStatus());
+
 	ImGui::End();
 #endif
 }
@@ -90,9 +99,7 @@ void Player::Draw(const ViewProjection& viewProjection) {
 	DrawInvertArea();
 }
 
-void Player::DrawSprite() { 
-	squareTransition_->Draw(); 
-}
+void Player::DrawSprite() { squareTransition_->Draw(); }
 
 void Player::DebugImGui() {
 	// デフォルトデバッグ表示（トランスフォーム、コライダー）
@@ -193,15 +200,32 @@ void Player::HandleInput() {
 
 	///
 	///	リセット
-	/// 
-	
-	if (input_->TriggerKey(DIK_R)) {
-		ResetMapChip();
+	///
 
-		/*squareTransition_->Start(SquareTransition::Status::SquareIn, 0.5f);*/
+	if (input_->TriggerKey(DIK_R)) {
+		// トランジション中には押せないようにする
+		if (squareTransition_->IsFinished()) {
+			// SquareInを開始する
+			squareTransition_->Start(SquareTransition::Status::SquareIn, kResetTransitionTime);
+		}
 	}
 
 #pragma endregion
+}
+
+void Player::ResetMapChip() {
+	// Rキー押下時にSquareInが開始するので、終了したらリセット処理が行われる
+	if (squareTransition_->IsFinished() && squareTransition_->GetCurrentStatus() == SquareTransition::Status::SquareIn) {
+		// プレイヤーの位置をリセット
+		this->transform_.translation_ = mapChipField_->GetPlayerInitialPosition();
+		// プレイヤーの速度をリセット
+		this->velocity_ = {0.0f, 0.0f, 0.0f};
+		// マップのリセット
+		mapChipField_->ResetMapChip();
+
+		// SquareOutを開始する
+		squareTransition_->Start(SquareTransition::Status::SquareOut, kResetTransitionTime);
+	}
 }
 
 void Player::CheckCollisionAndResolve() {
@@ -265,15 +289,30 @@ void Player::DrawInvertArea() {
 
 	// AABBの頂点を計算
 	std::vector<Vector3> vertices = {
-	    {minX, minY, minZ}, {maxX, minY, minZ}, {maxX, maxY, minZ}, {minX, maxY, minZ}, // 底面
-	    {minX, minY, maxZ}, {maxX, minY, maxZ}, {maxX, maxY, maxZ}, {minX, maxY, maxZ}  // 上面
+	    {minX, minY, minZ},
+        {maxX, minY, minZ},
+        {maxX, maxY, minZ},
+        {minX, maxY, minZ}, // 底面
+	    {minX, minY, maxZ},
+        {maxX, minY, maxZ},
+        {maxX, maxY, maxZ},
+        {minX, maxY, maxZ}  // 上面
 	};
 
 	// AABBのエッジリスト
 	std::vector<std::pair<int, int>> edges = {
-	    {0, 1}, {1, 2}, {2, 3}, {3, 0}, // 底面
-	    {4, 5}, {5, 6}, {6, 7}, {7, 4}, // 上面
-	    {0, 4}, {1, 5}, {2, 6}, {3, 7}  // 側面
+	    {0, 1},
+        {1, 2},
+        {2, 3},
+        {3, 0}, // 底面
+	    {4, 5},
+        {5, 6},
+        {6, 7},
+        {7, 4}, // 上面
+	    {0, 4},
+        {1, 5},
+        {2, 6},
+        {3, 7}  // 側面
 	};
 
 	// エッジを描画
@@ -349,13 +388,6 @@ Player::CollisionMapInfo Player::GetMapCollisionInfo() {
 	}
 
 	return info;
-}
-
-void Player::ResetMapChip() {
-	// プレイヤーの位置をリセット
-	this->transform_.translation_ = mapChipField_->GetPlayerInitialPositon();
-	// マップのリセット
-	mapChipField_->ResetMapChip();
 }
 
 // void Player::OnCollision(Collider* other)

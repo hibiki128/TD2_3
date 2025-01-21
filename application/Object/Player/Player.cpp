@@ -19,10 +19,10 @@ void Player::Init(const std::string className) {
 
 	///
 	///	各パラメーター初期化
-	///		
-	
+	///
+
 	gravityAcceleration_ = -0.01f; // 重力
-	jumpAcceleration = 0.3f; // ジャンプ初速
+	jumpAcceleration = 0.3f;       // ジャンプ初速
 
 	xInvertRange_ = 3;
 	yInvertRange_ = 3;
@@ -36,7 +36,7 @@ void Player::Update(MapChipField* mapChipField) {
 
 	///
 	///	毎フレーム初期化処理
-	/// 
+	///
 
 	mapChipField_ = mapChipField;
 
@@ -49,38 +49,38 @@ void Player::Update(MapChipField* mapChipField) {
 
 	///
 	///	入力操作
-	/// 
+	///
 
 	HandleInput();
 
 	///
 	///	重力を常に受ける
-	///		
+	///
 
 	velocity_.y += gravityAcceleration_;
 
 	///
 	///	全てのブロックとの衝突判定とプレイヤーの押し戻し
-	/// 
-	
+	///
+
 	CheckCollisionAndResolve();
 
 #ifdef _DEBUG
 	ImGui::Begin("player");
 
-	/*ImGui::DragFloat3("velocity", &velocity_.x);
+	ImGui::DragFloat3("velocity", &velocity_.x);
 
 	ImGui::Text("hittingGround : %d", collisionMapInfo_.hittingGround_);
 	ImGui::Text("hittingCeiling : %d", collisionMapInfo_.hittingCeiling_);
 	ImGui::Text("hittingLeft : %d", collisionMapInfo_.hittingLeft_);
-	ImGui::Text("hittingRight : %d", collisionMapInfo_.hittingRight_);*/
+	ImGui::Text("hittingRight : %d", collisionMapInfo_.hittingRight_);
 
 	ImGui::End();
 #endif
 }
 
-void Player::Draw(const ViewProjection& viewProjection) { 
-	BaseObject::Draw(viewProjection); 
+void Player::Draw(const ViewProjection& viewProjection) {
+	BaseObject::Draw(viewProjection);
 
 	// 反転可能範囲を描画
 	DrawInvertArea();
@@ -88,7 +88,7 @@ void Player::Draw(const ViewProjection& viewProjection) {
 
 void Player::DebugImGui() {
 	// デフォルトデバッグ表示（トランスフォーム、コライダー）
-	BaseObject::DebugImGui(); 
+	BaseObject::DebugImGui();
 
 	// 追加分デバッグ表示
 	ImGui::Begin("player");
@@ -114,16 +114,15 @@ void Player::DebugImGui() {
 	ImGui::End();
 }
 
-bool Player::IsGoalReached()
-{
+bool Player::IsGoalReached() {
 	// 現在位置の取得
 	Vector3 position = this->transform_.translation_;
 	// プレイヤーの4つの角を計算
 	Vector3 corners[4] = {
-		{position.x - kWidth / 2, position.y + kHeight / 2, position.z}, // 左上
-		{position.x + kWidth / 2, position.y + kHeight / 2, position.z}, // 右上
-		{position.x - kWidth / 2, position.y - kHeight / 2, position.z}, // 左下
-		{position.x + kWidth / 2, position.y - kHeight / 2, position.z}  // 右下
+	    {position.x - kWidth / 2, position.y + kHeight / 2, position.z}, // 左上
+	    {position.x + kWidth / 2, position.y + kHeight / 2, position.z}, // 右上
+	    {position.x - kWidth / 2, position.y - kHeight / 2, position.z}, // 左下
+	    {position.x + kWidth / 2, position.y - kHeight / 2, position.z}  // 右下
 	};
 
 	// ゴール位置の取得
@@ -135,8 +134,7 @@ bool Player::IsGoalReached()
 
 	// 各角がゴール内にあるかを判定
 	for (const auto& corner : corners) {
-		if (corner.x >= goalLeft && corner.x <= goalRight &&
-			corner.y >= goalBottom && corner.y <= goalTop) {
+		if (corner.x >= goalLeft && corner.x <= goalRight && corner.y >= goalBottom && corner.y <= goalTop) {
 			return true; // 4つ角のどれかが触れていたらtrue
 		}
 	}
@@ -144,28 +142,27 @@ bool Player::IsGoalReached()
 	return false;
 }
 
-void Player::HandleInput()
-{
+void Player::HandleInput() {
 #pragma region ゲームパッド入力
 
 #pragma endregion
 
-
-# pragma region キーボード入力
+#pragma region キーボード入力
 	///
 	///	左右移動入力
-	/// 
+	///
 
 	if (input_->PushKey(DIK_A)) {
-		velocity_.x = -kMoveSpeed;}
+		velocity_.x = -kMoveSpeed;
+	}
 	if (input_->PushKey(DIK_D)) {
 		velocity_.x = kMoveSpeed;
 	}
 
 	///
 	///	ジャンプ入力
-	/// 
-	
+	///
+
 	if (input_->TriggerKey(DIK_W)) {
 		// 地面にいる場合のみ
 		if (collisionMapInfo_.hittingGround_) {
@@ -175,8 +172,8 @@ void Player::HandleInput()
 
 	///
 	///	範囲内のブロック反転入力
-	/// 
-	
+	///
+
 	if (input_->TriggerKey(DIK_SPACE)) {
 		if (mapChipField_) {
 			// 現在の位置を取得
@@ -188,8 +185,7 @@ void Player::HandleInput()
 #pragma endregion
 }
 
-void Player::CheckCollisionAndResolve()
-{
+void Player::CheckCollisionAndResolve() {
 	/// X移動
 	BaseObject::transform_.translation_.x += velocity_.x;
 
@@ -236,8 +232,7 @@ void Player::CheckCollisionAndResolve()
 	/*velocity_.y = 0.0f;*/
 }
 
-void Player::DrawInvertArea()
-{
+void Player::DrawInvertArea() {
 	// プレイヤーの位置を取得
 	Vector3 playerPositon = this->transform_.translation_;
 
@@ -251,41 +246,60 @@ void Player::DrawInvertArea()
 
 	// AABBの頂点を計算
 	std::vector<Vector3> vertices = {
-		{minX, minY, minZ}, {maxX, minY, minZ}, {maxX, maxY, minZ}, {minX, maxY, minZ}, // 底面
-		{minX, minY, maxZ}, {maxX, minY, maxZ}, {maxX, maxY, maxZ}, {minX, maxY, maxZ}  // 上面
+	    {minX, minY, minZ},
+        {maxX, minY, minZ},
+        {maxX, maxY, minZ},
+        {minX, maxY, minZ}, // 底面
+	    {minX, minY, maxZ},
+        {maxX, minY, maxZ},
+        {maxX, maxY, maxZ},
+        {minX, maxY, maxZ}  // 上面
 	};
 
 	// AABBのエッジリスト
 	std::vector<std::pair<int, int>> edges = {
-		{0, 1}, {1, 2}, {2, 3}, {3, 0}, // 底面
-		{4, 5}, {5, 6}, {6, 7}, {7, 4}, // 上面
-		{0, 4}, {1, 5}, {2, 6}, {3, 7}  // 側面
+	    {0, 1},
+        {1, 2},
+        {2, 3},
+        {3, 0}, // 底面
+	    {4, 5},
+        {5, 6},
+        {6, 7},
+        {7, 4}, // 上面
+	    {0, 4},
+        {1, 5},
+        {2, 6},
+        {3, 7}  // 側面
 	};
 
 	// エッジを描画
 	for (const auto& edge : edges) {
-		DrawLine3D::GetInstance()->SetPoints(vertices[edge.first], vertices[edge.second], { 1.0f, 1.0f, 1.0f, 1.0f });
+		DrawLine3D::GetInstance()->SetPoints(vertices[edge.first], vertices[edge.second], {1.0f, 1.0f, 1.0f, 1.0f});
 	}
 }
 
- Player::CollisionMapInfo Player::GetMapCollisionInfo()
-{
-	 CollisionMapInfo info;
+Player::CollisionMapInfo Player::GetMapCollisionInfo() {
+	CollisionMapInfo info;
 
 	// 現在位置の取得
 	Vector3 position = this->transform_.translation_;
+
 	// プレイヤーの4つの角を計算
 	Vector3 corners[4] = {
-		{position.x - kWidth / 2, position.y + kHeight / 2, position.z}, // 左上
-		{position.x + kWidth / 2, position.y + kHeight / 2, position.z}, // 右上
-		{position.x - kWidth / 2, position.y - kHeight / 2, position.z}, // 左下
-		{position.x + kWidth / 2, position.y - kHeight / 2, position.z}  // 右下
+	    {position.x - kWidth / 2, position.y + kHeight / 2, position.z}, // 左上
+	    {position.x + kWidth / 2, position.y + kHeight / 2, position.z}, // 右上
+	    {position.x - kWidth / 2, position.y - kHeight / 2, position.z}, // 左下
+	    {position.x + kWidth / 2, position.y - kHeight / 2, position.z}  // 右下
 	};
+
+	// 中心左と中心右の点を計算
+	Vector3 centerLeft = {position.x - kWidth / 2, position.y, position.z};  // 中心左
+	Vector3 centerRight = {position.x + kWidth / 2, position.y, position.z}; // 中心右
 
 	// 全てのブロックを取得
 	const auto blocks = mapChipField_->GetBlocks();
 	const float blockSize = MapChipField::kChipSize;
-	
+
 	// 全てのブロックとの衝突判定
 	for (const auto& block : blocks) {
 		// ブロックの位置と範囲を計算
@@ -297,15 +311,13 @@ void Player::DrawInvertArea()
 
 		// 各角の衝突を判定
 		for (int i = 0; i < 4; ++i) {
-			if (corners[i].x >= blockLeft && corners[i].x <= blockRight &&
-				corners[i].y >= blockBottom && corners[i].y <= blockTop) {
+			if (corners[i].x >= blockLeft && corners[i].x <= blockRight && corners[i].y >= blockBottom && corners[i].y <= blockTop) {
 				// 上下判定
-				if (i < 2) {
-					info.hittingCeiling_ = true;  // 左上・右上
+				if (i < 2) { // 左上・右上
+					info.hittingCeiling_ = true;
 					info.blockY = block; // Y方向で衝突したブロックを格納
-				}
-				if (i >= 2) {
-					info.hittingGround_ = true; // 左下・右下
+				} else if (i >= 2) {     // 左下・右下
+					info.hittingGround_ = true;
 					info.blockY = block; // Y方向で衝突したブロックを格納
 				}
 				// 左右判定
@@ -319,28 +331,39 @@ void Player::DrawInvertArea()
 				}
 			}
 		}
+
+		// 中心左の衝突判定
+		if (centerLeft.x >= blockLeft && centerLeft.x <= blockRight && centerLeft.y >= blockBottom && centerLeft.y <= blockTop) {
+			info.hittingLeft_ = true;
+			info.blockX = block; // 中心左のX方向で衝突したブロックを格納
+		}
+		// 中心右の衝突判定
+		if (centerRight.x >= blockLeft && centerRight.x <= blockRight && centerRight.y >= blockBottom && centerRight.y <= blockTop) {
+			info.hittingRight_ = true;
+			info.blockX = block; // 中心右のX方向で衝突したブロックを格納
+		}
 	}
 
 	return info;
 }
 
-//void Player::OnCollision(Collider* other)
+// void Player::OnCollision(Collider* other)
 //{
 //	// ブロックとの衝突判定
 //	if (Block* block = dynamic_cast<Block*>(other)) {
 //
 //	}
-//}
+// }
 
 void Player::SaveToJson() {
 	json j;
 
 	// なんか追加する場合こっから
-	j["gravityAcceleration"] = { gravityAcceleration_ };
+	j["gravityAcceleration"] = {gravityAcceleration_};
 	j["jumpAcceleration"] = {jumpAcceleration};
 
-	j["xInvertRange"] = { xInvertRange_ };
-	j["yInvertRange"] = { yInvertRange_ };
+	j["xInvertRange"] = {xInvertRange_};
+	j["yInvertRange"] = {yInvertRange_};
 
 	// ディレクトリを作成し、JSONファイルを保存
 	std::filesystem::create_directories("resources/jsons/Parameters/");

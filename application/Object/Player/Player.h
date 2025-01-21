@@ -92,6 +92,11 @@ private:
 	// リセット時のトランジションにかける時間
 	const float kResetTransitionTime = 0.3f;
 
+	/*ブロック反転中、プレイヤーが動かないようにするために使用*/
+	bool isInverting_ = false; // ブロック反転中かどうか
+	float invertTimer_ = 0.0f; // タイマー
+	const float invertDuration_ = 0.4f; // 反転アニメーションの合計時間
+
 private:
 	using json = nlohmann::json;
 

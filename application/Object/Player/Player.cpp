@@ -43,6 +43,14 @@ void Player::Update(MapChipField* mapChipField) {
 	squareTransition_->Update();
 	// リセット時処理
 	ResetMapChip();
+	// ブロック反転時、アニメーションが終わるまでを判定（反転中はプレイヤーが動かないようにするため）
+	if (isInverting_) {
+		invertTimer_ += kDeltaTime;
+		if (invertTimer_ >= invertDuration_) {
+			isInverting_ = false; // 反転が終了したことを示す
+			invertTimer_ = 0.0f; // タイマーリセット
+		}
+	}
 
 	///
 	///	毎フレーム初期化処理
@@ -67,7 +75,10 @@ void Player::Update(MapChipField* mapChipField) {
 	///	重力を常に受ける
 	///
 
-	velocity_.y += gravityAcceleration_;
+	// ブロック反転をしていない場合のみ
+	if (!isInverting_) {
+		velocity_.y += gravityAcceleration_;
+	}
 
 	///
 	///	全てのブロックとの衝突判定とプレイヤーの押し戻し
@@ -85,8 +96,7 @@ void Player::Update(MapChipField* mapChipField) {
 	ImGui::Text("hittingLeft : %d", collisionMapInfo_.hittingLeft_);
 	ImGui::Text("hittingRight : %d", collisionMapInfo_.hittingRight_);
 
-	ImGui::Text("isFinished : %d", squareTransition_->IsFinished());
-	ImGui::Text("currentStatus : %d", squareTransition_->GetCurrentStatus());
+	ImGui::Text("isReversing : %d", isInverting_);
 
 	ImGui::End();
 #endif
@@ -167,11 +177,14 @@ void Player::HandleInput() {
 	///	左右移動入力
 	///
 
-	if (input_->PushKey(DIK_A)) {
-		velocity_.x = -kMoveSpeed;
-	}
-	if (input_->PushKey(DIK_D)) {
-		velocity_.x = kMoveSpeed;
+	// ブロック反転をしていない場合のみ
+	if (!isInverting_) {
+		if (input_->PushKey(DIK_A)) {
+			velocity_.x = -kMoveSpeed;
+		}
+		if (input_->PushKey(DIK_D)) {
+			velocity_.x = kMoveSpeed;
+		}
 	}
 
 	///
@@ -190,11 +203,17 @@ void Player::HandleInput() {
 	///
 
 	if (input_->TriggerKey(DIK_SPACE)) {
-		if (mapChipField_) {
-			// 現在の位置を取得
-			Vector3 position = BaseObject::GetWorldPosition();
-			// 範囲内のブロックの反転を行う
-			mapChipField_->InvertBlocksInArea(position, xInvertRange_, yInvertRange_);
+		// 反転中ではない場合のみ
+		if (!isInverting_) {
+			if (mapChipField_) {
+				// 現在の位置を取得
+				Vector3 position = BaseObject::GetWorldPosition();
+				// 範囲内のブロックの反転を行う
+				mapChipField_->InvertBlocksInArea(position, xInvertRange_, yInvertRange_);
+
+				// 反転中であることを記録する
+				isInverting_ = true;
+			}
 		}
 	}
 
@@ -247,7 +266,10 @@ void Player::CheckCollisionAndResolve() {
 	}
 
 	/// Y移動
-	BaseObject::transform_.translation_.y += velocity_.y;
+	// ブロック反転をしていない場合のみ
+	if (!isInverting_) {
+		BaseObject::transform_.translation_.y += velocity_.y;
+	}
 
 	/// 衝突判定
 	CollisionMapInfo collisionMapInfoY = GetMapCollisionInfo();

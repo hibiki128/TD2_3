@@ -78,6 +78,8 @@ void GameScene::Draw()
 	spCommon_->DrawCommonSetting();
 	//-----Spriteの描画開始-----
 
+	player_->DrawSprite();
+
 	//------------------------
 
 	objCommon_->DrawCommonSetting();

@@ -2,11 +2,12 @@
 
 // Engine
 #include "Input.h"
+#include "myEngine/utility/collider/Collider.h"
 
 // Application
 #include "application/Base/BaseObject.h"
 #include "application/Object/MapChip/MapChipField.h"
-#include "myEngine/utility/collider/Collider.h"
+#include "application/Transition/SquareTransition.h"
 
 class Player : public BaseObject
 {
@@ -25,6 +26,7 @@ public:
 	void Init(const std::string className)override;
 	void Update(MapChipField* mapChipField);
 	void Draw(const ViewProjection& viewProjection)override;
+	void DrawSprite();
 	void DebugImGui()override;
 
 	// プレイヤーがゴールに到達しているか判定
@@ -55,11 +57,17 @@ private:
 
 	// ジャンプ関連
 	float gravityAcceleration_; // 重力加速度
-	float jumpAcceleration; // ジャンプ初速
+	float jumpAcceleration_; // ジャンプ初速
 
 	// 反転可能範囲
 	int xInvertRange_;
 	int yInvertRange_;
+
+	///
+	///	その他
+	///	
+
+	std::unique_ptr<SquareTransition> squareTransition_;
 
 private:
 	// 入力操作
@@ -77,6 +85,8 @@ private:
 
 	// 反転可能範囲のAABBを描画
 	void DrawInvertArea();
+	// マップとプレイヤーの位置をリセットする
+	void ResetMapChip();
 
 private:
 	using json = nlohmann::json;

@@ -17,10 +17,18 @@ void Player::Init(const std::string className) {
 	///
 
 	gravityAcceleration_ = -0.01f; // 重力
-	jumpAcceleration = 0.3f;       // ジャンプ初速
+	jumpAcceleration_ = 0.3f;       // ジャンプ初速
 
 	xInvertRange_ = 3;
 	yInvertRange_ = 3;
+
+	///
+	///	その他
+	///		
+
+	// SquareTransition初期化
+	squareTransition_ = std::make_unique<SquareTransition>();
+	squareTransition_->Initialize();
 
 	// Jsonからパラメーターの読み込み
 	LoadFromJson();
@@ -28,6 +36,7 @@ void Player::Init(const std::string className) {
 
 void Player::Update(MapChipField* mapChipField) {
 	BaseObject::Update();
+	squareTransition_->Update();
 
 	///
 	///	毎フレーム初期化処理
@@ -81,6 +90,10 @@ void Player::Draw(const ViewProjection& viewProjection) {
 	DrawInvertArea();
 }
 
+void Player::DrawSprite() { 
+	squareTransition_->Draw(); 
+}
+
 void Player::DebugImGui() {
 	// デフォルトデバッグ表示（トランスフォーム、コライダー）
 	BaseObject::DebugImGui();
@@ -92,7 +105,7 @@ void Player::DebugImGui() {
 
 			// なんか追加する場合こっから
 			ImGui::DragFloat("重力加速度", &gravityAcceleration_, 0.001f);
-			ImGui::DragFloat("ジャンプ初速", &jumpAcceleration, 0.01f);
+			ImGui::DragFloat("ジャンプ初速", &jumpAcceleration_, 0.01f);
 
 			ImGui::DragInt("X方向反転範囲", &xInvertRange_, 2, 1, 101);
 			ImGui::DragInt("Y方向反転範囲", &yInvertRange_, 2, 1, 101);
@@ -161,7 +174,7 @@ void Player::HandleInput() {
 	if (input_->TriggerKey(DIK_W)) {
 		// 地面にいる場合のみ
 		if (collisionMapInfo_.hittingGround_) {
-			velocity_.y = jumpAcceleration; // 上昇開始
+			velocity_.y = jumpAcceleration_; // 上昇開始
 		}
 	}
 
@@ -183,11 +196,11 @@ void Player::HandleInput() {
 	/// 
 	
 	if (input_->TriggerKey(DIK_R)) {
-		// プレイヤーの位置をリセット
-		this->transform_.translation_ = mapChipField_->GetPlayerInitialPositon();
-		// マップのリセット
-		mapChipField_->ResetMapChip();
+		ResetMapChip();
+
+		/*squareTransition_->Start(SquareTransition::Status::SquareIn, 0.5f);*/
 	}
+
 #pragma endregion
 }
 
@@ -338,6 +351,13 @@ Player::CollisionMapInfo Player::GetMapCollisionInfo() {
 	return info;
 }
 
+void Player::ResetMapChip() {
+	// プレイヤーの位置をリセット
+	this->transform_.translation_ = mapChipField_->GetPlayerInitialPositon();
+	// マップのリセット
+	mapChipField_->ResetMapChip();
+}
+
 // void Player::OnCollision(Collider* other)
 //{
 //	// ブロックとの衝突判定
@@ -351,7 +371,7 @@ void Player::SaveToJson() {
 
 	// なんか追加する場合こっから
 	j["gravityAcceleration"] = {gravityAcceleration_};
-	j["jumpAcceleration"] = {jumpAcceleration};
+	j["jumpAcceleration"] = {jumpAcceleration_};
 
 	j["xInvertRange"] = {xInvertRange_};
 	j["yInvertRange"] = {yInvertRange_};
@@ -375,8 +395,8 @@ void Player::LoadFromJson() {
 	if (j.contains("gravityAcceleration") && j["gravityAcceleration"].is_array()) {
 		gravityAcceleration_ = j["gravityAcceleration"][0];
 	}
-	if (j.contains("jumpVelocity") && j["jumpVelocity"].is_array()) {
-		jumpAcceleration = j["jumpVelocity"][0];
+	if (j.contains("jumpAcceleration") && j["jumpAcceleration"].is_array()) {
+		jumpAcceleration_ = j["jumpAcceleration"][0];
 	}
 
 	if (j.contains("xInvertRange") && j["xInvertRange"].is_array()) {

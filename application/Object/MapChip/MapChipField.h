@@ -33,6 +33,8 @@ public:
 	Goal* GetGoal() const { return goal_.get(); }
 	// プレイヤー初期位置を返す
 	Vector3 GetPlayerInitialPositon() { return playerInitialPosition_; }
+	// マップの状態を初期状態に戻す
+	void ResetMapChip();
 
 	///
 	///	ブロックの反転処理（プレイヤー側で呼び出す）
@@ -69,6 +71,8 @@ private:
 
 	// マップチップの二次元配列
 	std::vector<std::vector<MapChip>> mapChips_;
+	std::string csvFilePath_; // ファイルパス保存用
+
 	// ゴールオブジェクト
 	std::unique_ptr<Goal> goal_;
 	// プレイヤー初期位置を格納

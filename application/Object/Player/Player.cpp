@@ -177,6 +177,17 @@ void Player::HandleInput() {
 			mapChipField_->InvertBlocksInArea(position, xInvertRange_, yInvertRange_);
 		}
 	}
+
+	///
+	///	リセット
+	/// 
+	
+	if (input_->TriggerKey(DIK_R)) {
+		// プレイヤーの位置をリセット
+		this->transform_.translation_ = mapChipField_->GetPlayerInitialPositon();
+		// マップのリセット
+		mapChipField_->ResetMapChip();
+	}
 #pragma endregion
 }
 

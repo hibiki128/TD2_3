@@ -17,8 +17,11 @@ MapChipField::MapChipField()
 
 void MapChipField::Init(const std::string& csvFilePath)
 {
+	// ファイルパスの保存をしておく
+	csvFilePath_ = csvFilePath;
+
 	// CSVファイルからマップの読み込み
-	LoadFromCSV(csvFilePath);
+	LoadFromCSV(csvFilePath_);
 }
 
 void MapChipField::Update()
@@ -74,6 +77,26 @@ std::vector<Block*> MapChipField::GetBlocks() const {
 	}
 
 	return blocks;
+}
+
+void MapChipField::ResetMapChip() { 
+	// マップチップの二次元配列をクリアする
+	mapChips_.clear();
+
+	// Initを呼んでマップ再生成
+	Init(csvFilePath_); 
+
+	// 全てのブロックの状態をリセット
+	for (auto& row : mapChips_) {
+		for (auto& chip : row) {
+			chip.isAnimating = false;
+			chip.isDelaying = false;
+			chip.animState = MapChip::AnimationState::None;
+			chip.animationTime = 0.0f;
+			chip.delayTime = 0.0f;
+			chip.currentScale = 1.0f;
+		}
+	}
 }
 
 void MapChipField::InvertBlocksInArea(const Vector3& center, int xRange, int yRange)

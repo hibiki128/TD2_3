@@ -98,6 +98,9 @@ void Player::Update(MapChipField* mapChipField) {
 
 	ImGui::Text("isReversing : %d", isInverting_);
 
+	ImGui::Text("TransitionStatus : %d", squareTransition_->GetCurrentStatus());
+	ImGui::Text("TransitionIsFinished : %d", squareTransition_->IsFinished());
+
 	ImGui::End();
 #endif
 }
@@ -233,6 +236,10 @@ void Player::HandleInput() {
 }
 
 void Player::ResetMapChip() {
+	///
+	///	メモ : SquareInが呼び出されたら終了次第、リセットとSquareOutが開始する
+	/// 
+
 	// Rキー押下時にSquareInが開始するので、終了したらリセット処理が行われる
 	if (squareTransition_->IsFinished() && squareTransition_->GetCurrentStatus() == SquareTransition::Status::SquareIn) {
 		// プレイヤーの位置をリセット
@@ -244,6 +251,12 @@ void Player::ResetMapChip() {
 
 		// SquareOutを開始する
 		squareTransition_->Start(SquareTransition::Status::SquareOut, kResetTransitionTime);
+	}
+
+	// プレイヤーが画面外へ落下した際にもリセット
+	if (this->transform_.translation_.y < -30.0f && squareTransition_->IsFinished()) { // 一旦画面下方向のみ適当に設定
+		// SquareInを開始する
+		squareTransition_->Start(SquareTransition::Status::SquareIn, kResetTransitionTime);
 	}
 }
 

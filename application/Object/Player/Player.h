@@ -29,6 +29,9 @@ public:
 
 	// プレイヤーがゴールに到達しているか判定
 	bool IsGoalReached();
+	// プレイヤーの位置を設定
+	void SetInitialPosition(Vector3 playerInitialPosition) { this->transform_.translation_ = playerInitialPosition; }
+
 private:
 	// 入力
 	Input* input_;
@@ -67,13 +70,14 @@ private:
 	// 衝突判定
 	/*void OnCollision([[maybe_unused]] Collider* other)override;*/
 
-	// 反転可能範囲のAABBを描画
-	void DrawInvertArea();
-
 	// マップチップフィールドを保持
 	MapChipField* mapChipField_ = nullptr;
 	// マップとの当たり判定情報を返す
 	CollisionMapInfo GetMapCollisionInfo();
+
+	// 反転可能範囲のAABBを描画
+	void DrawInvertArea();
+
 private:
 	using json = nlohmann::json;
 

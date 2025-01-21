@@ -31,6 +31,8 @@ public:
 	std::vector<Block*> GetBlocks() const;
 	// ゴールオブジェクトの取得
 	Goal* GetGoal() const { return goal_.get(); }
+	// プレイヤー初期位置を返す
+	Vector3 GetPlayerInitialPositon() { return playerInitialPosition_; }
 
 	///
 	///	ブロックの反転処理（プレイヤー側で呼び出す）
@@ -69,6 +71,8 @@ private:
 	std::vector<std::vector<MapChip>> mapChips_;
 	// ゴールオブジェクト
 	std::unique_ptr<Goal> goal_;
+	// プレイヤー初期位置を格納
+	Vector3 playerInitialPosition_;
 
 private:
 	///

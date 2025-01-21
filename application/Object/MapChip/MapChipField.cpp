@@ -180,6 +180,11 @@ void MapChipField::LoadFromCSV(const std::string& filePath)
 				goal_->SetObjColor({ 1.0f, 1.0f, 0.0f, 1.0f }); // 黄色にしておく
 			}
 
+			/*プレイヤー初期位置の格納*/
+			if (chipValue == 5) {
+				playerInitialPosition_ = {x * kChipSize, -y * kChipSize, 0.0f};
+			};
+
 			// マップチップの二次元配列に格納
 			mapChips_[y].push_back(std::move(chip));
 			++x;
@@ -202,6 +207,7 @@ Block::ChipType MapChipField::GetChipTypeFromInt(int value)
 	case 2: return Block::ChipType::White;
 	case 3: return Block::ChipType::Gray;
 	case 4: return Block::ChipType::Empty; // ゴールオブジェクトは空白扱いとする
+	case 5: return Block::ChipType::Empty; // プレイヤー初期位置は空白扱いとする
 
 	default: return Block::ChipType::Empty;
 	}

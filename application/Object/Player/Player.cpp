@@ -12,11 +12,6 @@ void Player::Init(const std::string className) {
 	BaseObject::CreateCollider();
 	BaseObject::SetObjColor({1.0f, 0.0f, 0.0f, 1.0f});
 
-	// 初期位置の設定（一旦雑にここで）
-	const int x = 6;
-	const int y = 4;
-	BaseObject::SetWorldPosition({x * MapChipField::kChipSize, y * -MapChipField::kChipSize, 0.0f});
-
 	///
 	///	各パラメーター初期化
 	///
@@ -246,30 +241,15 @@ void Player::DrawInvertArea() {
 
 	// AABBの頂点を計算
 	std::vector<Vector3> vertices = {
-	    {minX, minY, minZ},
-        {maxX, minY, minZ},
-        {maxX, maxY, minZ},
-        {minX, maxY, minZ}, // 底面
-	    {minX, minY, maxZ},
-        {maxX, minY, maxZ},
-        {maxX, maxY, maxZ},
-        {minX, maxY, maxZ}  // 上面
+	    {minX, minY, minZ}, {maxX, minY, minZ}, {maxX, maxY, minZ}, {minX, maxY, minZ}, // 底面
+	    {minX, minY, maxZ}, {maxX, minY, maxZ}, {maxX, maxY, maxZ}, {minX, maxY, maxZ}  // 上面
 	};
 
 	// AABBのエッジリスト
 	std::vector<std::pair<int, int>> edges = {
-	    {0, 1},
-        {1, 2},
-        {2, 3},
-        {3, 0}, // 底面
-	    {4, 5},
-        {5, 6},
-        {6, 7},
-        {7, 4}, // 上面
-	    {0, 4},
-        {1, 5},
-        {2, 6},
-        {3, 7}  // 側面
+	    {0, 1}, {1, 2}, {2, 3}, {3, 0}, // 底面
+	    {4, 5}, {5, 6}, {6, 7}, {7, 4}, // 上面
+	    {0, 4}, {1, 5}, {2, 6}, {3, 7}  // 側面
 	};
 
 	// エッジを描画

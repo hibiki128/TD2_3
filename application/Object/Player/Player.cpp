@@ -8,9 +8,9 @@ void Player::Init(const std::string className) {
 	input_ = Input::GetInstance();
 
 	BaseObject::Init(className);
-	BaseObject::CreateModel("debug/Cube.obj");
+	BaseObject::CreateModel("game/Player.obj");
+	BaseObject::SetTexture("game/PlayerWhite.png"); // 白状態のプレイヤーテクスチャを設定
 	BaseObject::CreateCollider();
-	BaseObject::SetObjColor({1.0f, 0.0f, 0.0f, 1.0f});
 
 	///
 	///	各パラメーター初期化
@@ -127,6 +127,23 @@ void Player::Update(MapChipField* mapChipField) {
 			ImGui::Checkbox("リセットした瞬間", &flag[2]);
 			ImGui::Checkbox("重力反転した瞬間", &flag[3]);
 			ImGui::Checkbox("着地した瞬間", &flag[4]);
+
+			// チェックボックスを描画し、変更があれば色状態を更新
+			if (ImGui::Checkbox("プレイヤーの色変更", &isWhite_)) {
+				colorState_ = isWhite_ ? ColorState::White : ColorState::Black;
+			}
+
+			if (isWhite_) {
+				BaseObject::SetTexture("game/PlayerWhite.png"); // プレイヤーに白テクスチャを適用
+			} else {
+				BaseObject::SetTexture("game/PlayerBlack.png"); // プレイヤーに黒テクスチャを適用
+			}
+
+			if (colorState_ == ColorState::White) {
+				ImGui::Text("現在の色 : 白");
+			} else if (colorState_ == ColorState::Black) {
+				ImGui::Text("現在の色 : 黒");
+			}
 
 			ImGui::EndTabItem();
 		}
@@ -485,6 +502,13 @@ Player::CollisionMapInfo Player::GetMapCollisionInfo() {
 
 	// 全てのブロックとの衝突判定
 	for (const auto& block : blocks) {
+		// プレイヤーとブロックの色が同じ場合には判定を取らない
+		if (this->colorState_ == ColorState::White && block->type_ == Block::ChipType::White) { // プレイヤーが白状態で、白ブロックの場合
+			continue;
+		} else if (this->colorState_ == ColorState::Black && block->type_ == Block::ChipType::Black) { // プレイヤーが黒状態で、黒ブロックの場合
+			continue;
+		}
+
 		// ブロックの位置と範囲を計算
 		Vector3 blockPosition = block->GetWorldPosition();
 		float blockLeft = blockPosition.x - blockSize / 2;

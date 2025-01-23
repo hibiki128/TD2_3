@@ -64,6 +64,15 @@ private:
 	// 重力反転状態かどうか
 	bool isGravityReversed_ = false; // 初期状態は通常
 
+	/*プレイヤーの現在の色*/
+	enum class ColorState {
+		White,
+		Black,
+	};
+	// プレイヤーの色の状態
+	ColorState colorState_ = ColorState::White;
+	bool isWhite_ = true; // デバッグ用なのであとで消す
+
 	//////////////////
 	/*調整パラメーター*/
 	/////////////////

@@ -49,6 +49,8 @@ public:
 	///	その他
 	/// 
 
+	// 指定範囲内にブロックが存在しているかを判定
+	bool HasBlockInArea(const Vector3& center, int xRange, int yRange);
 	// 指定範囲内に重力反転ブロックがあるかどうかを判定
 	bool HasGravityBlockInArea(const Vector3& center, int xRange, int yRange);
 

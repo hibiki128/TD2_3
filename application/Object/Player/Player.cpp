@@ -227,15 +227,19 @@ void Player::HandleInput() {
 			if (mapChipField_) {
 				// 現在の位置を取得
 				Vector3 position = BaseObject::GetWorldPosition();
-				// 範囲内のブロックの反転を行う
-				mapChipField_->InvertBlocksInArea(position, xInvertRange_, yInvertRange_);
 
-				// 反転中であることを記録する
-				isInverting_ = true;
+				// 範囲内にブロックが1つでも存在しているかを判定する
+				if (mapChipField_->HasBlockInArea(position, xInvertRange_, yInvertRange_)) {
+					// 範囲内のブロックの反転を行う
+					mapChipField_->InvertBlocksInArea(position, xInvertRange_, yInvertRange_);
 
-				// 重力ブロックが範囲内に見つかった場合、プレイヤーの重力を反転する
-				if (mapChipField_->HasGravityBlockInArea(position, xInvertRange_, yInvertRange_)) {
-					isGravityReversed_ = !isGravityReversed_;
+					// 反転中であることを記録する
+					isInverting_ = true;
+
+					// 重力ブロックが範囲内に見つかった場合、プレイヤーの重力を反転する
+					if (mapChipField_->HasGravityBlockInArea(position, xInvertRange_, yInvertRange_)) {
+						isGravityReversed_ = !isGravityReversed_;
+					}
 				}
 			}
 		}

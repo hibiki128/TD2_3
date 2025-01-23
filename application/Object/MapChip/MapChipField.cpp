@@ -403,6 +403,38 @@ void MapChipField::UpdateChipAnimation(MapChip& chip)
 	}
 }
 
+bool MapChipField::HasBlockInArea(const Vector3& center, int xRange, int yRange) { 
+	// 中心位置からマップ上のマス位置を計算
+	int centerX = static_cast<int>(std::round(center.x / kChipSize));
+	int centerY = static_cast<int>(std::round(-center.y / kChipSize));
+
+	int halfXRange = xRange / 2;
+	int halfYRange = yRange / 2;
+
+	// 範囲内のブロックを探索
+	for (int y = -halfYRange; y <= halfYRange; ++y) {
+		for (int x = -halfXRange; x <= halfXRange; ++x) {
+			// 対象位置を計算
+			int targetX = centerX + x;
+			int targetY = centerY + y;
+
+			// マップ範囲外を無視
+			if (targetX < 0 || targetX >= static_cast<int>(mapWidth) || targetY < 0 || targetY >= static_cast<int>(mapHeight)) {
+				continue;
+			}
+
+			// マスにブロックが存在するかをチェック
+			MapChip& chip = mapChips_[targetY][targetX];
+			if (chip.object->type_ != Block::ChipType::Empty && // 空ブロックを除外する
+				chip.object->type_ != Block::ChipType::Gray) { // 動かないブロックを除外する（あとで変更する可能性あり）
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
 bool MapChipField::HasGravityBlockInArea(const Vector3& center, int xRange, int yRange) { 
 	// 中心位置からマップ上のマス位置を計算
 	int centerX = static_cast<int>(std::round(center.x / kChipSize));

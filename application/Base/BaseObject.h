@@ -69,6 +69,7 @@ public:
 	void SetRotationY(float rotate) { transform_.rotation_.y = rotate; }
 	void SetScale(Vector3 scale) { transform_.scale_ = scale; }
 	void SetLighting(bool isLighting) { isLighting_ = isLighting; }
+	void SetTexture(const std::string& filePath) { obj3d_->SetTexture(filePath); }
 
 private:
 	void DebugTransform();

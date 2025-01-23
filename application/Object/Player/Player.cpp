@@ -288,9 +288,11 @@ void Player::Reset() {
 	}
 
 	// プレイヤーが画面外へ落下した際にもリセット
-	if (this->transform_.translation_.y < -30.0f && squareTransition_->IsFinished()) { // 一旦画面下方向のみ適当に設定
-		// SquareInを開始する
-		squareTransition_->Start(SquareTransition::Status::SquareIn, kResetTransitionTime);
+	if (squareTransition_->IsFinished()) {
+		if (this->transform_.translation_.y < -30.0f || this->transform_.translation_.y > 30.0f) { // リセット判定の座標を一旦適当に設定
+			// SquareInを開始する
+			squareTransition_->Start(SquareTransition::Status::SquareIn, kResetTransitionTime);
+		}
 	}
 }
 

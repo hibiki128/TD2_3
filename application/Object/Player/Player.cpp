@@ -42,7 +42,7 @@ void Player::Update(MapChipField* mapChipField) {
 	BaseObject::Update();
 	squareTransition_->Update();
 	// リセット時処理
-	ResetMapChip();
+	Reset();
 	// ブロック反転時、アニメーションが終わるまでを判定（反転中はプレイヤーが動かないようにするため）
 	if (isInverting_) {
 		invertTimer_ += kDeltaTime;
@@ -256,19 +256,28 @@ void Player::HandleInput() {
 #pragma endregion
 }
 
-void Player::ResetMapChip() {
+void Player::Reset() {
 	///
 	///	メモ : SquareInが呼び出されたら終了次第、リセットとSquareOutが開始する
 	///
 
 	// Rキー押下時にSquareInが開始するので、終了したらリセット処理が行われる
 	if (squareTransition_->IsFinished() && squareTransition_->GetCurrentStatus() == SquareTransition::Status::SquareIn) {
+		///
+		///	各種リセット処理
+		/// 
+
 		// プレイヤーの位置をリセット
 		this->transform_.translation_ = mapChipField_->GetPlayerInitialPosition();
 		// プレイヤーの速度をリセット
 		this->velocity_ = {0.0f, 0.0f, 0.0f};
+		// プレイヤーの重力状態をリセット
+		isGravityReversed_ = false;
+
 		// マップのリセット
 		mapChipField_->ResetMapChip();
+
+
 
 		// SquareOutを開始する
 		squareTransition_->Start(SquareTransition::Status::SquareOut, kResetTransitionTime);

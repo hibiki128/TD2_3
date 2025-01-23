@@ -103,7 +103,7 @@ private:
 
 	// 反転可能範囲のAABBを描画
 	void DrawInvertArea();
-	void ResetMapChip();
+	void Reset();
 
 private:
 	using json = nlohmann::json;

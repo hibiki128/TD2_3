@@ -9,6 +9,13 @@
 
 class Collider {
 public:
+	enum class CollisionType {
+		Sphere,
+		AABB,
+		OBB
+	};
+
+public:
 
 	Collider();
 
@@ -60,19 +67,17 @@ public:
 	virtual Vector3 GetCenterPosition() const = 0;
 	virtual Vector3 GetCenterRotation() const = 0;
 
-	AABB GetAABB() { return aabb; }
-	OBB GetOBB() { return obb; }
-	Sphere GetSphere() { return sphere; }
+	AABB GetAABB() { return aabb_; }
+	OBB GetOBB() { return obb_; }
+	Sphere GetSphere() { return sphere_; }
 	bool IsCollisionEnabled() const { return isCollisionEnabled_; }
-	bool IsColliding() const { return isColliding; }
-	bool WasColliding() const { return wasColliding; }
-	bool IsOBB() { return isOBB; }
-	bool IsSphere() { return isSphere; }
-	bool IsAABB() { return isAABB; }
-	bool IsVisible() { return isVisible; }
+	bool IsColliding() const { return isColliding_; }
+	bool WasColliding() const { return wasColliding_; }
+	bool IsOBB() { return isOBB_; }
+	bool IsSphere() { return isSphere_; }
+	bool IsAABB() { return isAABB_; }
+	bool IsVisible() { return isVisible_; }
 
-	void SetOBBSize(const Vector3& size) { OBBOffset.size = size; }
-	void SetSphereSize(const float& radius) { SphereOffset.radius = radius; }
 
 #pragma endregion
 
@@ -96,10 +101,13 @@ public:
 	/// </summary>
 	/// <param name="radius"></param>
 	void SetRadius(float radius) { radius_ = radius; }
-	void SetIsColliding(bool colliding) { isColliding = colliding;  wasColliding = isColliding; }
+	void SetIsColliding(bool colliding) { isColliding_ = colliding; }
+	void SetWasColliding(bool wasColliding) { wasColliding_ = wasColliding; }
 	void SetCollisionEnabled(bool enabled) { isCollisionEnabled_ = enabled; }
 	void SetHitColor() { color_ = { 1.0f,0.0f,0.0f,1.0f }; }
 	void SetDefaultColor() { color_ = { 1.0f,1.0f,1.0f,1.0f }; }
+	void SetCollisionType(CollisionType collisionType);
+	void SetVisible(bool isVisible) { isVisible_ = isVisible; }
 
 #pragma endregion
 
@@ -128,28 +136,28 @@ private:
 	// 衝突半径
 	float radius_ = 1.0f;
 
-	std::unique_ptr<Object3d>sphere_;
+	std::unique_ptr<Object3d>Sphere_;
 	std::unique_ptr<Object3d>AABB_;
 	std::unique_ptr<Object3d>OBB_;
 
-	AABB aabb;
-	OBB obb;
-	Sphere sphere;
+	AABB aabb_;
+	OBB obb_;
+	Sphere sphere_;
 	Vector4 color_ = { 1.0f,1.0f,1.0f,1.0f };
 
 	static int counter; // 静的カウンタ
-	Sphere SphereOffset;
-	AABB AABBOffset;
-	OBB OBBOffset;
+	Sphere SphereOffset_;
+	AABB AABBOffset_;
+	OBB OBBOffset_;
 	std::string className_;
 
 	bool isCollisionEnabled_ = true;  // デフォルトではコリジョンを有効化
-	bool isColliding = false;   // 現在のフレームの衝突状態
-	bool wasColliding = false;  // 前フレームの衝突状態
+	bool isColliding_ = false;   // 現在のフレームの衝突状態
+	bool wasColliding_ = false;  // 前フレームの衝突状態
 	bool isCollidingInCurrentFrame_ = false; // 現フレームで衝突しているか
 
-	bool isAABB = false;
-	bool isOBB = true;
-	bool isSphere = false;
-	bool isVisible = true;
+	bool isAABB_ = true;
+	bool isOBB_ = true;
+	bool isSphere_ = true;
+	bool isVisible_ = true;
 };

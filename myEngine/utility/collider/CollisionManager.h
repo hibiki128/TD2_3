@@ -6,10 +6,21 @@
 #include"Object3d.h"
 #include"myMath.h"
 class CollisionManager {
+public:
+
+	struct pair_hash {
+		template <class T1, class T2>
+		std::size_t operator () (const std::pair<T1, T2>& pair) const {
+			auto hash1 = std::hash<T1>{}(pair.first);
+			auto hash2 = std::hash<T2>{}(pair.second);
+			return hash1 ^ hash2;
+		}
+	};
+
 private:
 	// コライダー
 	static std::list<Collider*> colliders_;
-
+	std::unordered_map<std::pair<Collider*, Collider*>, bool, pair_hash> collisionStates;
 	bool isCollidingNow = false;
 
 public:

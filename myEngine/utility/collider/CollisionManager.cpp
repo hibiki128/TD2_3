@@ -61,6 +61,8 @@ void CollisionManager::CheckCollisionPair(Collider* colliderA, Collider* collide
 	if (!colliderA->IsCollisionEnabled() || !colliderB->IsCollisionEnabled()) {
 		return;
 	}
+	// ペアをソートしてキーを生成
+	auto key = std::make_pair(std::min(colliderA, colliderB), std::max(colliderA, colliderB));
 
 	// 球の衝突チェック
 	if ((colliderA->IsSphere() && colliderB->IsSphere()) && !isCollidingNow) {
@@ -117,36 +119,40 @@ void CollisionManager::CheckCollisionPair(Collider* colliderA, Collider* collide
 		}
 	}
 
-	if (isCollidingNow) {
-		colliderA->SetIsCollidingInCurrentFrame(true);
-		colliderB->SetIsCollidingInCurrentFrame(true);
-	}
+	colliderA->SetIsColliding(isCollidingNow);
+	colliderB->SetIsColliding(isCollidingNow);
+
+
+	bool wasColliding = collisionStates[key];
 
 	// 衝突状態の変化に応じたコールバックの呼び出し
 	if (isCollidingNow) {
-		// 衝突していなかった場合に発生
-		if (!colliderA->WasColliding() && !colliderB->WasColliding()) {
+		colliderA->SetIsCollidingInCurrentFrame(true);
+		colliderB->SetIsCollidingInCurrentFrame(true);
+		// 前フレームで衝突していなかった場合に発生
+		if (!wasColliding) {
 			colliderA->OnCollisionEnter(colliderB);
 			colliderB->OnCollisionEnter(colliderA);
 		}
-		else {
-			// 既に衝突している場合
-			colliderA->OnCollision(colliderB);
-			colliderB->OnCollision(colliderA);
-		}
+
+		// 既に衝突している場合
+		colliderA->OnCollision(colliderB);
+		colliderB->OnCollision(colliderA);
+
 	}
 	else {
 		// 衝突が終わった場合
-		if (colliderA->WasColliding() || colliderB->WasColliding()) {
+		if (wasColliding) {
 			colliderA->OnCollisionOut(colliderB);
 			colliderB->OnCollisionOut(colliderA);
 		}
 	}
 
 	// 衝突状態の更新
-	colliderA->SetIsColliding(isCollidingNow);
-	colliderB->SetIsColliding(isCollidingNow);
+	collisionStates[key] = isCollidingNow;
+
 }
+
 
 void CollisionManager::CheckAllCollisions() {
 	// リスト内のペアを総当たり

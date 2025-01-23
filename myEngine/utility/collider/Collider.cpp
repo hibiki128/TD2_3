@@ -6,7 +6,7 @@
 int Collider::counter = -1;  // 初期値を-1に変更
 
 Collider::Collider() {
-	
+
 }
 
 Collider::~Collider()
@@ -21,13 +21,13 @@ void Collider::Initialize(const std::string className) {
 	counter++;
 
 	// 初期化
-	SphereOffset.center = { 0.0f, 0.0f, 0.0f };
-	SphereOffset.radius = 0.0f;
-	AABBOffset.min = { 0.0f, 0.0f, 0.0f };
-	AABBOffset.max = { 0.0f, 0.0f, 0.0f };
-	OBBOffset.rotationCenter = { 0.0f,0.0f,0.0f };
-	OBBOffset.scaleCenter = { 0.0f,0.0f,0.0f };
-	OBBOffset.size = { 1.0f,1.0f,1.0f };
+	SphereOffset_.center = { 0.0f, 0.0f, 0.0f };
+	SphereOffset_.radius = 0.0f;
+	AABBOffset_.min = { 0.0f, 0.0f, 0.0f };
+	AABBOffset_.max = { 0.0f, 0.0f, 0.0f };
+	OBBOffset_.rotationCenter = { 0.0f,0.0f,0.0f };
+	OBBOffset_.scaleCenter = { 0.0f,0.0f,0.0f };
+	OBBOffset_.size = { 1.0f,1.0f,1.0f };
 
 	className_ = className;
 	LoadFromJson();
@@ -36,24 +36,24 @@ void Collider::Initialize(const std::string className) {
 void Collider::UpdateWorldTransform() {
 
 	// 球用のワールドトランスフォームを更新
-	sphere.center = GetCenterPosition() + SphereOffset.center;
-	sphere.radius = radius_ + SphereOffset.radius;
+	sphere_.center = GetCenterPosition() + SphereOffset_.center;
+	sphere_.radius = radius_ + SphereOffset_.radius;
 
 	// AABBの現在の最小点と最大点を取得
-	aabb.min = GetCenterPosition() - Vector3(1.0f, 1.0f, 1.0f);
-	aabb.max = GetCenterPosition() + Vector3(1.0f, 1.0f, 1.0f);
-	aabb.min = aabb.min + AABBOffset.min;
-	aabb.max = aabb.max + AABBOffset.max;
+	aabb_.min = GetCenterPosition() - Vector3(1.0f, 1.0f, 1.0f);
+	aabb_.max = GetCenterPosition() + Vector3(1.0f, 1.0f, 1.0f);
+	aabb_.min = aabb_.min + AABBOffset_.min;
+	aabb_.max = aabb_.max + AABBOffset_.max;
 
 	// OBBの各プロパティを更新
-	obb.rotationCenter = GetCenterPosition() + OBBOffset.rotationCenter; // 回転中心
-	obb.scaleCenter = GetCenterPosition() + OBBOffset.scaleCenter;       // スケール中心
+	obb_.rotationCenter = GetCenterPosition() + OBBOffset_.rotationCenter; // 回転中心
+	obb_.scaleCenter = GetCenterPosition() + OBBOffset_.scaleCenter;       // スケール中心
 
 	// OBBの向きベクトルを計算
-	MakeOBBOrientations(obb, GetCenterRotation());
+	MakeOBBOrientations(obb_, GetCenterRotation());
 
 	// サイズを更新
-	obb.size = OBBOffset.size;
+	obb_.size = OBBOffset_.size;
 
 	UpdateOBB();
 
@@ -61,16 +61,16 @@ void Collider::UpdateWorldTransform() {
 
 void Collider::DebugDraw(const ViewProjection& viewProjection)
 {
-	if (!isVisible || !isCollisionEnabled_) {
+	if (!isVisible_ || !isCollisionEnabled_) {
 		return;
 	}
-	if (isSphere) {
+	if (isSphere_) {
 		DrawSphere(viewProjection);
 	}
-	if (isAABB) {
+	if (isAABB_) {
 		DrawAABB(viewProjection);
 	}
-	if (isOBB) {
+	if (isOBB_) {
 		DrawOBB(viewProjection);
 	}
 }
@@ -90,23 +90,23 @@ void Collider::DrawSphere(const ViewProjection& viewProjection) {
 
 			// 現在の点を求める
 			Vector3 start = {
-				sphere.center.x + sphere.radius * std::cosf(lat) * std::cosf(lon),
-				sphere.center.y + sphere.radius * std::sinf(lat),
-				sphere.center.z + sphere.radius * std::cosf(lat) * std::sinf(lon)
+				sphere_.center.x + sphere_.radius * std::cosf(lat) * std::cosf(lon),
+				sphere_.center.y + sphere_.radius * std::sinf(lat),
+				sphere_.center.z + sphere_.radius * std::cosf(lat) * std::sinf(lon)
 			};
 
 			// 次の点を求める（経度方向）
 			Vector3 end1 = {
-				sphere.center.x + sphere.radius * std::cosf(lat) * std::cosf(lon + kLonEvery),
-				sphere.center.y + sphere.radius * std::sinf(lat),
-				sphere.center.z + sphere.radius * std::cosf(lat) * std::sinf(lon + kLonEvery),
+				sphere_.center.x + sphere_.radius * std::cosf(lat) * std::cosf(lon + kLonEvery),
+				sphere_.center.y + sphere_.radius * std::sinf(lat),
+				sphere_.center.z + sphere_.radius * std::cosf(lat) * std::sinf(lon + kLonEvery),
 			};
 
 			// 次の点を求める（緯度方向）
 			Vector3 end2 = {
-				sphere.center.x + sphere.radius * std::cosf(lat + kLatEvery) * std::cosf(lon),
-				sphere.center.y + sphere.radius * std::sinf(lat + kLatEvery),
-				sphere.center.z + sphere.radius * std::cosf(lat + kLatEvery) * std::sinf(lon),
+				sphere_.center.x + sphere_.radius * std::cosf(lat + kLatEvery) * std::cosf(lon),
+				sphere_.center.y + sphere_.radius * std::sinf(lat + kLatEvery),
+				sphere_.center.z + sphere_.radius * std::cosf(lat + kLatEvery) * std::sinf(lon),
 			};
 
 			// 線を描画（経度方向）
@@ -122,14 +122,14 @@ void Collider::DrawAABB(const ViewProjection& viewProjection)
 {
 	// AABBの頂点リスト
 	std::array<Vector3, 8> vertices = {
-		aabb.min,
-		{ aabb.max.x, aabb.min.y, aabb.min.z },
-		{ aabb.min.x, aabb.max.y, aabb.min.z },
-		{ aabb.max.x, aabb.max.y, aabb.min.z },
-		{ aabb.min.x, aabb.min.y, aabb.max.z },
-		{ aabb.max.x, aabb.min.y, aabb.max.z },
-		{ aabb.min.x, aabb.max.y, aabb.max.z },
-		{ aabb.max.x, aabb.max.y, aabb.max.z }
+		aabb_.min,
+		{ aabb_.max.x, aabb_.min.y, aabb_.min.z },
+		{ aabb_.min.x, aabb_.max.y, aabb_.min.z },
+		{ aabb_.max.x, aabb_.max.y, aabb_.min.z },
+		{ aabb_.min.x, aabb_.min.y, aabb_.max.z },
+		{ aabb_.max.x, aabb_.min.y, aabb_.max.z },
+		{ aabb_.min.x, aabb_.max.y, aabb_.max.z },
+		{ aabb_.max.x, aabb_.max.y, aabb_.max.z }
 	};
 
 	// エッジ接続リスト
@@ -148,7 +148,7 @@ void Collider::DrawAABB(const ViewProjection& viewProjection)
 void Collider::DrawOBB(const ViewProjection& viewProjection) {
 	// OBBの8つの頂点を計算
 	std::array<Vector3, 8> vertices;
-	Vector3 halfSize = obb.size; // サイズの半分を計算
+	Vector3 halfSize = obb_.size; // サイズの半分を計算
 
 	// OBBの8頂点を計算するループ
 	for (int i = 0; i < 8; i++) {
@@ -160,20 +160,20 @@ void Collider::DrawOBB(const ViewProjection& viewProjection) {
 		);
 
 		// scaleCenter を基準にスケール変換
-		Vector3 scaledPosition = localPosition + (obb.scaleCenter - obb.rotationCenter);
+		Vector3 scaledPosition = localPosition + (obb_.scaleCenter - obb_.rotationCenter);
 
 		// 回転中心を基準に回転を適用
 		Vector3 rotatedPosition =
-			obb.orientations[0] * scaledPosition.x +
-			obb.orientations[1] * scaledPosition.y +
-			obb.orientations[2] * scaledPosition.z;
+			obb_.orientations[0] * scaledPosition.x +
+			obb_.orientations[1] * scaledPosition.y +
+			obb_.orientations[2] * scaledPosition.z;
 
 		// ワールド座標へ変換
-		vertices[i] = obb.rotationCenter + rotatedPosition;
+		vertices[i] = obb_.rotationCenter + rotatedPosition;
 	}
 
 	// scaleCenterに球を描画
-	DrawSphereAtCenter(viewProjection, obb.scaleCenterRotated, 0.1f);  // 半径0.1fで球を描画
+	DrawSphereAtCenter(viewProjection, obb_.scaleCenterRotated, 0.1f);  // 半径0.1fで球を描画
 
 	// エッジ接続リスト
 	const std::array<std::pair<int, int>, 12> edges = {
@@ -239,28 +239,28 @@ void Collider::DrawSphereAtCenter(const ViewProjection& viewProjection, const Ve
 
 void Collider::OffsetImgui() {
 	if (ImGui::BeginTabItem("コライダー")) {
-		ImGui::Checkbox("可視化", &isVisible);
+		ImGui::Checkbox("可視化", &isVisible_);
 		ImGui::Checkbox("コライダーの有無", &isCollisionEnabled_);
 
 		if (isCollisionEnabled_) {
-			ImGui::Checkbox("球判定を使用する", &isSphere);
-			if (isSphere) {
-				ImGui::DragFloat3("中心点", &SphereOffset.center.x, 0.1f);
-				ImGui::DragFloat("半径", &SphereOffset.radius, 0.1f);
+			ImGui::Checkbox("球判定を使用する", &isSphere_);
+			if (isSphere_) {
+				ImGui::DragFloat3("中心点", &SphereOffset_.center.x, 0.1f);
+				ImGui::DragFloat("半径", &SphereOffset_.radius, 0.1f);
 			}
 			ImGui::Separator();
 
-			ImGui::Checkbox("AABB判定を使用する", &isAABB);
-			if (isAABB) {
-				ImGui::DragFloat3("最大値", &AABBOffset.max.x, 0.1f);
-				ImGui::DragFloat3("最小値", &AABBOffset.min.x, 0.1f);
+			ImGui::Checkbox("AABB判定を使用する", &isAABB_);
+			if (isAABB_) {
+				ImGui::DragFloat3("最大値", &AABBOffset_.max.x, 0.1f);
+				ImGui::DragFloat3("最小値", &AABBOffset_.min.x, 0.1f);
 			}
 			ImGui::Separator();
 
-			ImGui::Checkbox("OBB判定を使用する", &isOBB);
-			if (isOBB) {
-				ImGui::DragFloat3("中心", &OBBOffset.scaleCenter.x, 0.1f);
-				ImGui::DragFloat3("大きさ", &OBBOffset.size.x, 0.1f);
+			ImGui::Checkbox("OBB判定を使用する", &isOBB_);
+			if (isOBB_) {
+				ImGui::DragFloat3("中心", &OBBOffset_.scaleCenter.x, 0.1f);
+				ImGui::DragFloat3("大きさ", &OBBOffset_.size.x, 0.1f);
 			}
 			ImGui::Separator();
 		}
@@ -291,26 +291,53 @@ void Collider::DrawRotationCenter(const ViewProjection& viewProjection) {
 			float lon = lonIndex * kLonEvery;
 
 			Vector3 start = {
-				obb.rotationCenter.x + rotationCenterRadius * std::cosf(lat) * std::cosf(lon),
-				obb.rotationCenter.y + rotationCenterRadius * std::sinf(lat),
-				obb.rotationCenter.z + rotationCenterRadius * std::cosf(lat) * std::sinf(lon)
+				obb_.rotationCenter.x + rotationCenterRadius * std::cosf(lat) * std::cosf(lon),
+				obb_.rotationCenter.y + rotationCenterRadius * std::sinf(lat),
+				obb_.rotationCenter.z + rotationCenterRadius * std::cosf(lat) * std::sinf(lon)
 			};
 
 			Vector3 end1 = {
-				obb.rotationCenter.x + rotationCenterRadius * std::cosf(lat) * std::cosf(lon + kLonEvery),
-				obb.rotationCenter.y + rotationCenterRadius * std::sinf(lat),
-				obb.rotationCenter.z + rotationCenterRadius * std::cosf(lat) * std::sinf(lon + kLonEvery),
+				obb_.rotationCenter.x + rotationCenterRadius * std::cosf(lat) * std::cosf(lon + kLonEvery),
+				obb_.rotationCenter.y + rotationCenterRadius * std::sinf(lat),
+				obb_.rotationCenter.z + rotationCenterRadius * std::cosf(lat) * std::sinf(lon + kLonEvery),
 			};
 
 			Vector3 end2 = {
-				obb.rotationCenter.x + rotationCenterRadius * std::cosf(lat + kLatEvery) * std::cosf(lon),
-				obb.rotationCenter.y + rotationCenterRadius * std::sinf(lat + kLatEvery),
-				obb.rotationCenter.z + rotationCenterRadius * std::cosf(lat + kLatEvery) * std::sinf(lon),
+				obb_.rotationCenter.x + rotationCenterRadius * std::cosf(lat + kLatEvery) * std::cosf(lon),
+				obb_.rotationCenter.y + rotationCenterRadius * std::sinf(lat + kLatEvery),
+				obb_.rotationCenter.z + rotationCenterRadius * std::cosf(lat + kLatEvery) * std::sinf(lon),
 			};
 
 			DrawLine3D::GetInstance()->SetPoints(start, end1);
 			DrawLine3D::GetInstance()->SetPoints(start, end2);
 		}
+	}
+}
+
+void Collider::SetCollisionType(CollisionType collisionType)
+{
+	switch (collisionType)
+	{
+	case Collider::CollisionType::Sphere:
+		isSphere_ = true;
+		isAABB_ = false;
+		isOBB_ = false;
+		break;
+	case Collider::CollisionType::AABB:
+		isSphere_ = false;
+		isAABB_ = true;
+		isOBB_ = false;
+		break;
+	case Collider::CollisionType::OBB:
+		isSphere_ = false;
+		isAABB_ = false;
+		isOBB_ = true;
+		break;
+	default:
+		isSphere_ = false;
+		isAABB_ = false;
+		isOBB_ = false;
+		break;
 	}
 }
 
@@ -335,28 +362,28 @@ void Collider::MakeOBBOrientations(OBB& obb, const Vector3& rotate) {
 void Collider::UpdateOBB()
 {
 	// 回転後にscaleCenterの位置を計算
-	obb.scaleCenterRotated = obb.orientations[0] * (obb.scaleCenter.x - obb.rotationCenter.x) +
-		obb.orientations[1] * (obb.scaleCenter.y - obb.rotationCenter.y) +
-		obb.orientations[2] * (obb.scaleCenter.z - obb.rotationCenter.z) + obb.rotationCenter;
+	obb_.scaleCenterRotated = obb_.orientations[0] * (obb_.scaleCenter.x - obb_.rotationCenter.x) +
+		obb_.orientations[1] * (obb_.scaleCenter.y - obb_.rotationCenter.y) +
+		obb_.orientations[2] * (obb_.scaleCenter.z - obb_.rotationCenter.z) + obb_.rotationCenter;
 }
 
 void Collider::SaveToJson() {
 	json j;
 
 	// 各種フラグをJSONに保存
-	j["isVisible"] = isVisible;
+	j["isVisible"] = isVisible_;
 	j["isCollisionEnabled"] = isCollisionEnabled_;
-	j["isSphere"] = isSphere;
-	j["isAABB"] = isAABB;
-	j["isOBB"] = isOBB;
+	j["isSphere"] = isSphere_;
+	j["isAABB"] = isAABB_;
+	j["isOBB"] = isOBB_;
 
 	// 各オフセット値をJSONに保存
-	j["SphereOffset"]["center"] = { SphereOffset.center.x, SphereOffset.center.y, SphereOffset.center.z };
-	j["SphereOffset"]["radius"] = SphereOffset.radius;
-	j["AABBOffset"]["min"] = { AABBOffset.min.x, AABBOffset.min.y, AABBOffset.min.z };
-	j["AABBOffset"]["max"] = { AABBOffset.max.x, AABBOffset.max.y, AABBOffset.max.z };
-	j["OBBOffset"]["scaleCenter"] = { OBBOffset.scaleCenter.x, OBBOffset.scaleCenter.y, OBBOffset.scaleCenter.z };
-	j["OBBOffset"]["size"] = { OBBOffset.size.x, OBBOffset.size.y, OBBOffset.size.z };
+	j["SphereOffset"]["center"] = { SphereOffset_.center.x, SphereOffset_.center.y, SphereOffset_.center.z };
+	j["SphereOffset"]["radius"] = SphereOffset_.radius;
+	j["AABBOffset"]["min"] = { AABBOffset_.min.x, AABBOffset_.min.y, AABBOffset_.min.z };
+	j["AABBOffset"]["max"] = { AABBOffset_.max.x, AABBOffset_.max.y, AABBOffset_.max.z };
+	j["OBBOffset"]["scaleCenter"] = { OBBOffset_.scaleCenter.x, OBBOffset_.scaleCenter.y, OBBOffset_.scaleCenter.z };
+	j["OBBOffset"]["size"] = { OBBOffset_.size.x, OBBOffset_.size.y, OBBOffset_.size.z };
 
 	// ディレクトリを作成し、JSONファイルを保存
 	std::filesystem::create_directories("resources/jsons/Collider/");
@@ -374,17 +401,17 @@ void Collider::LoadFromJson() {
 	inFile >> j;
 
 	// 各種フラグをJSONから読み込み
-	isVisible = j["isVisible"].get<bool>();
+	isVisible_ = j["isVisible"].get<bool>();
 	isCollisionEnabled_ = j["isCollisionEnabled"].get<bool>();
-	isSphere = j["isSphere"].get<bool>();
-	isAABB = j["isAABB"].get<bool>();
-	isOBB = j["isOBB"].get<bool>();
+	isSphere_ = j["isSphere"].get<bool>();
+	isAABB_ = j["isAABB"].get<bool>();
+	isOBB_ = j["isOBB"].get<bool>();
 
 	// 各オフセット値をJSONから読み込み
-	SphereOffset.center = { j["SphereOffset"]["center"][0], j["SphereOffset"]["center"][1], j["SphereOffset"]["center"][2] };
-	SphereOffset.radius = j["SphereOffset"]["radius"];
-	AABBOffset.min = { j["AABBOffset"]["min"][0], j["AABBOffset"]["min"][1], j["AABBOffset"]["min"][2] };
-	AABBOffset.max = { j["AABBOffset"]["max"][0], j["AABBOffset"]["max"][1], j["AABBOffset"]["max"][2] };
-	OBBOffset.scaleCenter = { j["OBBOffset"]["scaleCenter"][0], j["OBBOffset"]["scaleCenter"][1], j["OBBOffset"]["scaleCenter"][2] };
-	OBBOffset.size = { j["OBBOffset"]["size"][0], j["OBBOffset"]["size"][1], j["OBBOffset"]["size"][2] };
+	SphereOffset_.center = { j["SphereOffset"]["center"][0], j["SphereOffset"]["center"][1], j["SphereOffset"]["center"][2] };
+	SphereOffset_.radius = j["SphereOffset"]["radius"];
+	AABBOffset_.min = { j["AABBOffset"]["min"][0], j["AABBOffset"]["min"][1], j["AABBOffset"]["min"][2] };
+	AABBOffset_.max = { j["AABBOffset"]["max"][0], j["AABBOffset"]["max"][1], j["AABBOffset"]["max"][2] };
+	OBBOffset_.scaleCenter = { j["OBBOffset"]["scaleCenter"][0], j["OBBOffset"]["scaleCenter"][1], j["OBBOffset"]["scaleCenter"][2] };
+	OBBOffset_.size = { j["OBBOffset"]["size"][0], j["OBBOffset"]["size"][1], j["OBBOffset"]["size"][2] };
 }

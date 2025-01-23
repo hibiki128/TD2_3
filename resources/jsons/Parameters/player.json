@@ -1,0 +1,14 @@
+{
+    "gravityAcceleration": [
+        -0.009999999776482582
+    ],
+    "jumpAcceleration": [
+        0.30000001192092896
+    ],
+    "xInvertRange": [
+        3
+    ],
+    "yInvertRange": [
+        3
+    ]
+}

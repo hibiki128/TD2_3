@@ -108,6 +108,8 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="application\Object\MapChip\MapChipField.cpp" />
+    <ClCompile Include="application\Object\MapChip\Block\Block.cpp" />
+    <ClCompile Include="application\Object\Goal\Goal.cpp" />
     <ClCompile Include="application\SelectScene\MapPrev.cpp" />
     <ClCompile Include="myEngine\3d\model\animation\ModelAnimation.cpp" />
     <ClCompile Include="myEngine\3d\model\animation\Bone.cpp" />
@@ -174,6 +176,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="scene\SelectScene.cpp" />
     <ClCompile Include="scene\TitleScene.cpp" />
     <ClCompile Include="myEngine\3d\model\animation\Skin.cpp" />
+    <ClCompile Include="application\Transition\SquareTransition.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -201,6 +204,8 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   <ItemGroup>
     <ClInclude Include="application\Object\MapChip\MapChipField.h" />
     <ClInclude Include="application\SelectScene\MapPrev.h" />
+    <ClInclude Include="application\Object\MapChip\Block\Block.h" />
+    <ClInclude Include="application\Object\Goal\Goal.h" />
     <ClInclude Include="myEngine\3d\model\animation\ModelAnimation.h" />
     <ClInclude Include="myEngine\3d\model\animation\Bone.h" />
     <ClInclude Include="myEngine\3d\model\animation\Animator.h" />
@@ -273,6 +278,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="scene\SelectScene.h" />
     <ClInclude Include="scene\TitleScene.h" />
     <ClInclude Include="myEngine\3d\model\animation\Skin.h" />
+    <ClInclude Include="application\Transition\SquareTransition.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\OffScreen\BoxFilter.PS.hlsl">

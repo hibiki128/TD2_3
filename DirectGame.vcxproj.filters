@@ -320,6 +320,15 @@
     <ClCompile Include="application\Pause\Pause.cpp">
       <Filter>ソースファイル</Filter>
     </ClCompile>
+    <ClCompile Include="application\Object\MapChip\Block\Block.cpp">
+      <Filter>ソースファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Object\Goal\Goal.cpp">
+      <Filter>ソースファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Transition\SquareTransition.cpp">
+      <Filter>ソースファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\shaders\Particle\Particle.hlsli">
@@ -562,6 +571,9 @@
     </ClInclude>
     <ClInclude Include="application\SelectScene\MapPrev.h" />
     <ClInclude Include="application\Pause\Pause.h" />
+    <ClInclude Include="application\Object\MapChip\Block\Block.h" />
+    <ClInclude Include="application\Object\Goal\Goal.h" />
+    <ClInclude Include="application\Transition\SquareTransition.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Particle\Particle.PS.hlsl">

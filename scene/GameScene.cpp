@@ -26,14 +26,14 @@ void GameScene::Initialize()
 	///	各オブジェクト初期化
 	/// 
 
-	// プレイヤー
-	player_ = std::make_unique<Player>();
-	player_->Init("player");
-
 	// マップチップフィールド
 	mapChipField_ = std::make_unique<MapChipField>();
 	mapChipField_->Init("resources/Maps/stage1.csv");
 
+	// プレイヤー（マップチップフィールドから初期位置を取得するので後）
+	player_ = std::make_unique<Player>();
+	player_->Init("player");
+	player_->SetInitialPosition(mapChipField_->GetPlayerInitialPosition()); // csvから読み込んだ初期位置を設定
 	// ポーズ
 	pause_ = std::make_unique<Pause>();
 	pause_->Init();
@@ -42,14 +42,8 @@ void GameScene::Initialize()
 	///	スプライト初期化
 	/// 
 
-	// 操作説明スプライト
-	spriteGuide_ = std::make_unique<Sprite>();
-	spriteGuide_->Initialize(
-		"temp_guide.png",
-		{ 260.0f, 660.0f },
-		{ 1.0f, 1.0f, 1.0f, 1.0f },
-		{ 0.5f, 0.5f }
-	);
+	// Jsonから保存情報の読み込み
+	LoadFromJson();
 }
 
 void GameScene::Update()
@@ -73,6 +67,16 @@ void GameScene::Update()
 		// プレイヤー更新
 		player_->Update(mapChipField_.get());
 
+	// プレイヤーがゴールに到達した際の処理
+	if (player_->IsGoalReached()) {
+		ImGui::Begin("GameScene:Debug");
+		ImGui::Text("Goal");
+		ImGui::End();
+	}
+
+	// マップチップフィールド更新
+	mapChipField_->Update();
+}
 		// マップチップフィールド更新
 		mapChipField_->Update();
 	}
@@ -89,8 +93,7 @@ void GameScene::Draw()
 	spCommon_->DrawCommonSetting();
 	//-----Spriteの描画開始-----
 
-	// 操作説明スプライトの描画
-	spriteGuide_->Draw();
+	player_->DrawSprite();
 
 	//------------------------
 
@@ -159,6 +162,27 @@ void GameScene::Debug()
 	ImGui::Begin("GameScene:Debug");
 	debugCamera_->imgui();
 	LightGroup::GetInstance()->imgui();
+
+	///
+	///	追加分
+	/// 
+
+	if (ImGui::BeginTabBar("Camera")) {
+		if (ImGui::BeginTabItem("カメラ")) {
+
+			// なんか追加する場合こっから
+			ImGui::DragFloat3("位置", &vp_.translation_.x, 0.1f);
+
+			if (ImGui::Button("セーブ")) {
+				SaveToJson();
+				std::string message = std::format("Camera saved.");
+				MessageBoxA(nullptr, message.c_str(), "Object", 0);
+			}
+			ImGui::EndTabItem();
+		}
+		ImGui::EndTabBar();
+	}
+
 	ImGui::End();
 
 	// プレイヤーデバッグ情報
@@ -182,5 +206,36 @@ void GameScene::ChangeScene()
 	}*/
 	if (pause_->GetItem() == -2 && input_->TriggerKey(DIK_SPACE)) {
 		sceneManager_->NextSceneReservation("SELECT");
+	}
+}
+
+void GameScene::SaveToJson()
+{
+	json j;
+
+	// なんか追加する場合こっから
+	j["gravityAcceleration"] = { vp_.translation_.x, vp_.translation_.y, vp_.translation_.z };
+
+	// ディレクトリを作成し、JSONファイルを保存
+	std::filesystem::create_directories("resources/jsons/Camera/");
+	std::ofstream outFile("resources/jsons/Camera/camera.json");
+	outFile << j.dump(4);
+}
+
+void GameScene::LoadFromJson()
+{
+	std::ifstream inFile("resources/jsons/Camera/camera.json");
+	if (!inFile.is_open()) {
+		return; // JSONファイルがない場合は早期リターン
+	}
+
+	json j;
+	inFile >> j;
+
+	// 各種JSONから読み込み
+	if (j.contains("gravityAcceleration") && j["gravityAcceleration"].is_array()) {
+		vp_.translation_ = {
+			j["gravityAcceleration"][0], j["gravityAcceleration"][1], j["gravityAcceleration"][2]
+		};
 	}
 }

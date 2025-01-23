@@ -6,18 +6,19 @@
 /// </summary>
 std::chrono::high_resolution_clock::time_point Frame::lastTime_ = std::chrono::high_resolution_clock::now();
 float Frame::deltaTime_ = 0.0f;
-int Frame::frameCount_ = 0;
-std::chrono::high_resolution_clock::time_point Frame::fpsTime_ = std::chrono::high_resolution_clock::now();
 float Frame::fps_ = 0.0f;
+int Frame::frameCount_ = 0;
+float Frame::accumulatedTime_ = 0.0f;
 
 /// <summary>
 /// フレームの初期化処理
 /// </summary>
 void Frame::Init() {
     lastTime_ = std::chrono::high_resolution_clock::now();
-    fpsTime_ = std::chrono::high_resolution_clock::now();
-    frameCount_ = 0;
+    deltaTime_ = 0.0f;
     fps_ = 0.0f;
+    frameCount_ = 0;
+    accumulatedTime_ = 0.0f;
 }
 
 /// <summary>
@@ -31,16 +32,15 @@ void Frame::Update() {
     std::chrono::duration<float> elapsed = currentTime - lastTime_;
     deltaTime_ = elapsed.count(); // 秒単位の経過時間
 
-    // フレームカウントをインクリメント
-    frameCount_++;
+    // 経過時間を蓄積
+    accumulatedTime_ += deltaTime_;
+    frameCount_++; // フレームカウントを増加
 
-    // 1秒経過したかどうかをチェック
-    std::chrono::duration<float> fpsElapsed = currentTime - fpsTime_;
-    if (fpsElapsed.count() >= 1.0f) {
-        // FPSを計算
-        fps_ = static_cast<float>(frameCount_) / fpsElapsed.count(); // フレーム数を経過時間で割る
-        frameCount_ = 0;  // フレームカウントをリセット
-        fpsTime_ = currentTime;  // 次の1秒間の開始時間を記録
+    // 10フレームごとにFPSを計算
+    if (frameCount_ >= 5) {
+        fps_ = static_cast<float>(frameCount_) / accumulatedTime_; // 平均FPSを計算
+        frameCount_ = 0; // フレームカウントをリセット
+        accumulatedTime_ = 0.0f; // 蓄積時間をリセット
     }
 
     // 次回の更新のために現在の時刻を記録

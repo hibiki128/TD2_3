@@ -62,9 +62,10 @@ private:
 		/// 
 		bool isAnimating = false;
 		float animationTime = 0.0f;
-
+		float currentRotation = 0.0f;
 		float delayTime = 0.0f;
 		bool isDelaying = false;
+		bool hasColorChanged = false;
 
 		enum class AnimationState {
 			None,

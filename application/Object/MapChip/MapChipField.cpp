@@ -7,6 +7,7 @@
 
 // Engine
 #include "math/Easing.h"
+#include"myEngine/Frame/Frame.h"
 
 // ブロックの大きさを定義
 const float MapChipField::kChipSize = 2.0f;
@@ -186,7 +187,6 @@ void MapChipField::LoadFromCSV(const std::string& filePath)
 					break;
 				case Block::ChipType::Gray: // 動かないブロック
 					chip.object->CreateModel("debug/Cube.obj");
-					chip.object->SetTexture("debug/uvChecker.png");
 					chip.object->SetObjColor({ 0.0f, 1.0f, 0.0f, 1.0f }); // 一旦分かりやすく緑に変更
 					break;
 				case Block::ChipType::Gravity: // 重力反転ブロック
@@ -333,76 +333,85 @@ void MapChipField::UpdateChipAnimation(MapChip& chip)
 	}
 
 	///
-	///	アニメーション開始の遅延処理
-	/// 
+	/// アニメーション開始の遅延処理
+	///
 
 	if (chip.isDelaying) {
 		chip.delayTime -= 1.0f / 60.0f; // フレーム減少
 
 		if (chip.delayTime <= 0.0f) {
 			chip.isDelaying = false; // 遅延終了
-			chip.animState = MapChip::AnimationState::Shrinking;
+			chip.animState = MapChip::AnimationState::Shrinking; // 回転アニメーションに移行
 			chip.animationTime = 0.0f;
 		}
 		return; // 遅延中はここで処理を終了する
 	}
 
-	constexpr float shrinkDuration = 0.2f; // 縮小時間
-	constexpr float expandDuration = 0.2f; // 拡大時間
+	constexpr float rotationDuration = 0.4f; // 回転アニメーションの時間
+	constexpr float halfRotationTime = rotationDuration / 2.0f; // 半回転のタイミング
 
 	///
-	///	アニメーション処理開始
-	/// 
+	/// アニメーション処理開始
+	///
 
 	chip.animationTime += 1.0f / 60.0f; // フレーム進行
 
-	/* ブロックの縮小->色変更->拡大の順番で処理を行う */
+	/* ブロックの一回転 -> 拡縮 -> 半回転時に色変更 -> 終了 の順番で処理を行う */
 
 	///
-	/// ブロックの収縮状態
-	/// 
+	/// ブロックの回転およびスケールアニメーション
+	///
 	if (chip.animState == MapChip::AnimationState::Shrinking) {
 		// 終了した場合
-		if (chip.animationTime >= shrinkDuration) {
-			chip.animationTime = 0.0f; // タイマーリセット
-			chip.animState = MapChip::AnimationState::ColorChange; // 次の状態に移行
-
-			// ブロックの色変更
-			if (chip.object->type_ == Block::ChipType::Black) {
-				chip.object->type_ = Block::ChipType::White;
-				chip.object->SetObjColor({ 1.0f, 1.0f, 1.0f, 1.0f });
-			} else if (chip.object->type_ == Block::ChipType::White) {
-				chip.object->type_ = Block::ChipType::Black;
-				chip.object->SetObjColor({ 0.0f, 0.0f, 0.0f, 1.0f });
-			}
-		// 実際に収縮を行う
-		} else {
-			chip.currentScale = EaseOutQuad(1.0f, 0.5f, chip.animationTime, shrinkDuration); // スケールを { 1.0f -> 0.5f } へ縮小
-			chip.object->SetScale({ chip.currentScale, chip.currentScale, chip.currentScale });
-		}
-	///
-	/// ブロックの拡大状態
-	/// 
-	} else if (chip.animState == MapChip::AnimationState::Expanding) {
-		// 終了した場合
-		if (chip.animationTime >= expandDuration) {
+		if (chip.animationTime >= rotationDuration) {
 			chip.animationTime = 0.0f; // タイマーリセット
 			chip.animState = MapChip::AnimationState::None; // 次の状態に移行
 			chip.isAnimating = false; // アニメーション終了
-		// 実際に拡大を行う
-		} else {
-			chip.currentScale = EaseOutQuad(0.5f, 1.0f, chip.animationTime, expandDuration); // スケールを { 0.5f -> 1.0f } へ拡大
+			chip.hasColorChanged = false;
+
+			// 最終的に回転角度とスケールをリセットして終了
+			chip.currentRotation = 0.0f;
+			chip.currentScale = 1.0f;
+			chip.object->SetRotation({ 0.0f, chip.currentRotation, 0.0f });
 			chip.object->SetScale({ chip.currentScale, chip.currentScale, chip.currentScale });
+
 		}
-	///
-	/// ブロックの色変更状態
-	/// 
-	} else if (chip.animState == MapChip::AnimationState::ColorChange) {
-		// 次の状態に移行
-		chip.animState = MapChip::AnimationState::Expanding;
-		chip.animationTime = 0.0f;
+		else {
+			// 回転角度を更新
+			chip.currentRotation = EaseOutQuad(0.0f, 2.0f, chip.animationTime, rotationDuration); // 回転を0° -> 360°へ
+			chip.object->SetRotation({ 0.0f, chip.currentRotation, 0.0f });
+
+			// スケールの更新
+			if (chip.animationTime <= halfRotationTime) {
+				// 半回転までは縮小
+				chip.currentScale = EaseOutQuad(1.0f, 0.5f, chip.animationTime, halfRotationTime); // スケールを1.0 -> 0.5へ縮小
+			}
+			else {
+				// 半回転以降は拡大
+				float timeSinceHalf = chip.animationTime - halfRotationTime;
+				chip.currentScale = EaseOutQuad(0.5f, 1.0f, timeSinceHalf, halfRotationTime); // スケールを0.5 -> 1.0へ拡大
+			}
+			chip.object->SetScale({ chip.currentScale, chip.currentScale, chip.currentScale });
+
+			// 半回転のタイミングで色を変更
+			if (chip.animationTime >= halfRotationTime && !chip.hasColorChanged) {
+				chip.hasColorChanged = true; // 色変更が一度だけ行われるようにフラグを設定
+
+				// ブロックの色変更
+				if (chip.object->type_ == Block::ChipType::Black) {
+					chip.object->type_ = Block::ChipType::White;
+					chip.object->SetObjColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+				}
+				else if (chip.object->type_ == Block::ChipType::White) {
+					chip.object->type_ = Block::ChipType::Black;
+					chip.object->SetObjColor({ 0.0f, 0.0f, 0.0f, 1.0f });
+				}
+			}
+		}
 	}
 }
+
+
 
 bool MapChipField::HasGravityBlockInArea(const Vector3& center, int xRange, int yRange) { 
 	// 中心位置からマップ上のマス位置を計算

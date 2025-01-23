@@ -23,7 +23,7 @@ public:
 
 public:
 
-	static const UINT kMaxLineCount = 12288;
+	static const UINT kMaxLineCount = 65536;
 	static const UINT kVertexCountLine = 2;
 	static const UINT kIndexCountLine = 0;
 

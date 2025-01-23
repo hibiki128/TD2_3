@@ -7,7 +7,7 @@ void SquareTransition::Initialize() {
 	for (size_t i = 0; i < 4; i++) {
 		sprites_[i] = std::make_unique<Sprite>();
 		sprites_[i]->Initialize(
-		    "white.png", 
+		    "debug/white.png", 
 			{0.0f, 0.0f}, // 座標
 			{0.0f, 0.0f, 0.0f, 1.0}, // 色（黒くしておく）
 		    {0.5f, 0.5f} // アンカーポイント

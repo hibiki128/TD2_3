@@ -60,7 +60,7 @@ void TitleScene::Update()
 	// シーン切り替え
 	ChangeScene();
 
-	emitter_->Update(vp_);
+	emitter_->Update();
 	walk_->AnimationUpdate(roop);
 	sphere_->AnimationUpdate(roop);
 
@@ -98,7 +98,7 @@ void TitleScene::Draw()
 	/// Particleの描画準備
 	ptCommon_->DrawCommonSetting();
 	//------Particleの描画開始-------
-	emitter_->Draw();
+	emitter_->Draw(vp_);
 	//-----------------------------
 
 	//-----線描画-----

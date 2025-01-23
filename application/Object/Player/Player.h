@@ -53,6 +53,21 @@ private:
 	const float kWidth = 1.8f;
 	const float kHeight = 1.8f;
 
+	// リセット時のトランジションにかける時間
+	const float kResetTransitionTime = 0.3f;
+
+	/*ブロック反転中、プレイヤーが動かないようにするために使用*/
+	bool isInverting_ = false;          // ブロック反転中かどうか
+	float invertTimer_ = 0.0f;          // タイマー
+	const float invertDuration_ = 0.4f; // 反転アニメーションの合計時間
+
+	// 重力反転状態かどうか
+	bool isGravityReversed_ = false; // 初期状態は通常
+
+	//////////////////
+	/*調整パラメーター*/
+	/////////////////
+
 	// 移動関連
 	Vector3 velocity_; // 速度
 	const float kMoveSpeed = 0.15f; // 移動速度
@@ -69,6 +84,7 @@ private:
 	///	その他
 	///	
 
+	// リセット時のトランジション
 	std::unique_ptr<SquareTransition> squareTransition_;
 
 private:
@@ -88,14 +104,6 @@ private:
 	// 反転可能範囲のAABBを描画
 	void DrawInvertArea();
 	void ResetMapChip();
-	
-	// リセット時のトランジションにかける時間
-	const float kResetTransitionTime = 0.3f;
-
-	/*ブロック反転中、プレイヤーが動かないようにするために使用*/
-	bool isInverting_ = false; // ブロック反転中かどうか
-	float invertTimer_ = 0.0f; // タイマー
-	const float invertDuration_ = 0.4f; // 反転アニメーションの合計時間
 
 private:
 	using json = nlohmann::json;

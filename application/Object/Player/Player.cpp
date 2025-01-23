@@ -48,7 +48,7 @@ void Player::Update(MapChipField* mapChipField) {
 		invertTimer_ += kDeltaTime;
 		if (invertTimer_ >= invertDuration_) {
 			isInverting_ = false; // 反転が終了したことを示す
-			invertTimer_ = 0.0f; // タイマーリセット
+			invertTimer_ = 0.0f;  // タイマーリセット
 		}
 	}
 
@@ -75,9 +75,12 @@ void Player::Update(MapChipField* mapChipField) {
 	///	重力を常に受ける
 	///
 
-	// ブロック反転をしていない場合のみ
-	if (!isInverting_) {
-		velocity_.y += gravityAcceleration_;
+	if (!isInverting_) {                         // ブロック反転中には加算しない
+		if (isGravityReversed_) {                // 重力反転中
+			velocity_.y -= gravityAcceleration_; // 上向きに重力をかける (逆)
+		} else {
+			velocity_.y += gravityAcceleration_; // 下向きに重力をかける（順）
+		}
 	}
 
 	///
@@ -89,18 +92,26 @@ void Player::Update(MapChipField* mapChipField) {
 #ifdef _DEBUG
 	ImGui::Begin("player");
 
-	ImGui::DragFloat3("velocity", &velocity_.x);
+	if (ImGui::BeginTabBar(className_.c_str())) {
+		if (ImGui::BeginTabItem("デバッグ")) {
 
-	ImGui::Text("hittingGround : %d", collisionMapInfo_.hittingGround_);
-	ImGui::Text("hittingCeiling : %d", collisionMapInfo_.hittingCeiling_);
-	ImGui::Text("hittingLeft : %d", collisionMapInfo_.hittingLeft_);
-	ImGui::Text("hittingRight : %d", collisionMapInfo_.hittingRight_);
+			ImGui::DragFloat3("velocity", &velocity_.x);
 
-	ImGui::Text("isReversing : %d", isInverting_);
+			ImGui::Text("hittingGround : %d", collisionMapInfo_.hittingGround_);
+			ImGui::Text("hittingCeiling : %d", collisionMapInfo_.hittingCeiling_);
+			ImGui::Text("hittingLeft : %d", collisionMapInfo_.hittingLeft_);
+			ImGui::Text("hittingRight : %d", collisionMapInfo_.hittingRight_);
 
-	ImGui::Text("TransitionStatus : %d", squareTransition_->GetCurrentStatus());
-	ImGui::Text("TransitionIsFinished : %d", squareTransition_->IsFinished());
+			ImGui::Checkbox("反転中", &isInverting_);
+			ImGui::Checkbox("重力反転中", &isGravityReversed_);
 
+			/*ImGui::Text("TransitionStatus : %d", squareTransition_->GetCurrentStatus());
+			ImGui::Text("TransitionIsFinished : %d", squareTransition_->IsFinished());*/
+
+			ImGui::EndTabItem();
+		}
+		ImGui::EndTabBar();
+	}
 	ImGui::End();
 #endif
 }
@@ -180,8 +191,7 @@ void Player::HandleInput() {
 	///	左右移動入力
 	///
 
-	// ブロック反転をしていない場合のみ
-	if (!isInverting_) {
+	if (!isInverting_) { // ブロック反転中には移動できない
 		if (input_->PushKey(DIK_A)) {
 			velocity_.x = -kMoveSpeed;
 		}
@@ -195,9 +205,16 @@ void Player::HandleInput() {
 	///
 
 	if (input_->TriggerKey(DIK_W)) {
-		// 地面にいる場合のみ
-		if (collisionMapInfo_.hittingGround_) {
-			velocity_.y = jumpAcceleration_; // 上昇開始
+		if (isGravityReversed_) { // 重力反転中
+			// 天井にいる場合のみ
+			if (collisionMapInfo_.hittingCeiling_) {
+				velocity_.y = -jumpAcceleration_; // 下向き (逆)
+			}
+		} else {
+			// 地面にいる場合のみ
+			if (collisionMapInfo_.hittingGround_) {
+				velocity_.y = jumpAcceleration_; // 上向き (順)
+			}
 		}
 	}
 
@@ -206,8 +223,7 @@ void Player::HandleInput() {
 	///
 
 	if (input_->TriggerKey(DIK_SPACE)) {
-		// 反転中ではない場合のみ
-		if (!isInverting_) {
+		if (!isInverting_) { // ブロック反転中には反転できない
 			if (mapChipField_) {
 				// 現在の位置を取得
 				Vector3 position = BaseObject::GetWorldPosition();
@@ -238,7 +254,7 @@ void Player::HandleInput() {
 void Player::ResetMapChip() {
 	///
 	///	メモ : SquareInが呼び出されたら終了次第、リセットとSquareOutが開始する
-	/// 
+	///
 
 	// Rキー押下時にSquareInが開始するので、終了したらリセット処理が行われる
 	if (squareTransition_->IsFinished() && squareTransition_->GetCurrentStatus() == SquareTransition::Status::SquareIn) {
@@ -279,8 +295,7 @@ void Player::CheckCollisionAndResolve() {
 	}
 
 	/// Y移動
-	// ブロック反転をしていない場合のみ
-	if (!isInverting_) {
+	if (!isInverting_) { // ブロック反転中には移動しない
 		BaseObject::transform_.translation_.y += velocity_.y;
 	}
 

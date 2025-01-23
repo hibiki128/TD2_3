@@ -102,7 +102,7 @@ void Player::Update(MapChipField* mapChipField) {
 			ImGui::Text("hittingLeft : %d", collisionMapInfo_.hittingLeft_);
 			ImGui::Text("hittingRight : %d", collisionMapInfo_.hittingRight_);
 
-			ImGui::Checkbox("反転中", &isInverting_);
+			ImGui::Checkbox("ブロック反転中", &isInverting_);
 			ImGui::Checkbox("重力反転中", &isGravityReversed_);
 
 			/*ImGui::Text("TransitionStatus : %d", squareTransition_->GetCurrentStatus());
@@ -232,6 +232,11 @@ void Player::HandleInput() {
 
 				// 反転中であることを記録する
 				isInverting_ = true;
+
+				// 重力ブロックが範囲内に見つかった場合、プレイヤーの重力を反転する
+				if (mapChipField_->HasGravityBlockInArea(position, xInvertRange_, yInvertRange_)) {
+					isGravityReversed_ = !isGravityReversed_;
+				}
 			}
 		}
 	}

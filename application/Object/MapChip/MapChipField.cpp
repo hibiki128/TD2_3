@@ -176,18 +176,21 @@ void MapChipField::LoadFromCSV(const std::string& filePath)
 
 				// モデルと色を設定
 				switch (chip.object->type_) {
-				case Block::ChipType::Black:
+				case Block::ChipType::Black: // 黒ブロック
 					chip.object->CreateModel("debug/Cube.obj");
 					chip.object->SetObjColor({ 0.0f, 0.0f, 0.0f, 1.0f }); // 黒色
 					break;
-				case Block::ChipType::White:
+				case Block::ChipType::White: // 白ブロック
 					chip.object->CreateModel("debug/Cube.obj");
 					chip.object->SetObjColor({ 1.0f, 1.0f, 1.0f, 1.0f }); // 白色
 					break;
-				case Block::ChipType::Gray:
+				case Block::ChipType::Gray: // 動かないブロック
 					chip.object->CreateModel("debug/Cube.obj");
 					chip.object->SetObjColor({ 0.0f, 1.0f, 0.0f, 1.0f }); // 一旦分かりやすく緑に変更
 					break;
+				case Block::ChipType::Gravity: // 重力反転ブロック
+					chip.object->CreateModel("debug/Cube.obj");
+					chip.object->SetObjColor({1.0f, 0.25f, 1.0f, 1.0f}); // 一旦分かりやすく紫に変更
 				default:
 					break;
 				}
@@ -231,6 +234,7 @@ Block::ChipType MapChipField::GetChipTypeFromInt(int value)
 	case 3: return Block::ChipType::Gray;
 	case 4: return Block::ChipType::Empty; // ゴールオブジェクトは空白扱いとする
 	case 5: return Block::ChipType::Empty; // プレイヤー初期位置は空白扱いとする
+	case 6: return Block ::ChipType::Gravity;
 
 	default: return Block::ChipType::Empty;
 	}
@@ -397,4 +401,35 @@ void MapChipField::UpdateChipAnimation(MapChip& chip)
 		chip.animState = MapChip::AnimationState::Expanding;
 		chip.animationTime = 0.0f;
 	}
+}
+
+bool MapChipField::HasGravityBlockInArea(const Vector3& center, int xRange, int yRange) { 
+	// 中心位置からマップ上のマス位置を計算
+	int centerX = static_cast<int>(std::round(center.x / kChipSize));
+	int centerY = static_cast<int>(std::round(-center.y / kChipSize));
+
+	int halfXRange = xRange / 2;
+	int halfYRange = yRange / 2;
+
+	// 範囲内のブロックを探索
+	for (int y = -halfYRange; y <= halfYRange; ++y) {
+		for (int x = -halfXRange; x <= halfXRange; ++x) {
+			// 対象位置を計算
+			int targetX = centerX + x;
+			int targetY = centerY + y;
+
+			// マップ範囲外を無視
+			if (targetX < 0 || targetX >= static_cast<int>(mapWidth) || targetY < 0 || targetY >= static_cast<int>(mapHeight)) {
+				continue;
+			}
+
+			// ブロックを取得してタイプを判定
+			MapChip& chip = mapChips_[targetY][targetX];
+			if (chip.object->type_ == Block::ChipType::Gravity) {
+				return true; // 重力ブロックが見つかった
+			}
+		}
+	}
+
+	return false;
 }

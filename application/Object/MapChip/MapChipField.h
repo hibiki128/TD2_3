@@ -45,6 +45,13 @@ public:
 	// 反転させて挟み込んだブロックの色の反転を行う
 	void InvertBlocksWithCapture();
 
+	///
+	///	その他
+	/// 
+
+	// 指定範囲内に重力反転ブロックがあるかどうかを判定
+	bool HasGravityBlockInArea(const Vector3& center, int xRange, int yRange);
+
 private:
 	// マップチップのデータ構造
 	struct MapChip {
@@ -105,5 +112,10 @@ private:
 	
 	// ブロックの色反転時に { 縮小->色反転->拡大 } を行うアニメーション
 	void UpdateChipAnimation(MapChip& chip);
+
+	///
+	/// その他
+	///		
+	
 };
 

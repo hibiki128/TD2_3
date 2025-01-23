@@ -122,6 +122,7 @@ public: // メンバ関数
 	void SetRotation(const Vector3& rotation) { this->rotation = rotation; }
 	void SetSize(const Vector3& size) { this->size = size; }
 	void SetModel(const std::string& filePath);
+	void SetTexture(const std::string& filePath) { model->SetTextureIndex(filePath); }
 
 	/// <summary>
 	/// 光沢度の設定

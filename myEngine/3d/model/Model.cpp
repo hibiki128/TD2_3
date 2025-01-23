@@ -57,6 +57,12 @@ void Model::Draw()
 	}
 }
 
+void Model::SetTextureIndex(const std::string& filePath)
+{
+	TextureManager::GetInstance()->LoadTexture(filePath);
+	modelData.material.textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(filePath);
+}
+
 void Model::CreateVartexData()
 {
 	// Sprite用の頂点リソースを作る

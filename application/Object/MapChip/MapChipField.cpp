@@ -186,6 +186,7 @@ void MapChipField::LoadFromCSV(const std::string& filePath)
 					break;
 				case Block::ChipType::Gray: // 動かないブロック
 					chip.object->CreateModel("debug/Cube.obj");
+					chip.object->SetTexture("debug/uvChecker.png");
 					chip.object->SetObjColor({ 0.0f, 1.0f, 0.0f, 1.0f }); // 一旦分かりやすく緑に変更
 					break;
 				case Block::ChipType::Gravity: // 重力反転ブロック

@@ -143,7 +143,6 @@ void Object3d::SetTexture(const std::string& filePath)
 	materialData->textureFilePath = filePath;
 	TextureManager::GetInstance()->LoadTexture(filePath);
 	materialData->textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(filePath);
-	model->SetMaterialData({ materialData->textureFilePath ,materialData->textureIndex });
 }
 
 void Object3d::SetShininess(float shininess)

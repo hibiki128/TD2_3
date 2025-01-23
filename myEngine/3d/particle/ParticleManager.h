@@ -40,6 +40,7 @@ public:
 	void SetAllRandomSize(bool isAllRandomSize) { isRandomAllSize_ = isAllRandomSize; }
 	void SetSinMove(bool isSinMove) { isSinMove_ = isSinMove; }
 	void SetFaceDirection(bool flag) { isFaceDirection_ = flag; }
+	void SetTexture(const std::string& filePath);
 
 private:
 	/// <summary>
@@ -64,6 +65,7 @@ private:
 	struct MaterialData
 	{
 		std::string textureFilePath;
+		uint32_t textureIndex;
 	};
 
 	struct ModelData

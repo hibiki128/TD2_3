@@ -160,7 +160,7 @@ void ParticleManager::Draw()
 
 			srvManager_->SetGraphicsRootDescriptorTable(1, particleGroup.instancingSRVIndex);
 
-			srvManager_->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetTextureIndexByFilePath(particleGroup.material.textureFilePath));
+			srvManager_->SetGraphicsRootDescriptorTable(2, modelData.material.textureIndex);
 
 			particleCommon->GetDxCommon()->GetCommandList()->DrawInstanced(UINT(modelData.vertices.size()), particleGroup.instanceCount, 0, 0);
 		}
@@ -178,8 +178,9 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 	CreateVartexData(filename);
 	particleGroup.material.textureFilePath = modelData.material.textureFilePath;
 	TextureManager::GetInstance()->LoadTexture(modelData.material.textureFilePath);
+	modelData.material.textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(modelData.material.textureFilePath);
+	particleGroup.material.textureIndex = modelData.material.textureIndex;
 	particleGroup.instancingResource = particleCommon->GetDxCommon()->CreateBufferResource(sizeof(ParticleForGPU) * kNumMaxInstance);
-
 	particleGroup.instancingSRVIndex = srvManager_->Allocate() + 1;
 	particleGroup.instancingResource->Map(0, nullptr, reinterpret_cast<void**>(&particleGroup.instancingData));
 
@@ -187,6 +188,13 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 
 	CreateMaterial();
 	particleGroup.instanceCount = 0;
+}
+
+void ParticleManager::SetTexture(const std::string& filePath)
+{
+	TextureManager::GetInstance()->LoadTexture(filePath);
+	modelData.material.textureFilePath = filePath;
+	modelData.material.textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(filePath);
 }
 
 void ParticleManager::CreateVartexData(const std::string& filename)
@@ -360,13 +368,13 @@ ParticleManager::MaterialData ParticleManager::LoadMaterialTemplateFile(const st
 			std::string textureFilename;
 			s >> textureFilename;
 			// 連結してファイルパスにする
-			materialData.textureFilePath = directoryPath + "/" + textureFilename;
+			materialData.textureFilePath =  textureFilename;
 		}
 	}
 
 	// テクスチャが張られていない場合の処理
 	if (materialData.textureFilePath.empty()) {
-		materialData.textureFilePath = directoryPath + "/../images/white1x1.png";
+		materialData.textureFilePath =  "debug/white1x1.png";
 	}
 
 	return materialData;

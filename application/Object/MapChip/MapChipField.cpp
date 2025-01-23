@@ -34,8 +34,9 @@ void MapChipField::Update()
 				// アニメーションの進行
 				if (chip.isAnimating) {
 					UpdateChipAnimation(chip);
-				// 通常の更新
-				} else {
+					// 通常の更新
+				}
+				else {
 					chip.object->Update();
 				}
 			}
@@ -66,8 +67,20 @@ void MapChipField::Draw(const ViewProjection& vp)
 	goal_->Draw(vp);
 }
 
-std::vector<Block*> MapChipField::GetBlocks() const { 
-	std::vector<Block*> blocks; 
+void MapChipField::DrawParticle(const ViewProjection& vp)
+{
+	for (const auto& row : mapChips_) {
+		for (const auto& chip : row) {
+			// 空白ブロックではない場合のみ描画
+			if (chip.object->type_ == Block::ChipType::Black || chip.object->type_ == Block::ChipType::White) {
+				chip.emitter_->Draw(vp);
+			}
+		}
+	}
+}
+
+std::vector<Block*> MapChipField::GetBlocks() const {
+	std::vector<Block*> blocks;
 
 	for (const auto& row : mapChips_) {
 		for (const auto& chip : row) {
@@ -80,12 +93,12 @@ std::vector<Block*> MapChipField::GetBlocks() const {
 	return blocks;
 }
 
-void MapChipField::ResetMapChip() { 
+void MapChipField::ResetMapChip() {
 	// マップチップの二次元配列をクリアする
 	mapChips_.clear();
 
 	// Initを呼んでマップ再生成
-	Init(csvFilePath_); 
+	Init(csvFilePath_);
 
 	// 全てのブロックの状態をリセット
 	for (auto& row : mapChips_) {
@@ -117,7 +130,7 @@ void MapChipField::InvertBlocksInArea(const Vector3& center, int xRange, int yRa
 			int targetY = centerY + y;
 
 			// マップ範囲外を無視
-			if(targetX < 0 || targetX >= static_cast<int>(mapWidth) ||
+			if (targetX < 0 || targetX >= static_cast<int>(mapWidth) ||
 				targetY < 0 || targetY >= static_cast<int>(mapHeight)) {
 				continue;
 			}
@@ -165,15 +178,17 @@ void MapChipField::LoadFromCSV(const std::string& filePath)
 			MapChip chip;
 			chip.object = std::make_unique<Block>();
 			chip.object->type_ = chipType;
+			chip.emitter_ = std::make_unique<ParticleEmitter>();
 
 			/*BaseObjectの初期化*/
 
 			// 空白ブロックの場合にはスキップ
 			if (chip.object->type_ != Block::ChipType::Empty) {
 				chip.object->Init("Block");
-				chip.object->SetScale({1.0f, 1.0f, 1.0f});
+				chip.object->SetScale({ 1.0f, 1.0f, 1.0f });
 				chip.object->SetWorldPosition({ x * kChipSize, -y * kChipSize, 0.0f });
 				chip.object->CreateCollider();
+				chip.emitter_->Initialize("reverse", "debug/sphere.obj");
 
 				// モデルと色を設定
 				switch (chip.object->type_) {
@@ -184,6 +199,7 @@ void MapChipField::LoadFromCSV(const std::string& filePath)
 				case Block::ChipType::White: // 白ブロック
 					chip.object->CreateModel("debug/Cube.obj");
 					chip.object->SetObjColor({ 1.0f, 1.0f, 1.0f, 1.0f }); // 白色
+
 					break;
 				case Block::ChipType::Gray: // 動かないブロック
 					chip.object->CreateModel("debug/Cube.obj");
@@ -191,7 +207,7 @@ void MapChipField::LoadFromCSV(const std::string& filePath)
 					break;
 				case Block::ChipType::Gravity: // 重力反転ブロック
 					chip.object->CreateModel("debug/Cube.obj");
-					chip.object->SetObjColor({1.0f, 0.25f, 1.0f, 1.0f}); // 一旦分かりやすく紫に変更
+					chip.object->SetObjColor({ 1.0f, 0.25f, 1.0f, 1.0f }); // 一旦分かりやすく紫に変更
 				default:
 					break;
 				}
@@ -209,7 +225,7 @@ void MapChipField::LoadFromCSV(const std::string& filePath)
 
 			/*プレイヤー初期位置の格納*/
 			if (chipValue == 5) {
-				playerInitialPosition_ = {x * kChipSize, -y * kChipSize, 0.0f};
+				playerInitialPosition_ = { x * kChipSize, -y * kChipSize, 0.0f };
 			};
 
 			// マップチップの二次元配列に格納
@@ -235,7 +251,7 @@ Block::ChipType MapChipField::GetChipTypeFromInt(int value)
 	case 3: return Block::ChipType::Gray;
 	case 4: return Block::ChipType::Empty; // ゴールオブジェクトは空白扱いとする
 	case 5: return Block::ChipType::Empty; // プレイヤー初期位置は空白扱いとする
-	case 6: return Block ::ChipType::Gravity;
+	case 6: return Block::ChipType::Gravity;
 
 	default: return Block::ChipType::Empty;
 	}
@@ -375,11 +391,24 @@ void MapChipField::UpdateChipAnimation(MapChip& chip)
 			chip.object->SetRotation({ 0.0f, chip.currentRotation, 0.0f });
 			chip.object->SetScale({ chip.currentScale, chip.currentScale, chip.currentScale });
 
+			chip.emitter_->SetPosition(chip.object->GetCenterPosition());
+
+			if (chip.object->type_ == Block::ChipType::Black) {
+				chip.emitter_->SetTexture("debug/black1x1.png");
+			}
+			if (chip.object->type_ == Block::ChipType::White) {
+				chip.emitter_->SetTexture("debug/white1x1.png");
+			}
+
+			if (chip.object->type_ == Block::ChipType::Black || chip.object->type_ == Block::ChipType::White) {
+				chip.emitter_->UpdateOnce();
+			}
+
 		}
 		else {
 			// 回転角度を更新
-			chip.currentRotation = EaseOutQuad(0.0f, 2.0f, chip.animationTime, rotationDuration); // 回転を0° -> 360°へ
-			chip.object->SetRotation({ 0.0f, chip.currentRotation, 0.0f });
+			chip.currentRotation = EaseOutQuad(0.0f, 720.0f, chip.animationTime, rotationDuration); // 回転を0° -> 360°へ
+			chip.object->SetRotation({ 0.0f, degreesToRadians(chip.currentRotation), 0.0f });
 
 			// スケールの更新
 			if (chip.animationTime <= halfRotationTime) {
@@ -413,7 +442,7 @@ void MapChipField::UpdateChipAnimation(MapChip& chip)
 
 
 
-bool MapChipField::HasGravityBlockInArea(const Vector3& center, int xRange, int yRange) { 
+bool MapChipField::HasGravityBlockInArea(const Vector3& center, int xRange, int yRange) {
 	// 中心位置からマップ上のマス位置を計算
 	int centerX = static_cast<int>(std::round(center.x / kChipSize));
 	int centerY = static_cast<int>(std::round(-center.y / kChipSize));

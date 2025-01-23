@@ -38,6 +38,9 @@ public:
     void SetStartRotate(const Vector3& startRotate) { startRote_ = startRotate; }
     void SetEndRotate(const Vector3& endRotate) { endRote_ = endRotate; }
     void SetFrequency(const float& frequency) { emitFrequency_ = frequency; }
+    void SetTexture(const std::string& filePath);
+
+    void LoadFromJson(const std::string& name);
 
 private:
     // パーティクルを発生させるEmit関数

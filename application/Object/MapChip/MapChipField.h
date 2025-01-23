@@ -9,6 +9,7 @@
 #include "application/Base/BaseObject.h"
 #include "application/Object/MapChip/Block/Block.h"
 #include "application/Object/Goal/Goal.h"
+#include <ParticleEmitter.h>
 
 class MapChipField
 {
@@ -26,6 +27,7 @@ public:
 	void Init(const std::string& csvFilePath);
 	void Update();
 	void Draw(const ViewProjection& vp);
+	void DrawParticle(const ViewProjection& vp);
 
 	// 全てのブロックのBaseObjectポインタを取得
 	std::vector<Block*> GetBlocks() const;
@@ -56,14 +58,16 @@ private:
 	// マップチップのデータ構造
 	struct MapChip {
 		std::unique_ptr<Block> object;
+		std::unique_ptr<ParticleEmitter> emitter_;
 
 		///
 		/// アニメーション関連
 		/// 
-		bool isAnimating = false;
 		float animationTime = 0.0f;
 		float currentRotation = 0.0f;
 		float delayTime = 0.0f;
+
+		bool isAnimating = false;
 		bool isDelaying = false;
 		bool hasColorChanged = false;
 
@@ -99,7 +103,7 @@ private:
 	///
 	///	ブロックの挟み込み反転処理
 	/// 
-	
+
 	// 挟み込み処理を汎用化
 	void ProcessCapture(int startX, int startY, Block::ChipType targetType, Block::ChipType ownType, const std::vector<std::pair<int, int>>& directions);
 	// 指定された座標のブロックを反転する
@@ -110,13 +114,13 @@ private:
 	///
 	///	アニメーション関連
 	/// 
-	
+
 	// ブロックの色反転時に { 縮小->色反転->拡大 } を行うアニメーション
 	void UpdateChipAnimation(MapChip& chip);
 
 	///
 	/// その他
 	///		
-	
+
 };
 

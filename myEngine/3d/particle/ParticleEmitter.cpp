@@ -118,6 +118,10 @@ void ParticleEmitter::DrawEmitter()
 	}
 }
 
+void ParticleEmitter::SetTexture(const std::string& filePath)
+{
+	Manager_->SetTexture(filePath);
+}
 
 // Emit関数
 void ParticleEmitter::Emit() {
@@ -196,6 +200,99 @@ void ParticleEmitter::SaveToJson() {
 
 void ParticleEmitter::LoadFromJson() {
 	std::ifstream inFile("resources/jsons/Particle/" + name_ + ".json");
+	if (!inFile.is_open()) {
+		return; // JSONファイルがない場合は早期リターン
+	}
+
+	json j;
+	inFile >> j;
+
+	// emitter内のtransform情報を読み込み
+	transform_.translation_.x = j["emitter"]["translate"][0];
+	transform_.translation_.y = j["emitter"]["translate"][1];
+	transform_.translation_.z = j["emitter"]["translate"][2];
+
+	transform_.rotation_.x = j["emitter"]["rotation"][0];
+	transform_.rotation_.y = j["emitter"]["rotation"][1];
+	transform_.rotation_.z = j["emitter"]["rotation"][2];
+
+	transform_.scale_.x = j["emitter"]["scale"][0];
+	transform_.scale_.y = j["emitter"]["scale"][1];
+	transform_.scale_.z = j["emitter"]["scale"][2];
+
+	// その他の変数の読み込み
+	count_ = j["count"];
+	emitFrequency_ = j["emitFrequency"];
+	lifeTimeMin_ = j["lifeTimeMin"];
+	lifeTimeMax_ = j["lifeTimeMax"];
+	alphaMin_ = j["alphaMin"];
+	alphaMax_ = j["alphaMax"];
+	scaleMin_ = j["scaleMin"];
+	scaleMax_ = j["scaleMax"];
+
+	velocityMin_.x = j["velocityMin"][0];
+	velocityMin_.y = j["velocityMin"][1];
+	velocityMin_.z = j["velocityMin"][2];
+
+	velocityMax_.x = j["velocityMax"][0];
+	velocityMax_.y = j["velocityMax"][1];
+	velocityMax_.z = j["velocityMax"][2];
+
+	startScale_.x = j["startScale"][0];
+	startScale_.y = j["startScale"][1];
+	startScale_.z = j["startScale"][2];
+
+	endScale_.x = j["endScale"][0];
+	endScale_.y = j["endScale"][1];
+	endScale_.z = j["endScale"][2];
+
+	startAcce_.x = j["startAcce"][0];
+	startAcce_.y = j["startAcce"][1];
+	startAcce_.z = j["startAcce"][2];
+
+	endAcce_.x = j["endAcce"][0];
+	endAcce_.y = j["endAcce"][1];
+	endAcce_.z = j["endAcce"][2];
+
+	startRote_.x = j["startRote"][0];
+	startRote_.y = j["startRote"][1];
+	startRote_.z = j["startRote"][2];
+
+	endRote_.x = j["endRote"][0];
+	endRote_.y = j["endRote"][1];
+	endRote_.z = j["endRote"][2];
+
+	rotateVelocityMin_.x = j["rotateVelocityMin"][0];
+	rotateVelocityMin_.y = j["rotateVelocityMin"][1];
+	rotateVelocityMin_.z = j["rotateVelocityMin"][2];
+
+	rotateVelocityMax_.x = j["rotateVelocityMax"][0];
+	rotateVelocityMax_.y = j["rotateVelocityMax"][1];
+	rotateVelocityMax_.z = j["rotateVelocityMax"][2];
+
+	allScaleMin_.x = j["allScaleMin"][0];
+	allScaleMin_.y = j["allScaleMin"][1];
+	allScaleMin_.z = j["allScaleMin"][2];
+
+	allScaleMax_.x = j["allScaleMax"][0];
+	allScaleMax_.y = j["allScaleMax"][1];
+	allScaleMax_.z = j["allScaleMax"][2];
+
+	isRandomScale_ = j["isRandomScale"];
+	isAllRamdomScale_ = j["isAllRamdomScale"];
+	isRandomColor_ = j["isRandomColor"];
+	isRandomRotate_ = j["isRandomRotate"];
+	isVisible_ = j["isVisible"];
+	isBillBoard_ = j["isBillBoard"];
+	isActive_ = j["isActive"];
+	isAcceMultiply_ = j["isAcceMultiply"];
+	isSinMove_ = j["isSinMove"];
+	isFaceDirection_ = j["isFaceDirection"];
+}
+
+void ParticleEmitter::LoadFromJson(const std::string& name)
+{
+	std::ifstream inFile("resources/jsons/Particle/" + name + ".json");
 	if (!inFile.is_open()) {
 		return; // JSONファイルがない場合は早期リターン
 	}

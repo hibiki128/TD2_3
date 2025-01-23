@@ -1,0 +1,97 @@
+{
+    "allScaleMax": [
+        0.20000000298023224,
+        1.0,
+        0.20000000298023224
+    ],
+    "allScaleMin": [
+        0.05000000074505806,
+        0.20000000298023224,
+        0.05000000074505806
+    ],
+    "alphaMax": 1.0,
+    "alphaMin": 0.05000000074505806,
+    "count": 70,
+    "emitFrequency": 0.10000000149011612,
+    "emitter": {
+        "rotation": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "scale": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "translate": [
+            0.0,
+            0.0,
+            0.0
+        ]
+    },
+    "endAcce": [
+        0.5,
+        0.5,
+        0.5
+    ],
+    "endRote": [
+        0.0,
+        0.0,
+        0.0
+    ],
+    "endScale": [
+        0.0,
+        0.0,
+        0.0
+    ],
+    "isAcceMultiply": true,
+    "isActive": true,
+    "isAllRamdomScale": true,
+    "isBillBoard": false,
+    "isFaceDirection": true,
+    "isRandomColor": false,
+    "isRandomRotate": false,
+    "isRandomScale": false,
+    "isSinMove": false,
+    "isVisible": true,
+    "lifeTimeMax": 1.199999988079071,
+    "lifeTimeMin": 0.9,
+    "rotateVelocityMax": [
+        0.07000000029802322,
+        0.07000000029802322,
+        0.07000000029802322
+    ],
+    "rotateVelocityMin": [
+        -0.07000000029802322,
+        -0.07000000029802322,
+        -0.07000000029802322
+    ],
+    "scaleMax": 0.699999988079071,
+    "scaleMin": 0.0,
+    "startAcce": [
+        1.0,
+        1.0,
+        1.0
+    ],
+    "startRote": [
+        0.0,
+        0.0,
+        0.0
+    ],
+    "startScale": [
+        1.0,
+        1.0,
+        1.0
+    ],
+    "velocityMax": [
+        20.0,
+        20.0,
+        20.0
+    ],
+    "velocityMin": [
+        -20.0,
+        -20.0,
+        -20.0
+    ]
+}

@@ -144,7 +144,8 @@ void GameScene::DrawForOffScreen()
 	/// Particleの描画準備
 	ptCommon_->DrawCommonSetting();
 	//------Particleの描画開始-------
-
+	ptCommon_->SetBlendMode(BlendMode::kNormal);
+	mapChipField_->DrawParticle(vp_);
 	//-----------------------------
 
 

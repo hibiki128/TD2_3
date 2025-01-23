@@ -1,6 +1,6 @@
 #include "ParticleEmitter.h"
 #include"line/DrawLine3D.h"
-
+#include"myEngine/Frame/Frame.h"
 // コンストラクタ
 ParticleEmitter::ParticleEmitter() {}
 
@@ -35,37 +35,45 @@ void ParticleEmitter::Initialize(const std::string& name, const std::string& fil
 }
 
 // Update関数
-void ParticleEmitter::Update(const ViewProjection& vp_) {
+void ParticleEmitter::Update() {
 	// 経過時間を進める
 	elapsedTime_ += Frame::DeltaTime();
 
 	// 発生頻度に基づいてパーティクルを発生させる
 	while (elapsedTime_ >= emitFrequency_) {
+		Manager_->SetRandomRotate(isRandomRotate_);
+		Manager_->SetAcceMultipy(isAcceMultiply_);
+		Manager_->SetBillBorad(isBillBoard_);
+		Manager_->SetRandomSize(isRandomScale_);
+		Manager_->SetAllRandomSize(isAllRamdomScale_);
+		Manager_->SetSinMove(isSinMove_);
+		Manager_->SetFaceDirection(isFaceDirection_);
 		Emit();  // パーティクルを発生させる
 		elapsedTime_ -= emitFrequency_;  // 過剰に進んだ時間を考慮
 	}
-	Manager_->Update(vp_);
-	transform_.UpdateMatrix();
 }
 
-void ParticleEmitter::UpdateOnce(const ViewProjection& vp_)
+void ParticleEmitter::UpdateOnce()
 {
+	isActive_ = false;
 	if (!isActive_) {
+		Manager_->SetRandomRotate(isRandomRotate_);
+		Manager_->SetAcceMultipy(isAcceMultiply_);
+		Manager_->SetBillBorad(isBillBoard_);
+		Manager_->SetRandomSize(isRandomScale_);
+		Manager_->SetAllRandomSize(isAllRamdomScale_);
+		Manager_->SetSinMove(isSinMove_);
+		Manager_->SetFaceDirection(isFaceDirection_);
 		Emit();  // パーティクルを発生させる
 		isActive_ = true;
 	}
-	Manager_->Update(vp_);
-	transform_.UpdateMatrix();
+
 }
 
-void ParticleEmitter::Draw()
+void ParticleEmitter::Draw(const ViewProjection& vp_)
 {
-	Manager_->SetRandomRotate(isRandomRotate_);
-	Manager_->SetAcceMultipy(isAcceMultiply_);
-	Manager_->SetBillBorad(isBillBoard_);
-	Manager_->SetRandomSize(isRandomScale_);
-	Manager_->SetAllRandomSize(isAllRamdomScale_);
-	Manager_->SetSinMove(isSinMove_);
+	Manager_->Update(vp_);
+	transform_.UpdateMatrix();
 	Manager_->Draw();
 }
 
@@ -178,6 +186,7 @@ void ParticleEmitter::SaveToJson() {
 	j["isActive"] = isActive_;
 	j["isAcceMultiply"] = isAcceMultiply_;
 	j["isSinMove"] = isSinMove_;
+	j["isFaceDirection"] = isFaceDirection_;
 
 	// ディレクトリを作成し、JSONファイルを保存
 	std::filesystem::create_directories("resources/jsons/Particle/");
@@ -274,6 +283,7 @@ void ParticleEmitter::LoadFromJson() {
 	isActive_ = j["isActive"];
 	isAcceMultiply_ = j["isAcceMultiply"];
 	isSinMove_ = j["isSinMove"];
+	isFaceDirection_ = j["isFaceDirection"];
 }
 
 
@@ -422,6 +432,7 @@ void ParticleEmitter::imgui() {
 				rotateVelocityMax_.z = std::clamp(rotateVelocityMax_.z, rotateVelocityMin_.z, FLT_MAX);
 			}
 			ImGui::Checkbox("ランダムな回転", &isRandomRotate_);
+			ImGui::Checkbox("進行方向に向ける", &isFaceDirection_);
 			ImGui::TreePop();
 		}
 
@@ -430,8 +441,8 @@ void ParticleEmitter::imgui() {
 		// Alphaを折りたたみ可能にする
 		if (ImGui::TreeNode("透明度")) {
 			ImGui::Text("透明度の設定:");
-			ImGui::DragFloat("最大値", &alphaMax_, 0.1f, 0.0f, 1.0f);
-			ImGui::DragFloat("最小値", &alphaMin_, 0.1f, 0.0f, 1.0f);
+			ImGui::DragFloat("最大値", &alphaMax_, 0.01f, 0.0f, 1.0f);
+			ImGui::DragFloat("最小値", &alphaMin_, 0.01f, 0.0f, 1.0f);
 			alphaMin_ = std::clamp(alphaMin_, 0.0f, alphaMax_);
 			alphaMax_ = std::clamp(alphaMax_, alphaMin_, 1.0f);
 			ImGui::TreePop();
@@ -440,7 +451,7 @@ void ParticleEmitter::imgui() {
 
 	// エミット設定セクション
 	if (ImGui::CollapsingHeader("パーティクルの数、間隔")) {
-		ImGui::DragFloat("間隔", &emitFrequency_, 0.1f, 0.1f, 100.0f);
+		ImGui::DragFloat("間隔", &emitFrequency_, 0.001f, 0.001f, 100.0f);
 		ImGui::InputInt("数", &count_, 1, 100);
 		count_ = std::clamp(count_, 0, 10000);
 	}

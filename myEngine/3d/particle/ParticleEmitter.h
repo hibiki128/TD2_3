@@ -11,7 +11,7 @@
 
 #include <fstream>
 #include <filesystem>
-#include"myEngine/Frame/Frame.h"
+
 
 class ParticleEmitter {
 public:
@@ -21,11 +21,11 @@ public:
     void Initialize(const std::string& name, const std::string& fileName);
 
     // 更新処理を行うUpdate関数
-    void Update(const ViewProjection& vp_);
+    void Update();
 
-    void UpdateOnce(const ViewProjection& vp_);
+    void UpdateOnce();
 
-    void Draw();
+    void Draw(const ViewProjection& vp_);
 
     void DrawEmitter();
 
@@ -35,6 +35,9 @@ public:
     void SetScale(const Vector3& scale) { transform_.scale_ = scale; }
     void SetCount(const int& count) { count_ = count; }
     void SetActive(bool isActive) { isActive_ = isActive; }
+    void SetStartRotate(const Vector3& startRotate) { startRote_ = startRotate; }
+    void SetEndRotate(const Vector3& endRotate) { endRote_ = endRotate; }
+    void SetFrequency(const float& frequency) { emitFrequency_ = frequency; }
 
 private:
     // パーティクルを発生させるEmit関数
@@ -79,6 +82,7 @@ private:
     bool isActive_ = false;
     bool isAcceMultiply_ = false;
     bool isSinMove_ = false;
+    bool isFaceDirection_ = false;
 
     std::unique_ptr<ParticleManager> Manager_;
 };

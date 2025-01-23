@@ -39,6 +39,7 @@ public:
 	void SetRandomSize(bool isRandomSize) { isRandomSize_ = isRandomSize; }
 	void SetAllRandomSize(bool isAllRandomSize) { isRandomAllSize_ = isAllRandomSize; }
 	void SetSinMove(bool isSinMove) { isSinMove_ = isSinMove; }
+	void SetFaceDirection(bool flag) { isFaceDirection_ = flag; }
 
 private:
 	/// <summary>
@@ -75,9 +76,6 @@ private:
 		WorldTransform transform; // 位置
 		Vector3 velocity;  // 速度
 		Vector3 Acce;
-		Vector4 color;     // 色
-		float lifeTime;    // ライフタイム
-		float currentTime; // 現在の時間
 		Vector3 startScale;
 		Vector3 endScale;
 		Vector3 startAcce;
@@ -85,6 +83,10 @@ private:
 		Vector3 startRote;
 		Vector3 endRote;
 		Vector3 rotateVelocity;
+		Vector3 fixedDirection;
+		Vector4 color;     // 色
+		float lifeTime;    // ライフタイム
+		float currentTime; // 現在の時間
 		float initialAlpha;
 	};
 
@@ -131,7 +133,6 @@ private:
 	std::unordered_map<std::string, ParticleGroup>particleGroups;
 
 	// Δtを定義
-	const float kDeltaTime = 1.0f / 60.0f;
 	static const uint32_t kNumMaxInstance = 10000; // 最大インスタンス数の制限
 
 	std::random_device seedGenerator;
@@ -143,6 +144,7 @@ private:
 	bool isRandomSize_ = false;
 	bool isRandomAllSize_ = false;
 	bool isSinMove_ = false;
+	bool isFaceDirection_ = false;
 
 public:
 	// nameで指定した名前のパーティクルグループにパーティクルを発生させる関数

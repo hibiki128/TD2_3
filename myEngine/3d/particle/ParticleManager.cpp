@@ -2,6 +2,7 @@
 #include <random>
 #include"TextureManager.h"
 #include"fstream"
+#include"myEngine/Frame/Frame.h"
 std::unordered_map<std::string, ParticleManager::ModelData> ParticleManager::modelCache;
 
 void ParticleManager::Initialize(SrvManager* srvManager)
@@ -46,6 +47,7 @@ void ParticleManager::Update(const ViewProjection& viewProjection)
 			// 拡縮処理
 			// 拡縮処理
 			if (isSinMove_) {
+
 				// Sin波の周波数制御 (速度調整)
 				float waveScale = 0.5f * (sin(t * DirectX::XM_PI * 18.0f) + 1.0f);  // 0 ～ 1 の範囲
 
@@ -66,11 +68,30 @@ void ParticleManager::Update(const ViewProjection& viewProjection)
 			}
 
 			(*particleIterator).Acce = (1.0f - t) * (*particleIterator).startAcce + t * (*particleIterator).endAcce;
-			if (isRandomRotate_) {
+			if (isFaceDirection_) {
+				// 固定された進行方向を使用して回転を設定
+				Vector3 forward = (*particleIterator).fixedDirection; // 初期に保存された進行方向
+				Vector3 initialUp = { 0.0f, 1.0f, 0.0f };
+
+				// 回転軸を計算
+				Vector3 rotationAxis = initialUp.Cross(forward).Normalize();
+				float dotProduct = initialUp.Dot(forward);
+				float angle = acosf(std::clamp(dotProduct, -1.0f, 1.0f)); // 安全な範囲にクランプ
+
+				// 回転を設定
+				(*particleIterator).transform.rotation_.x = rotationAxis.x * angle;
+				(*particleIterator).transform.rotation_.y = rotationAxis.y * angle;
+				(*particleIterator).transform.rotation_.z = rotationAxis.z * angle;
+
+			}
+			else if (isRandomRotate_) {
+				// ランダム回転の場合の処理
 				(*particleIterator).transform.rotation_ += (*particleIterator).rotateVelocity;
 			}
 			else {
-				(*particleIterator).transform.rotation_ = (1.0f - t) * (*particleIterator).startRote + t * (*particleIterator).endRote;
+				// 通常の回転補間
+				(*particleIterator).transform.rotation_ =
+					(1.0f - t) * (*particleIterator).startRote + t * (*particleIterator).endRote;
 			}
 			if (isAcceMultipy_) {
 				(*particleIterator).velocity *= (*particleIterator).Acce;
@@ -80,11 +101,8 @@ void ParticleManager::Update(const ViewProjection& viewProjection)
 			}
 			// パーティクルの移動
 			(*particleIterator).transform.translation_ +=
-				(*particleIterator).velocity * kDeltaTime;
-			(*particleIterator).currentTime += kDeltaTime;
-
-
-
+				(*particleIterator).velocity * Frame::DeltaTime();
+			(*particleIterator).currentTime += Frame::DeltaTime();
 
 			// ワールド行列の計算
 			Matrix4x4 worldMatrix{};
@@ -99,7 +117,6 @@ void ParticleManager::Update(const ViewProjection& viewProjection)
 					(*particleIterator).transform.rotation_,
 					(*particleIterator).transform.translation_);
 			}
-
 
 			// パーティクルのワールド位置をチェック
 			WorldTransform particleWorldTransform;
@@ -296,6 +313,29 @@ ParticleManager::Particle ParticleManager::MakeNewParticle(
 	else {
 		particle.color = { 1.0f,1.0f,1.0f, distAlpha(randomEngine) };
 	}
+
+	// 初期向きは上方向（0, 1, 0）
+	Vector3 initialUp = { 0.0f, 1.0f, 0.0f };
+
+	// パーティクルの進行方向（velocity）を正規化
+	Vector3 forward = particle.velocity.Normalize();
+
+	// 固定された進行方向として保存
+	particle.fixedDirection = forward;
+
+	// 回転軸を計算（初期向きと進行方向の外積）
+	Vector3 rotationAxis = initialUp.Cross(forward).Normalize();
+
+	// 初期向きと進行方向のなす角を計算
+	float dotProduct = initialUp.Dot(forward);
+	float angle = acosf(std::clamp(dotProduct, -1.0f, 1.0f)); // 安全のためclamp
+
+	// 回転軸と角度から回転を生成
+	particle.transform.rotation_.x = rotationAxis.x * angle; // 軸回転の簡易的な設定
+	particle.transform.rotation_.y = rotationAxis.y * angle;
+	particle.transform.rotation_.z = rotationAxis.z * angle;
+
+
 	particle.initialAlpha = distAlpha(randomEngine);
 	// ライフタイムをランダムに設定
 	particle.lifeTime = distLifeTime(randomEngine);
@@ -320,13 +360,13 @@ ParticleManager::MaterialData ParticleManager::LoadMaterialTemplateFile(const st
 			std::string textureFilename;
 			s >> textureFilename;
 			// 連結してファイルパスにする
-			materialData.textureFilePath = textureFilename;
+			materialData.textureFilePath = directoryPath + "/" + textureFilename;
 		}
 	}
 
 	// テクスチャが張られていない場合の処理
 	if (materialData.textureFilePath.empty()) {
-		materialData.textureFilePath = "resources/images/debug/white1x1.png";
+		materialData.textureFilePath = directoryPath + "/../images/white1x1.png";
 	}
 
 	return materialData;

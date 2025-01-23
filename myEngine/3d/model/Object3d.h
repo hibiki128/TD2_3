@@ -40,6 +40,8 @@ private: // メンバ変数
 		float padding[3];
 		Matrix4x4 uvTransform;
 		float shininess;
+		std::string textureFilePath;
+		uint32_t textureIndex = 0;
 	};
 
 	Object3dCommon* obj3dCommon = nullptr;
@@ -122,7 +124,8 @@ public: // メンバ関数
 	void SetRotation(const Vector3& rotation) { this->rotation = rotation; }
 	void SetSize(const Vector3& size) { this->size = size; }
 	void SetModel(const std::string& filePath);
-	void SetTexture(const std::string& filePath) { model->SetTextureIndex(filePath); }
+	void SetTexture(const std::string& filePath);
+	void SetUVTransform(const Matrix4x4& mat) { materialData->uvTransform = mat; }
 
 	/// <summary>
 	/// 光沢度の設定

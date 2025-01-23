@@ -4,7 +4,7 @@
 #include"sstream"
 #include "TextureManager.h"
 #include"myEngine/Frame/Frame.h"
-#include"Object3dCommon.h"
+#include <Object3dCommon.h>
 
 
 bool Model::isGltf = false;
@@ -33,22 +33,32 @@ void Model::Initialize(ModelCommon* modelCommon, const std::string& directorypat
 
 void Model::Draw()
 {
+	D3D12_VERTEX_BUFFER_VIEW influenceBufferView;
+	uint32_t SrvIndex;
+	if (isGltf) {
+		influenceBufferView = skin_->GetSkinCluster().influenceBufferView;
+		SrvIndex = skin_->GetSrvIndex();
+	}
+	else {
+		influenceBufferView = {};
+		SrvIndex = {};
+	}
 	D3D12_VERTEX_BUFFER_VIEW vbvs[2] = {
 	vertexBufferView, // VertexDataのVBV
-	skin_->GetSkinCluster().influenceBufferView
+	influenceBufferView
 	};
+	modelCommon_->GetDxCommon()->GetCommandList()->IASetIndexBuffer(&indexBufferView);
 	if (!animator_->HaveAnimation()) {
 		modelCommon_->GetDxCommon()->GetCommandList()->IASetVertexBuffers(0, 1, vbvs); // VBVを設定
-		modelCommon_->GetDxCommon()->GetCommandList()->IASetIndexBuffer(&indexBufferView);
 		// SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
-		srvManager_->SetGraphicsRootDescriptorTable(2, modelData.material.textureIndex);
+		//srvManager_->SetGraphicsRootDescriptorTable(2, modelData.material.textureIndex);
 	}
 	else {
 		modelCommon_->GetDxCommon()->GetCommandList()->IASetVertexBuffers(0, 2, vbvs); // VBVを設定
-		modelCommon_->GetDxCommon()->GetCommandList()->IASetIndexBuffer(&indexBufferView);
+		//modelCommon_->GetDxCommon()->GetCommandList()->IASetIndexBuffer(&indexBufferView);
 		// SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
-		srvManager_->SetGraphicsRootDescriptorTable(2, modelData.material.textureIndex);
-		srvManager_->SetGraphicsRootDescriptorTable(6, skin_->GetSrvIndex());
+		//srvManager_->SetGraphicsRootDescriptorTable(2, modelData.material.textureIndex);
+		srvManager_->SetGraphicsRootDescriptorTable(6, SrvIndex);
 	}
 	// 描画！（DrawCall/ドローコール）
 	modelCommon_->GetDxCommon()->GetCommandList()->DrawIndexedInstanced(UINT(modelData.indices.size()), 1, 0, 0, 0);
@@ -142,7 +152,7 @@ ModelData Model::LoadModelFile(const std::string& directoryPath, const std::stri
 	// メッシュが存在しない場合
 	if (!scene || !scene->HasMeshes()) {
 		// デフォルトのテクスチャを設定
-		modelData.material.textureFilePath = "resources/images/debug/white1x1.png";
+		modelData.material.textureFilePath = directoryPath + "/white1x1.png";
 		return modelData;
 	}
 
@@ -212,13 +222,12 @@ ModelData Model::LoadModelFile(const std::string& directoryPath, const std::stri
 		if (material->GetTextureCount(aiTextureType_DIFFUSE) != 0) {
 			aiString textureFilePath;
 			material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFilePath);
-			// std::string 型に変換し、パスを結合
-			modelData.material.textureFilePath =textureFilePath.C_Str();
+			modelData.material.textureFilePath = directoryPath + textureFilePath.C_Str();
 		}
 	}
 	if (modelData.material.textureFilePath.empty()) {
 		// テクスチャがない場合はデフォルトのテクスチャを設定
-		modelData.material.textureFilePath = "debug/white1x1.png";
+		modelData.material.textureFilePath = directoryPath + "/white1x1.png";
 	}
 	modelData.rootNode = ReadNode(scene->mRootNode);
 	return modelData;

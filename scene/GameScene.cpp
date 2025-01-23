@@ -184,6 +184,8 @@ void GameScene::Debug()
 
 	// プレイヤーデバッグ情報
 	player_->DebugImGui();
+	// マップチップフィールドデバッグ情報
+	mapChipField_->DebugImGui();
 }
 
 void GameScene::CameraUpdate()

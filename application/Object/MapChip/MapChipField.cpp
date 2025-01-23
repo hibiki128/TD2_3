@@ -8,6 +8,7 @@
 // Engine
 #include "math/Easing.h"
 #include"myEngine/Frame/Frame.h"
+#include "myEngine/utility/graphics/TextureManager.h"
 
 // ブロックの大きさを定義
 const float MapChipField::kChipSize = 2.0f;
@@ -79,8 +80,16 @@ void MapChipField::DrawParticle(const ViewProjection& vp)
 	}
 }
 
-std::vector<Block*> MapChipField::GetBlocks() const {
-	std::vector<Block*> blocks;
+void MapChipField::DebugImGui(){ 
+	ImGui::Begin("MapChipField");
+
+	ImGui::Checkbox("重力反転状態", &isGravityReversed_);
+
+	ImGui::End();
+}
+
+std::vector<Block*> MapChipField::GetBlocks() const { 
+	std::vector<Block*> blocks; 
 
 	for (const auto& row : mapChips_) {
 		for (const auto& chip : row) {
@@ -208,6 +217,8 @@ void MapChipField::LoadFromCSV(const std::string& filePath)
 				case Block::ChipType::Gravity: // 重力反転ブロック
 					chip.object->CreateModel("debug/Cube.obj");
 					chip.object->SetObjColor({ 1.0f, 0.25f, 1.0f, 1.0f }); // 一旦分かりやすく紫に変更
+					chip.object->CreateModel("game/GravityBlock.obj");
+					chip.object->SetTexture("game/forwardGravityBlock.png"); // 重力通常状態のテクスチャをセット
 				default:
 					break;
 				}
@@ -440,9 +451,57 @@ void MapChipField::UpdateChipAnimation(MapChip& chip)
 	}
 }
 
+void MapChipField::ChangeTextureAllGravityBlock() {
+
+	// 全てのブロックを探索
+	for (auto& row : mapChips_) {
+		for (auto& chip : row) {
+			if (chip.object->type_ == Block::ChipType::Gravity) { // 重力ブロックの場合
+				if (!isGravityReversed_) {
+					chip.object->SetTexture("game/forwardGravityBlock.png"); // 重力通常状態のテクスチャを設定
+				} else {
+					chip.object->SetTexture("game/reverseGravityBlock.png"); // 重力反転状態のテクスチャを設定
+				}
+			}
+		}
+	}
+}
 
 
-bool MapChipField::HasGravityBlockInArea(const Vector3& center, int xRange, int yRange) {
+
+bool MapChipField::HasBlockInArea(const Vector3& center, int xRange, int yRange) { 
+	// 中心位置からマップ上のマス位置を計算
+	int centerX = static_cast<int>(std::round(center.x / kChipSize));
+	int centerY = static_cast<int>(std::round(-center.y / kChipSize));
+
+	int halfXRange = xRange / 2;
+	int halfYRange = yRange / 2;
+
+	// 範囲内のブロックを探索
+	for (int y = -halfYRange; y <= halfYRange; ++y) {
+		for (int x = -halfXRange; x <= halfXRange; ++x) {
+			// 対象位置を計算
+			int targetX = centerX + x;
+			int targetY = centerY + y;
+
+			// マップ範囲外を無視
+			if (targetX < 0 || targetX >= static_cast<int>(mapWidth) || targetY < 0 || targetY >= static_cast<int>(mapHeight)) {
+				continue;
+			}
+
+			// マスにブロックが存在するかをチェック
+			MapChip& chip = mapChips_[targetY][targetX];
+			if (chip.object->type_ != Block::ChipType::Empty && // 空ブロックを除外する
+				chip.object->type_ != Block::ChipType::Gray) { // 動かないブロックを除外する（あとで変更する可能性あり）
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+bool MapChipField::HasGravityBlockInArea(const Vector3& center, int xRange, int yRange) { 
 	// 中心位置からマップ上のマス位置を計算
 	int centerX = static_cast<int>(std::round(center.x / kChipSize));
 	int centerY = static_cast<int>(std::round(-center.y / kChipSize));
@@ -464,8 +523,13 @@ bool MapChipField::HasGravityBlockInArea(const Vector3& center, int xRange, int 
 
 			// ブロックを取得してタイプを判定
 			MapChip& chip = mapChips_[targetY][targetX];
-			if (chip.object->type_ == Block::ChipType::Gravity) {
-				return true; // 重力ブロックが見つかった
+			if (chip.object->type_ == Block::ChipType::Gravity) { // 重力ブロックが見つかったら
+				isGravityReversed_ = !isGravityReversed_; // 重力の状態を切り替える
+
+				// 重力の状態によって全ての重力ブロックのテクスチャを切り替える
+				ChangeTextureAllGravityBlock();
+
+				return true; // 重力ブロックが見つかったことを示す
 			}
 		}
 	}

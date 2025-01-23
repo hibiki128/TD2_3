@@ -27,6 +27,7 @@ public:
 	void Init(const std::string& csvFilePath);
 	void Update();
 	void Draw(const ViewProjection& vp);
+	void DebugImGui();
 	void DrawParticle(const ViewProjection& vp);
 
 	// 全てのブロックのBaseObjectポインタを取得
@@ -51,8 +52,12 @@ public:
 	///	その他
 	/// 
 
+	// 指定範囲内にブロックが存在しているかを判定
+	bool HasBlockInArea(const Vector3& center, int xRange, int yRange);
 	// 指定範囲内に重力反転ブロックがあるかどうかを判定
 	bool HasGravityBlockInArea(const Vector3& center, int xRange, int yRange);
+	// マップチップフィールドが所持する重力反転状態を設定（重力ブロックのテクスチャ変更のためだけに使用）
+	void SetIsGravityReversed(bool flag) { isGravityReversed_ = flag; }
 
 private:
 	// マップチップのデータ構造
@@ -121,6 +126,13 @@ private:
 	///
 	/// その他
 	///		
+
+	// 存在する全ての重力ブロックのテクスチャを重力状態によって変更
+	void ChangeTextureAllGravityBlock();
+
+private:
+	// 重力反転状態かどうか（重力ブロックのテクスチャ変更のためだけに使用）
+	bool isGravityReversed_ = false; // 初期状態は通常
 
 };
 

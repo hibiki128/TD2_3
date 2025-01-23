@@ -42,7 +42,7 @@ void Player::Update(MapChipField* mapChipField) {
 	BaseObject::Update();
 	squareTransition_->Update();
 	// リセット時処理
-	ResetMapChip();
+	Reset();
 	// ブロック反転時、アニメーションが終わるまでを判定（反転中はプレイヤーが動かないようにするため）
 	if (isInverting_) {
 		invertTimer_ += kDeltaTime;
@@ -61,9 +61,16 @@ void Player::Update(MapChipField* mapChipField) {
 	// 接地しているか天井に接触した際にはY方向速度をリセット
 	if (collisionMapInfo_.hittingGround_) {
 		velocity_.y = 0.0f;
+
 	} else if (collisionMapInfo_.hittingCeiling_) {
 		velocity_.y = 0.0f;
 	}
+
+	// 各種瞬間判定フラグをリセット
+	isJumpOccurred_ = false;
+	isBlockInversionOccurred_ = false;
+	isResetOccurred_ = false;
+	isGravityReversedOccurred_ = false;
 
 	///
 	///	入力操作
@@ -75,10 +82,10 @@ void Player::Update(MapChipField* mapChipField) {
 	///	重力を常に受ける
 	///
 
-	if (!isInverting_) {                         // ブロック反転中には加算しない
-		if (isGravityReversed_) {                // 重力反転中
+	if (!isInverting_) { // ブロック反転中には重力を加算しない
+		if (isGravityReversed_) {  // 重力反転中
 			velocity_.y -= gravityAcceleration_; // 上向きに重力をかける (逆)
-		} else {
+		} else { // 通常重力
 			velocity_.y += gravityAcceleration_; // 下向きに重力をかける（順）
 		}
 	}
@@ -95,18 +102,31 @@ void Player::Update(MapChipField* mapChipField) {
 	if (ImGui::BeginTabBar(className_.c_str())) {
 		if (ImGui::BeginTabItem("デバッグ")) {
 
-			ImGui::DragFloat3("velocity", &velocity_.x);
+			/*ImGui::DragFloat3("velocity", &velocity_.x);*/
 
-			ImGui::Text("hittingGround : %d", collisionMapInfo_.hittingGround_);
+			/*ImGui::Text("hittingGround : %d", collisionMapInfo_.hittingGround_);
 			ImGui::Text("hittingCeiling : %d", collisionMapInfo_.hittingCeiling_);
 			ImGui::Text("hittingLeft : %d", collisionMapInfo_.hittingLeft_);
-			ImGui::Text("hittingRight : %d", collisionMapInfo_.hittingRight_);
+			ImGui::Text("hittingRight : %d", collisionMapInfo_.hittingRight_);*/
 
-			ImGui::Checkbox("ブロック反転中", &isInverting_);
-			ImGui::Checkbox("重力反転中", &isGravityReversed_);
+			/*ImGui::Checkbox("ブロック反転中", &isInverting_);
+			ImGui::Checkbox("重力反転中", &isGravityReversed_);*/
 
 			/*ImGui::Text("TransitionStatus : %d", squareTransition_->GetCurrentStatus());
 			ImGui::Text("TransitionIsFinished : %d", squareTransition_->IsFinished());*/
+
+			bool flag[5] = {false};
+			flag[0] = IsJumpOccurred();
+			flag[1] = IsBlockInversionOccurred();
+			flag[2] = IsResetOccurred();
+			flag[3] = IsGravityReversedOccurred();
+			flag[4] = IsLandedOccurred();
+
+			ImGui::Checkbox("ジャンプした瞬間", &flag[0]);
+			ImGui::Checkbox("ブロック反転した瞬間", &flag[1]);
+			ImGui::Checkbox("リセットした瞬間", &flag[2]);
+			ImGui::Checkbox("重力反転した瞬間", &flag[3]);
+			ImGui::Checkbox("着地した瞬間", &flag[4]);
 
 			ImGui::EndTabItem();
 		}
@@ -209,11 +229,17 @@ void Player::HandleInput() {
 			// 天井にいる場合のみ
 			if (collisionMapInfo_.hittingCeiling_) {
 				velocity_.y = -jumpAcceleration_; // 下向き (逆)
+
+				// ジャンプしたことを記録（SE・エフェクト用）
+				isJumpOccurred_ = true;
 			}
 		} else {
 			// 地面にいる場合のみ
 			if (collisionMapInfo_.hittingGround_) {
 				velocity_.y = jumpAcceleration_; // 上向き (順)
+
+				// ジャンプしたことを記録（SE・エフェクト用）
+				isJumpOccurred_ = true;
 			}
 		}
 	}
@@ -227,15 +253,28 @@ void Player::HandleInput() {
 			if (mapChipField_) {
 				// 現在の位置を取得
 				Vector3 position = BaseObject::GetWorldPosition();
-				// 範囲内のブロックの反転を行う
-				mapChipField_->InvertBlocksInArea(position, xInvertRange_, yInvertRange_);
 
-				// 反転中であることを記録する
-				isInverting_ = true;
+				// 範囲内にブロックが1つでも存在しているかを判定する
+				if (mapChipField_->HasBlockInArea(position, xInvertRange_, yInvertRange_)) {
+					// 範囲内のブロックの反転を行う
+					mapChipField_->InvertBlocksInArea(position, xInvertRange_, yInvertRange_);
+					// 反転中であることを記録する
+					isInverting_ = true;
 
-				// 重力ブロックが範囲内に見つかった場合、プレイヤーの重力を反転する
-				if (mapChipField_->HasGravityBlockInArea(position, xInvertRange_, yInvertRange_)) {
-					isGravityReversed_ = !isGravityReversed_;
+					///
+					/// 重力ブロックが範囲内に見つかった場合、プレイヤーの重力を反転する
+					/// 
+					if (mapChipField_->HasGravityBlockInArea(position, xInvertRange_, yInvertRange_)) {
+						isGravityReversed_ = !isGravityReversed_;
+
+
+						// 重力反転したことを記録（SE・エフェクト用）
+						isGravityReversedOccurred_ = true;
+					}
+
+
+					// ブロック反転したことを記録（SE・エフェクト用）
+					isBlockInversionOccurred_ = true;
 				}
 			}
 		}
@@ -250,34 +289,80 @@ void Player::HandleInput() {
 		if (squareTransition_->IsFinished()) {
 			// SquareInを開始する
 			squareTransition_->Start(SquareTransition::Status::SquareIn, kResetTransitionTime);
+
+			// リセットしたことを記録（SE・エフェクト用）
+			isResetOccurred_ = true;
 		}
 	}
 
 #pragma endregion
 }
 
-void Player::ResetMapChip() {
+bool Player::IsLandedOccurred() { 
+	if (!isInverting_) { // 足元のブロックを反転させた際にも反応してしまうのを防止
+		// 重力が通常の場合
+		if (!isGravityReversed_) {
+			bool currentHittingGround = collisionMapInfo_.hittingGround_;
+
+			// 着地した瞬間のみを判定
+			if (!prevHittingGround_ && currentHittingGround) {
+				prevHittingGround_ = currentHittingGround;
+				return true;
+			}
+
+			prevHittingGround_ = currentHittingGround;
+
+			// 重力が逆の場合
+		} else {
+			bool currentHittingGround = collisionMapInfo_.hittingCeiling_;
+
+			// 着地した瞬間のみを判定
+			if (!prevHittingGround_ && currentHittingGround) {
+				prevHittingGround_ = currentHittingGround;
+				return true;
+			}
+
+			prevHittingGround_ = currentHittingGround;
+		}
+	}
+
+	return false;
+}
+
+void Player::Reset() {
 	///
 	///	メモ : SquareInが呼び出されたら終了次第、リセットとSquareOutが開始する
 	///
 
 	// Rキー押下時にSquareInが開始するので、終了したらリセット処理が行われる
 	if (squareTransition_->IsFinished() && squareTransition_->GetCurrentStatus() == SquareTransition::Status::SquareIn) {
+		///
+		///	各種リセット処理
+		/// 
+
 		// プレイヤーの位置をリセット
 		this->transform_.translation_ = mapChipField_->GetPlayerInitialPosition();
 		// プレイヤーの速度をリセット
 		this->velocity_ = {0.0f, 0.0f, 0.0f};
+		// プレイヤーの重力状態をリセット
+		isGravityReversed_ = false;
+
 		// マップのリセット
 		mapChipField_->ResetMapChip();
+		// マップの所持する重力状態をリセット
+		mapChipField_->SetIsGravityReversed(false);
+
 
 		// SquareOutを開始する
 		squareTransition_->Start(SquareTransition::Status::SquareOut, kResetTransitionTime);
 	}
 
 	// プレイヤーが画面外へ落下した際にもリセット
-	if (this->transform_.translation_.y < -30.0f && squareTransition_->IsFinished()) { // 一旦画面下方向のみ適当に設定
-		// SquareInを開始する
-		squareTransition_->Start(SquareTransition::Status::SquareIn, kResetTransitionTime);
+	if (squareTransition_->IsFinished()) {
+		if (this->transform_.translation_.y < -30.0f || this->transform_.translation_.y > 30.0f) { // リセット判定の座標を一旦適当に設定
+			// SquareInを開始する
+			squareTransition_->Start(SquareTransition::Status::SquareIn, kResetTransitionTime);
+		}
 	}
 }
 
@@ -414,7 +499,7 @@ Player::CollisionMapInfo Player::GetMapCollisionInfo() {
 				if (i < 2) { // 左上・右上
 					info.hittingCeiling_ = true;
 					info.blockY = block; // Y方向で衝突したブロックを格納
-				} else if (i >= 2) {     // 左下・右下
+				} else if (i >= 2) { // 左下・右下
 					info.hittingGround_ = true;
 					info.blockY = block; // Y方向で衝突したブロックを格納
 				}

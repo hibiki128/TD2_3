@@ -103,11 +103,39 @@ private:
 
 	// 反転可能範囲のAABBを描画
 	void DrawInvertArea();
-	void ResetMapChip();
+	void Reset();
 
 private:
 	using json = nlohmann::json;
 
 	void SaveToJson();
 	void LoadFromJson();
+
+///
+/// SE・エフェクト用のフラグ
+/// 
+public:
+	// ジャンプした瞬間を判定
+	bool IsJumpOccurred() { return isJumpOccurred_; }
+	// ブロック反転した瞬間を判定
+	bool IsBlockInversionOccurred() { return isBlockInversionOccurred_; }
+	// リセットした瞬間を判定
+	bool IsResetOccurred() { return isResetOccurred_; }
+	// 重力反転した瞬間を判定
+	bool IsGravityReversedOccurred() { return isGravityReversedOccurred_; }
+	// 着地した瞬間を判定
+	bool IsLandedOccurred();
+
+private:
+	// ジャンプした瞬間を判定
+	bool isJumpOccurred_ = false;
+	// ブロック反転した瞬間を判定
+	bool isBlockInversionOccurred_ = false;
+	// リセットした瞬間を判定
+	bool isResetOccurred_ = false;
+	// 重力反転した瞬間を判定
+	bool isGravityReversedOccurred_ = false;
+
+	// 前フレームの接地状態を記録
+	bool prevHittingGround_ = false;
 };

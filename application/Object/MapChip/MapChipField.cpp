@@ -7,6 +7,7 @@
 
 // Engine
 #include "math/Easing.h"
+#include "myEngine/utility/graphics/TextureManager.h"
 
 // ブロックの大きさを定義
 const float MapChipField::kChipSize = 2.0f;
@@ -63,6 +64,14 @@ void MapChipField::Draw(const ViewProjection& vp)
 
 	// ゴールオブジェクト描画
 	goal_->Draw(vp);
+}
+
+void MapChipField::DebugImGui(){ 
+	ImGui::Begin("MapChipField");
+
+	ImGui::Checkbox("重力反転状態", &isGravityReversed_);
+
+	ImGui::End();
 }
 
 std::vector<Block*> MapChipField::GetBlocks() const { 
@@ -186,12 +195,11 @@ void MapChipField::LoadFromCSV(const std::string& filePath)
 					break;
 				case Block::ChipType::Gray: // 動かないブロック
 					chip.object->CreateModel("debug/Cube.obj");
-					chip.object->SetTexture("debug/uvChecker.png");
 					chip.object->SetObjColor({ 0.0f, 1.0f, 0.0f, 1.0f }); // 一旦分かりやすく緑に変更
 					break;
 				case Block::ChipType::Gravity: // 重力反転ブロック
-					chip.object->CreateModel("debug/Cube.obj");
-					chip.object->SetObjColor({1.0f, 0.25f, 1.0f, 1.0f}); // 一旦分かりやすく紫に変更
+					chip.object->CreateModel("game/GravityBlock.obj");
+					chip.object->SetTexture("game/forwardGravityBlock.png"); // 重力通常状態のテクスチャをセット
 				default:
 					break;
 				}
@@ -404,6 +412,22 @@ void MapChipField::UpdateChipAnimation(MapChip& chip)
 	}
 }
 
+void MapChipField::ChangeTextureAllGravityBlock() {
+
+	// 全てのブロックを探索
+	for (auto& row : mapChips_) {
+		for (auto& chip : row) {
+			if (chip.object->type_ == Block::ChipType::Gravity) { // 重力ブロックの場合
+				if (!isGravityReversed_) {
+					chip.object->SetTexture("game/forwardGravityBlock.png"); // 重力通常状態のテクスチャを設定
+				} else {
+					chip.object->SetTexture("game/reverseGravityBlock.png"); // 重力反転状態のテクスチャを設定
+				}
+			}
+		}
+	}
+}
+
 bool MapChipField::HasBlockInArea(const Vector3& center, int xRange, int yRange) { 
 	// 中心位置からマップ上のマス位置を計算
 	int centerX = static_cast<int>(std::round(center.x / kChipSize));
@@ -458,8 +482,13 @@ bool MapChipField::HasGravityBlockInArea(const Vector3& center, int xRange, int 
 
 			// ブロックを取得してタイプを判定
 			MapChip& chip = mapChips_[targetY][targetX];
-			if (chip.object->type_ == Block::ChipType::Gravity) {
-				return true; // 重力ブロックが見つかった
+			if (chip.object->type_ == Block::ChipType::Gravity) { // 重力ブロックが見つかったら
+				isGravityReversed_ = !isGravityReversed_; // 重力の状態を切り替える
+
+				// 重力の状態によって全ての重力ブロックのテクスチャを切り替える
+				ChangeTextureAllGravityBlock();
+
+				return true; // 重力ブロックが見つかったことを示す
 			}
 		}
 	}

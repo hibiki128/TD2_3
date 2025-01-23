@@ -182,9 +182,14 @@ void Framework::LoadResource()
 {
 	// モデル読み込み
 	modelManager_->LoadModel("debug/cube.obj");
+
+	modelManager_->LoadModel("game/GravityBlock.obj"); // 重力反転ブロック
 	
 	// テクスチャ読み込み
 	textureManager_->LoadTexture("debug/uvChecker.png");
+
+	textureManager_->LoadTexture("game/forwardGravityBlock.png"); // 正転重力反転ブロック
+	textureManager_->LoadTexture("game/reverseGravityBlock.png"); // 正転重力反転ブロック
 }
 
 void  Framework::PlaySounds() 

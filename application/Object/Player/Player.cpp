@@ -258,11 +258,12 @@ void Player::HandleInput() {
 				if (mapChipField_->HasBlockInArea(position, xInvertRange_, yInvertRange_)) {
 					// 範囲内のブロックの反転を行う
 					mapChipField_->InvertBlocksInArea(position, xInvertRange_, yInvertRange_);
-
 					// 反転中であることを記録する
 					isInverting_ = true;
 
-					// 重力ブロックが範囲内に見つかった場合、プレイヤーの重力を反転する
+					///
+					/// 重力ブロックが範囲内に見つかった場合、プレイヤーの重力を反転する
+					/// 
 					if (mapChipField_->HasGravityBlockInArea(position, xInvertRange_, yInvertRange_)) {
 						isGravityReversed_ = !isGravityReversed_;
 
@@ -348,7 +349,8 @@ void Player::Reset() {
 
 		// マップのリセット
 		mapChipField_->ResetMapChip();
-
+		// マップの所持する重力状態をリセット
+		mapChipField_->SetIsGravityReversed(false);
 
 
 		// SquareOutを開始する

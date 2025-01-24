@@ -1,6 +1,7 @@
 #pragma once
 #include"Sprite.h"
 #include"memory"
+#include"vector"
 class SceneTransition
 {
 public:
@@ -21,6 +22,8 @@ public:
 	/// 描画
 	/// </summary>
 	void Draw();
+
+	void Debug();
 
 	/// <summary>
 	/// セット
@@ -46,6 +49,11 @@ public:
 private:
 
 	/// <summary>
+	/// フェードアップデート
+	/// </summary>
+	void FadeUpdate();
+
+	/// <summary>
 	/// フェードイン
 	/// </summary>
 	void FadeIn();
@@ -54,6 +62,20 @@ private:
 	/// フェードアウト
 	/// </summary>
 	void FadeOut();
+	
+	/// <summary>
+	/// デフォルトフェードイン
+	/// </summary>
+	void DefaultFadeIn();
+	
+	/// <summary>
+	/// デフォルトフェードアウト
+	/// </summary>
+	void DefaultFadeOut();
+
+	void ReverseFadeIn();
+
+	void ReverseFadeOut();
 
 private:
 	// フェードの持続時間
@@ -62,16 +84,15 @@ private:
 	float counter_ = 0.0f;
 
 	std::unique_ptr<Sprite> sprite_ = nullptr;
+	std::vector<std::vector<std::unique_ptr<Sprite>>> transition_;
 
-	uint32_t texture = 0u;
+	Vector2 spPos_ = { 0.0f,0.0f };
 
 	bool fadeInStart = false;
 	bool fadeOutStart = false;
 	bool fadeInFinish = false;
 	bool fadeOutFinish = false;
 	bool isEnd = false;
-	float In_t = 0.0f;
-	float Out_t = 0.0f;
 
 };
 

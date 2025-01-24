@@ -57,7 +57,6 @@ void MyGame::Draw()
 	offscreen_->Draw();
 	dxCommon->TransitionDepthBarrier();
 	sceneManager_->DrawForOffScreen();
-	spriteCommon->DrawCommonSetting();
 	sceneManager_->DrawTransition();
 
 #ifdef _DEBUG

@@ -58,6 +58,8 @@ void SceneManager::Update()
 	}
 	ImGui::End();
 
+	transition_->Debug();
+
 #endif // _DEBUG
 
 	// 次のシーンの予約があるなら

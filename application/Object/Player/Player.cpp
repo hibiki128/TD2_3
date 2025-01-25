@@ -209,7 +209,139 @@ bool Player::IsGoalReached() {
 
 void Player::HandleInput() {
 #pragma region ゲームパッド入力
+	// 前フレームの押下状態を保存
+	static bool wasPressedA = false; // Aボタン
+	static bool wasPressedRB = false; // RBボタン
+	static bool wasPressedLB = false; // LBボタン
 
+	XINPUT_STATE joyState;
+	if (input_->GetJoystickState(0, joyState)) {
+
+		///
+		///	左右移動入力
+		///
+
+		if (!isInverting_) { // ブロック反転中には移動できない
+			// 左スティックの入力値を取得
+			float leftStickX = joyState.Gamepad.sThumbLX;
+			// デッドゾーンの設定
+			const float deadZone = 2000.0f;
+
+			if (abs(leftStickX) > deadZone) {
+				const float maxStickValue = 32767.0f;
+				float moveX = (abs(leftStickX) > deadZone) ? (leftStickX / maxStickValue) * kMoveSpeed : 0.0f;
+
+				// 移動量を反映
+				velocity_.x = moveX;
+			}
+		}
+
+		///
+		///	ジャンプ入力
+		///
+
+		bool isPressedA = joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A;
+
+		// Aボタンが押された瞬間のみ
+		if (isPressedA && !wasPressedA) {
+			if (isGravityReversed_) { // 重力反転中
+				// 天井にいる場合のみ
+				if (collisionMapInfo_.hittingCeiling_) {
+					velocity_.y = -jumpAcceleration_; // 下向き (逆)
+
+					// ジャンプしたことを記録（SE・エフェクト用）
+					isJumpOccurred_ = true;
+				}
+			} else {
+				// 地面にいる場合のみ
+				if (collisionMapInfo_.hittingGround_) {
+					velocity_.y = jumpAcceleration_; // 上向き (順)
+
+					// ジャンプしたことを記録（SE・エフェクト用）
+					isJumpOccurred_ = true;
+				}
+			}
+		}
+
+		// 前フレームの状態を記録
+		wasPressedA = isPressedA;
+
+		///
+		///	範囲内のブロック反転入力
+		///
+
+		bool isPressedRB = joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER;
+
+		// RBボタンが押された瞬間のみ
+		if (isPressedRB && wasPressedRB) {
+			if (!isInverting_) { // ブロック反転中には反転できない
+				if (mapChipField_) {
+					// 現在の位置を取得
+					Vector3 position = BaseObject::GetWorldPosition();
+
+					// 範囲内にブロックが1つでも存在しているかを判定する
+					if (mapChipField_->HasBlockInArea(position, xInvertRange_, yInvertRange_)) {
+						// 範囲内のブロックの反転を行う
+						mapChipField_->InvertBlocksInArea(position, xInvertRange_, yInvertRange_);
+						// 反転中であることを記録する
+						isInverting_ = true;
+
+						///
+						/// 重力ブロックが範囲内に見つかった場合、プレイヤーの重力を反転する
+						/// 
+						if (mapChipField_->HasGravityBlockInArea(position, xInvertRange_, yInvertRange_)) {
+							isGravityReversed_ = !isGravityReversed_;
+
+
+							// 重力反転したことを記録（SE・エフェクト用）
+							isGravityReversedOccurred_ = true;
+						}
+
+						///
+						///	プレイヤー色反転ブロックが範囲内に見つかった場合、プレイヤーの色を反転する
+						/// 
+						if (mapChipField_->HasColorChangeBlockInArea(position, xInvertRange_, yInvertRange_)) {
+							// 現在が白の場合、テクスチャと色状態を黒に変更
+							if (colorState_ == ColorState::White) {
+								this->SetTexture("game/playerBlack.png");
+								colorState_ = ColorState::Black;
+								// 現在が黒の場合、テクスチャと色状態を白に変更
+							} else if (colorState_ == ColorState::Black) {
+								this->SetTexture("game/playerWhite.png");
+								colorState_ = ColorState::White;
+							}
+						}
+
+						// ブロック反転したことを記録（SE・エフェクト用）
+						isBlockInversionOccurred_ = true;
+					}
+				}
+			}
+		}
+
+		// 前フレームの状態を記録
+		wasPressedRB = isPressedRB;
+
+		///
+		///	リセット
+		///
+		
+		bool isPressedLB = joyState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER;
+
+		if (isPressedLB && !wasPressedLB) {
+			// トランジション中には押せないようにする
+			if (squareTransition_->IsFinished()) {
+				// SquareInを開始する
+				squareTransition_->Start(SquareTransition::Status::SquareIn, kResetTransitionTime);
+
+				// リセットしたことを記録（SE・エフェクト用）
+				isResetOccurred_ = true;
+			}
+		}
+
+		// 前フレームの状態を記録
+		wasPressedLB = isPressedLB;
+	}
 #pragma endregion
 
 #pragma region キーボード入力

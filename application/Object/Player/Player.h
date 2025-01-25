@@ -71,7 +71,6 @@ private:
 	};
 	// プレイヤーの色の状態
 	ColorState colorState_ = ColorState::White;
-	bool isWhite_ = true; // デバッグ用なのであとで消す
 
 	//////////////////
 	/*調整パラメーター*/

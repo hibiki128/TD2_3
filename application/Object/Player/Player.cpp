@@ -128,17 +128,6 @@ void Player::Update(MapChipField* mapChipField) {
 			ImGui::Checkbox("重力反転した瞬間", &flag[3]);
 			ImGui::Checkbox("着地した瞬間", &flag[4]);
 
-			// チェックボックスを描画し、変更があれば色状態を更新
-			if (ImGui::Checkbox("プレイヤーの色変更", &isWhite_)) {
-				colorState_ = isWhite_ ? ColorState::White : ColorState::Black;
-			}
-
-			if (isWhite_) {
-				BaseObject::SetTexture("game/PlayerWhite.png"); // プレイヤーに白テクスチャを適用
-			} else {
-				BaseObject::SetTexture("game/PlayerBlack.png"); // プレイヤーに黒テクスチャを適用
-			}
-
 			if (colorState_ == ColorState::White) {
 				ImGui::Text("現在の色 : 白");
 			} else if (colorState_ == ColorState::Black) {
@@ -289,6 +278,20 @@ void Player::HandleInput() {
 						isGravityReversedOccurred_ = true;
 					}
 
+					///
+					///	プレイヤー色反転ブロックが範囲内に見つかった場合、プレイヤーの色を反転する
+					/// 
+					if (mapChipField_->HasColorChangeBlockInArea(position, xInvertRange_, yInvertRange_)) {
+						// 現在が白の場合、テクスチャと色状態を黒に変更
+						if (colorState_ == ColorState::White) {
+							this->SetTexture("game/playerBlack.png");
+							colorState_ = ColorState::Black;
+						// 現在が黒の場合、テクスチャと色状態を白に変更
+						} else if (colorState_ == ColorState::Black) {
+							this->SetTexture("game/playerWhite.png");
+							colorState_ = ColorState::White;
+						}
+					}
 
 					// ブロック反転したことを記録（SE・エフェクト用）
 					isBlockInversionOccurred_ = true;
@@ -363,6 +366,9 @@ void Player::Reset() {
 		this->velocity_ = {0.0f, 0.0f, 0.0f};
 		// プレイヤーの重力状態をリセット
 		isGravityReversed_ = false;
+		// プレイヤーの色状態をリセット（とりあえずデフォルトを白としておく）
+		this->SetTexture("game/playerWhite.png");
+		colorState_ = ColorState::White;
 
 		// マップのリセット
 		mapChipField_->ResetMapChip();

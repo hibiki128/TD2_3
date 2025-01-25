@@ -184,12 +184,17 @@ void Framework::LoadResource()
 	modelManager_->LoadModel("debug/cube.obj");
 
 	modelManager_->LoadModel("game/GravityBlock.obj"); // 重力反転ブロック
+	modelManager_->LoadModel("game/Player.obj"); // プレイヤー
+	modelManager_->LoadModel("game/ColorChangeBlock.obj"); // プレイヤー色反転ブロック
 	
 	// テクスチャ読み込み
 	textureManager_->LoadTexture("debug/uvChecker.png");
 
-	textureManager_->LoadTexture("game/forwardGravityBlock.png"); // 正転重力反転ブロック
-	textureManager_->LoadTexture("game/reverseGravityBlock.png"); // 正転重力反転ブロック
+	textureManager_->LoadTexture("game/forwardGravityBlock.png"); // 重力順転ブロック
+	textureManager_->LoadTexture("game/reverseGravityBlock.png"); // 重力反転ブロック
+	textureManager_->LoadTexture("game/playerWhite.png"); // プレイヤー白状態
+	textureManager_->LoadTexture("game/playerBlack.png"); // プレイヤー黒状態
+	textureManager_->LoadTexture("game/colorChangeBlock.png"); // プレイヤー色反転ブロック
 }
 
 void  Framework::PlaySounds() 

@@ -54,10 +54,14 @@ public:
 
 	// 指定範囲内にブロックが存在しているかを判定
 	bool HasBlockInArea(const Vector3& center, int xRange, int yRange);
+
 	// 指定範囲内に重力反転ブロックがあるかどうかを判定
 	bool HasGravityBlockInArea(const Vector3& center, int xRange, int yRange);
 	// マップチップフィールドが所持する重力反転状態を設定（重力ブロックのテクスチャ変更のためだけに使用）
 	void SetIsGravityReversed(bool flag) { isGravityReversed_ = flag; }
+
+	// 指定範囲内にプレイヤー色反転ブロックがあるかどうかを判定
+	bool HasColorChangeBlockInArea(const Vector3& center, int xRange, int yRange);
 
 private:
 	// マップチップのデータ構造

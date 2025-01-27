@@ -22,6 +22,8 @@ protected:
 	ObjColor objColor_;
 	// ライティング
 	bool isLighting_;
+	bool isLoop_;
+	bool skeletonDraw_;
 
 	std::string className_;
 
@@ -71,9 +73,14 @@ public:
 	void SetLighting(bool isLighting) { isLighting_ = isLighting; }
 	void SetTexture(const std::string& filePath) { obj3d_->SetTexture(filePath); }
 
+
 private:
 	void DebugTransform();
 	void DebugCollider();
 	void SaveToJson();
 	void LoadFromJson();
+	void ShowFileSelector();
+
+	std::vector<std::string> GetGltfFiles();
+
 };

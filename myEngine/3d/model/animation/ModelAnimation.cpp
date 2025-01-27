@@ -23,3 +23,9 @@ void ModelAnimation::Update(bool roop)
 		skin_->Update(bone_->GetSkeleton());
 	}
 }
+
+void ModelAnimation::PlayAnimation()
+{
+	animator_->SetIsAnimation(true);
+	animator_->SetAnimationTime(0.0f);
+}

@@ -22,24 +22,10 @@ void TitleScene::Initialize()
 	debugCamera_ = std::make_unique<DebugCamera>();
 	debugCamera_->Initialize(&vp_);
 
-	wt1_.Initialize();
-	wt2_.Initialize();
-
-	wt1_.translation_ = { -2.0f,0.0f,0.0f };
-	wt2_.translation_ = { 2.0f,0.0f,0.0f };
-
-	walk_ = std::make_unique<Object3d>();
-	walk_->Initialize("animation/walk.gltf");
-	walk_->SetAnimation("animation/test2.gltf");
-	sphere_ = std::make_unique<Object3d>();
-	sphere_->Initialize("animation/walk.gltf");
-	sphere_->SetAnimation("animation/test3.gltf");
-
 	emitter_ = std::make_unique<ParticleEmitter>();
-	emitter_->Initialize("test", "debug/sphere.obj");
-
-	/*player_ = std::make_unique<Player>();
-	player_->Init("player");*/
+	emitter_->Initialize("arrow_up", "debug/plane.obj");
+	emitter_->SetTexture("Particle/Arrow.png");
+	emitter_->SetColor({ 1.0f,1.0f,0.0f,1.0f });
 }
 
 void TitleScene::Finalize()
@@ -59,15 +45,15 @@ void TitleScene::Update()
 
 	// シーン切り替え
 	ChangeScene();
-
-	emitter_->Update();
-	walk_->AnimationUpdate(roop);
-	sphere_->AnimationUpdate(roop);
-
-	/*player_->Update();*/
-	
-	wt1_.UpdateMatrix();
-	wt2_.UpdateMatrix();
+	ImGui::Begin("パーティクル");
+	if (ImGui::Button("生成")) {
+		emitter_->UpdateOnce();
+	}
+	ImGui::Checkbox("自動生成", &Auto_);
+	ImGui::End();
+	if (Auto_) {
+		emitter_->Update();
+	}
 }
 
 void TitleScene::Draw()
@@ -80,25 +66,19 @@ void TitleScene::Draw()
 	spCommon_->DrawCommonSetting();
 	//-----Spriteの描画開始-----
 
-
-
 	//------------------------------
 
 	objCommon_->DrawCommonSetting();
 	//-----3DObjectの描画開始-----
-	walk_->Draw(wt1_, vp_);
-	walk_->DrawSkeleton(wt1_, vp_);
-	sphere_->Draw(wt2_, vp_);
-	sphere_->DrawSkeleton(wt2_, vp_);
-
-	/*player_->Draw(vp_);*/
 
 	//--------------------------
 
 	/// Particleの描画準備
 	ptCommon_->DrawCommonSetting();
 	//------Particleの描画開始-------
+
 	emitter_->Draw(vp_);
+
 	//-----------------------------
 
 	//-----線描画-----
@@ -122,7 +102,7 @@ void TitleScene::DrawForOffScreen()
 
 	objCommon_->DrawCommonSetting();
 	//-----3DObjectの描画開始-----
-	//sphere_->Draw(wt2_, vp_);
+
 	//--------------------------
 
 	/// Particleの描画準備
@@ -143,22 +123,8 @@ void TitleScene::Debug()
 	ImGui::Begin("TitleScene:Debug");
 	debugCamera_->imgui();
 	LightGroup::GetInstance()->imgui();
-	ImGui::Checkbox("roop", &roop);
-
-	if (ImGui::Button("walk")) {
-		walk_->SetAnimation("animation/walk.gltf");
-	}
-	if (ImGui::Button("sneakWalk")) {
-		walk_->SetAnimation("animation/sneakWalk.gltf");
-	}
-	if (ImGui::Button("Jump")) {
-		walk_->SetAnimation("animation/test.gltf");
-	}
-
 	ImGui::End();
-
 	emitter_->imgui();
-	/*player_->DebugImGui();*/
 }
 
 void TitleScene::CameraUpdate()

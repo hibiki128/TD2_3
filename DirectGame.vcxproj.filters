@@ -630,6 +630,7 @@
     <FxCompile Include="resources\shaders\OffScreen\RadialBlur.PS.hlsl">
       <Filter>リソース ファイル\OffScreen</Filter>
     </FxCompile>
+    <FxCompile Include="resources\shaders\OffScreen\Cinematic.PS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt">

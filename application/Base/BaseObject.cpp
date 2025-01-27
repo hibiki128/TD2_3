@@ -20,10 +20,16 @@ void BaseObject::Update() {
 	transform_.UpdateMatrix();
 	/// 色転送
 	objColor_.TransferMatrix();
+	if (obj3d_->GetHaveAnimation()) {
+		obj3d_->AnimationUpdate(isLoop_);
+	}
 }
 
 void BaseObject::Draw(const ViewProjection& viewProjection) {
-	obj3d_->Draw(transform_, viewProjection, &objColor_,isLighting_);
+	obj3d_->Draw(transform_, viewProjection, &objColor_, isLighting_);
+	if (skeletonDraw_) {
+		obj3d_->DrawSkeleton(transform_, viewProjection);
+	}
 }
 
 Vector3 BaseObject::GetWorldPosition() const {
@@ -43,7 +49,7 @@ void BaseObject::CreateModel(const std::string modelname) {
 
 void BaseObject::CreateCollider()
 {
-	
+
 	Collider::Initialize(className_);
 }
 
@@ -80,6 +86,20 @@ void BaseObject::DebugTransform()
 			MessageBoxA(nullptr, message.c_str(), "Object", 0);
 		}
 		ImGui::EndTabItem();
+	}
+	if (obj3d_->GetHaveAnimation()) {
+		if (ImGui::BeginTabItem("アニメーション")) {
+			ImGui::Checkbox("ループ", &isLoop_);
+			ImGui::Checkbox("スケルトン描画", &skeletonDraw_);
+			if (ImGui::Button("アニメーション再生")) {
+				obj3d_->PlayAnimation();
+			}
+			if (ImGui::TreeNode("setAnima")) {
+				ShowFileSelector();
+				ImGui::TreePop();
+			}
+			ImGui::EndTabItem();
+		}
 	}
 }
 
@@ -124,7 +144,50 @@ void BaseObject::LoadFromJson() {
 	transform_.translation_ = { j["translate"][0],j["translate"][1], j["translate"][2] };
 	transform_.rotation_ = { j["rotation"][0],j["rotation"][1], j["rotation"][2] };
 	transform_.scale_ = { j["scale"][0],j["scale"][1], j["scale"][2] };
-	
+
+}
+
+void BaseObject::ShowFileSelector()
+{
+	static int selectedIndex = -1; // 選択中のインデックス（-1は未選択）
+	static std::vector<std::string> gltfFiles = GetGltfFiles(); // GLTFファイルのリスト
+
+	// ファイルリストをCスタイル文字列の配列に変換
+	std::vector<const char*> fileNames;
+	for (const auto& filePath : gltfFiles) {
+		fileNames.push_back(filePath.c_str());
+	}
+
+	ImGui::Text("Select a GLTF file:");
+	ImGui::Separator();
+
+	// Comboボックスでファイル選択
+	if (ImGui::Combo("GLTF Files", &selectedIndex, fileNames.data(), static_cast<int>(fileNames.size()))) {
+		// ファイル選択時の動作（選択されたファイル名を表示）
+		if (selectedIndex >= 0) {
+			ImGui::Text("Selected File:");
+			ImGui::TextWrapped("%s", gltfFiles[selectedIndex].c_str());
+		}
+	}
+
+	// ボタンでアニメーションをセット
+	if (selectedIndex >= 0 && ImGui::Button("Set Animation")) {
+		obj3d_->SetAnimation(gltfFiles[selectedIndex]); // 選択されたファイルをSetAnimationに渡す
+	}
+}
+
+
+std::vector<std::string> BaseObject::GetGltfFiles()
+{
+	std::vector<std::string> gltfFiles;
+	std::filesystem::path baseDir = "resources/models/animation"; // ベースディレクトリ
+	for (const auto& entry : std::filesystem::directory_iterator(baseDir)) {
+		if (entry.path().extension() == ".gltf") {
+			// フルパスではなく相対パスを取得
+			gltfFiles.push_back(std::filesystem::relative(entry.path(), baseDir.parent_path()).string());
+		}
+	}
+	return gltfFiles;
 }
 
 

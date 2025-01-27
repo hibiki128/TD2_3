@@ -67,6 +67,7 @@ private: // メンバ変数
 	Vector3 position = { 0.0f,0.0f,0.0f };
 	Vector3 rotation = { 0.0f,0.0f,0.0f };
 	Vector3 size = { 1.0f,1.0f,1.0f };
+	bool HaveAnimation;
 
 public: // メンバ関数
 
@@ -107,6 +108,8 @@ public: // メンバ関数
 	/// </summary>
 	void DrawSkeleton(const WorldTransform& worldTransform, const ViewProjection& viewProjection);
 
+	void PlayAnimation() { modelAnimation_->PlayAnimation(); }
+
 	/// <summary>
 	/// getter
 	/// </summary>
@@ -114,6 +117,7 @@ public: // メンバ関数
 	const Vector3& GetPosition()const { return position; }
 	const Vector3& GetRotation() const { return rotation; }
 	const Vector3& GetSize() const { return size; }
+	const bool& GetHaveAnimation()const { return HaveAnimation; }
 
 	/// <summary>
 	/// setter

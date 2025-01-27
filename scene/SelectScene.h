@@ -6,7 +6,7 @@
 #include "SpriteCommon.h"
 #include"ParticleCommon.h"
 #include"DebugCamera.h"
-#include "application/SelectScene/MapPrev.h"
+#include "application/Scene/SelectScene/MapPrev.h"
 
 class SelectScene :public BaseScene
 {

@@ -40,7 +40,7 @@ void TitleScene::Update()
 
 	// シーン切り替え
 	ChangeScene();
-	
+
 }
 
 void TitleScene::Draw()
@@ -121,7 +121,13 @@ void TitleScene::CameraUpdate()
 
 void TitleScene::ChangeScene()
 {
+	XINPUT_STATE joyState;
+	if (input_->GetJoystickState(0, joyState)) {
+		if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A) {
+			sceneManager_->NextSceneReservation("SELECT");
+		}
+	}
 	if (input_->TriggerKey(DIK_SPACE)) {
-		sceneManager_->NextSceneReservation("GAME");
+		sceneManager_->NextSceneReservation("SELECT");
 	}
 }

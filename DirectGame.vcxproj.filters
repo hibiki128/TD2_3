@@ -314,7 +314,7 @@
     <ClCompile Include="scene\SelectScene.cpp">
       <Filter>ソースファイル\scene</Filter>
     </ClCompile>
-    <ClCompile Include="application\SelectScene\MapPrev.cpp">
+    <ClCompile Include="application\Scene\SelectScene\MapPrev.cpp">
       <Filter>ソースファイル</Filter>
     </ClCompile>
     <ClCompile Include="application\Pause\Pause.cpp">
@@ -327,6 +327,9 @@
       <Filter>ソースファイル</Filter>
     </ClCompile>
     <ClCompile Include="application\Transition\SquareTransition.cpp">
+      <Filter>ソースファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Scene\TitleScene\TitleUI.cpp">
       <Filter>ソースファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -569,11 +572,12 @@
     <ClInclude Include="scene\SelectScene.h">
       <Filter>ソースファイル\scene</Filter>
     </ClInclude>
-    <ClInclude Include="application\SelectScene\MapPrev.h" />
+    <ClInclude Include="application\Scene\SelectScene\MapPrev.h" />
     <ClInclude Include="application\Pause\Pause.h" />
     <ClInclude Include="application\Object\MapChip\Block\Block.h" />
     <ClInclude Include="application\Object\Goal\Goal.h" />
     <ClInclude Include="application\Transition\SquareTransition.h" />
+    <ClInclude Include="application\Scene\TitleScene\TitleUI.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Particle\Particle.PS.hlsl">

@@ -47,6 +47,7 @@ void MapChipField::Update()
 	// 挟み込みが起こった場合に挟まれたブロックの色反転を行う（たぶんここで呼んでるといつか問題起きるので呼び出し位置を検討）
 	InvertBlocksWithCapture();
 
+	GravityParticleUpdate();
 
 	// ゴールオブジェクト更新
 	goal_->Update();
@@ -74,13 +75,17 @@ void MapChipField::DrawParticle(const ViewProjection& vp)
 		for (const auto& chip : row) {
 			// 空白ブロックではない場合のみ描画
 			if (chip.object->type_ == Block::ChipType::Black || chip.object->type_ == Block::ChipType::White) {
-				chip.emitter_->Draw(vp);
+				chip.normal_->Draw(vp);
+			}
+			if (chip.object->type_ == Block::ChipType::Gravity) {
+				ParticleCommon::GetInstance()->SetBlendMode(BlendMode::kAdd);
+				chip.arrow_->Draw(vp);
 			}
 		}
 	}
 }
 
-void MapChipField::DebugImGui(){ 
+void MapChipField::DebugImGui() {
 	ImGui::Begin("MapChipField");
 
 	ImGui::Checkbox("重力反転状態", &isGravityReversed_);
@@ -88,8 +93,8 @@ void MapChipField::DebugImGui(){
 	ImGui::End();
 }
 
-std::vector<Block*> MapChipField::GetBlocks() const { 
-	std::vector<Block*> blocks; 
+std::vector<Block*> MapChipField::GetBlocks() const {
+	std::vector<Block*> blocks;
 
 	for (const auto& row : mapChips_) {
 		for (const auto& chip : row) {
@@ -187,7 +192,8 @@ void MapChipField::LoadFromCSV(const std::string& filePath)
 			MapChip chip;
 			chip.object = std::make_unique<Block>();
 			chip.object->type_ = chipType;
-			chip.emitter_ = std::make_unique<ParticleEmitter>();
+			chip.normal_ = std::make_unique<ParticleEmitter>();
+			chip.arrow_ = std::make_unique<ParticleEmitter>();
 
 			/*BaseObjectの初期化*/
 
@@ -197,7 +203,9 @@ void MapChipField::LoadFromCSV(const std::string& filePath)
 				chip.object->SetScale({ 1.0f, 1.0f, 1.0f });
 				chip.object->SetWorldPosition({ x * kChipSize, -y * kChipSize, 0.0f });
 				chip.object->CreateCollider();
-				chip.emitter_->Initialize("reverse", "debug/sphere.obj");
+				chip.normal_->Initialize("reverse", "debug/sphere.obj");
+				chip.arrow_->Initialize("arrow_up", "debug/plane.obj");
+				chip.arrow_->SetTexture("Particle/Arrow.png");
 
 				// モデルと色を設定
 				switch (chip.object->type_) {
@@ -219,6 +227,11 @@ void MapChipField::LoadFromCSV(const std::string& filePath)
 					chip.object->SetObjColor({ 1.0f, 0.25f, 1.0f, 1.0f }); // 一旦分かりやすく紫に変更
 					chip.object->CreateModel("game/GravityBlock.obj");
 					chip.object->SetTexture("game/forwardGravityBlock.png"); // 重力通常状態のテクスチャをセット
+					break;
+				case Block::ChipType::ColorChange: // プレイヤー色変更ブロック
+					chip.object->CreateModel("game/ColorChangeBlock.obj");
+					chip.object->SetTexture("game/colorChangeBlock.png"); // プレイヤー色変更ブロックのテクスチャをセット
+					break;
 				default:
 					break;
 				}
@@ -263,6 +276,7 @@ Block::ChipType MapChipField::GetChipTypeFromInt(int value)
 	case 4: return Block::ChipType::Empty; // ゴールオブジェクトは空白扱いとする
 	case 5: return Block::ChipType::Empty; // プレイヤー初期位置は空白扱いとする
 	case 6: return Block::ChipType::Gravity;
+	case 7: return Block::ChipType::ColorChange;
 
 	default: return Block::ChipType::Empty;
 	}
@@ -350,6 +364,37 @@ bool MapChipField::IsValidPosition(int x, int y) const
 	return x >= 0 && x < static_cast<int>(mapWidth) && y >= 0 && y < static_cast<int>(mapHeight);
 }
 
+void MapChipField::GravityParticleUpdate()
+{
+	if (isGravityReversed_ != prevGravityState) {
+		arrowTime_ = 1.0f;
+	}
+
+	if (arrowTime_ > 0.0f) {
+		arrowTime_ -= Frame::DeltaTime();
+		for (const auto& row : mapChips_) {
+			for (const auto& chip : row) {
+				if (chip.object->type_ == Block::ChipType::Gravity) {
+					if (isGravityReversed_ && !prevGravityState) {
+						chip.arrow_->SetColor({ 0.0f,0.0f,1.0f,1.0f });
+						chip.arrow_->LoadFromJson("arrow_up");
+					}
+					if (!isGravityReversed_ && prevGravityState) {
+						chip.arrow_->SetColor({ 1.0f,0.0f,0.0f,1.0f });
+						chip.arrow_->LoadFromJson("arrow_down");
+					}
+					chip.arrow_->SetPosition({ chip.object->GetCenterPosition().x,chip.object->GetCenterPosition().y,-1.5f });
+					// 重力ブロックのみ
+					chip.arrow_->Update();
+				}
+			}
+		}
+	}
+
+	// 現在の状態を前回の状態として保存
+	prevGravityState = isGravityReversed_;
+}
+
 void MapChipField::UpdateChipAnimation(MapChip& chip)
 {
 	// 動かないブロックの場合はスキップ
@@ -402,17 +447,17 @@ void MapChipField::UpdateChipAnimation(MapChip& chip)
 			chip.object->SetRotation({ 0.0f, chip.currentRotation, 0.0f });
 			chip.object->SetScale({ chip.currentScale, chip.currentScale, chip.currentScale });
 
-			chip.emitter_->SetPosition(chip.object->GetCenterPosition());
+			chip.normal_->SetPosition(chip.object->GetCenterPosition());
 
 			if (chip.object->type_ == Block::ChipType::Black) {
-				chip.emitter_->SetTexture("debug/black1x1.png");
+				chip.normal_->SetTexture("debug/black1x1.png");
 			}
 			if (chip.object->type_ == Block::ChipType::White) {
-				chip.emitter_->SetTexture("debug/white1x1.png");
+				chip.normal_->SetTexture("debug/white1x1.png");
 			}
 
 			if (chip.object->type_ == Block::ChipType::Black || chip.object->type_ == Block::ChipType::White) {
-				chip.emitter_->UpdateOnce();
+				chip.normal_->UpdateOnce();
 			}
 
 		}
@@ -459,7 +504,8 @@ void MapChipField::ChangeTextureAllGravityBlock() {
 			if (chip.object->type_ == Block::ChipType::Gravity) { // 重力ブロックの場合
 				if (!isGravityReversed_) {
 					chip.object->SetTexture("game/forwardGravityBlock.png"); // 重力通常状態のテクスチャを設定
-				} else {
+				}
+				else {
 					chip.object->SetTexture("game/reverseGravityBlock.png"); // 重力反転状態のテクスチャを設定
 				}
 			}
@@ -469,7 +515,7 @@ void MapChipField::ChangeTextureAllGravityBlock() {
 
 
 
-bool MapChipField::HasBlockInArea(const Vector3& center, int xRange, int yRange) { 
+bool MapChipField::HasBlockInArea(const Vector3& center, int xRange, int yRange) {
 	// 中心位置からマップ上のマス位置を計算
 	int centerX = static_cast<int>(std::round(center.x / kChipSize));
 	int centerY = static_cast<int>(std::round(-center.y / kChipSize));
@@ -501,7 +547,7 @@ bool MapChipField::HasBlockInArea(const Vector3& center, int xRange, int yRange)
 	return false;
 }
 
-bool MapChipField::HasGravityBlockInArea(const Vector3& center, int xRange, int yRange) { 
+bool MapChipField::HasGravityBlockInArea(const Vector3& center, int xRange, int yRange) {
 	// 中心位置からマップ上のマス位置を計算
 	int centerX = static_cast<int>(std::round(center.x / kChipSize));
 	int centerY = static_cast<int>(std::round(-center.y / kChipSize));
@@ -530,6 +576,39 @@ bool MapChipField::HasGravityBlockInArea(const Vector3& center, int xRange, int 
 				ChangeTextureAllGravityBlock();
 
 				return true; // 重力ブロックが見つかったことを示す
+			}
+		}
+	}
+
+	return false;
+}
+
+bool MapChipField::HasColorChangeBlockInArea(const Vector3& center, int xRange, int yRange)
+{
+	// 中心位置からマップ上のマス位置を計算
+	int centerX = static_cast<int>(std::round(center.x / kChipSize));
+	int centerY = static_cast<int>(std::round(-center.y / kChipSize));
+
+	int halfXRange = xRange / 2;
+	int halfYRange = yRange / 2;
+
+	// 範囲内のブロックを探索
+	for (int y = -halfYRange; y <= halfYRange; ++y) {
+		for (int x = -halfXRange; x <= halfXRange; ++x) {
+			// 対象位置を計算
+			int targetX = centerX + x;
+			int targetY = centerY + y;
+
+			// マップ範囲外を無視
+			if (targetX < 0 || targetX >= static_cast<int>(mapWidth) || targetY < 0 || targetY >= static_cast<int>(mapHeight)) {
+				continue;
+			}
+
+			// ブロックを取得してタイプを判定
+			MapChip& chip = mapChips_[targetY][targetX];
+			if (chip.object->type_ == Block::ChipType::ColorChange) { // プレイヤー色反転ブロックが見つかったら
+
+				return true; // プレイヤー色反転ブロックが見つかったことを示す
 			}
 		}
 	}

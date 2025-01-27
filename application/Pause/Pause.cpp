@@ -225,7 +225,7 @@ void Pause::OpenMenu()
 
 	if (input_->TriggerKey(DIK_ESCAPE) && !isPause_ && CanEscape_) {
 		alpha_E.start_.x = 0.0f;
-		alpha_E.end_.x = 0.99f;
+		alpha_E.end_.x = 0.90f;
 		alpha_E.T_ = 0.0f;
 		isPause_ = true;
 		EscapeCoolTime_ = 0.7f;
@@ -244,7 +244,7 @@ void Pause::OpenMenu()
 		EscapeCoolTime_ = 0.7f;
 	}
 	if (textMovedRight_) {
-		alpha_E.start_.x = 0.99f;
+		alpha_E.start_.x = 0.90f;
 		alpha_E.end_.x = 0.0f;
 		alpha_E.T_ = 0.0f;
 		textMovedRight_ = false;

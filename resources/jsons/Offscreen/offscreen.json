@@ -1,0 +1,22 @@
+{
+    "cinematic_brightness": 0.12999999523162842,
+    "cinematic_contrast": 1.0499999523162842,
+    "cinematic_saturation": 0.6800000071525574,
+    "depth_kernelSize": 3,
+    "gaussian_kernelSize": 3,
+    "gaussian_sigma": 1.0,
+    "radial_BlurWidth": 0.009999999776482582,
+    "radial_Center": [
+        0.5,
+        0.5
+    ],
+    "shaderMode": "kNone",
+    "smooth_kernelSize": 3,
+    "vignette_Center": [
+        0.5,
+        0.5
+    ],
+    "vignette_Exponent": 1.0,
+    "vignette_Radius": 1.0,
+    "vignette_Strength": 1.0
+}

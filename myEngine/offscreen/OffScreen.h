@@ -6,6 +6,7 @@
 #include <Matrix4x4.h>
 #include"myMath.h"
 #include <Vector2.h>
+#include "externals/nlohmann/json.hpp"
 class DirectXCommon;
 class OffScreen
 {
@@ -25,6 +26,9 @@ private:
 	void CreateDepth();
 	void CreateRadial();
 	void CreateCinematic();
+	void SaveToJson();
+	void LoadFromJson(ShaderMode shaderMode);
+	void LoadFromJson();
 private:
 	DirectXCommon* dxCommon;
 	SrvManager* srvManager_;
@@ -36,6 +40,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineState[9];
 	ShaderMode shaderMode_ = ShaderMode::kNone;
 
+	using json = nlohmann::json;
 
 	struct KernelSettings {
 		int kernelSize;

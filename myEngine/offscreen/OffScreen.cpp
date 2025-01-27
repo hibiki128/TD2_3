@@ -3,7 +3,9 @@
 #ifdef _DEBUG
 #include"imgui.h"
 #endif // _DEBUG
-
+#include <fstream>
+#include <filesystem>
+#include <iostream>
 void OffScreen::Initialize()
 {
 	dxCommon = DirectXCommon::GetInstance();
@@ -32,6 +34,7 @@ void OffScreen::Initialize()
 	CreateDepth();
 	CreateRadial();
 	CreateCinematic();
+	LoadFromJson();
 }
 
 void OffScreen::Draw()
@@ -92,6 +95,7 @@ void OffScreen::DrawCommonSetting()
 	if (ImGui::Combo("Shader Mode", &currentShaderMode, shaderModeItems, IM_ARRAYSIZE(shaderModeItems)))
 	{
 		shaderMode_ = static_cast<ShaderMode>(currentShaderMode);
+		LoadFromJson(shaderMode_);
 	}
 
 	switch (shaderMode_)
@@ -124,14 +128,18 @@ void OffScreen::DrawCommonSetting()
 		ImGui::DragFloat("幅", &radialData->kBlurWidth, 0.01f);
 		break;
 	case ShaderMode::kCinematic:
-		ImGui::DragFloat("コンストラクト", &cinematicData->constrast,0.01f);
+		ImGui::DragFloat("コンストラクト", &cinematicData->constrast, 0.01f);
 		ImGui::DragFloat("彩度", &cinematicData->saturation, 0.01f);
 		ImGui::DragFloat("輝度", &cinematicData->brightness, 0.01f);
 		break;
 	default:
 		break;
 	}
-
+	if (ImGui::Button("セーブ")) {
+		SaveToJson();
+		std::string message = std::format("OffScreen saved.");
+		MessageBoxA(nullptr, message.c_str(), "OffScreen", 0);
+	}
 	ImGui::End();
 #endif // _DEBUG
 }
@@ -185,4 +193,185 @@ void OffScreen::CreateCinematic()
 	cinematicData->constrast = 1.05f;
 	cinematicData->saturation = 0.68f;
 	cinematicData->brightness = 0.13f;
+}
+
+void OffScreen::SaveToJson()
+{
+	json j;
+
+	// ShaderMode を文字列として保存
+	std::map<ShaderMode, std::string> shaderModeStrings = {
+		{ShaderMode::kNone, "kNone"},
+		{ShaderMode::kGray, "kGray"},
+		{ShaderMode::kVigneet, "kVigneet"},
+		{ShaderMode::kSmooth, "kSmooth"},
+		{ShaderMode::kGauss, "kGauss"},
+		{ShaderMode::kOutLine, "kOutLine"},
+		{ShaderMode::kDepth, "kDepth"},
+		{ShaderMode::kBlur, "kBlur"},
+		{ShaderMode::kCinematic, "kCinematic"}
+	};
+
+	j["shaderMode"] = shaderModeStrings[shaderMode_];
+
+	// 各項目を直接設定
+	j["vignette_Exponent"] = vignetteData->vignetteExponent;
+	j["vignette_Radius"] = vignetteData->vignetteRadius;
+	j["vignette_Strength"] = vignetteData->vignetteStrength;
+	j["vignette_Center"] = { vignetteData->vignetteCenter.x, vignetteData->vignetteCenter.y };
+
+	j["smooth_kernelSize"] = smoothData->kernelSize;
+
+	j["gaussian_kernelSize"] = gaussianData->kernelSize;
+	j["gaussian_sigma"] = gaussianData->sigma;
+
+	j["depth_kernelSize"] = depthData->kernelSize;
+
+	j["radial_BlurWidth"] = radialData->kBlurWidth;
+	j["radial_Center"] = { radialData->kCenter.x, radialData->kCenter.y };
+
+	j["cinematic_contrast"] = cinematicData->constrast;
+	j["cinematic_saturation"] = cinematicData->saturation;
+	j["cinematic_brightness"] = cinematicData->brightness;
+
+	// ディレクトリを作成し、JSONファイルを保存
+	std::filesystem::create_directories("resources/jsons/Offscreen/");
+	std::ofstream outFile("resources/jsons/OffScreen/offscreen.json");
+	outFile << j.dump(4);  // インデントをつけて保存
+}
+
+void OffScreen::LoadFromJson(ShaderMode shaderMode)
+{
+	// JSONファイルのパス
+	std::ifstream inFile("resources/jsons/OffScreen/offscreen.json");
+
+	// JSONファイルが存在しない場合、ロードしない
+	if (!inFile)
+	{
+		std::cerr << "Error: offscreen.json not found!" << std::endl;
+		return;
+	}
+
+	// JSONをパースする
+	json j;
+	inFile >> j;
+
+	switch (shaderMode)
+	{
+	case ShaderMode::kNone:
+		break;
+	case ShaderMode::kGray:
+		break;
+	case ShaderMode::kVigneet:
+		if (j.contains("vignette_Exponent"))
+			vignetteData->vignetteExponent = j["vignette_Exponent"].get<float>();
+
+		if (j.contains("vignette_Radius"))
+			vignetteData->vignetteRadius = j["vignette_Radius"].get<float>();
+
+		if (j.contains("vignette_Strength"))
+			vignetteData->vignetteStrength = j["vignette_Strength"].get<float>();
+
+		if (j.contains("vignette_Center"))
+		{
+			vignetteData->vignetteCenter.x = j["vignette_Center"][0].get<float>();
+			vignetteData->vignetteCenter.y = j["vignette_Center"][1].get<float>();
+		}
+
+		break;
+	case ShaderMode::kSmooth:
+		// JSONから各項目をロード
+		if (j.contains("somooth_kernelSize"))
+			smoothData->kernelSize = j["somooth_kernelSize"].get<int>();
+
+		break;
+	case ShaderMode::kGauss:
+		if (j.contains("gaussian_kernelSize"))
+			gaussianData->kernelSize = j["gaussian_kernelSize"].get<int>();
+
+		if (j.contains("gaussian_sigma"))
+			gaussianData->sigma = j["gaussian_sigma"].get<float>();
+
+		break;
+	case ShaderMode::kOutLine:
+		break;
+	case ShaderMode::kDepth:
+		if (j.contains("depth_kernelSize"))
+			depthData->kernelSize = j["depth_kernelSize"].get<int>();
+
+		break;
+	case ShaderMode::kBlur:
+		if (j.contains("radial_BlurWidth"))
+			radialData->kBlurWidth = j["radial_BlurWidth"].get<float>();
+
+		if (j.contains("radial_Center"))
+		{
+			radialData->kCenter.x = j["radial_Center"][0].get<float>();
+			radialData->kCenter.y = j["radial_Center"][1].get<float>();
+		}
+
+		break;
+	case ShaderMode::kCinematic:
+		if (j.contains("cinematic_constrast"))
+			cinematicData->constrast = j["cinematic_constrast"].get<float>();
+
+		if (j.contains("cinematic_saturation"))
+			cinematicData->saturation = j["cinematic_saturation"].get<float>();
+
+		if (j.contains("cinematic_brightness"))
+			cinematicData->brightness = j["cinematic_brightness"].get<float>();
+		break;
+	default:
+		break;
+	}
+}
+
+void OffScreen::LoadFromJson()
+{
+	// JSONファイルのパス
+	std::ifstream inFile("resources/jsons/OffScreen/offscreen.json");
+
+	// JSONファイルが存在しない場合、ロードしない
+	if (!inFile)
+	{
+		std::cerr << "Error: offscreen.json not found!" << std::endl;
+		return;
+	}
+
+	// JSONをパースする
+	json j;
+	inFile >> j;
+
+	// ShaderMode を文字列から enum に変換するマップ
+	std::map<std::string, ShaderMode> shaderModeStrings = {
+		{"kNone", ShaderMode::kNone},
+		{"kGray", ShaderMode::kGray},
+		{"kVigneet", ShaderMode::kVigneet},
+		{"kSmooth", ShaderMode::kSmooth},
+		{"kGauss", ShaderMode::kGauss},
+		{"kOutLine", ShaderMode::kOutLine},
+		{"kDepth", ShaderMode::kDepth},
+		{"kBlur", ShaderMode::kBlur},
+		{"kCinematic", ShaderMode::kCinematic}
+	};
+
+	// "shaderMode" を文字列として読み込んで、対応する enum に変換
+	if (j.contains("shaderMode") && j["shaderMode"].is_string())
+	{
+		std::string shaderModeStr = j["shaderMode"];
+		if (shaderModeStrings.find(shaderModeStr) != shaderModeStrings.end())
+		{
+			shaderMode_ = shaderModeStrings[shaderModeStr];
+		}
+		else
+		{
+			// "shaderMode" が不正な場合はデフォルトに設定
+			shaderMode_ = ShaderMode::kNone;
+		}
+	}
+	else
+	{
+		// "shaderMode" が存在しない場合はデフォルトに設定
+		shaderMode_ = ShaderMode::kNone;
+	}
 }

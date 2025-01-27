@@ -200,10 +200,12 @@ void GameScene::CameraUpdate()
 
 void GameScene::ChangeScene()
 {
-	/*if (input_->TriggerKey(DIK_SPACE)) {
-		sceneManager_->NextSceneReservation("TITLE");
-	}*/
-	if (pause_->GetItem() == -2 && input_->TriggerKey(DIK_SPACE)) {
+	// ゲームパッドの状態を取得
+	XINPUT_STATE joyState;
+	if (pause_->GetItem() == -2 &&
+		(input_->TriggerKey(DIK_SPACE) ||
+			(input_->GetJoystickState(0, joyState) && (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A)))) {
+		// SELECTシーンへの遷移を予約
 		sceneManager_->NextSceneReservation("SELECT");
 	}
 }

@@ -223,26 +223,57 @@ void Pause::OpenMenu()
 {
 	alpha_E.TMax_ = 0.2f;
 
-	if (input_->TriggerKey(DIK_ESCAPE) && !isPause_ && CanEscape_) {
-		alpha_E.start_.x = 0.0f;
-		alpha_E.end_.x = 0.90f;
-		alpha_E.T_ = 0.0f;
-		isPause_ = true;
-		EscapeCoolTime_ = 0.7f;
+	// 前回のゲームパッドの状態を取得
+	XINPUT_STATE joyState, prejoyState;
+	input_->GetJoystickState(0, joyState);  // 現在のジョイスティック状態
+	input_->GetJoystickStatePrevious(0, prejoyState);  // 前回のジョイスティック状態
+
+	// メニューを開く処理（EscまたはゲームパッドのSTARTボタン）
+	if (!isPause_ && CanEscape_) {
+		// キーボードEsc
+		if (input_->TriggerKey(DIK_ESCAPE) && !prevEscapeState_) {
+			alpha_E.start_.x = 0.0f;
+			alpha_E.end_.x = 0.90f;
+			alpha_E.T_ = 0.0f;
+			isPause_ = true;
+			EscapeCoolTime_ = 0.7f; // クールダウンタイム開始
+			prevEscapeState_ = true;  // 前回押した状態を記録
+		}
+		// ゲームパッドのSTARTボタン
+		else if ((joyState.Gamepad.wButtons & XINPUT_GAMEPAD_START) && !(prejoyState.Gamepad.wButtons & XINPUT_GAMEPAD_START)) {
+			alpha_E.start_.x = 0.0f;
+			alpha_E.end_.x = 0.90f;
+			alpha_E.T_ = 0.0f;
+			isPause_ = true;
+			EscapeCoolTime_ = 0.7f; // クールダウンタイム開始
+		}
 	}
 
+	// クールタイム中はメニューが開けない
 	if (EscapeCoolTime_ > 0.0f) {
 		EscapeCoolTime_ -= Frame::DeltaTime();
 		CanEscape_ = false;
 	}
 	else {
-		CanEscape_ = true;
+		CanEscape_ = true; // クールダウン終了後に再度開けるようにする
 	}
 
-	if (input_->TriggerKey(DIK_ESCAPE) && isPause_ && CanEscape_) {
-		isPause_ = false;
-		EscapeCoolTime_ = 0.7f;
+	// メニューを閉じる処理（EscキーまたはゲームパッドのSTARTボタン）
+	if (isPause_ && CanEscape_) {
+		// キーボードEsc
+		if (input_->TriggerKey(DIK_ESCAPE) && prevEscapeState_) {
+			isPause_ = false;
+			EscapeCoolTime_ = 0.7f; // クールダウンタイム再開
+			prevEscapeState_ = false; // 前回押した状態をリセット
+		}
+		// ゲームパッドのSTARTボタン
+		else if ((joyState.Gamepad.wButtons & XINPUT_GAMEPAD_START) && (prejoyState.Gamepad.wButtons & XINPUT_GAMEPAD_START)) {
+			isPause_ = false;
+			EscapeCoolTime_ = 0.7f; // クールダウンタイム再開
+		}
 	}
+
+	// テキストが右に移動した場合の処理
 	if (textMovedRight_) {
 		alpha_E.start_.x = 0.90f;
 		alpha_E.end_.x = 0.0f;
@@ -250,6 +281,7 @@ void Pause::OpenMenu()
 		textMovedRight_ = false;
 	}
 
+	// イージング処理
 	alpha_E.T_ += Frame::DeltaTime();
 	if (alpha_E.T_ >= alpha_E.TMax_) {
 		alpha_E.T_ = alpha_E.TMax_;
@@ -258,10 +290,18 @@ void Pause::OpenMenu()
 	color_.w = EaseInSine<float>(alpha_E.start_.x, alpha_E.end_.x, alpha_E.T_, alpha_E.TMax_);
 }
 
+
 void Pause::MenuOperation()
 {
-	
-	const float easeTMax = 0.2f;
+	const float easeTMax = 0.2f;        // ポインタのイージング時間
+	const float pressInterval = 0.2f;  // 長押し時の入力インターバル
+	static float pressTimerStickUp = 0.0f;   // スティック上方向の長押しタイマー
+	static float pressTimerStickDown = 0.0f; // スティック下方向の長押しタイマー
+	static float pressTimerDpadUp = 0.0f;    // 十字キー上方向の長押しタイマー
+	static float pressTimerDpadDown = 0.0f;  // 十字キー下方向の長押しタイマー
+	static bool singlePressProcessed = false; // 単押しが処理済みかどうか
+
+	// currentItem_ の範囲を制限
 	if (currentItem_ < -2) {
 		currentItem_ = 0;
 	}
@@ -270,6 +310,47 @@ void Pause::MenuOperation()
 	}
 
 	if (isPause_) {
+		XINPUT_STATE joyState;
+		if (input_->GetJoystickState(0, joyState)) {
+			float stickY = static_cast<float>(joyState.Gamepad.sThumbLY) / 32767.0f; // 正規化 (-1.0 ～ 1.0)
+
+			// スティック上方向
+			if (stickY > 0.5f || (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP)) {
+				pressTimerStickUp += Frame::DeltaTime();
+				pressTimerStickDown = 0.0f; // 下方向のタイマーリセット
+				pressTimerDpadDown = 0.0f;
+
+				if (pressTimerStickUp >= pressInterval || !singlePressProcessed) {
+					currentItem_++;
+					pointer_E.start_.y = pointerPos_.y;
+					pointerYT_ = 0.0f;
+					singlePressProcessed = true; // 単押しを処理済みにする
+					pressTimerStickUp = 0.0f;    // タイマーリセット
+				}
+			}
+			// スティック下方向
+			else if (stickY < -0.5f || (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN)) {
+				pressTimerStickDown += Frame::DeltaTime();
+				pressTimerStickUp = 0.0f; // 上方向のタイマーリセット
+				pressTimerDpadUp = 0.0f;
+
+				if (pressTimerStickDown >= pressInterval || !singlePressProcessed) {
+					currentItem_--;
+					pointer_E.start_.y = pointerPos_.y;
+					pointerYT_ = 0.0f;
+					singlePressProcessed = true; // 単押しを処理済みにする
+					pressTimerStickDown = 0.0f;  // タイマーリセット
+				}
+			}
+			else {
+				// スティック入力がない場合、タイマーと単押しフラグをリセット
+				pressTimerStickUp = 0.0f;
+				pressTimerStickDown = 0.0f;
+				singlePressProcessed = false;
+			}
+		}
+
+		// キーボード操作
 		if (input_->TriggerKey(DIK_W)) {
 			currentItem_++;
 			pointer_E.start_.y = pointerPos_.y;
@@ -285,6 +366,7 @@ void Pause::MenuOperation()
 		currentItem_ = 0;
 	}
 
+	// currentItem_ に応じたポインタ位置の設定
 	if (currentItem_ == 0) {
 		pointer_E.end_.y = 420.0f;
 	}
@@ -295,18 +377,24 @@ void Pause::MenuOperation()
 		pointer_E.end_.y = 600.0f;
 	}
 
+	// イージングタイムの更新
 	pointerYT_ += Frame::DeltaTime();
 	if (pointerYT_ >= easeTMax) {
 		pointerYT_ = easeTMax;
 	}
 
-	if (currentItem_ == 0 && input_->TriggerKey(DIK_SPACE)) {
-		isPause_ = false;
+	// 決定操作
+	XINPUT_STATE joyState;
+	if (input_->GetJoystickState(0, joyState)) {
+		if (currentItem_ == 0 && (input_->TriggerKey(DIK_SPACE) || (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A))) {
+			isPause_ = false;
+		}
 	}
 
+	// ポインタ位置のイージング更新
 	pointerPos_.y = EaseInSine<float>(pointer_E.start_.y, pointer_E.end_.y, pointerYT_, easeTMax);
-
 }
+
 
 void Pause::Debug()
 {

@@ -68,6 +68,8 @@ private:
 	bool CanEscape_ = false;                   //  エスケープのクールタイム用
 	bool previousIsPause_ = false;             //  クラスメンバに前フレームのポーズ状態を保持する変数を追加
 	bool textMovedRight_ = false;              //  全部のテキストが右に行ったかどうか
+	bool prevEscapeState_ = false;
+	bool prevStartState_ = false;
 
 	struct EasingValue {
 		Vector2 start_;

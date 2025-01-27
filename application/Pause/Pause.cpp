@@ -2,6 +2,7 @@
 #include"myEngine/Frame/Frame.h"
 #include"SpriteCommon.h"
 #include"math/Easing.h"
+#include"application/Object/Player/Player.h"
 
 void Pause::Init()
 {
@@ -50,12 +51,15 @@ void Pause::Update()
 	backGround_->SetSize({ 1280.0f,720.0f });
 	backGround_->SetAlpha(color_.w);
 	Debug();
+
+	if (player_->GetSquareTransition() && isPause_) {
+		isPause_ = false;
+	}
 }
 
 void Pause::Draw(const ViewProjection& vp)
 {
 
-	SpriteCommon::GetInstance()->DrawCommonSetting();
 	backGround_->Draw();
 	Pointer_->Draw();
 	Stage_->Draw();
@@ -388,6 +392,9 @@ void Pause::MenuOperation()
 	if (input_->GetJoystickState(0, joyState)) {
 		if (currentItem_ == 0 && (input_->TriggerKey(DIK_SPACE) || (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A))) {
 			isPause_ = false;
+		}
+		if (currentItem_ == -1 && (input_->TriggerKey(DIK_SPACE) || (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A))) {
+			player_->SetTransitionStart();
 		}
 	}
 

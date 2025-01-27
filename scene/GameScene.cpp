@@ -37,6 +37,7 @@ void GameScene::Initialize()
 	// ポーズ
 	pause_ = std::make_unique<Pause>();
 	pause_->Init();
+	pause_->SetPlayer(player_.get());
 
 	///
 	///	スプライト初期化
@@ -77,6 +78,7 @@ void GameScene::Update()
 		// マップチップフィールド更新
 		mapChipField_->Update();
 	}
+	player_->Reset();
 	// ポーズ更新
 	pause_->Update();
 }
@@ -89,7 +91,7 @@ void GameScene::Draw()
 	spCommon_->DrawCommonSetting();
 	//-----Spriteの描画開始-----
 
-	player_->DrawSprite();
+
 
 	//------------------------
 
@@ -114,8 +116,15 @@ void GameScene::Draw()
 
 	//-----------------------------
 
+	/// Spriteの描画準備
+	spCommon_->DrawCommonSetting();
+	//-----Spriteの描画開始-----
+	
 	// ポーズ描画
 	pause_->Draw(vp_);
+	player_->DrawSprite();
+
+	//------------------------
 
 	//-----線描画-----
 	DrawLine3D::GetInstance()->Draw(vp_);

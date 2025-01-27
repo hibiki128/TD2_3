@@ -2,7 +2,7 @@
 #include"Input.h"
 #include"Sprite.h"
 #include"application/Base/BaseObject.h"
-
+class Player;
 class Pause
 {
 public:
@@ -16,6 +16,8 @@ public:
 
 	bool IsPause() { return isPause_; };
 	int GetItem() { return currentItem_; }
+
+	void SetPlayer(Player* player) { player_ = player; }
 
 private:
 	/// ===================================================
@@ -47,6 +49,8 @@ private:
 	std::unique_ptr<Sprite> Restart_;          // 「リスタート」の文字
 	std::unique_ptr<Sprite> Stage_;            // 「ステージ」の文字
 	std::unique_ptr<Sprite> Pointer_;          // 「ポインター」
+
+	Player* player_ = nullptr;
 
 	Vector4 color_ = { 1.0f,1.0f,1.0f,0.0f };  //  ポーズ中の背景の色
 
@@ -87,5 +91,6 @@ private:
 
 	float EscapeCoolTime_ = 0.0f;              //  Escキーのクールタイム
 	float pointerYT_;
+	float transitionTimer_ = 0.0f; // 経過時間を保持する変数
 }; 
 

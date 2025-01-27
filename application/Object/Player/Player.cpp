@@ -41,8 +41,7 @@ void Player::Update(MapChipField* mapChipField) {
 
 	BaseObject::Update();
 	squareTransition_->Update();
-	// リセット時処理
-	Reset();
+	
 	// ブロック反転時、アニメーションが終わるまでを判定（反転中はプレイヤーが動かないようにするため）
 	if (isInverting_) {
 		invertTimer_ += kDeltaTime;

@@ -28,11 +28,20 @@ public:
 	void Draw(const ViewProjection& viewProjection)override;
 	void DrawSprite();
 	void DebugImGui()override;
+	void Reset();
+
 
 	// プレイヤーがゴールに到達しているか判定
 	bool IsGoalReached();
+	bool GetSquareTransition() {
+		if (squareTransition_->GetCurrentStatus() == SquareTransition::Status::SquareIn) {
+			return true;
+		}
+		return false;
+	}
 	// プレイヤーの位置を設定
 	void SetInitialPosition(Vector3 playerInitialPosition) { this->transform_.translation_ = playerInitialPosition; }
+	void SetTransitionStart() { if (squareTransition_->IsFinished()) { squareTransition_->Start(SquareTransition::Status::SquareIn, kResetTransitionTime); } }
 
 private:
 	const float kDeltaTime = 1.0f / 60.0f;
@@ -43,7 +52,7 @@ private:
 	///
 	/// 基本的なパラメータ
 	/// 
-	
+
 	// マップとの当たり判定情報
 	CollisionMapInfo collisionMapInfo_;
 	// 微小な値
@@ -111,7 +120,7 @@ private:
 
 	// 反転可能範囲のAABBを描画
 	void DrawInvertArea();
-	void Reset();
+
 
 private:
 	using json = nlohmann::json;
@@ -119,9 +128,9 @@ private:
 	void SaveToJson();
 	void LoadFromJson();
 
-///
-/// SE・エフェクト用のフラグ
-/// 
+	///
+	/// SE・エフェクト用のフラグ
+	/// 
 public:
 	// ジャンプした瞬間を判定
 	bool IsJumpOccurred() { return isJumpOccurred_; }

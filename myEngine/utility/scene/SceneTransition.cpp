@@ -128,19 +128,27 @@ void SceneTransition::DefaultFadeOut() {
 void SceneTransition::ReverseFadeIn() {
     int rows = static_cast<int>(transition_.size());
     int cols = static_cast<int>(transition_[0].size());
-
+    // 遅延の最大値（秒）
+    const float maxDelay = 0.3f;
     for (int row = 0; row < rows; ++row) {
         for (int col = 0; col < cols; ++col) {
-            float localTime = counter_; // 遅延なしで全スプライト同時に変化
-
+            // 位置に基づいて遅延を計算（左上から右下へ）
+            float delay = ((float)(row + col) / (float)(rows + cols - 2)) * maxDelay;
+            // カウンターから遅延を引いた値を使用
+            float localTime = counter_ - delay;
             if (localTime >= 0.0f && localTime <= duration_) {
                 // イージング関数で0 → 80に拡大
-                float newSize = EaseInSine<float>(0.0f, 80.0f, localTime, duration_);
+                float progress = localTime / duration_;
+                float newSize = EaseInSine<float>(0.0f, 80.0f, progress, 0.4f);
                 transition_[row][col]->SetSize(Vector2(newSize, newSize));
             }
             else if (localTime > duration_) {
                 // 最大サイズに到達したら固定
                 transition_[row][col]->SetSize(Vector2(80.0f, 80.0f));
+            }
+            else if (localTime < 0.0f) {
+                // 遅延待ち中は初期サイズを維持
+                transition_[row][col]->SetSize(Vector2(0.0f, 0.0f));
             }
         }
     }
@@ -149,18 +157,26 @@ void SceneTransition::ReverseFadeIn() {
 void SceneTransition::ReverseFadeOut() {
     int rows = static_cast<int>(transition_.size());
     int cols = static_cast<int>(transition_[0].size());
-
+    // 遅延の最大値（秒）
+    const float maxDelay = 0.3f;
     for (int row = 0; row < rows; ++row) {
         for (int col = 0; col < cols; ++col) {
-            float localTime = counter_; // 遅延なしで全スプライト同時に変化
-
+            // 位置に基づいて遅延を計算（左上から右下へ）
+            float delay = ((float)(row + col) / (float)(rows + cols - 2)) * maxDelay;
+            // カウンターから遅延を引いた値を使用
+            float localTime = counter_ - delay;
             if (localTime >= 0.0f && localTime <= duration_) {
-                // イージング関数で80 → 0に縮小
-                float newSize = EaseInSine<float>(0.0f, 80.0f, localTime, duration_);
+                // counter_が1→0で変化
+                float progress = localTime / duration_;
+                float newSize = EaseInSine<float>(0.0f, 80.0f, progress, 0.4f);
                 transition_[row][col]->SetSize(Vector2(newSize, newSize));
             }
             else if (localTime > duration_) {
                 // サイズが 0 に到達したら固定
+                transition_[row][col]->SetSize(Vector2(0.0f, 0.0f));
+            }
+            else if (localTime < 0.0f) {
+                // 遅延待ち中も0サイズを維持
                 transition_[row][col]->SetSize(Vector2(0.0f, 0.0f));
             }
         }

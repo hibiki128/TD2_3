@@ -7,21 +7,15 @@
 
 // Application
 #include "application/Base/BaseObject.h"
+#include "application/Object/MapChip/Block/Block.h"
+#include "application/Object/Goal/Goal.h"
 
 class MapPrev
 {
 public:
-	static const uint32_t kWidth = 13; // 横マス数
-	static const uint32_t kHeight = 8; // 縦マス数
+	size_t mapWidth = 13; // 横マス数
+	size_t mapHeight = 8; // 縦マス数
 	static const float kChipSize; // 各マップチップのサイズ
-
-	// マップチップの種類を定義
-	enum class ChipType {
-		Empty, // 空白ブロック
-		Black, // 黒ブロック
-		White, // 白ブロック
-		Gray,  // 灰ブロック（動かないブロック）
-	};
 
 	///
 	/// 基本的な関数
@@ -44,17 +38,15 @@ public:
 private:
 	// マップチップのデータ構造
 	struct MapChip {
-		std::unique_ptr<BaseObject> object;
-		ChipType type;
+		std::unique_ptr<Block> object;
 	};
 
 	// マップチップの二次元配列
 	std::vector<std::vector<MapChip>> mapChips_;
+	std::string csvFilePath_; // ファイルパス保存用
 
 	Vector3 center_;
 	float rotationAngleY_;
-
-	std::unique_ptr<BaseObject> centerObj_;
 	
 private:
 	///
@@ -64,8 +56,8 @@ private:
 	// CSVからマップチップデータを読み込む
 	void LoadFromCSV(const std::string& filePath);
 	// ChipTypeを整数値から取得する関数
-	ChipType GetChipTypeFromInt(int value);
-
+	Block::ChipType GetChipTypeFromInt(int value);
+	
 	void UpdateMapChipsPosition();
 	
 	Vector3 CalculateChipPosition(int x, int y);

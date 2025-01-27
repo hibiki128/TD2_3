@@ -1,7 +1,7 @@
 {
-    "cinematic_brightness": 0.27000001072883606,
-    "cinematic_contrast": 0.7400000095367432,
-    "cinematic_saturation": 0.38999998569488525,
+    "cinematic_brightness": 0.1599999964237213,
+    "cinematic_contrast": 0.7099999785423279,
+    "cinematic_saturation": 0.46000000834465027,
     "depth_kernelSize": 3,
     "gaussian_kernelSize": 3,
     "gaussian_sigma": 1.0,

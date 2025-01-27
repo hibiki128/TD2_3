@@ -21,11 +21,6 @@ void TitleScene::Initialize()
 
 	debugCamera_ = std::make_unique<DebugCamera>();
 	debugCamera_->Initialize(&vp_);
-
-	emitter_ = std::make_unique<ParticleEmitter>();
-	emitter_->Initialize("arrow_up", "debug/plane.obj");
-	emitter_->SetTexture("Particle/Arrow.png");
-	emitter_->SetColor({ 1.0f,1.0f,0.0f,1.0f });
 }
 
 void TitleScene::Finalize()
@@ -45,22 +40,12 @@ void TitleScene::Update()
 
 	// シーン切り替え
 	ChangeScene();
-	ImGui::Begin("パーティクル");
-	if (ImGui::Button("生成")) {
-		emitter_->UpdateOnce();
-	}
-	ImGui::Checkbox("自動生成", &Auto_);
-	ImGui::End();
-	if (Auto_) {
-		emitter_->Update();
-	}
+	
 }
 
 void TitleScene::Draw()
 {
 	/// -------描画処理開始-------
-
-	emitter_->DrawEmitter();
 
 	/// Spriteの描画準備
 	spCommon_->DrawCommonSetting();
@@ -76,8 +61,6 @@ void TitleScene::Draw()
 	/// Particleの描画準備
 	ptCommon_->DrawCommonSetting();
 	//------Particleの描画開始-------
-
-	emitter_->Draw(vp_);
 
 	//-----------------------------
 
@@ -124,7 +107,6 @@ void TitleScene::Debug()
 	debugCamera_->imgui();
 	LightGroup::GetInstance()->imgui();
 	ImGui::End();
-	emitter_->imgui();
 }
 
 void TitleScene::CameraUpdate()

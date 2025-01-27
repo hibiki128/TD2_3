@@ -23,18 +23,10 @@ MapPrev::MapPrev()
 
 void MapPrev::Init(const std::string& csvFilePath)
 {
-	// 二次元配列の要素数を設定
-	mapChips_.resize(kHeight);
-	for (int y = 0; y < kHeight; ++y) {
-		mapChips_[y].resize(kWidth);
-	}
-
-	centerObj_ = std::make_unique<BaseObject>();
-	centerObj_->Init("center");
-	centerObj_->CreateModel("debug/sphere.obj");
+	csvFilePath_ = csvFilePath;
 
 	// CSVファイルからマップの読み込み
-	LoadFromCSV(csvFilePath);
+	LoadFromCSV(csvFilePath_);
 	rotationT_ = 0.0f;
 	approachT_ = 0.0f;
 	leaveT_ = 0.0f;
@@ -50,21 +42,18 @@ void MapPrev::Update()
 	// マップチップの更新
 	for (auto& row : mapChips_) {
 		for (auto& chip : row) {
-			if (chip.type != ChipType::Empty) {
+			if (chip.object->type_ != Block::ChipType::Empty) {
 				chip.object->Update();
 			}
 		}
 	}
-
-	// 中心オブジェクトの更新
-	centerObj_->SetWorldPosition({ center_.x * kChipSize, center_.y * kChipSize, center_.z });
-	centerObj_->Update();
 
 	MapMove();
 
 	UpdateMapChipsPosition();
 
 	FinishScene();
+
 }
 
 
@@ -85,12 +74,13 @@ void MapPrev::Draw(const ViewProjection& vp)
 	for (const auto& row : mapChips_) {
 		for (const auto& chip : row) {
 			// 空白ブロックではない場合のみ描画
-			if (chip.type != ChipType::Empty) {
+			if (chip.object->type_ != Block::ChipType::Empty) {
 				chip.object->Draw(vp);
 			}
 		}
 	}
 	//centerObj_->Draw(vp);
+	
 }
 
 void MapPrev::LoadFromCSV(const std::string& filePath)
@@ -102,76 +92,105 @@ void MapPrev::LoadFromCSV(const std::string& filePath)
 
 	std::string line;
 	int y = 0;
+	int maxHeight = 0; // 最大の行数を記録する変数
 
-	while (std::getline(file, line) && y < kHeight) {
+	// 最初にファイルの行数を数える
+	while (std::getline(file, line)) {
+		++maxHeight;
+	}
+	file.clear();
+	file.seekg(0);
+
+	// 二次元配列の要素数を設定
+	mapChips_.resize(maxHeight);
+	while (std::getline(file, line) && y < maxHeight) {
 		std::istringstream lineStream(line);
 		std::string cell;
 		int x = 0;
 
-		while (std::getline(lineStream, cell, ',') && x < kWidth) {
+		while (std::getline(lineStream, cell, ',')) {
 			int chipValue = std::stoi(cell);
-			ChipType chipType = GetChipTypeFromInt(chipValue);
+			Block::ChipType chipType = GetChipTypeFromInt(chipValue);
 
 			MapChip chip;
-			chip.type = chipType;
+			chip.object = std::make_unique<Block>();
+			chip.object->type_ = chipType;
+			
+			/*BaseObjectの初期化*/
 
-			if (chip.type != ChipType::Empty) {
-				chip.object = std::make_unique<BaseObject>();
-				chip.object->Init("MapChip");
-				chip.object->SetScale({ 0.925f, 0.925f, 0.925f });
-				chip.object->SetWorldPosition({
-					x * kChipSize,
-					-y * kChipSize,
-					0.0f // z方向の位置を追加
-					});
+			// 空白ブロックの場合にはスキップ
+			if (chip.object->type_ != Block::ChipType::Empty) {
+				chip.object->Init("Block");
+				chip.object->SetScale({ 1.0f, 1.0f, 1.0f });
+				chip.object->SetWorldPosition({ x * kChipSize, -y * kChipSize, 0.0f });
+				chip.object->CreateCollider();
 
 				// モデルと色を設定
-				switch (chip.type) {
-				case ChipType::Black:
+				switch (chip.object->type_) {
+				case Block::ChipType::Black: // 黒ブロック
 					chip.object->CreateModel("debug/Cube.obj");
-					chip.object->SetObjColor({ 0.0f, 0.0f, 0.0f, 1.0f });
+					chip.object->SetObjColor({ 0.0f, 0.0f, 0.0f, 1.0f }); // 黒色
 					break;
-				case ChipType::White:
+				case Block::ChipType::White: // 白ブロック
 					chip.object->CreateModel("debug/Cube.obj");
-					chip.object->SetObjColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+					chip.object->SetObjColor({ 1.0f, 1.0f, 1.0f, 1.0f }); // 白色
+
 					break;
-				case ChipType::Gray:
+				case Block::ChipType::Gray: // 動かないブロック
 					chip.object->CreateModel("debug/Cube.obj");
-					chip.object->SetObjColor({ 0.0f, 1.0f, 0.0f, 1.0f });
+					chip.object->SetObjColor({ 0.0f, 1.0f, 0.0f, 1.0f }); // 一旦分かりやすく緑に変更
+					break;
+				case Block::ChipType::Gravity: // 重力反転ブロック
+					chip.object->CreateModel("debug/Cube.obj");
+					chip.object->SetObjColor({ 1.0f, 0.25f, 1.0f, 1.0f }); // 一旦分かりやすく紫に変更
+					chip.object->CreateModel("game/GravityBlock.obj");
+					chip.object->SetTexture("game/forwardGravityBlock.png"); // 重力通常状態のテクスチャをセット
+					break;
+				case Block::ChipType::ColorChange: // プレイヤー色変更ブロック
+					chip.object->CreateModel("game/ColorChangeBlock.obj");
+					chip.object->SetTexture("game/colorChangeBlock.png"); // プレイヤー色変更ブロックのテクスチャをセット
 					break;
 				default:
 					break;
 				}
 			}
 
-			mapChips_[y][x] = std::move(chip);
+			// マップチップの二次元配列に格納
+			mapChips_[y].push_back(std::move(chip));
 			++x;
 		}
 		++y;
 	}
 
 	file.close();
-	UpdateMapChipsPosition();
+
+	// mapWidthとmapHeightを再設定
+	mapWidth = mapChips_[0].size();
+	mapHeight = mapChips_.size();
 }
 
-MapPrev::ChipType MapPrev::GetChipTypeFromInt(int value)
+Block::ChipType MapPrev::GetChipTypeFromInt(int value)
 {
 	switch (value) {
-	case 0: return ChipType::Empty;
-	case 1: return ChipType::Black;
-	case 2: return ChipType::White;
-	case 3: return ChipType::Gray;
+	case 0: return Block::ChipType::Empty;
+	case 1: return Block::ChipType::Black;
+	case 2: return Block::ChipType::White;
+	case 3: return Block::ChipType::Gray;
+	case 4: return Block::ChipType::Empty; // ゴールオブジェクトは空白扱いとする
+	case 5: return Block::ChipType::Empty; // プレイヤー初期位置は空白扱いとする
+	case 6: return Block::ChipType::Gravity;
+	case 7: return Block::ChipType::ColorChange;
 
-	default: return ChipType::Empty;
+	default: return Block::ChipType::Empty;
 	}
 }
 
 void MapPrev::UpdateMapChipsPosition()
 {
-	for (int y = 0; y < kHeight; ++y) {
-		for (int x = 0; x < kWidth; ++x) {
+	for (int y = 0; y < mapHeight; ++y) {
+		for (int x = 0; x < mapWidth; ++x) {
 			auto& chip = mapChips_[y][x];
-			if (chip.type != ChipType::Empty) {
+			if (chip.object->type_ != Block::ChipType::Empty) {
 				Vector3 originalPos = CalculateChipPosition(x, y);
 				Vector3 rotatedPos = RotateAroundCenter(originalPos, rotationAngleY_);
 
@@ -189,8 +208,8 @@ Vector3 MapPrev::CalculateChipPosition(int x, int y)
 {
 	// 中心からのオフセットを考慮してチップの位置を計算
 	return {
-		(x - kWidth / 2.0f + center_.x) * kChipSize,
-		-(y - kHeight / 2.0f - center_.y) * kChipSize,
+		(x - mapWidth / 2.0f + center_.x) * kChipSize,
+		-(y - mapHeight / 2.0f - center_.y) * kChipSize,
 		center_.z
 	};
 
@@ -236,7 +255,7 @@ void MapPrev::MapMove()
 
 void MapPrev::RotationMap()
 {
-	const float targetAngle = 15.0f; // 目標角度
+	const float targetAngle = 20.0f; // 目標角度
 	const float easeTMax = 1.5f;
 
 	// 初回の呼び出し時に前回の角度を開始角度として使用

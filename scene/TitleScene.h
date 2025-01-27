@@ -59,8 +59,4 @@ private:
 
 	ViewProjection vp_;
 	std::unique_ptr<DebugCamera> debugCamera_;
-
-	std::unique_ptr<ParticleEmitter> emitter_;
-
-	bool Auto_;
 };

@@ -35,6 +35,7 @@ void OffScreen::Initialize()
 	CreateRadial();
 	CreateCinematic();
 	LoadFromJson();
+	LoadFromJson(shaderMode_);
 }
 
 void OffScreen::Draw()

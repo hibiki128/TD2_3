@@ -67,7 +67,8 @@ private:
 	// マップチップのデータ構造
 	struct MapChip {
 		std::unique_ptr<Block> object;
-		std::unique_ptr<ParticleEmitter> emitter_;
+		std::unique_ptr<ParticleEmitter> normal_;
+		std::unique_ptr<ParticleEmitter> arrow_;
 
 		///
 		/// アニメーション関連
@@ -119,6 +120,8 @@ private:
 	void InvertBlock(int x, int y);
 	// 指定された座標が有効範囲内か確認
 	bool IsValidPosition(int x, int y) const;
+	// 重力反転時のパーティクル用
+	void GravityParticleUpdate();
 
 	///
 	///	アニメーション関連
@@ -137,6 +140,7 @@ private:
 private:
 	// 重力反転状態かどうか（重力ブロックのテクスチャ変更のためだけに使用）
 	bool isGravityReversed_ = false; // 初期状態は通常
-
+	bool prevGravityState = false;
+	float arrowTime_ = 0.0f;
 };
 

@@ -72,7 +72,7 @@ private:
 
 	struct Cinematic{
 		Vector2 iResolution;
-		float constrast;
+		float contrast;
 		float saturation;
 		float brightness;
 	};

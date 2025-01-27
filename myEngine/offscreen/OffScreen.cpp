@@ -129,7 +129,7 @@ void OffScreen::DrawCommonSetting()
 		ImGui::DragFloat("幅", &radialData->kBlurWidth, 0.01f);
 		break;
 	case ShaderMode::kCinematic:
-		ImGui::DragFloat("コンストラクト", &cinematicData->constrast, 0.01f);
+		ImGui::DragFloat("コンストラクト", &cinematicData->contrast, 0.01f);
 		ImGui::DragFloat("彩度", &cinematicData->saturation, 0.01f);
 		ImGui::DragFloat("輝度", &cinematicData->brightness, 0.01f);
 		break;
@@ -191,7 +191,7 @@ void OffScreen::CreateCinematic()
 	cinematicResource = dxCommon->CreateBufferResource(sizeof(Cinematic));
 	cinematicResource->Map(0, nullptr, reinterpret_cast<void**>(&cinematicData));
 	cinematicData->iResolution = { 1280.0f,720.0f };
-	cinematicData->constrast = 1.05f;
+	cinematicData->contrast = 1.05f;
 	cinematicData->saturation = 0.68f;
 	cinematicData->brightness = 0.13f;
 }
@@ -231,7 +231,7 @@ void OffScreen::SaveToJson()
 	j["radial_BlurWidth"] = radialData->kBlurWidth;
 	j["radial_Center"] = { radialData->kCenter.x, radialData->kCenter.y };
 
-	j["cinematic_contrast"] = cinematicData->constrast;
+	j["cinematic_contrast"] = cinematicData->contrast;
 	j["cinematic_saturation"] = cinematicData->saturation;
 	j["cinematic_brightness"] = cinematicData->brightness;
 
@@ -313,8 +313,8 @@ void OffScreen::LoadFromJson(ShaderMode shaderMode)
 
 		break;
 	case ShaderMode::kCinematic:
-		if (j.contains("cinematic_constrast"))
-			cinematicData->constrast = j["cinematic_constrast"].get<float>();
+		if (j.contains("cinematic_contrast"))
+			cinematicData->contrast = j["cinematic_contrast"].get<float>();
 
 		if (j.contains("cinematic_saturation"))
 			cinematicData->saturation = j["cinematic_saturation"].get<float>();

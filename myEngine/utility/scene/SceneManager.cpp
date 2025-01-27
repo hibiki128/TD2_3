@@ -58,7 +58,7 @@ void SceneManager::Update()
 	}
 	ImGui::End();
 
-	transition_->Debug();
+	//transition_->Debug();
 
 #endif // _DEBUG
 

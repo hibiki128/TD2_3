@@ -39,6 +39,7 @@ public:
     void SetEndRotate(const Vector3& endRotate) { endRote_ = endRotate; }
     void SetFrequency(const float& frequency) { emitFrequency_ = frequency; }
     void SetTexture(const std::string& filePath);
+    void SetColor(const Vector4& color) { Manager_->SetColor(color); }
 
     void LoadFromJson(const std::string& name);
 
@@ -47,11 +48,16 @@ private:
     void Emit();
     void SaveToJson();
     void LoadFromJson();
+
+    std::vector<std::string> GetJsonFiles();
+    void ShowFileSelector();
+
 private:
     using json = nlohmann::json;
     float elapsedTime_;         // 経過時間
 
     std::string name_;          // パーティクルの名前
+    std::string fileName_;          // パーティクルの名前
     WorldTransform transform_;       // 位置や回転などのトランスフォーム
     int count_;                 // 一度に発生させるパーティクルの数
 
@@ -63,6 +69,7 @@ private:
     float scaleMin_;
     float scaleMax_;
 
+    Vector4 color_;
     Vector3 velocityMin_;       // 速度の最小値
     Vector3 velocityMax_;       // 速度の最大値
     Vector3 startScale_;

@@ -15,6 +15,7 @@ void OffScreen::Initialize()
 	rootSignature[3] = psoManager_->CreateRenderRootSignature(rootSignature[3], ShaderMode::kGauss);
 	rootSignature[4] = psoManager_->CreateRenderRootSignature(rootSignature[4], ShaderMode::kDepth);
 	rootSignature[5] = psoManager_->CreateRenderRootSignature(rootSignature[5], ShaderMode::kBlur);
+	rootSignature[6] = psoManager_->CreateRenderRootSignature(rootSignature[6], ShaderMode::kCinematic);
 	graphicsPipelineState[0] = psoManager_->CreateRenderGraphicsPipeLine(graphicsPipelineState[0], rootSignature[0], ShaderMode::kNone);
 	graphicsPipelineState[1] = psoManager_->CreateRenderGraphicsPipeLine(graphicsPipelineState[1], rootSignature[0], ShaderMode::kGray);
 	graphicsPipelineState[2] = psoManager_->CreateRenderGraphicsPipeLine(graphicsPipelineState[2], rootSignature[1], ShaderMode::kVigneet);
@@ -23,12 +24,14 @@ void OffScreen::Initialize()
 	graphicsPipelineState[5] = psoManager_->CreateRenderGraphicsPipeLine(graphicsPipelineState[5], rootSignature[0], ShaderMode::kOutLine);
 	graphicsPipelineState[6] = psoManager_->CreateRenderGraphicsPipeLine(graphicsPipelineState[6], rootSignature[4], ShaderMode::kDepth);
 	graphicsPipelineState[7] = psoManager_->CreateRenderGraphicsPipeLine(graphicsPipelineState[7], rootSignature[5], ShaderMode::kBlur);
+	graphicsPipelineState[8] = psoManager_->CreateRenderGraphicsPipeLine(graphicsPipelineState[8], rootSignature[6], ShaderMode::kCinematic);
 	srvManager_ = SrvManager::GetInstance();
 	CreateSmooth();
 	CreateGauss();
 	CreateVignette();
 	CreateDepth();
 	CreateRadial();
+	CreateCinematic();
 }
 
 void OffScreen::Draw()
@@ -38,45 +41,41 @@ void OffScreen::Draw()
 	{
 	case ShaderMode::kNone:
 		psoManager_->DrawCommonSetting(graphicsPipelineState[0], rootSignature[0]);
-		dxCommon->GetCommandList()->SetGraphicsRootDescriptorTable(0, dxCommon->GetOffScreenGPUHandle());
 		break;
 	case ShaderMode::kGray:
 		psoManager_->DrawCommonSetting(graphicsPipelineState[1], rootSignature[0]);
-		dxCommon->GetCommandList()->SetGraphicsRootDescriptorTable(0, dxCommon->GetOffScreenGPUHandle());
 		break;
 	case ShaderMode::kVigneet:
 		psoManager_->DrawCommonSetting(graphicsPipelineState[2], rootSignature[1]);
 		dxCommon->GetCommandList()->SetGraphicsRootConstantBufferView(1, vignetteResource->GetGPUVirtualAddress());
-		dxCommon->GetCommandList()->SetGraphicsRootDescriptorTable(0, dxCommon->GetOffScreenGPUHandle());
 		break;
 	case ShaderMode::kSmooth:
 		psoManager_->DrawCommonSetting(graphicsPipelineState[3], rootSignature[2]);
 		dxCommon->GetCommandList()->SetGraphicsRootConstantBufferView(1, smoothResource->GetGPUVirtualAddress());
-		dxCommon->GetCommandList()->SetGraphicsRootDescriptorTable(0, dxCommon->GetOffScreenGPUHandle());
 		break;
 	case ShaderMode::kGauss:
 		psoManager_->DrawCommonSetting(graphicsPipelineState[4], rootSignature[3]);
 		dxCommon->GetCommandList()->SetGraphicsRootConstantBufferView(1, gaussianResouce->GetGPUVirtualAddress());
-		dxCommon->GetCommandList()->SetGraphicsRootDescriptorTable(0, dxCommon->GetOffScreenGPUHandle());
 		break;
 	case ShaderMode::kOutLine:
 		psoManager_->DrawCommonSetting(graphicsPipelineState[5], rootSignature[0]);
-		dxCommon->GetCommandList()->SetGraphicsRootDescriptorTable(0, dxCommon->GetOffScreenGPUHandle());
 		break;
 	case ShaderMode::kDepth:
 		psoManager_->DrawCommonSetting(graphicsPipelineState[6], rootSignature[4]);
-		dxCommon->GetCommandList()->SetGraphicsRootDescriptorTable(0, dxCommon->GetOffScreenGPUHandle());
 		dxCommon->GetCommandList()->SetGraphicsRootConstantBufferView(1, depthResouce->GetGPUVirtualAddress());
 		dxCommon->GetCommandList()->SetGraphicsRootDescriptorTable(2, dxCommon->GetDepthGPUHandle());
 		break;
 	case ShaderMode::kBlur:
 		psoManager_->DrawCommonSetting(graphicsPipelineState[7], rootSignature[5]);
 		dxCommon->GetCommandList()->SetGraphicsRootConstantBufferView(1, radialResource->GetGPUVirtualAddress());
-		dxCommon->GetCommandList()->SetGraphicsRootDescriptorTable(0, dxCommon->GetOffScreenGPUHandle());
 		break;
+	case ShaderMode::kCinematic:
+		psoManager_->DrawCommonSetting(graphicsPipelineState[8], rootSignature[6]);
+		dxCommon->GetCommandList()->SetGraphicsRootConstantBufferView(1, cinematicResource->GetGPUVirtualAddress());
 	default:
 		break;
 	}
+	dxCommon->GetCommandList()->SetGraphicsRootDescriptorTable(0, dxCommon->GetOffScreenGPUHandle());
 	dxCommon->GetCommandList()->DrawInstanced(3, 1, 0, 0);
 }
 
@@ -86,7 +85,7 @@ void OffScreen::DrawCommonSetting()
 	ImGui::Begin("Offscreen");
 
 	// ShaderModeを文字列で表現
-	const char* shaderModeItems[] = { "None", "Gray", "Vignett", "Smooth", "Gauss", "OutLine","Depth","Blur" };
+	const char* shaderModeItems[] = { "None", "Gray", "Vignett", "Smooth", "Gauss", "OutLine","Depth","Blur","Cinematic" };
 	int currentShaderMode = static_cast<int>(shaderMode_);
 
 	// Comboを描画してユーザーが選択した場合に値を更新
@@ -121,8 +120,13 @@ void OffScreen::DrawCommonSetting()
 		ImGui::DragInt("Kernel Size", &depthData->kernelSize, 2, 3, 7);
 		break;
 	case ShaderMode::kBlur:
-		ImGui::DragFloat2("Center", &radialData->kCenter.x, 0.1f);
-		ImGui::DragFloat("Width", &radialData->kBlurWidth, 0.01f);
+		ImGui::DragFloat2("中心座標", &radialData->kCenter.x, 0.1f);
+		ImGui::DragFloat("幅", &radialData->kBlurWidth, 0.01f);
+		break;
+	case ShaderMode::kCinematic:
+		ImGui::DragFloat("コンストラクト", &cinematicData->constrast,0.01f);
+		ImGui::DragFloat("彩度", &cinematicData->saturation, 0.01f);
+		ImGui::DragFloat("輝度", &cinematicData->brightness, 0.01f);
 		break;
 	default:
 		break;
@@ -171,4 +175,14 @@ void OffScreen::CreateRadial()
 	radialResource->Map(0, nullptr, reinterpret_cast<void**>(&radialData));
 	radialData->kBlurWidth = 0.01f;   // 発光のしきい値（低いほど多くの部分が発光）
 	radialData->kCenter = { 0.5f,0.5f };
+}
+
+void OffScreen::CreateCinematic()
+{
+	cinematicResource = dxCommon->CreateBufferResource(sizeof(Cinematic));
+	cinematicResource->Map(0, nullptr, reinterpret_cast<void**>(&cinematicData));
+	cinematicData->iResolution = { 1280.0f,720.0f };
+	cinematicData->constrast = 1.05f;
+	cinematicData->saturation = 0.68f;
+	cinematicData->brightness = 0.13f;
 }

@@ -60,15 +60,7 @@ private:
 	ViewProjection vp_;
 	std::unique_ptr<DebugCamera> debugCamera_;
 
-	WorldTransform wt1_;
-	WorldTransform wt2_;
-
-	std::unique_ptr<Object3d> walk_;
-	std::unique_ptr<Object3d> sphere_;
-
 	std::unique_ptr<ParticleEmitter> emitter_;
 
-	/*std::unique_ptr<Player> player_;*/
-
-	bool roop = true;
+	bool Auto_;
 };

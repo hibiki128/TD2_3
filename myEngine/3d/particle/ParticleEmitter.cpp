@@ -7,10 +7,11 @@ ParticleEmitter::ParticleEmitter() {}
 void ParticleEmitter::Initialize(const std::string& name, const std::string& fileName)
 {
 	name_ = name;
+	fileName_ = fileName;
 	transform_.Initialize();
 	Manager_ = std::make_unique<ParticleManager>();
 	Manager_->Initialize(SrvManager::GetInstance());
-	Manager_->CreateParticleGroup(name_, fileName);
+	Manager_->CreateParticleGroup(name_, fileName_);
 	emitFrequency_ = 0.1f;
 	velocityMin_ = { -1.0f, -1.0f, -1.0f };
 	velocityMax_ = { 1.0f, 1.0f, 1.0f };
@@ -290,6 +291,51 @@ void ParticleEmitter::LoadFromJson() {
 	isFaceDirection_ = j["isFaceDirection"];
 }
 
+std::vector<std::string> ParticleEmitter::GetJsonFiles()
+{
+	std::vector<std::string> jsonFiles;
+	std::filesystem::path baseDir = "resources/jsons/Particle";
+	for (const auto& entry : std::filesystem::directory_iterator(baseDir)) {
+		if (entry.path().extension() == ".json") {
+			// ファイル名だけを取得してリストに追加
+			jsonFiles.push_back(entry.path().filename().string());
+		}
+	}
+	return jsonFiles;
+}
+
+void ParticleEmitter::ShowFileSelector()
+{
+	static int selectedIndex = -1; // 選択中のインデックス（-1は未選択）
+	static std::vector<std::string> jsonFiles = GetJsonFiles(); // JSONファイルのリスト
+
+	// ファイルリストをCスタイル文字列の配列に変換
+	std::vector<const char*> fileNames;
+	for (const auto& filePath : jsonFiles) {
+		fileNames.push_back(filePath.c_str());
+	}
+
+	ImGui::Text("Select a JSON file:");
+	ImGui::Separator();
+
+	// Comboボックスでファイル選択
+	if (ImGui::Combo("JSON Files", &selectedIndex, fileNames.data(), static_cast<int>(fileNames.size()))) {
+		// ファイル選択時の動作（選択されたファイル名を表示）
+		if (selectedIndex >= 0) {
+			ImGui::Text("Selected File:");
+			ImGui::TextWrapped("%s", jsonFiles[selectedIndex].c_str());
+		}
+	}
+
+	// ボタンでアニメーションをセット
+	if (selectedIndex >= 0 && ImGui::Button("Set ParticleData")) {
+		// name_ に ".json" を除いた名前を設定
+		std::string selectedFileName = jsonFiles[selectedIndex];
+		std::string nameWithoutExtension = selectedFileName.substr(0, selectedFileName.find_last_of('.')); // ".json" を除去
+		Initialize(nameWithoutExtension, fileName_);
+	}
+}
+
 void ParticleEmitter::LoadFromJson(const std::string& name)
 {
 	std::ifstream inFile("resources/jsons/Particle/" + name + ".json");
@@ -558,6 +604,11 @@ void ParticleEmitter::imgui() {
 		ImGui::Checkbox("ビルボード", &isBillBoard_);
 		ImGui::Checkbox("ランダムカラー", &isRandomColor_);
 	}
+
+	if (ImGui::CollapsingHeader("パーティクルデータのロード")) {
+		ShowFileSelector();
+	}
+
 	if (ImGui::Button("セーブ")) {
 		SaveToJson();
 		std::string message = std::format("ParticleData saved.");

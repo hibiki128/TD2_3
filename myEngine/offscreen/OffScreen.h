@@ -24,15 +24,16 @@ private:
 	void CreateVignette();
 	void CreateDepth();
 	void CreateRadial();
+	void CreateCinematic();
 private:
 	DirectXCommon* dxCommon;
 	SrvManager* srvManager_;
 	std::unique_ptr<PipeLineManager> psoManager_ = nullptr;
 	// ルートシグネチャ
-	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature[6];
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature[7];
 
 	// グラフィックスパイプライン
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineState[8];
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineState[9];
 	ShaderMode shaderMode_ = ShaderMode::kNone;
 
 
@@ -64,6 +65,13 @@ private:
 		float kBlurWidth;
 	};
 
+	struct Cinematic{
+		Vector2 iResolution;
+		float constrast;
+		float saturation;
+		float brightness;
+	};
+
 	// バッファリソース
 	Microsoft::WRL::ComPtr<ID3D12Resource> vignetteResource;
 	// バッファリソース内のデータを指すポインタ
@@ -90,5 +98,11 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> radialResource;
 	// バッファリソース内のデータを指すポインタ
 	RadialBlur* radialData = nullptr;
+
+	// バッファリソース
+	Microsoft::WRL::ComPtr<ID3D12Resource> cinematicResource;
+	// バッファリソース内のデータを指すポインタ
+	Cinematic* cinematicData = nullptr;
+
 };
 

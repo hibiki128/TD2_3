@@ -161,8 +161,10 @@ void SceneTransition::ReverseFadeOut() {
     const float maxDelay = 0.3f;
     for (int row = 0; row < rows; ++row) {
         for (int col = 0; col < cols; ++col) {
-            // 位置に基づいて遅延を計算（左上から右下へ）
-            float delay = ((float)(row + col) / (float)(rows + cols - 2)) * maxDelay;
+            // 位置に基づいて遅延を計算（右下から左上へ）
+            // (rows-1-row)と(cols-1-col)で座標を反転
+            float delay = ((float)((rows - 1 - row) + (cols - 1 - col)) / (float)(rows + cols - 2)) * maxDelay;
+
             // カウンターから遅延を引いた値を使用
             float localTime = counter_ - delay;
             if (localTime >= 0.0f && localTime <= duration_) {

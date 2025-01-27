@@ -197,12 +197,26 @@ void SelectScene::MapSelect()
 		// currentStage のみ選択状態を true に設定
 		mapPrevs_[currentStage]->SetIsSelect(true);
 
-		// キー入力に応じて currentStage を変更
-		if (input_->TriggerKey(DIK_D) && !isMoveCamera_) {
+		// キーボード入力によるステージ変更
+		if (input_->PushKey(DIK_D) && !isMoveCamera_) {
 			currentStage++;
 		}
-		if (input_->TriggerKey(DIK_A) && !isMoveCamera_) {
+		if (input_->PushKey(DIK_A) && !isMoveCamera_) {
 			currentStage--;
+		}
+
+		// ゲームパッドの左スティック入力によるステージ変更
+		XINPUT_STATE joyState;
+		if (input_->GetJoystickState(0, joyState)) {
+			float stickX = joyState.Gamepad.sThumbLX;
+
+			// 左スティックのx軸の値に基づいて currentStage を変更
+			if (stickX > XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE && !isMoveCamera_) {
+				currentStage++;
+			}
+			else if (stickX < -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE && !isMoveCamera_) {
+				currentStage--;
+			}
 		}
 
 		// currentStage が範囲外にならないように制限
@@ -214,9 +228,17 @@ void SelectScene::MapSelect()
 		}
 	}
 
-	// DIK_SPACE 入力処理（いつでも可能）
+	// キーボード入力による決定処理
 	if (input_->TriggerKey(DIK_SPACE)) {
 		mapPrevs_[currentStage]->SetDecision(true);
+	}
+
+	// ゲームパッドのボタンA入力による決定処理
+	XINPUT_STATE joyState;
+	if (input_->GetJoystickState(0, joyState)) {
+		if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A) {
+			mapPrevs_[currentStage]->SetDecision(true);
+		}
 	}
 }
 
@@ -224,24 +246,45 @@ void SelectScene::CameraMove()
 {
 	const float easeTMax = 0.5f;  // イージングの最大時間（スムーズさを調整）
 
-	// 右キーが押されたとき
-	if (input_->TriggerKey(DIK_D) && !isMoveCamera_) {
+	// キーボードの右キーが押されたとき
+	if (input_->PushKey(DIK_D) && !isMoveCamera_) {
 		startPos = vp_.translation_.x;
 		endPos = currentStage * 50.0f;
 		cameraT_ = 0.0f;
 		isMoveCamera_ = true;
 	}
-	// 左キーが押されたとき
-	if (input_->TriggerKey(DIK_A) && !isMoveCamera_) {
+	// キーボードの左キーが押されたとき
+	if (input_->PushKey(DIK_A) && !isMoveCamera_) {
 		startPos = vp_.translation_.x;
 		endPos = currentStage * 50.0f;
 		cameraT_ = 0.0f;
 		isMoveCamera_ = true;
 	}
 
-	vp_.translation_.x = EaseInSine<float>(startPos, endPos, cameraT_, easeTMax);
+	// ゲームパッドの左スティック入力によるカメラ移動
+	XINPUT_STATE joyState;
+	if (input_->GetJoystickState(0, joyState)) {
+		float stickX = joyState.Gamepad.sThumbLX;
+
+		// 右スティック入力 (正の値)
+		if (stickX > XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE && !isMoveCamera_) {
+			startPos = vp_.translation_.x;
+			endPos = currentStage * 50.0f;
+			cameraT_ = 0.0f;
+			isMoveCamera_ = true;
+		}
+		// 左スティック入力 (負の値)
+		else if (stickX < -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE && !isMoveCamera_) {
+			startPos = vp_.translation_.x;
+			endPos = currentStage * 50.0f;
+			cameraT_ = 0.0f;
+			isMoveCamera_ = true;
+		}
+	}
 
 	// イージングによる補間
+	vp_.translation_.x = EaseInSine<float>(startPos, endPos, cameraT_, easeTMax);
+
 	if (isMoveCamera_) {
 		cameraT_ += Frame::DeltaTime();
 		if (cameraT_ >= easeTMax) {
@@ -250,3 +293,4 @@ void SelectScene::CameraMove()
 		}
 	}
 }
+

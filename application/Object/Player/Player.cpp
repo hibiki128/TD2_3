@@ -11,7 +11,7 @@ void Player::Init(const std::string className) {
 
 	BaseObject::Init(className);
 	BaseObject::CreateModel("game/Player.obj");
-	BaseObject::SetTexture("game/PlayerWhite.png"); // 白状態のプレイヤーテクスチャを設定
+	BaseObject::SetTexture("debug/white1x1.png"); // 白状態のプレイヤーテクスチャを設定
 	BaseObject::CreateCollider();
 
 	///
@@ -314,12 +314,12 @@ void Player::HandleInput() {
 						if (mapChipField_->HasColorChangeBlockInArea(position, xInvertRange_, yInvertRange_)) {
 							// 現在が白の場合、テクスチャと色状態を黒に変更
 							if (colorState_ == ColorState::White) {
-								this->SetTexture("game/playerBlack.png");
+								this->SetTexture("debug/black1x1.png");
 								colorState_ = ColorState::Black;
 								// 現在が黒の場合、テクスチャと色状態を白に変更
 							}
 							else if (colorState_ == ColorState::Black) {
-								this->SetTexture("game/playerWhite.png");
+								this->SetTexture("debug/white1x1.png");
 								colorState_ = ColorState::White;
 							}
 						}

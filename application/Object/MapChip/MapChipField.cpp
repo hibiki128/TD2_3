@@ -391,11 +391,11 @@ void MapChipField::GravityParticleUpdate()
 			for (const auto& chip : row) {
 				if (chip.object->type_ == Block::ChipType::Gravity) {
 					if (isGravityReversed_ && !prevGravityState) {
-						chip.arrow_->SetColor({ 0.0f,0.0f,1.0f,1.0f });
+						chip.arrow_->SetColor({ 1.0f,0.0f,0.0f,1.0f });
 						chip.arrow_->LoadFromJson("arrow_up");
 					}
 					if (!isGravityReversed_ && prevGravityState) {
-						chip.arrow_->SetColor({ 1.0f,0.0f,0.0f,1.0f });
+						chip.arrow_->SetColor({ 0.0f,0.0f,1.0f,1.0f });
 						chip.arrow_->LoadFromJson("arrow_down");
 					}
 					chip.arrow_->SetPosition({ chip.object->GetCenterPosition().x,chip.object->GetCenterPosition().y,-1.5f });
@@ -515,7 +515,8 @@ void MapChipField::ChangeTextureAllGravityBlock() {
 				if (!isGravityReversed_) {
 					chip.object->CreateModel("game/gravityBlockDown.obj"); // 重力通常状態のテクスチャを設定
 					chip.object->SetTexture("game/gravityBlockDown.png"); // 重力通常状態のテクスチャを設定
-				} else {
+				}
+				else {
 					chip.object->CreateModel("game/gravityBlockUp.obj"); // 重力反転状態のテクスチャを設定
 					chip.object->SetTexture("game/gravityBlockUp.png"); // 重力反転状態のテクスチャを設定
 				}

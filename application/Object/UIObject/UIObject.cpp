@@ -1,64 +1,133 @@
 #include "UIObject.h"
 
+// C++
+#include <cmath>
+
 void UIObject::Init() {
-	objectBook_ = std::make_unique<BaseObject>(); 
+	input_ = Input::GetInstance();
+
+	// 本オブジェクト
+	objectBook_ = std::make_unique<BaseObject>();
+	objectBook_->Init("objectBook");
 	objectBook_->CreateModel("game/openBook.obj");
 	objectBook_->SetTexture("game/openBook.png");
 
-	// ゴリ押しで位置決め
-	objectBook_->SetWorldPosition({12.690f, -5.330f, 7.870f});
-	objectBook_->SetRotation({-1.570f, 0.0f, 0.0f});
-	objectBook_->SetScale({4.50f, 4.50f, 4.50f});
-
+	// 栞（操作説明）オブジェクト
 	objectUI_ = std::make_unique<BaseObject>();
+	objectUI_->Init("objectUI");
 	objectUI_->CreateModel("game/UI.obj");
 	objectUI_->SetTexture("game/ui.png");
 
-	// ゴリ押しで位置決め
-	objectUI_->SetWorldPosition({-10.620f, -9.45f, 0.0f});
-	objectUI_->SetRotation({-1.570f, 0.0f, 0.0f});
-	objectUI_->SetScale({2.0f, 2.0f, 2.0f});
-
+	// Lスティックオブジェクト
 	objectL_ = std::make_unique<BaseObject>();
+	objectL_->Init("objectL");
 	objectL_->CreateModel("game/L.obj");
 	objectL_->SetTexture("game/L.png");
 
-	// ゴリ押しで位置決め
-	objectL_->SetWorldPosition({-10.63f, -10.110f, 0.0f});
-	objectL_->SetRotation({-1.570f, 0.0f, 0.0f});
-	objectL_->SetScale({2.5f, 2.5f, 2.5f});
+	initLstickPos_ = objectL_->GetTransform().translation_;
 
+	// Aボタンオブジェクト
 	objectA_ = std::make_unique<BaseObject>();
+	objectA_->Init("objectA");
 	objectA_->CreateModel("game/A.obj");
 	objectA_->SetTexture("game/A.png");
 
-	// ゴリ押しで位置決め
-	objectA_->SetWorldPosition({-10.63f, -9.41f, 0.0f});
-	objectA_->SetRotation({-1.570f, 0.0f, 0.0f});
-	objectA_->SetScale({2.0f, 2.0f, 2.0f});
-
+	// RBボタンオブジェクト
 	objectR_ = std::make_unique<BaseObject>();
+	objectR_->Init("objectR");
 	objectR_->CreateModel("game/R.obj");
 	objectR_->SetTexture("game/R.png");
-
-	// ゴリ押しで位置決め
-	objectR_->SetWorldPosition({-10.63f, -9.59f, 0.0f});
-	objectR_->SetRotation({-1.570f, 0.0f, 0.0f});
-	objectR_->SetScale({2.0f, 2.0f, 2.0f});
 }
 
-void UIObject::Update() { 
-	objectBook_->Update(); 
+void UIObject::Update() {
+	// パッド入力による反応
+	InputReaction();
+
+	objectBook_->Update();
 	objectUI_->Update();
 	objectL_->Update();
 	objectA_->Update();
 	objectR_->Update();
 }
 
-void UIObject::Draw(const ViewProjection& viewProjection) { 
-	objectBook_->Draw(viewProjection); 
+void UIObject::Draw(const ViewProjection& viewProjection) {
+	objectBook_->Draw(viewProjection);
 	objectUI_->Draw(viewProjection);
 	objectL_->Draw(viewProjection);
 	objectA_->Draw(viewProjection);
 	objectR_->Draw(viewProjection);
+}
+
+void UIObject::DebugImGui()
+{
+	objectBook_->DebugImGui();
+	objectUI_->DebugImGui();
+	objectL_->DebugImGui();
+	objectA_->DebugImGui();
+	objectR_->DebugImGui();
+}
+
+void UIObject::InputReaction()
+{
+	XINPUT_STATE joyState;
+	if (input_->GetJoystickState(0, joyState)) {
+		///
+		///	Lスティックオブジェクトを動かす
+		/// 
+
+		// 左スティックの入力値を取得
+		float leftStickX = static_cast<float>(joyState.Gamepad.sThumbLX) / 32768.0f;
+		float leftStickY = static_cast<float>(joyState.Gamepad.sThumbLY) / 32768.0f;
+
+		// デッドゾーン処理
+		const float deadZone = 0.2f;
+		if (std::abs(leftStickX) < deadZone) leftStickX = 0.0f;
+		if (std::abs(leftStickY) < deadZone) leftStickY = 0.0f;
+
+
+		// 入力がある場合のみ処理
+		if (leftStickX != 0.0f || leftStickY != 0.0f) {
+			// 初期回転角を考慮した変換
+			float rotationAngle = objectL_->GetTransform().rotation_.z;
+			float cosAngle = std::cos(rotationAngle);
+			float sinAngle = std::sin(rotationAngle);
+
+			// 入力値を回転角で変換
+			float adjustedX = leftStickX * cosAngle - leftStickY * sinAngle;
+			float adjustedY = leftStickX * sinAngle + leftStickY * cosAngle;
+
+			// 移動範囲の制限
+			const float moveRange = 0.5f;
+			Vector3 newPosition = initLstickPos_;
+			newPosition.x += adjustedX * moveRange;
+			newPosition.y += adjustedY * moveRange;
+
+			// Lオブジェクトの位置を更新
+			objectL_->SetWorldPosition(newPosition);
+
+			// 入力が無い場合は初期位置に戻す
+		} else {
+			objectL_->SetWorldPosition(initLstickPos_);
+		}
+
+		///
+		///	Aボタンが押されている間は色を濃くする
+		/// 
+		
+		if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A) {
+			objectA_->SetObjColor({ 0.3f, 0.3f, 0.3f, 1.0f });
+		} else {
+			objectA_->SetObjColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+		}
+
+		///
+		///	 RBボタンが押されている間は色を濃くする
+		/// 
+		
+		if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) {
+			objectR_->SetObjColor({ 0.3f, 0.3f, 0.3f, 1.0f });
+		} else {
+			objectR_->SetObjColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+		}
+	}
 }

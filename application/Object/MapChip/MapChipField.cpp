@@ -497,28 +497,11 @@ void MapChipField::UpdateChipAnimation(MapChip& chip)
 			if (chip.object->type_ == Block::ChipType::Black) {
 				chip.object->type_ = Block::ChipType::White;
 				chip.object->SetTexture("game/whiteBlock.png"); // 白ブロックのテクスチャをセット
-			} else if (chip.object->type_ == Block::ChipType::White) {
+			}
+			else if (chip.object->type_ == Block::ChipType::White) {
 				chip.object->type_ = Block::ChipType::Black;
 				chip.object->SetTexture("game/blackBlock.png"); // 黒ブロックのテクスチャをセット
 			}
-		// 実際に収縮を行う
-		} else {
-			chip.currentScale = EaseOutQuad(1.0f, 0.5f, chip.animationTime, shrinkDuration); // スケールを { 1.0f -> 0.5f } へ縮小
-			chip.object->SetScale({ chip.currentScale, chip.currentScale, chip.currentScale });
-		}
-	///
-	/// ブロックの拡大状態
-	/// 
-	} else if (chip.animState == MapChip::AnimationState::Expanding) {
-		// 終了した場合
-		if (chip.animationTime >= expandDuration) {
-			chip.animationTime = 0.0f; // タイマーリセット
-			chip.animState = MapChip::AnimationState::None; // 次の状態に移行
-			chip.isAnimating = false; // アニメーション終了
-		// 実際に拡大を行う
-		} else {
-			chip.currentScale = EaseOutQuad(0.5f, 1.0f, chip.animationTime, expandDuration); // スケールを { 0.5f -> 1.0f } へ拡大
-			chip.object->SetScale({ chip.currentScale, chip.currentScale, chip.currentScale });
 		}
 	}
 }

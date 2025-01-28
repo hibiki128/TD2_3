@@ -72,6 +72,8 @@ void GameScene::Update()
 	if (!pause_->IsPause()) {
 		// プレイヤー更新
 		player_->Update(mapChipField_.get());
+#ifdef _DEBUG
+
 
 		// プレイヤーがゴールに到達した際の処理
 		if (player_->IsGoalReached()) {
@@ -80,6 +82,7 @@ void GameScene::Update()
 			ImGui::End();
 		}
 
+#endif // _DEBUG
 		// マップチップフィールド更新
 		mapChipField_->Update();
 	}
@@ -87,7 +90,7 @@ void GameScene::Update()
 	player_->PlaySE();
 	mapChipField_->PlaySE();
 	// ポーズ更新
-	pause_->Update();
+	//pause_->Update();
 
 	// UIObject更新
 	uiObject_->Update();
@@ -129,21 +132,23 @@ void GameScene::Draw()
 	/// Particleの描画準備
 	ptCommon_->DrawCommonSetting();
 	//------Particleの描画開始-------
-
+	mapChipField_->DrawParticle(vp_);
 	//-----------------------------
 
 	/// Spriteの描画準備
 	spCommon_->DrawCommonSetting();
 	//-----Spriteの描画開始-----
-	
+
 	// ポーズ描画
-	pause_->Draw(vp_);
+	//pause_->Draw(vp_);
 	player_->DrawSprite();
 
 	//------------------------
 
 	//-----線描画-----
+//#ifdef _DEBUG
 	DrawLine3D::GetInstance()->Draw(vp_);
+//#endif // _DEBUG
 	//---------------
 
 	/// ----------------------------------
@@ -169,7 +174,7 @@ void GameScene::DrawForOffScreen()
 	/// Particleの描画準備
 	ptCommon_->DrawCommonSetting();
 	//------Particleの描画開始-------
-	mapChipField_->DrawParticle(vp_);
+
 	//-----------------------------
 
 

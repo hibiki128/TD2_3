@@ -429,12 +429,12 @@ void Player::HandleInput() {
 					if (mapChipField_->HasColorChangeBlockInArea(position, xInvertRange_, yInvertRange_)) {
 						// 現在が白の場合、テクスチャと色状態を黒に変更
 						if (colorState_ == ColorState::White) {
-							this->SetTexture("game/playerBlack.png");
+							this->SetTexture("debug/black1x1.png");
 							colorState_ = ColorState::Black;
 							// 現在が黒の場合、テクスチャと色状態を白に変更
 						}
 						else if (colorState_ == ColorState::Black) {
-							this->SetTexture("game/playerWhite.png");
+							this->SetTexture("debug/white1x1.png");
 							colorState_ = ColorState::White;
 						}
 					}
@@ -532,7 +532,7 @@ void Player::Reset() {
 		// プレイヤーの重力状態をリセット
 		isGravityReversed_ = false;
 		// プレイヤーの色状態をリセット（とりあえずデフォルトを白としておく）
-		this->SetTexture("game/playerWhite.png");
+		this->SetTexture("debug/white1x1.png");
 		colorState_ = ColorState::White;
 
 		// マップのリセット

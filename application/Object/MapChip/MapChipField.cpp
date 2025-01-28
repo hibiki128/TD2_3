@@ -186,20 +186,20 @@ void MapChipField::LoadFromCSV(const std::string& filePath)
 				// モデルと色を設定
 				switch (chip.object->type_) {
 				case Block::ChipType::Black: // 黒ブロック
-					chip.object->CreateModel("debug/Cube.obj");
-					chip.object->SetObjColor({ 0.0f, 0.0f, 0.0f, 1.0f }); // 黒色
+					chip.object->CreateModel("game/blackBlock.obj");
+					chip.object->SetTexture("game/blackBlock.png"); // 黒ブロックのテクスチャをセット
 					break;
 				case Block::ChipType::White: // 白ブロック
-					chip.object->CreateModel("debug/Cube.obj");
-					chip.object->SetObjColor({ 1.0f, 1.0f, 1.0f, 1.0f }); // 白色
+					chip.object->CreateModel("game/whiteBlock.obj");
+					chip.object->SetTexture("game/whiteBlock.png"); // 白ブロックのテクスチャをセット
 					break;
 				case Block::ChipType::Gray: // 動かないブロック
-					chip.object->CreateModel("debug/Cube.obj");
-					chip.object->SetObjColor({ 0.0f, 1.0f, 0.0f, 1.0f }); // 一旦分かりやすく緑に変更
+					chip.object->CreateModel("game/block.obj");
+					chip.object->SetTexture("game/block.png"); // 動かないブロックのテクスチャをセット
 					break;
 				case Block::ChipType::Gravity: // 重力反転ブロック
-					chip.object->CreateModel("game/GravityBlock.obj");
-					chip.object->SetTexture("game/forwardGravityBlock.png"); // 重力通常状態のテクスチャをセット
+					chip.object->CreateModel("game/gravityBlockDown.obj");
+					chip.object->SetTexture("game/gravityBlockDown.png"); // 重力通常状態のテクスチャをセット
 					break;
 				case Block::ChipType::ColorChange: // プレイヤー色変更ブロック
 					chip.object->CreateModel("game/ColorChangeBlock.obj");
@@ -214,7 +214,8 @@ void MapChipField::LoadFromCSV(const std::string& filePath)
 			if (chipValue == 4) {
 				goal_ = std::make_unique<Goal>();
 				goal_->Init("Goal");
-				goal_->CreateModel("debug/ICO.obj");
+				goal_->CreateModel("game/goal.obj");
+				goal_->SetTexture("game/goal.png");
 				goal_->SetWorldPosition({ x * kChipSize, -y * kChipSize, 0.0f });
 				goal_->CreateCollider();
 				goal_->SetObjColor({ 1.0f, 1.0f, 0.0f, 1.0f }); // 黄色にしておく
@@ -384,10 +385,10 @@ void MapChipField::UpdateChipAnimation(MapChip& chip)
 			// ブロックの色変更
 			if (chip.object->type_ == Block::ChipType::Black) {
 				chip.object->type_ = Block::ChipType::White;
-				chip.object->SetObjColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+				chip.object->SetTexture("game/whiteBlock.png"); // 白ブロックのテクスチャをセット
 			} else if (chip.object->type_ == Block::ChipType::White) {
 				chip.object->type_ = Block::ChipType::Black;
-				chip.object->SetObjColor({ 0.0f, 0.0f, 0.0f, 1.0f });
+				chip.object->SetTexture("game/blackBlock.png"); // 黒ブロックのテクスチャをセット
 			}
 		// 実際に収縮を行う
 		} else {
@@ -425,9 +426,11 @@ void MapChipField::ChangeTextureAllGravityBlock() {
 		for (auto& chip : row) {
 			if (chip.object->type_ == Block::ChipType::Gravity) { // 重力ブロックの場合
 				if (!isGravityReversed_) {
-					chip.object->SetTexture("game/forwardGravityBlock.png"); // 重力通常状態のテクスチャを設定
+					chip.object->CreateModel("game/gravityBlockDown.obj"); // 重力通常状態のテクスチャを設定
+					chip.object->SetTexture("game/gravityBlockDown.png"); // 重力通常状態のテクスチャを設定
 				} else {
-					chip.object->SetTexture("game/reverseGravityBlock.png"); // 重力反転状態のテクスチャを設定
+					chip.object->CreateModel("game/gravityBlockUp.obj"); // 重力反転状態のテクスチャを設定
+					chip.object->SetTexture("game/gravityBlockUp.png"); // 重力反転状態のテクスチャを設定
 				}
 			}
 		}

@@ -225,7 +225,7 @@ void Player::HandleInput() {
 			// 左スティックの入力値を取得
 			float leftStickX = joyState.Gamepad.sThumbLX;
 			// デッドゾーンの設定
-			const float deadZone = 2000.0f;
+			const float deadZone = 4000.0f;
 
 			if (abs(leftStickX) > deadZone) {
 				const float maxStickValue = 32767.0f;

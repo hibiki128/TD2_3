@@ -12,9 +12,6 @@ public:
 private:
 	std::unique_ptr<BaseObject> start_;
 	std::unique_ptr<BaseObject> title_;
-	std::unique_ptr<Sprite> buttonA_;
-
-	Vector2 buttonA_pos;
 
 	bool isStart_ = false;
 };

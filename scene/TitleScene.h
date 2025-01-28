@@ -11,6 +11,9 @@
 #include"ParticleEmitter.h"
 //#include <application/Player.h>
 
+// Application
+#include "application/Scene/TitleScene/TitleUI.h"
+
 class TitleScene :public BaseScene
 {
 public: // メンバ関数
@@ -59,4 +62,11 @@ private:
 
 	ViewProjection vp_;
 	std::unique_ptr<DebugCamera> debugCamera_;
+
+	///
+	///	オブジェクト
+	/// 
+	
+	// タイトルUI
+	std::unique_ptr<TitleUI> objectTitleUI_;
 };

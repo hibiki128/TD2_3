@@ -338,6 +338,9 @@
     <ClCompile Include="scene\ClearScene.cpp">
       <Filter>ソースファイル</Filter>
     </ClCompile>
+    <ClCompile Include="application\Scene\ClearScene\ClearUI.cpp">
+      <Filter>ソースファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\shaders\Particle\Particle.hlsli">
@@ -586,6 +589,7 @@
     <ClInclude Include="application\Scene\TitleScene\TitleUI.h" />
     <ClInclude Include="application\Object\UIObject\UIObject.h" />
     <ClInclude Include="scene\ClearScene.h" />
+    <ClInclude Include="application\Scene\ClearScene\ClearUI.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Particle\Particle.PS.hlsl">

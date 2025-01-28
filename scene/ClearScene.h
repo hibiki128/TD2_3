@@ -6,6 +6,7 @@
 #include "SpriteCommon.h"
 #include"ParticleCommon.h"
 #include"DebugCamera.h"
+#include"application/Scene/ClearScene/ClearUI.h"
 
 class ClearScene :public BaseScene
 {
@@ -58,4 +59,6 @@ private:
 	std::unique_ptr<DebugCamera> debugCamera_;
 
 	std::string filePath_;
+
+	std::unique_ptr<ClearUI> clearUI_;
 };

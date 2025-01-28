@@ -5,6 +5,7 @@
 
 void ClearScene::Finalize()
 {
+	InitFilePath();
 	sceneManager_->SetFilePath(filePath_);
 }
 
@@ -22,7 +23,9 @@ void ClearScene::Initialize()
 	debugCamera_ = std::make_unique<DebugCamera>();
 	debugCamera_->Initialize(&vp_);
 
-	InitFilePath();
+	clearUI_ = std::make_unique<ClearUI>();
+	clearUI_->Init();
+
 }
 
 void ClearScene::Update()
@@ -38,6 +41,8 @@ void ClearScene::Update()
 	///
 	///	各オブジェクト更新
 	/// 
+
+	clearUI_->Update();
 
 	// シーン切り替え
 	ChangeScene();
@@ -61,6 +66,8 @@ void ClearScene::Draw()
 	///
 	///	各オブジェクト描画
 	/// 
+
+	clearUI_->Draw(vp_);
 
 	//--------------------------
 
@@ -121,6 +128,7 @@ void ClearScene::Debug()
 	debugCamera_->imgui();
 	LightGroup::GetInstance()->imgui();
 	ImGui::End();
+	clearUI_->Debug();
 }
 
 void ClearScene::CameraUpdate()
@@ -135,8 +143,24 @@ void ClearScene::CameraUpdate()
 
 void ClearScene::ChangeScene()
 {
-	if (input_->TriggerKey(DIK_SPACE)) {
-		sceneManager_->NextSceneReservation("GAME");
+	XINPUT_STATE joyState;
+	if (input_->GetJoystickState(0, joyState)) {
+		if ((joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A)) {
+			if (clearUI_->GetItemNum() == 0 || clearUI_->GetItemNum() == 1) {
+				sceneManager_->NextSceneReservation("GAME");
+			}
+			if (clearUI_->GetItemNum() == 2) {
+				sceneManager_->NextSceneReservation("SELECT");
+			}
+		}
+	}
+	if (input_->TriggerKey(DIK_SPACE) ) {
+		if (clearUI_->GetItemNum() == 0 || clearUI_->GetItemNum() == 1) {
+			sceneManager_->NextSceneReservation("GAME");
+		}
+		if (clearUI_->GetItemNum() == 2) {
+			sceneManager_->NextSceneReservation("SELECT");
+		}
 	}
 }
 
@@ -153,7 +177,9 @@ void ClearScene::InitFilePath()
 			size_t numberEnd = filePath_.find_first_not_of("0123456789", numberStart);
 			std::string numberStr = filePath_.substr(numberStart, numberEnd - numberStart);
 			int stageNumber = std::stoi(numberStr); // 数字部分を取得
-			++stageNumber; // 数字を一つ進める
+			if (clearUI_->GetItemNum() == 0) {
+				++stageNumber; // 数字を一つ進める
+			}
 
 			// 新しいファイルパスを生成
 			filePath_ = filePath_.substr(0, numberStart) + std::to_string(stageNumber) + filePath_.substr(numberEnd);

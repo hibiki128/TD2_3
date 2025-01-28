@@ -40,10 +40,7 @@ void SelectScene::Initialize()
 					// stageNumberが取得できました
 				}
 				catch (const std::invalid_argument& e) {
-					// 変換エラーの場合の処理
-				}
-				catch (const std::out_of_range& e) {
-					// 範囲外の数値の場合の処理
+					e;
 				}
 			}
 		}
@@ -169,12 +166,6 @@ void SelectScene::Debug()
 	ImGui::Checkbox("カメラ動いてるか", &isMoveCamera_);
 	ImGui::End();
 
-	int index = 1;
-	for (auto& mapPrev : mapPrevs_) {
-		std::string name = "マッププレビュー " + std::to_string(index);
-		mapPrev->Debug(name);
-		++index;
-	}
 }
 
 void SelectScene::CameraUpdate()

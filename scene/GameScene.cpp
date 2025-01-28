@@ -240,7 +240,7 @@ void GameScene::ChangeScene()
 		sceneManager_->NextSceneReservation("SELECT");
 	}
 	if (player_->IsGoalReached()) {
-		sceneManager_->NextSceneReservation("SELECT");
+		sceneManager_->NextSceneReservation("CLEAR");
 	}
 }
 

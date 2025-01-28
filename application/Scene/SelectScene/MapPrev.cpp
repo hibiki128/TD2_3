@@ -163,6 +163,7 @@ void MapPrev::LoadFromCSV(const std::string& filePath)
 	mapWidth = mapChips_[0].size();
 	mapHeight = mapChips_.size();
 }
+
 Block::ChipType MapPrev::GetChipTypeFromInt(int value)
 {
 	switch (value) {

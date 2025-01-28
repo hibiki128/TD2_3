@@ -115,7 +115,6 @@ void MapPrev::LoadFromCSV(const std::string& filePath)
 			MapChip chip;
 			chip.object = std::make_unique<Block>();
 			chip.object->type_ = chipType;
-			
 			/*BaseObjectの初期化*/
 
 			// 空白ブロックの場合にはスキップ
@@ -128,23 +127,20 @@ void MapPrev::LoadFromCSV(const std::string& filePath)
 				// モデルと色を設定
 				switch (chip.object->type_) {
 				case Block::ChipType::Black: // 黒ブロック
-					chip.object->CreateModel("debug/Cube.obj");
-					chip.object->SetObjColor({ 0.0f, 0.0f, 0.0f, 1.0f }); // 黒色
+					chip.object->CreateModel("game/blackBlock.obj");
+					chip.object->SetTexture("game/blackBlock.png"); // 黒ブロックのテクスチャをセット
 					break;
 				case Block::ChipType::White: // 白ブロック
-					chip.object->CreateModel("debug/Cube.obj");
-					chip.object->SetObjColor({ 1.0f, 1.0f, 1.0f, 1.0f }); // 白色
-
+					chip.object->CreateModel("game/whiteBlock.obj");
+					chip.object->SetTexture("game/whiteBlock.png"); // 白ブロックのテクスチャをセット
 					break;
 				case Block::ChipType::Gray: // 動かないブロック
-					chip.object->CreateModel("debug/Cube.obj");
-					chip.object->SetObjColor({ 0.0f, 1.0f, 0.0f, 1.0f }); // 一旦分かりやすく緑に変更
+					chip.object->CreateModel("game/block.obj");
+					chip.object->SetTexture("game/block.png"); // 動かないブロックのテクスチャをセット
 					break;
 				case Block::ChipType::Gravity: // 重力反転ブロック
-					chip.object->CreateModel("debug/Cube.obj");
-					chip.object->SetObjColor({ 1.0f, 0.25f, 1.0f, 1.0f }); // 一旦分かりやすく紫に変更
-					chip.object->CreateModel("game/GravityBlock.obj");
-					chip.object->SetTexture("game/forwardGravityBlock.png"); // 重力通常状態のテクスチャをセット
+					chip.object->CreateModel("game/gravityBlockDown.obj");
+					chip.object->SetTexture("game/gravityBlockDown.png"); // 重力通常状態のテクスチャをセット
 					break;
 				case Block::ChipType::ColorChange: // プレイヤー色変更ブロック
 					chip.object->CreateModel("game/ColorChangeBlock.obj");
@@ -154,7 +150,6 @@ void MapPrev::LoadFromCSV(const std::string& filePath)
 					break;
 				}
 			}
-
 			// マップチップの二次元配列に格納
 			mapChips_[y].push_back(std::move(chip));
 			++x;
@@ -168,7 +163,6 @@ void MapPrev::LoadFromCSV(const std::string& filePath)
 	mapWidth = mapChips_[0].size();
 	mapHeight = mapChips_.size();
 }
-
 Block::ChipType MapPrev::GetChipTypeFromInt(int value)
 {
 	switch (value) {

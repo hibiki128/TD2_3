@@ -71,4 +71,9 @@ private:
 	bool isMoveCamera_ = false;
 	float startPos = 0.0f;
 	float endPos = 0.0f;
+
+	// 音関連
+	uint32_t BGM_;
+	uint32_t selectSE_;
+	uint32_t desitionSE_;
 };

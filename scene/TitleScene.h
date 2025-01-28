@@ -59,4 +59,7 @@ private:
 
 	ViewProjection vp_;
 	std::unique_ptr<DebugCamera> debugCamera_;
+
+	// 音関連
+	uint32_t BGM_;
 };

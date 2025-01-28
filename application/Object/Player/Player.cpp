@@ -3,6 +3,8 @@
 
 // Engine
 #include "myEngine/3d/line/DrawLine3D.h"
+#include"Audio.h"
+#include"myEngine/Frame/Frame.h"
 
 void Player::Init(const std::string className) {
 	input_ = Input::GetInstance();
@@ -32,6 +34,12 @@ void Player::Init(const std::string className) {
 
 	// Jsonからパラメーターの読み込み
 	LoadFromJson();
+
+	jumpSE_ = Audio::GetInstance()->LoadWave("player/playerJump.wav");
+	landingSE_ = Audio::GetInstance()->LoadWave("player/playerLanding.wav");
+	walkSE_ = Audio::GetInstance()->LoadWave("player/playerWalk.wav");
+	gravitySE_ = Audio::GetInstance()->LoadWave("action/inversionGravity.wav");
+	inversionSE_ = Audio::GetInstance()->LoadWave("action/inversion.wav");
 }
 
 void Player::Update(MapChipField* mapChipField) {
@@ -41,7 +49,7 @@ void Player::Update(MapChipField* mapChipField) {
 
 	BaseObject::Update();
 	squareTransition_->Update();
-	
+
 	// ブロック反転時、アニメーションが終わるまでを判定（反転中はプレイヤーが動かないようにするため）
 	if (isInverting_) {
 		invertTimer_ += kDeltaTime;
@@ -61,7 +69,8 @@ void Player::Update(MapChipField* mapChipField) {
 	if (collisionMapInfo_.hittingGround_) {
 		velocity_.y = 0.0f;
 
-	} else if (collisionMapInfo_.hittingCeiling_) {
+	}
+	else if (collisionMapInfo_.hittingCeiling_) {
 		velocity_.y = 0.0f;
 	}
 
@@ -84,7 +93,8 @@ void Player::Update(MapChipField* mapChipField) {
 	if (!isInverting_) { // ブロック反転中には重力を加算しない
 		if (isGravityReversed_) {  // 重力反転中
 			velocity_.y -= gravityAcceleration_; // 上向きに重力をかける (逆)
-		} else { // 通常重力
+		}
+		else { // 通常重力
 			velocity_.y += gravityAcceleration_; // 下向きに重力をかける（順）
 		}
 	}
@@ -114,7 +124,7 @@ void Player::Update(MapChipField* mapChipField) {
 			/*ImGui::Text("TransitionStatus : %d", squareTransition_->GetCurrentStatus());
 			ImGui::Text("TransitionIsFinished : %d", squareTransition_->IsFinished());*/
 
-			bool flag[5] = {false};
+			bool flag[5] = { false };
 			flag[0] = IsJumpOccurred();
 			flag[1] = IsBlockInversionOccurred();
 			flag[2] = IsResetOccurred();
@@ -129,7 +139,8 @@ void Player::Update(MapChipField* mapChipField) {
 
 			if (colorState_ == ColorState::White) {
 				ImGui::Text("現在の色 : 白");
-			} else if (colorState_ == ColorState::Black) {
+			}
+			else if (colorState_ == ColorState::Black) {
 				ImGui::Text("現在の色 : 黒");
 			}
 
@@ -183,10 +194,10 @@ bool Player::IsGoalReached() {
 	Vector3 position = this->transform_.translation_;
 	// プレイヤーの4つの角を計算
 	Vector3 corners[4] = {
-	    {position.x - kWidth / 2, position.y + kHeight / 2, position.z}, // 左上
-	    {position.x + kWidth / 2, position.y + kHeight / 2, position.z}, // 右上
-	    {position.x - kWidth / 2, position.y - kHeight / 2, position.z}, // 左下
-	    {position.x + kWidth / 2, position.y - kHeight / 2, position.z}  // 右下
+		{position.x - kWidth / 2, position.y + kHeight / 2, position.z}, // 左上
+		{position.x + kWidth / 2, position.y + kHeight / 2, position.z}, // 右上
+		{position.x - kWidth / 2, position.y - kHeight / 2, position.z}, // 左下
+		{position.x + kWidth / 2, position.y - kHeight / 2, position.z}  // 右下
 	};
 
 	// ゴール位置の取得
@@ -251,7 +262,8 @@ void Player::HandleInput() {
 					// ジャンプしたことを記録（SE・エフェクト用）
 					isJumpOccurred_ = true;
 				}
-			} else {
+			}
+			else {
 				// 地面にいる場合のみ
 				if (collisionMapInfo_.hittingGround_) {
 					velocity_.y = jumpAcceleration_; // 上向き (順)
@@ -305,7 +317,8 @@ void Player::HandleInput() {
 								this->SetTexture("game/playerBlack.png");
 								colorState_ = ColorState::Black;
 								// 現在が黒の場合、テクスチャと色状態を白に変更
-							} else if (colorState_ == ColorState::Black) {
+							}
+							else if (colorState_ == ColorState::Black) {
 								this->SetTexture("game/playerWhite.png");
 								colorState_ = ColorState::White;
 							}
@@ -324,7 +337,7 @@ void Player::HandleInput() {
 		///
 		///	リセット
 		///
-		
+
 		bool isPressedLB = joyState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER;
 
 		if (isPressedLB && !wasPressedLB) {
@@ -370,7 +383,8 @@ void Player::HandleInput() {
 				// ジャンプしたことを記録（SE・エフェクト用）
 				isJumpOccurred_ = true;
 			}
-		} else {
+		}
+		else {
 			// 地面にいる場合のみ
 			if (collisionMapInfo_.hittingGround_) {
 				velocity_.y = jumpAcceleration_; // 上向き (順)
@@ -417,8 +431,9 @@ void Player::HandleInput() {
 						if (colorState_ == ColorState::White) {
 							this->SetTexture("game/playerBlack.png");
 							colorState_ = ColorState::Black;
-						// 現在が黒の場合、テクスチャと色状態を白に変更
-						} else if (colorState_ == ColorState::Black) {
+							// 現在が黒の場合、テクスチャと色状態を白に変更
+						}
+						else if (colorState_ == ColorState::Black) {
 							this->SetTexture("game/playerWhite.png");
 							colorState_ = ColorState::White;
 						}
@@ -449,7 +464,7 @@ void Player::HandleInput() {
 #pragma endregion
 }
 
-bool Player::IsLandedOccurred() { 
+bool Player::IsLandedOccurred() {
 	if (!isInverting_) { // 足元のブロックを反転させた際にも反応してしまうのを防止
 		// 重力が通常の場合
 		if (!isGravityReversed_) {
@@ -464,7 +479,8 @@ bool Player::IsLandedOccurred() {
 			prevHittingGround_ = currentHittingGround;
 
 			// 重力が逆の場合
-		} else {
+		}
+		else {
 			bool currentHittingGround = collisionMapInfo_.hittingCeiling_;
 
 			// 着地した瞬間のみを判定
@@ -477,6 +493,24 @@ bool Player::IsLandedOccurred() {
 		}
 	}
 
+	return false;
+}
+
+bool Player::IsWalking()
+{
+	if (input_->PushKey(DIK_D) || input_->PushKey(DIK_A)) {
+		isWalking_ = true;
+	}
+	else {
+		isWalking_ = false;
+	}
+	if (isWalking_) {
+		if (walkSEcoolTime_ < 0) {
+			walkSEcoolTime_ = 0.5f;
+			return true;
+		}
+		walkSEcoolTime_ -= Frame::DeltaTime();
+	}
 	return false;
 }
 
@@ -494,7 +528,7 @@ void Player::Reset() {
 		// プレイヤーの位置をリセット
 		this->transform_.translation_ = mapChipField_->GetPlayerInitialPosition();
 		// プレイヤーの速度をリセット
-		this->velocity_ = {0.0f, 0.0f, 0.0f};
+		this->velocity_ = { 0.0f, 0.0f, 0.0f };
 		// プレイヤーの重力状態をリセット
 		isGravityReversed_ = false;
 		// プレイヤーの色状態をリセット（とりあえずデフォルトを白としておく）
@@ -520,6 +554,26 @@ void Player::Reset() {
 	}
 }
 
+void Player::PlaySE()
+{
+	Audio* audio = Audio::GetInstance();
+	if (IsJumpOccurred()) {
+		audio->PlayWave(jumpSE_, 0.1f);
+	}
+	if (IsLandedOccurred()) {
+		audio->PlayWave(landingSE_, 0.1f);
+	}
+	if (IsWalking()) {
+		audio->PlayWave(walkSE_, 0.1f);
+	}
+	if (IsBlockInversionOccurred()) {
+		audio->PlayWave(inversionSE_, 0.1f);
+	}
+	if (IsGravityReversedOccurred()) {
+		audio->PlayWave(gravitySE_, 0.1f);
+	}
+}
+
 void Player::CheckCollisionAndResolve() {
 	/// X移動
 	BaseObject::transform_.translation_.x += velocity_.x;
@@ -532,7 +586,8 @@ void Player::CheckCollisionAndResolve() {
 		Vector3 blockPosition = collisionMapInfoX.blockX->GetWorldPosition();
 		float blockRight = blockPosition.x + MapChipField::kChipSize / 2;
 		BaseObject::transform_.translation_.x = blockRight + kWidth / 2 + kBlank; // 左側に衝突した場合、右に押し戻し
-	} else if (collisionMapInfoX.hittingRight_) {
+	}
+	else if (collisionMapInfoX.hittingRight_) {
 		Vector3 blockPosition = collisionMapInfoX.blockX->GetWorldPosition();
 		float blockLeft = blockPosition.x - MapChipField::kChipSize / 2;
 		BaseObject::transform_.translation_.x = blockLeft - kWidth / 2 - kBlank; // 右側に衝突した場合、左に押し戻し
@@ -551,7 +606,8 @@ void Player::CheckCollisionAndResolve() {
 		Vector3 blockPosition = collisionMapInfoY.blockY->GetWorldPosition();
 		float blockBottom = blockPosition.y + MapChipField::kChipSize / 2;
 		BaseObject::transform_.translation_.y = blockBottom + kHeight / 2 + kBlank; // 地面の位置に押し戻し
-	} else if (collisionMapInfoY.hittingCeiling_) {
+	}
+	else if (collisionMapInfoY.hittingCeiling_) {
 		Vector3 blockPosition = collisionMapInfoY.blockY->GetWorldPosition();
 		float blockTop = blockPosition.y - MapChipField::kChipSize / 2;
 		BaseObject::transform_.translation_.y = blockTop - kHeight / 2 - kBlank; // 天井の位置に押し戻し
@@ -583,35 +639,35 @@ void Player::DrawInvertArea() {
 
 	// AABBの頂点を計算
 	std::vector<Vector3> vertices = {
-	    {minX, minY, minZ},
-        {maxX, minY, minZ},
-        {maxX, maxY, minZ},
-        {minX, maxY, minZ}, // 底面
-	    {minX, minY, maxZ},
-        {maxX, minY, maxZ},
-        {maxX, maxY, maxZ},
-        {minX, maxY, maxZ}  // 上面
+		{minX, minY, minZ},
+		{maxX, minY, minZ},
+		{maxX, maxY, minZ},
+		{minX, maxY, minZ}, // 底面
+		{minX, minY, maxZ},
+		{maxX, minY, maxZ},
+		{maxX, maxY, maxZ},
+		{minX, maxY, maxZ}  // 上面
 	};
 
 	// AABBのエッジリスト
 	std::vector<std::pair<int, int>> edges = {
-	    {0, 1},
-        {1, 2},
-        {2, 3},
-        {3, 0}, // 底面
-	    {4, 5},
-        {5, 6},
-        {6, 7},
-        {7, 4}, // 上面
-	    {0, 4},
-        {1, 5},
-        {2, 6},
-        {3, 7}  // 側面
+		{0, 1},
+		{1, 2},
+		{2, 3},
+		{3, 0}, // 底面
+		{4, 5},
+		{5, 6},
+		{6, 7},
+		{7, 4}, // 上面
+		{0, 4},
+		{1, 5},
+		{2, 6},
+		{3, 7}  // 側面
 	};
 
 	// エッジを描画
 	for (const auto& edge : edges) {
-		DrawLine3D::GetInstance()->SetPoints(vertices[edge.first], vertices[edge.second], {1.0f, 1.0f, 1.0f, 1.0f});
+		DrawLine3D::GetInstance()->SetPoints(vertices[edge.first], vertices[edge.second], { 1.0f, 1.0f, 1.0f, 1.0f });
 	}
 }
 
@@ -623,15 +679,15 @@ Player::CollisionMapInfo Player::GetMapCollisionInfo() {
 
 	// プレイヤーの4つの角を計算
 	Vector3 corners[4] = {
-	    {position.x - kWidth / 2, position.y + kHeight / 2, position.z}, // 左上
-	    {position.x + kWidth / 2, position.y + kHeight / 2, position.z}, // 右上
-	    {position.x - kWidth / 2, position.y - kHeight / 2, position.z}, // 左下
-	    {position.x + kWidth / 2, position.y - kHeight / 2, position.z}  // 右下
+		{position.x - kWidth / 2, position.y + kHeight / 2, position.z}, // 左上
+		{position.x + kWidth / 2, position.y + kHeight / 2, position.z}, // 右上
+		{position.x - kWidth / 2, position.y - kHeight / 2, position.z}, // 左下
+		{position.x + kWidth / 2, position.y - kHeight / 2, position.z}  // 右下
 	};
 
 	// 中心左と中心右の点を計算
-	Vector3 centerLeft = {position.x - kWidth / 2, position.y, position.z};  // 中心左
-	Vector3 centerRight = {position.x + kWidth / 2, position.y, position.z}; // 中心右
+	Vector3 centerLeft = { position.x - kWidth / 2, position.y, position.z };  // 中心左
+	Vector3 centerRight = { position.x + kWidth / 2, position.y, position.z }; // 中心右
 
 	// 全てのブロックを取得
 	const auto blocks = mapChipField_->GetBlocks();
@@ -642,7 +698,8 @@ Player::CollisionMapInfo Player::GetMapCollisionInfo() {
 		// プレイヤーとブロックの色が同じ場合には判定を取らない
 		if (this->colorState_ == ColorState::White && block->type_ == Block::ChipType::White) { // プレイヤーが白状態で、白ブロックの場合
 			continue;
-		} else if (this->colorState_ == ColorState::Black && block->type_ == Block::ChipType::Black) { // プレイヤーが黒状態で、黒ブロックの場合
+		}
+		else if (this->colorState_ == ColorState::Black && block->type_ == Block::ChipType::Black) { // プレイヤーが黒状態で、黒ブロックの場合
 			continue;
 		}
 
@@ -660,7 +717,8 @@ Player::CollisionMapInfo Player::GetMapCollisionInfo() {
 				if (i < 2) { // 左上・右上
 					info.hittingCeiling_ = true;
 					info.blockY = block; // Y方向で衝突したブロックを格納
-				} else if (i >= 2) { // 左下・右下
+				}
+				else if (i >= 2) { // 左下・右下
 					info.hittingGround_ = true;
 					info.blockY = block; // Y方向で衝突したブロックを格納
 				}
@@ -703,11 +761,11 @@ void Player::SaveToJson() {
 	json j;
 
 	// なんか追加する場合こっから
-	j["gravityAcceleration"] = {gravityAcceleration_};
-	j["jumpAcceleration"] = {jumpAcceleration_};
+	j["gravityAcceleration"] = { gravityAcceleration_ };
+	j["jumpAcceleration"] = { jumpAcceleration_ };
 
-	j["xInvertRange"] = {xInvertRange_};
-	j["yInvertRange"] = {yInvertRange_};
+	j["xInvertRange"] = { xInvertRange_ };
+	j["yInvertRange"] = { yInvertRange_ };
 
 	// ディレクトリを作成し、JSONファイルを保存
 	std::filesystem::create_directories("resources/jsons/Parameters/");

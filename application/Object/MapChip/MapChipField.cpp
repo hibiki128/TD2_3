@@ -9,6 +9,7 @@
 #include "math/Easing.h"
 #include"myEngine/Frame/Frame.h"
 #include "myEngine/utility/graphics/TextureManager.h"
+#include"Audio.h"
 
 // ブロックの大きさを定義
 const float MapChipField::kChipSize = 2.0f;
@@ -24,6 +25,8 @@ void MapChipField::Init(const std::string& csvFilePath)
 
 	// CSVファイルからマップの読み込み
 	LoadFromCSV(csvFilePath_);
+
+	invertSE_ = Audio::GetInstance()->LoadWave("action/inversion.wav");
 }
 
 void MapChipField::Update()
@@ -80,6 +83,18 @@ void MapChipField::DrawParticle(const ViewProjection& vp)
 			if (chip.object->type_ == Block::ChipType::Gravity) {
 				ParticleCommon::GetInstance()->SetBlendMode(BlendMode::kAdd);
 				chip.arrow_->Draw(vp);
+			}
+		}
+	}
+}
+
+void MapChipField::PlaySE()
+{
+	for (auto& row : mapChips_) {
+		for (auto& chip : row) {
+			if (chip.isInvers) {
+				Audio::GetInstance()->PlayWave(invertSE_, 0.1f);
+				chip.isInvers = false;
 			}
 		}
 	}
@@ -481,7 +496,7 @@ void MapChipField::UpdateChipAnimation(MapChip& chip)
 			// 半回転のタイミングで色を変更
 			if (chip.animationTime >= halfRotationTime && !chip.hasColorChanged) {
 				chip.hasColorChanged = true; // 色変更が一度だけ行われるようにフラグを設定
-
+				chip.isInvers = true;
 				// ブロックの色変更
 				if (chip.object->type_ == Block::ChipType::Black) {
 					chip.object->type_ = Block::ChipType::White;
@@ -512,8 +527,6 @@ void MapChipField::ChangeTextureAllGravityBlock() {
 		}
 	}
 }
-
-
 
 bool MapChipField::HasBlockInArea(const Vector3& center, int xRange, int yRange) {
 	// 中心位置からマップ上のマス位置を計算

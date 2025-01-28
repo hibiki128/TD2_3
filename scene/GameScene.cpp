@@ -5,7 +5,7 @@
 
 void GameScene::Finalize()
 {
-
+	audio_->StopWave(BGM_);
 }
 
 void GameScene::Initialize()
@@ -45,6 +45,9 @@ void GameScene::Initialize()
 
 	// Jsonから保存情報の読み込み
 	LoadFromJson();
+
+	BGM_ = audio_->LoadWave("game/gameBgm.wav");
+	audio_->PlayWave(BGM_, 0.2f, true);
 }
 
 void GameScene::Update()
@@ -79,6 +82,8 @@ void GameScene::Update()
 		mapChipField_->Update();
 	}
 	player_->Reset();
+	player_->PlaySE();
+	mapChipField_->PlaySE();
 	// ポーズ更新
 	pause_->Update();
 }

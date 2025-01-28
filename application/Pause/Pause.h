@@ -92,5 +92,6 @@ private:
 	float EscapeCoolTime_ = 0.0f;              //  Escキーのクールタイム
 	float pointerYT_;
 	float transitionTimer_ = 0.0f; // 経過時間を保持する変数
+	float deltaTime_ = 1.0f / 60.0f;
 }; 
 

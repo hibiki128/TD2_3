@@ -90,7 +90,7 @@ void GameScene::Update()
 	player_->PlaySE();
 	mapChipField_->PlaySE();
 	// ポーズ更新
-	//pause_->Update();
+	pause_->Update();
 
 	// UIObject更新
 	uiObject_->Update();
@@ -140,7 +140,7 @@ void GameScene::Draw()
 	//-----Spriteの描画開始-----
 
 	// ポーズ描画
-	//pause_->Draw(vp_);
+	pause_->Draw(vp_);
 	player_->DrawSprite();
 
 	//------------------------

@@ -147,16 +147,16 @@ void Pause::UpdateText()
 	}
 
 	// イージングによるアニメーション更新
-	stage_E.T_ += Frame::DeltaTime();
+	stage_E.T_ += deltaTime_;
 	if (stage_E.T_ >= 0.1f) {
-		pointer_E.T_ += Frame::DeltaTime();
-		backGame_E.T_ += Frame::DeltaTime();
+		pointer_E.T_ += deltaTime_;
+		backGame_E.T_ += deltaTime_;
 	}
 	if (restart_E.T_ >= 0.1f) {
-		backSelect_E.T_ += Frame::DeltaTime();
+		backSelect_E.T_ += deltaTime_;
 	}
 	if (backGame_E.T_ >= 0.1f) {
-		restart_E.T_ += Frame::DeltaTime();
+		restart_E.T_ += deltaTime_;
 	}
 
 	// 時間の制限を適用
@@ -255,7 +255,7 @@ void Pause::OpenMenu()
 
 	// クールタイム中はメニューが開けない
 	if (EscapeCoolTime_ > 0.0f) {
-		EscapeCoolTime_ -= Frame::DeltaTime();
+		EscapeCoolTime_ -= deltaTime_;
 		CanEscape_ = false;
 	}
 	else {
@@ -286,7 +286,7 @@ void Pause::OpenMenu()
 	}
 
 	// イージング処理
-	alpha_E.T_ += Frame::DeltaTime();
+	alpha_E.T_ += deltaTime_;
 	if (alpha_E.T_ >= alpha_E.TMax_) {
 		alpha_E.T_ = alpha_E.TMax_;
 	}
@@ -320,7 +320,7 @@ void Pause::MenuOperation()
 
 			// スティック上方向
 			if (stickY > 0.5f || (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP)) {
-				pressTimerStickUp += Frame::DeltaTime();
+				pressTimerStickUp += deltaTime_;
 				pressTimerStickDown = 0.0f; // 下方向のタイマーリセット
 				pressTimerDpadDown = 0.0f;
 
@@ -334,7 +334,7 @@ void Pause::MenuOperation()
 			}
 			// スティック下方向
 			else if (stickY < -0.5f || (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN)) {
-				pressTimerStickDown += Frame::DeltaTime();
+				pressTimerStickDown += deltaTime_;
 				pressTimerStickUp = 0.0f; // 上方向のタイマーリセット
 				pressTimerDpadUp = 0.0f;
 
@@ -382,7 +382,7 @@ void Pause::MenuOperation()
 	}
 
 	// イージングタイムの更新
-	pointerYT_ += Frame::DeltaTime();
+	pointerYT_ += deltaTime_;
 	if (pointerYT_ >= easeTMax) {
 		pointerYT_ = easeTMax;
 	}

@@ -37,12 +37,6 @@ void GameScene::Initialize()
 	player_ = std::make_unique<Player>();
 	player_->Init("player");
 	player_->SetInitialPosition(mapChipField_->GetPlayerInitialPosition()); // csvから読み込んだ初期位置を設定
-
-	// ポーズ
-	pause_ = std::make_unique<Pause>();
-	pause_->Init();
-	pause_->SetPlayer(player_.get());
-
 	// UIオブジェクト
 	uiObject_ = std::make_unique<UIObject>();
 	uiObject_->Init();
@@ -56,6 +50,11 @@ void GameScene::Initialize()
 
 	BGM_ = audio_->LoadWave("game/gameBgm.wav");
 	audio_->PlayWave(BGM_, 0.2f, true);
+
+	// ポーズ
+	pause_ = std::make_unique<Pause>();
+	pause_->Init();
+	pause_->SetPlayer(player_.get());
 }
 
 void GameScene::Update()

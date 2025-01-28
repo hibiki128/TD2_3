@@ -1,5 +1,4 @@
 #include "Pause.h"
-#include"myEngine/Frame/Frame.h"
 #include"SpriteCommon.h"
 #include"math/Easing.h"
 #include"application/Object/Player/Player.h"
@@ -19,19 +18,41 @@ void Pause::Init()
 
 	// 各フラグ初期化
 	isPause_ = false;
+	CanEscape_ = false;
+	previousIsPause_ = false;
+	textMovedRight_ = false;
+	prevEscapeState_ = false;
+	prevStartState_ = false;
 
-	InitText();
+	backGamePos_ = { 0.0f,0.0f };
+	backSelectPos_ = { 0.0f,0.0f };
+	restartPos_ = { 0.0f,0.0f };
+	stagePos_ = { 0.0f,0.0f };
+	pointerPos_ = { 0.0f,0.0f };
+	spritePosition_ = { 0.0f,0.0f };
 
 	pointer_E.start_ = { -360.0f,420.0f };
 	pointer_E.end_ = { -360.0f,420.0f };
+	pointer_E.T_ = 0.0f;
 	stage_E.start_.x = -360.0f;
 	stage_E.end_.x = -360.0f;
+	stage_E.T_ = 0.0f;
 	backGame_E.start_.x = -360.0f;
 	backGame_E.end_.x = -360.0f;
+	backGame_E.T_ = 0.0f;
 	backSelect_E.start_.x = -360.0f;
 	backSelect_E.end_.x = -360.0f;
+	backSelect_E.T_ = 0.0f;
 	restart_E.start_.x = -360.0f;
 	restart_E.end_.x = -360.0f;
+	restart_E.T_ = 0.0f;
+
+	EscapeCoolTime_ = 0.0f;
+	pointerYT_ = 0.0f;
+	transitionTimer_ = 0.0f;
+	deltaTime_ = 1.0f / 60.0f;
+
+	InitText();
 }
 
 void Pause::Update()

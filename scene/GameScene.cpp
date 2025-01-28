@@ -57,9 +57,6 @@ void GameScene::Update()
 	// カメラ更新
 	CameraUpdate();
 
-	// シーン切り替え
-	ChangeScene();
-
 	///
 	///	各オブジェクト更新
 	/// 
@@ -81,6 +78,9 @@ void GameScene::Update()
 	player_->Reset();
 	// ポーズ更新
 	pause_->Update();
+
+	// シーン切り替え
+	ChangeScene();
 }
 
 void GameScene::Draw()
@@ -215,6 +215,9 @@ void GameScene::ChangeScene()
 		(input_->TriggerKey(DIK_SPACE) ||
 			(input_->GetJoystickState(0, joyState) && (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A)))) {
 		// SELECTシーンへの遷移を予約
+		sceneManager_->NextSceneReservation("SELECT");
+	}
+	if (player_->IsGoalReached()) {
 		sceneManager_->NextSceneReservation("SELECT");
 	}
 }

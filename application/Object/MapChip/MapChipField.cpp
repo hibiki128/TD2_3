@@ -492,16 +492,20 @@ void MapChipField::UpdateChipAnimation(MapChip& chip)
 				chip.currentScale = EaseOutQuad(0.5f, 1.0f, timeSinceHalf, halfRotationTime); // スケールを0.5 -> 1.0へ拡大
 			}
 			chip.object->SetScale({ chip.currentScale, chip.currentScale, chip.currentScale });
-
-			// ブロックの色変更
-			if (chip.object->type_ == Block::ChipType::Black) {
-				chip.object->type_ = Block::ChipType::White;
-				chip.object->CreateModel("game/noTouchWhiteBlock.obj");
-				chip.object->SetTexture("game/noTouchWhiteBlock.png"); // 白ブロックのテクスチャをセット
-			} else if (chip.object->type_ == Block::ChipType::White) {
-				chip.object->type_ = Block::ChipType::Black;
-				chip.object->CreateModel("game/blackBlock.obj");
-				chip.object->SetTexture("game/blackBlock.png"); // 黒ブロックのテクスチャをセット
+			// 半回転のタイミングで色を変更
+			if (chip.animationTime >= halfRotationTime && !chip.hasColorChanged) {
+				chip.hasColorChanged = true; // 色変更が一度だけ行われるようにフラグを設定
+				// ブロックの色変更
+				if (chip.object->type_ == Block::ChipType::Black) {
+					chip.object->type_ = Block::ChipType::White;
+					chip.object->CreateModel("game/noTouchWhiteBlock.obj");
+					chip.object->SetTexture("game/noTouchWhiteBlock.png"); // 白ブロックのテクスチャをセット
+				}
+				else if (chip.object->type_ == Block::ChipType::White) {
+					chip.object->type_ = Block::ChipType::Black;
+					chip.object->CreateModel("game/blackBlock.obj");
+					chip.object->SetTexture("game/blackBlock.png"); // 黒ブロックのテクスチャをセット
+				}
 			}
 		}
 	}

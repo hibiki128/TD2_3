@@ -169,6 +169,15 @@ void SelectScene::ChangeScene()
 			sceneManager_->NextSceneReservation("GAME");
 		}
 	}
+	if (input_->TriggerKey(DIK_ESCAPE)) {
+		sceneManager_->NextSceneReservation("TITLE");
+	}
+	XINPUT_STATE joyState;
+	if (input_->GetJoystickState(0, joyState)) {
+		if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_B) {
+			sceneManager_->NextSceneReservation("TITLE");
+		}
+	}
 }
 
 void SelectScene::MapLoad()

@@ -78,4 +78,5 @@ private:
 	uint32_t desitionSE_;
 
 	std::string filePath;
+	bool BackGameScene_ = false;
 };

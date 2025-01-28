@@ -24,6 +24,31 @@ void SelectScene::Initialize()
 	debugCamera_ = std::make_unique<DebugCamera>();
 	debugCamera_->Initialize(&vp_);
 
+	if (!sceneManager_->GetFilePath().empty()) {
+		std::string filePath = sceneManager_->GetFilePath();
+
+		// ファイルパスから"stage"の後ろの数字部分を取得する
+		size_t startPos = filePath.find("stage");
+		if (startPos != std::string::npos) {
+			startPos += 5; // "stage"の後の位置に移動
+			size_t endPos = filePath.find(".csv", startPos); // ".csv"の位置を探す
+			if (endPos != std::string::npos) {
+				std::string stageNumberStr = filePath.substr(startPos, endPos - startPos);
+				try {
+					currentStage = std::stoi(stageNumberStr) - 1; // stringをintに変換
+					BackGameScene_ = true;
+					// stageNumberが取得できました
+				}
+				catch (const std::invalid_argument& e) {
+					// 変換エラーの場合の処理
+				}
+				catch (const std::out_of_range& e) {
+					// 範囲外の数値の場合の処理
+				}
+			}
+		}
+	}
+
 	MapLoad();
 
 	startPos = 0.0f;
@@ -277,11 +302,12 @@ void SelectScene::CameraMove()
 	const float easeTMax = 0.5f;  // イージングの最大時間（スムーズさを調整）
 
 	// キーボードの右キーが押されたとき
-	if (input_->PushKey(DIK_D) && !isMoveCamera_) {
+	if ((input_->PushKey(DIK_D) && !isMoveCamera_) || BackGameScene_) {
 		startPos = vp_.translation_.x;
 		endPos = currentStage * 50.0f;
 		cameraT_ = 0.0f;
 		isMoveCamera_ = true;
+		BackGameScene_ = false;
 	}
 	// キーボードの左キーが押されたとき
 	if (input_->PushKey(DIK_A) && !isMoveCamera_) {

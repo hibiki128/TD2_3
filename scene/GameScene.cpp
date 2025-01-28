@@ -5,6 +5,7 @@
 
 void GameScene::Finalize()
 {
+	sceneManager_->SetFilePath(filePath_);
 	audio_->StopWave(BGM_);
 }
 
@@ -22,13 +23,15 @@ void GameScene::Initialize()
 	debugCamera_ = std::make_unique<DebugCamera>();
 	debugCamera_->Initialize(&vp_);
 
+	filePath_ = sceneManager_->GetFilePath();
+
 	///
 	///	各オブジェクト初期化
 	/// 
 
 	// マップチップフィールド
 	mapChipField_ = std::make_unique<MapChipField>();
-	mapChipField_->Init(sceneManager_->GetFilePath());
+	mapChipField_->Init(filePath_);
 
 	// プレイヤー（マップチップフィールドから初期位置を取得するので後）
 	player_ = std::make_unique<Player>();

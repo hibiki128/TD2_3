@@ -79,6 +79,8 @@ private:
 	// 音関連
 	uint32_t BGM_;
 
+	std::string filePath_;
+
 // JSON
 private:
 	using json = nlohmann::json;

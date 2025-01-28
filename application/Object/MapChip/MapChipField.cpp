@@ -75,6 +75,7 @@ void MapChipField::DrawParticle(const ViewProjection& vp)
 		for (const auto& chip : row) {
 			// 空白ブロックではない場合のみ描画
 			if (chip.object->type_ == Block::ChipType::Black || chip.object->type_ == Block::ChipType::White) {
+				ParticleCommon::GetInstance()->SetBlendMode(BlendMode::kNormal);
 				chip.normal_->Draw(vp);
 			}
 			if (chip.object->type_ == Block::ChipType::Gravity) {

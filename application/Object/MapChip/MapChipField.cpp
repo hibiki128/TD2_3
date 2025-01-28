@@ -191,8 +191,8 @@ void MapChipField::LoadFromCSV(const std::string& filePath)
 					chip.object->SetTexture("game/blackBlock.png"); // 黒ブロックのテクスチャをセット
 					break;
 				case Block::ChipType::White: // 白ブロック
-					chip.object->CreateModel("game/whiteBlock.obj");
-					chip.object->SetTexture("game/whiteBlock.png"); // 白ブロックのテクスチャをセット
+					chip.object->CreateModel("game/noTouchWhiteBlock.obj");
+					chip.object->SetTexture("game/noTouchWhiteBlock.png"); // 白ブロックのテクスチャをセット
 					break;
 				case Block::ChipType::Gray: // 動かないブロック
 					chip.object->CreateModel("game/block.obj");
@@ -386,9 +386,11 @@ void MapChipField::UpdateChipAnimation(MapChip& chip)
 			// ブロックの色変更
 			if (chip.object->type_ == Block::ChipType::Black) {
 				chip.object->type_ = Block::ChipType::White;
-				chip.object->SetTexture("game/whiteBlock.png"); // 白ブロックのテクスチャをセット
+				chip.object->CreateModel("game/noTouchWhiteBlock.obj");
+				chip.object->SetTexture("game/noTouchWhiteBlock.png"); // 白ブロックのテクスチャをセット
 			} else if (chip.object->type_ == Block::ChipType::White) {
 				chip.object->type_ = Block::ChipType::Black;
+				chip.object->CreateModel("game/blackBlock.obj");
 				chip.object->SetTexture("game/blackBlock.png"); // 黒ブロックのテクスチャをセット
 			}
 		// 実際に収縮を行う

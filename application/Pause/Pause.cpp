@@ -389,12 +389,22 @@ void Pause::MenuOperation()
 
 	// 決定操作
 	XINPUT_STATE joyState;
+	if (currentItem_ == 0 && (input_->TriggerKey(DIK_SPACE))) {
+		isPause_ = false;
+		prevEscapeState_ = false;
+	}
+	if (currentItem_ == -1 && (input_->TriggerKey(DIK_SPACE))) {
+		player_->SetTransitionStart();
+		prevEscapeState_ = false;
+	}
 	if (input_->GetJoystickState(0, joyState)) {
-		if (currentItem_ == 0 && (input_->TriggerKey(DIK_SPACE) || (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A))) {
+		if (currentItem_ == 0 && (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A)) {
 			isPause_ = false;
+			prevEscapeState_ = false;
 		}
-		if (currentItem_ == -1 && (input_->TriggerKey(DIK_SPACE) || (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A))) {
+		if (currentItem_ == 0 && (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A)) {
 			player_->SetTransitionStart();
+			prevEscapeState_ = false;
 		}
 	}
 

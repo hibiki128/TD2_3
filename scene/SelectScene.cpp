@@ -248,7 +248,7 @@ void SelectScene::MapSelect()
 	}
 
 	// キーボード入力による決定処理
-	if (input_->TriggerKey(DIK_SPACE)) {
+	if (input_->TriggerKey(DIK_SPACE) && !mapPrevs_[currentStage]->GetDecision()) {
 		mapPrevs_[currentStage]->SetDecision(true);
 		audio_->PlayWave(desitionSE_, 0.2f);
 	}
@@ -256,7 +256,7 @@ void SelectScene::MapSelect()
 	// ゲームパッドのボタンA入力による決定処理
 	XINPUT_STATE joyState;
 	if (input_->GetJoystickState(0, joyState)) {
-		if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A) {
+		if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A && !mapPrevs_[currentStage]->GetDecision()) {
 			mapPrevs_[currentStage]->SetDecision(true);
 			audio_->PlayWave(desitionSE_, 0.2f);
 		}

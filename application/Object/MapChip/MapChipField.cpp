@@ -70,7 +70,6 @@ void MapChipField::DebugImGui(){
 	ImGui::Begin("MapChipField");
 
 	ImGui::Checkbox("重力反転状態", &isGravityReversed_);
-	ImGui::Checkbox("プレイヤーは白い？", &isPlayerWhite_);
 
 	ImGui::End();
 }

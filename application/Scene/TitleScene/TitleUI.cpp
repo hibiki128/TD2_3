@@ -11,20 +11,13 @@ void TitleUI::Init()
 	/// フラグ初期化
 	isStart_ = false;
 
-	/// 各値初期化
-	buttonA_pos = { 0.0f,0.0f };
-
-	/// インスタンス生成
 	start_ = std::make_unique<BaseObject>();
-	title_ = std::make_unique<BaseObject>();
-	buttonA_ = std::make_unique<Sprite>();
+	start_->CreateModel("title/titleStart.obj");
+	start_->SetTexture("title/title.png");
 
-	/// 各オブジェクト初期化
-	start_->Init("start");
-	start_->CreateModel("title/start.obj");
-	title_->Init("title");
+	title_ = std::make_unique<BaseObject>();
 	title_->CreateModel("title/title.obj");
-	buttonA_->Initialize("title/buttonA.png", buttonA_pos, { 1.0f,1.0f,1.0f,1.0f }, { 0.5f,0.5f });
+	title_->SetTexture("title/title.png");
 }
 
 void TitleUI::Update()
@@ -32,7 +25,6 @@ void TitleUI::Update()
 	/// 各オブジェクト更新
 	title_->Update();
 	start_->Update();
-	buttonA_->SetPosition(buttonA_pos);
 }
 
 void TitleUI::Draw(const ViewProjection& vp)
@@ -43,7 +35,6 @@ void TitleUI::Draw(const ViewProjection& vp)
 
 	/// 各スプライト描画
 	SpriteCommon::GetInstance()->DrawCommonSetting();
-	buttonA_->Draw();
 }
 
 void TitleUI::Debug()
@@ -53,6 +44,5 @@ void TitleUI::Debug()
 	start_->DebugImGui();
 
 	ImGui::Begin("TitleUI");
-	ImGui::DragFloat2("ボタンスプライトの位置", &buttonA_pos.x, 1.0f);
 	ImGui::End();
 }

@@ -22,6 +22,14 @@ void TitleScene::Initialize()
 	debugCamera_ = std::make_unique<DebugCamera>();
 	debugCamera_->Initialize(&vp_);
 
+	///
+	///	オブジェクト生成
+	/// 
+	
+	// タイトルUIオブジェクト生成
+	objectTitleUI_ = std::make_unique<TitleUI>();
+	objectTitleUI_->Init();
+
 	BGM_ = audio_->LoadWave("title/titleBgm.wav");
 	audio_->PlayWave(BGM_, 0.2f, true);
 }
@@ -33,6 +41,12 @@ void TitleScene::Finalize()
 
 void TitleScene::Update()
 {
+	///
+	///	オブジェクト更新
+	///	
+
+	objectTitleUI_->Update();
+
 #ifdef _DEBUG
 	// デバッグ
 	Debug();
@@ -58,6 +72,8 @@ void TitleScene::Draw()
 
 	objCommon_->DrawCommonSetting();
 	//-----3DObjectの描画開始-----
+
+	objectTitleUI_->Draw(vp_);
 
 	//--------------------------
 

@@ -105,6 +105,7 @@ void MapChipField::DebugImGui() {
 	ImGui::Begin("MapChipField");
 
 	ImGui::Checkbox("重力反転状態", &isGravityReversed_);
+	ImGui::Checkbox("プレイヤーは白い？", &isPlayerWhite_);
 
 	ImGui::End();
 }
@@ -226,23 +227,20 @@ void MapChipField::LoadFromCSV(const std::string& filePath)
 				// モデルと色を設定
 				switch (chip.object->type_) {
 				case Block::ChipType::Black: // 黒ブロック
-					chip.object->CreateModel("debug/Cube.obj");
-					chip.object->SetObjColor({ 0.0f, 0.0f, 0.0f, 1.0f }); // 黒色
+					chip.object->CreateModel("game/blackBlock.obj");
+					chip.object->SetTexture("game/blackBlock.png"); // 黒ブロックのテクスチャをセット
 					break;
 				case Block::ChipType::White: // 白ブロック
-					chip.object->CreateModel("debug/Cube.obj");
-					chip.object->SetObjColor({ 1.0f, 1.0f, 1.0f, 1.0f }); // 白色
-
+					chip.object->CreateModel("game/whiteBlock.obj");
+					chip.object->SetTexture("game/whiteBlock.png"); // 白ブロックのテクスチャをセット
 					break;
 				case Block::ChipType::Gray: // 動かないブロック
-					chip.object->CreateModel("debug/Cube.obj");
-					chip.object->SetObjColor({ 0.0f, 1.0f, 0.0f, 1.0f }); // 一旦分かりやすく緑に変更
+					chip.object->CreateModel("game/block.obj");
+					chip.object->SetTexture("game/block.png"); // 動かないブロックのテクスチャをセット
 					break;
 				case Block::ChipType::Gravity: // 重力反転ブロック
-					chip.object->CreateModel("debug/Cube.obj");
-					chip.object->SetObjColor({ 1.0f, 0.25f, 1.0f, 1.0f }); // 一旦分かりやすく紫に変更
-					chip.object->CreateModel("game/GravityBlock.obj");
-					chip.object->SetTexture("game/forwardGravityBlock.png"); // 重力通常状態のテクスチャをセット
+					chip.object->CreateModel("game/gravityBlockDown.obj");
+					chip.object->SetTexture("game/gravityBlockDown.png"); // 重力通常状態のテクスチャをセット
 					break;
 				case Block::ChipType::ColorChange: // プレイヤー色変更ブロック
 					chip.object->CreateModel("game/ColorChangeBlock.obj");
@@ -257,7 +255,8 @@ void MapChipField::LoadFromCSV(const std::string& filePath)
 			if (chipValue == 4) {
 				goal_ = std::make_unique<Goal>();
 				goal_->Init("Goal");
-				goal_->CreateModel("debug/ICO.obj");
+				goal_->CreateModel("game/goal.obj");
+				goal_->SetTexture("game/goal.png");
 				goal_->SetWorldPosition({ x * kChipSize, -y * kChipSize, 0.0f });
 				goal_->CreateCollider();
 				goal_->SetObjColor({ 1.0f, 1.0f, 0.0f, 1.0f }); // 黄色にしておく
@@ -494,19 +493,32 @@ void MapChipField::UpdateChipAnimation(MapChip& chip)
 			}
 			chip.object->SetScale({ chip.currentScale, chip.currentScale, chip.currentScale });
 
-			// 半回転のタイミングで色を変更
-			if (chip.animationTime >= halfRotationTime && !chip.hasColorChanged) {
-				chip.hasColorChanged = true; // 色変更が一度だけ行われるようにフラグを設定
-				// ブロックの色変更
-				if (chip.object->type_ == Block::ChipType::Black) {
-					chip.object->type_ = Block::ChipType::White;
-					chip.object->SetObjColor({ 1.0f, 1.0f, 1.0f, 1.0f });
-				}
-				else if (chip.object->type_ == Block::ChipType::White) {
-					chip.object->type_ = Block::ChipType::Black;
-					chip.object->SetObjColor({ 0.0f, 0.0f, 0.0f, 1.0f });
-				}
+			// ブロックの色変更
+			if (chip.object->type_ == Block::ChipType::Black) {
+				chip.object->type_ = Block::ChipType::White;
+				chip.object->SetTexture("game/whiteBlock.png"); // 白ブロックのテクスチャをセット
+			} else if (chip.object->type_ == Block::ChipType::White) {
+				chip.object->type_ = Block::ChipType::Black;
+				chip.object->SetTexture("game/blackBlock.png"); // 黒ブロックのテクスチャをセット
 			}
+		// 実際に収縮を行う
+		} else {
+			chip.currentScale = EaseOutQuad(1.0f, 0.5f, chip.animationTime, shrinkDuration); // スケールを { 1.0f -> 0.5f } へ縮小
+			chip.object->SetScale({ chip.currentScale, chip.currentScale, chip.currentScale });
+		}
+	///
+	/// ブロックの拡大状態
+	/// 
+	} else if (chip.animState == MapChip::AnimationState::Expanding) {
+		// 終了した場合
+		if (chip.animationTime >= expandDuration) {
+			chip.animationTime = 0.0f; // タイマーリセット
+			chip.animState = MapChip::AnimationState::None; // 次の状態に移行
+			chip.isAnimating = false; // アニメーション終了
+		// 実際に拡大を行う
+		} else {
+			chip.currentScale = EaseOutQuad(0.5f, 1.0f, chip.animationTime, expandDuration); // スケールを { 0.5f -> 1.0f } へ拡大
+			chip.object->SetScale({ chip.currentScale, chip.currentScale, chip.currentScale });
 		}
 	}
 }
@@ -518,10 +530,11 @@ void MapChipField::ChangeTextureAllGravityBlock() {
 		for (auto& chip : row) {
 			if (chip.object->type_ == Block::ChipType::Gravity) { // 重力ブロックの場合
 				if (!isGravityReversed_) {
-					chip.object->SetTexture("game/forwardGravityBlock.png"); // 重力通常状態のテクスチャを設定
-				}
-				else {
-					chip.object->SetTexture("game/reverseGravityBlock.png"); // 重力反転状態のテクスチャを設定
+					chip.object->CreateModel("game/gravityBlockDown.obj"); // 重力通常状態のテクスチャを設定
+					chip.object->SetTexture("game/gravityBlockDown.png"); // 重力通常状態のテクスチャを設定
+				} else {
+					chip.object->CreateModel("game/gravityBlockUp.obj"); // 重力反転状態のテクスチャを設定
+					chip.object->SetTexture("game/gravityBlockUp.png"); // 重力反転状態のテクスチャを設定
 				}
 			}
 		}

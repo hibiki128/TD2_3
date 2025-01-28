@@ -34,10 +34,15 @@ void GameScene::Initialize()
 	player_ = std::make_unique<Player>();
 	player_->Init("player");
 	player_->SetInitialPosition(mapChipField_->GetPlayerInitialPosition()); // csvから読み込んだ初期位置を設定
+
 	// ポーズ
 	pause_ = std::make_unique<Pause>();
 	pause_->Init();
 	pause_->SetPlayer(player_.get());
+
+	// UIオブジェクト
+	uiObject_ = std::make_unique<UIObject>();
+	uiObject_->Init();
 
 	///
 	///	スプライト初期化
@@ -84,6 +89,9 @@ void GameScene::Update()
 	// ポーズ更新
 	pause_->Update();
 
+	// UIObject更新
+	uiObject_->Update();
+
 	// シーン切り替え
 	ChangeScene();
 }
@@ -112,6 +120,9 @@ void GameScene::Draw()
 
 	// マップチップフィールド描画
 	mapChipField_->Draw(vp_);
+
+	// UIObject描画
+	uiObject_->Draw(vp_);
 
 	//--------------------------
 

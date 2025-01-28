@@ -178,6 +178,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="myEngine\3d\model\animation\Skin.cpp" />
     <ClCompile Include="application\Transition\SquareTransition.cpp" />
     <ClCompile Include="application\Scene\TitleScene\TitleUI.cpp" />
+    <ClCompile Include="application\Object\UIObject\UIObject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".editorconfig" />
@@ -281,6 +282,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="myEngine\3d\model\animation\Skin.h" />
     <ClInclude Include="application\Transition\SquareTransition.h" />
     <ClInclude Include="application\Scene\TitleScene\TitleUI.h" />
+    <ClInclude Include="application\Object\UIObject\UIObject.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\OffScreen\BoxFilter.PS.hlsl">

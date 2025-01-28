@@ -144,6 +144,8 @@ private:
 private:
 	// 重力反転状態かどうか（重力ブロックのテクスチャ変更のためだけに使用）
 	bool isGravityReversed_ = false; // 初期状態は通常
+	// プレイヤーの色状態
+	bool isPlayerWhite_ = true; // 白から始まる
 	bool prevGravityState = false;
 	float arrowTime_ = 0.0f;
 };

@@ -13,6 +13,7 @@
 #include "application/Object/Player/Player.h"
 #include "application/Object/MapChip/MapChipField.h"
 #include"application/Pause/Pause.h"
+#include "application/Object/UIObject/UIObject.h"
 
 class GameScene : public BaseScene
 {
@@ -71,6 +72,9 @@ private:
 
 	// マップチップフィールド
 	std::unique_ptr<MapChipField> mapChipField_;
+
+	// UI
+	std::unique_ptr<UIObject> uiObject_;
 
 // JSON
 private:

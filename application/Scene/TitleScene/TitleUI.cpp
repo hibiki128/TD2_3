@@ -12,10 +12,12 @@ void TitleUI::Init()
 	isStart_ = false;
 
 	start_ = std::make_unique<BaseObject>();
+	start_->Init("start");
 	start_->CreateModel("title/titleStart.obj");
 	start_->SetTexture("title/title.png");
 
 	title_ = std::make_unique<BaseObject>();
+	title_->Init("title");
 	title_->CreateModel("title/title.obj");
 	title_->SetTexture("title/title.png");
 }
@@ -42,7 +44,4 @@ void TitleUI::Debug()
 	/// 各オブジェクトデバッグ描画
 	title_->DebugImGui();
 	start_->DebugImGui();
-
-	ImGui::Begin("TitleUI");
-	ImGui::End();
 }

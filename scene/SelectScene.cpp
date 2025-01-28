@@ -38,6 +38,7 @@ void SelectScene::Initialize()
 
 void SelectScene::Finalize()
 {
+	sceneManager_->SetFilePath(mapPrevs_[currentStage]->GetFilePath());
 	audio_->StopWave(BGM_);
 }
 
@@ -172,12 +173,20 @@ void SelectScene::ChangeScene()
 
 void SelectScene::MapLoad()
 {
-	const Vector3 Space = { 25.0f,0.0f,0.0f };
+	const Vector3 Space = { 25.0f, 0.0f, 0.0f }; // ステージ間の間隔
 	for (int i = 0; i < stageNum; i++) {
-		std::unique_ptr<MapPrev>mapPrev;
-		mapPrev = std::make_unique<MapPrev>();
-		mapPrev->Init("resources/Maps/stage1.csv");
+		std::unique_ptr<MapPrev> mapPrev = std::make_unique<MapPrev>();
+
+		// ステージ番号に応じたファイルパスを生成
+		filePath = "resources/Maps/stage" + std::to_string(i + 1) + ".csv";
+
+		// マップ初期化
+		mapPrev->Init(filePath);
+
+		// 配置位置を設定
 		mapPrev->SetPosition(Space * i);
+
+		// 配列に追加
 		mapPrevs_.push_back(std::move(mapPrev));
 	}
 }

@@ -52,6 +52,9 @@ public:// メンバ関数
 
 	bool GetTransitionEnd() { return transitionEnd; }
 
+	void SetFilePath(std::string filePath) { this->filePath = filePath; }
+	std::string GetFilePath() { return filePath; }
+
 public: // setter
 	/// <summary>
 	/// シーンファクトリーのセット
@@ -80,6 +83,8 @@ private:
 	// シーンファクトリー
 	AbstractSceneFactory* sceneFactory_ = nullptr;
 	std::unique_ptr<SceneTransition> transition_;
+
+	std::string filePath;
 
 	bool transitionEnd = false;
 	bool firstChange = false;

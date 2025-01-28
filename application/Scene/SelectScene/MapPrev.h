@@ -30,6 +30,7 @@ public:
 
 	bool GetIsSelect() { return isSelect_; }
 	bool GetDecision() { return isDecision_; }
+	std::string GetFilePath() { return csvFilePath_; }
 	void SetIsSelect(bool isSelect) { isSelect_ = isSelect; }
 	void SetDecision(bool isDecision) { isDecision_ = isDecision; }
 	void SetPosition(const Vector3 position) { center_ = position; }

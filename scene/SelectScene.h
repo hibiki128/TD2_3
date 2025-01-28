@@ -65,7 +65,7 @@ private:
 	// マップチップフィールド
 	std::vector<std::unique_ptr<MapPrev>> mapPrevs_;
 
-	int stageNum = 3;
+	int stageNum = 8;
 	int currentStage = 0;
 	float cameraT_ = 0.0f;
 	bool isMoveCamera_ = false;
@@ -76,4 +76,6 @@ private:
 	uint32_t BGM_;
 	uint32_t selectSE_;
 	uint32_t desitionSE_;
+
+	std::string filePath;
 };

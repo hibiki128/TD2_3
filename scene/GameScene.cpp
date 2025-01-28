@@ -28,7 +28,7 @@ void GameScene::Initialize()
 
 	// マップチップフィールド
 	mapChipField_ = std::make_unique<MapChipField>();
-	mapChipField_->Init("resources/Maps/stage1.csv");
+	mapChipField_->Init(sceneManager_->GetFilePath());
 
 	// プレイヤー（マップチップフィールドから初期位置を取得するので後）
 	player_ = std::make_unique<Player>();

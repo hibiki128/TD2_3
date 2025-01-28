@@ -90,14 +90,14 @@ void MapChipField::DrawParticle(const ViewProjection& vp)
 
 void MapChipField::PlaySE()
 {
-	for (auto& row : mapChips_) {
-		for (auto& chip : row) {
-			if (chip.isInvers) {
-				Audio::GetInstance()->PlayWave(invertSE_, 0.1f);
-				chip.isInvers = false;
-			}
-		}
-	}
+	//for (auto& row : mapChips_) {
+	//	for (auto& chip : row) {
+	//		if (chip.isInvers) {
+	//			Audio::GetInstance()->PlayWave(invertSE_, 0.1f);
+	//			chip.isInvers = false;
+	//		}
+	//	}
+	//}
 }
 
 void MapChipField::DebugImGui() {
@@ -496,7 +496,6 @@ void MapChipField::UpdateChipAnimation(MapChip& chip)
 			// 半回転のタイミングで色を変更
 			if (chip.animationTime >= halfRotationTime && !chip.hasColorChanged) {
 				chip.hasColorChanged = true; // 色変更が一度だけ行われるようにフラグを設定
-				chip.isInvers = true;
 				// ブロックの色変更
 				if (chip.object->type_ == Block::ChipType::Black) {
 					chip.object->type_ = Block::ChipType::White;

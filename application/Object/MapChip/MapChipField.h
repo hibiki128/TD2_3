@@ -81,7 +81,6 @@ private:
 		bool isAnimating = false;
 		bool isDelaying = false;
 		bool hasColorChanged = false;
-		bool isInvers = false;
 
 		enum class AnimationState {
 			None,

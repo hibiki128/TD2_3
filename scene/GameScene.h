@@ -72,6 +72,9 @@ private:
 	// マップチップフィールド
 	std::unique_ptr<MapChipField> mapChipField_;
 
+	// 音関連
+	uint32_t BGM_;
+
 // JSON
 private:
 	using json = nlohmann::json;

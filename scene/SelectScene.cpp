@@ -28,11 +28,17 @@ void SelectScene::Initialize()
 
 	startPos = 0.0f;
 	endPos = 0.0f;
+
+	BGM_ = audio_->LoadWave("select/selectBgm.wav");
+	audio_->PlayWave(BGM_, 0.2f, true);
+	selectSE_ = audio_->LoadWave("select/stageSelect.wav");
+	desitionSE_ = audio_->LoadWave("select/stageDesition.wav");
+
 }
 
 void SelectScene::Finalize()
 {
-
+	audio_->StopWave(BGM_);
 }
 
 void SelectScene::Update()
@@ -200,9 +206,11 @@ void SelectScene::MapSelect()
 		// キーボード入力によるステージ変更
 		if (input_->PushKey(DIK_D) && !isMoveCamera_) {
 			currentStage++;
+			audio_->PlayWave(selectSE_, 0.2f);
 		}
 		if (input_->PushKey(DIK_A) && !isMoveCamera_) {
 			currentStage--;
+			audio_->PlayWave(selectSE_, 0.2f);
 		}
 
 		// ゲームパッドの左スティック入力によるステージ変更
@@ -213,9 +221,11 @@ void SelectScene::MapSelect()
 			// 左スティックのx軸の値に基づいて currentStage を変更
 			if (stickX > XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE && !isMoveCamera_) {
 				currentStage++;
+				audio_->PlayWave(selectSE_, 0.2f);
 			}
 			else if (stickX < -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE && !isMoveCamera_) {
 				currentStage--;
+				audio_->PlayWave(selectSE_, 0.2f);
 			}
 		}
 
@@ -231,6 +241,7 @@ void SelectScene::MapSelect()
 	// キーボード入力による決定処理
 	if (input_->TriggerKey(DIK_SPACE)) {
 		mapPrevs_[currentStage]->SetDecision(true);
+		audio_->PlayWave(desitionSE_, 0.2f);
 	}
 
 	// ゲームパッドのボタンA入力による決定処理
@@ -238,6 +249,7 @@ void SelectScene::MapSelect()
 	if (input_->GetJoystickState(0, joyState)) {
 		if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A) {
 			mapPrevs_[currentStage]->SetDecision(true);
+			audio_->PlayWave(desitionSE_, 0.2f);
 		}
 	}
 }

@@ -29,6 +29,7 @@ public:
 	void Draw(const ViewProjection& vp);
 	void DebugImGui();
 	void DrawParticle(const ViewProjection& vp);
+	void PlaySE();
 
 	// 全てのブロックのBaseObjectポインタを取得
 	std::vector<Block*> GetBlocks() const;
@@ -99,6 +100,9 @@ private:
 	std::unique_ptr<Goal> goal_;
 	// プレイヤー初期位置を格納
 	Vector3 playerInitialPosition_;
+
+	// 音関連
+	uint32_t invertSE_;
 
 private:
 	///

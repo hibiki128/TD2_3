@@ -29,6 +29,7 @@ public:
 	void DrawSprite();
 	void DebugImGui()override;
 	void Reset();
+	void PlaySE();
 
 
 	// プレイヤーがゴールに到達しているか判定
@@ -104,6 +105,14 @@ private:
 	// リセット時のトランジション
 	std::unique_ptr<SquareTransition> squareTransition_;
 
+	// 音関連
+	uint32_t jumpSE_;
+	uint32_t landingSE_;
+	uint32_t walkSE_;
+	uint32_t gravitySE_;
+	uint32_t inversionSE_;
+	float walkSEcoolTime_ = 0.0f;
+
 private:
 	// 入力操作
 	void HandleInput();
@@ -131,7 +140,7 @@ private:
 	///
 	/// SE・エフェクト用のフラグ
 	/// 
-public:
+private:
 	// ジャンプした瞬間を判定
 	bool IsJumpOccurred() { return isJumpOccurred_; }
 	// ブロック反転した瞬間を判定
@@ -142,6 +151,8 @@ public:
 	bool IsGravityReversedOccurred() { return isGravityReversedOccurred_; }
 	// 着地した瞬間を判定
 	bool IsLandedOccurred();
+	// 歩いているかどうかの判定
+	bool IsWalking();
 
 private:
 	// ジャンプした瞬間を判定
@@ -155,4 +166,7 @@ private:
 
 	// 前フレームの接地状態を記録
 	bool prevHittingGround_ = false;
+	
+	bool isWalking_ = false;
+
 };

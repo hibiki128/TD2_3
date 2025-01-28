@@ -21,11 +21,14 @@ void TitleScene::Initialize()
 
 	debugCamera_ = std::make_unique<DebugCamera>();
 	debugCamera_->Initialize(&vp_);
+
+	BGM_ = audio_->LoadWave("title/titleBgm.wav");
+	audio_->PlayWave(BGM_, 0.2f, true);
 }
 
 void TitleScene::Finalize()
 {
-
+	audio_->StopWave(BGM_);
 }
 
 void TitleScene::Update()

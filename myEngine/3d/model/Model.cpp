@@ -48,18 +48,18 @@ void Model::Draw()
 	influenceBufferView
 	};
 	modelCommon_->GetDxCommon()->GetCommandList()->IASetIndexBuffer(&indexBufferView);
-	//if (!animator_->HaveAnimation()) {
+	if (isGltf) {
+		if (!animator_->HaveAnimation()) {
+			modelCommon_->GetDxCommon()->GetCommandList()->IASetVertexBuffers(0, 1, vbvs); // VBVを設定
+		}
+		else {
+			modelCommon_->GetDxCommon()->GetCommandList()->IASetVertexBuffers(0, 2, vbvs); // VBVを設定
+			srvManager_->SetGraphicsRootDescriptorTable(6, SrvIndex);
+		}
+	}
+	else {
 		modelCommon_->GetDxCommon()->GetCommandList()->IASetVertexBuffers(0, 1, vbvs); // VBVを設定
-		// SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
-		//srvManager_->SetGraphicsRootDescriptorTable(2, modelData.material.textureIndex);
-	//}
-	//else {
-		//modelCommon_->GetDxCommon()->GetCommandList()->IASetVertexBuffers(0, 2, vbvs); // VBVを設定
-		//modelCommon_->GetDxCommon()->GetCommandList()->IASetIndexBuffer(&indexBufferView);
-		// SRVのDescriptorTableの先頭を設定。2はrootParameter[2]である
-		//srvManager_->SetGraphicsRootDescriptorTable(2, modelData.material.textureIndex);
-		//srvManager_->SetGraphicsRootDescriptorTable(6, SrvIndex);
-	//}
+	}
 	// 描画！（DrawCall/ドローコール）
 	modelCommon_->GetDxCommon()->GetCommandList()->DrawIndexedInstanced(UINT(modelData.indices.size()), 1, 0, 0, 0);
 	if (animator_->HaveAnimation()) {
@@ -227,7 +227,7 @@ ModelData Model::LoadModelFile(const std::string& directoryPath, const std::stri
 	}
 	if (modelData.material.textureFilePath.empty()) {
 		// テクスチャがない場合はデフォルトのテクスチャを設定
-		modelData.material.textureFilePath ="debug/white1x1.png";
+		modelData.material.textureFilePath = "debug/white1x1.png";
 	}
 	modelData.rootNode = ReadNode(scene->mRootNode);
 	return modelData;

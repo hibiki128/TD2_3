@@ -74,9 +74,9 @@ void Object3d::SetAnimation(const std::string& fileName)
 void Object3d::Draw(const WorldTransform& worldTransform, const ViewProjection& viewProjection, ObjColor* color, bool Lighting)
 {
 
-	//if (viewProjection.IsOutsideViewFrustum(worldTransform)) {
-	//	return;
-	//}
+	/*if (viewProjection.IsOutsideViewFrustum(worldTransform)) {
+		return;
+	}*/
 
 	if (color) {
 		materialData->color = color->GetColor();

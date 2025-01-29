@@ -24,6 +24,10 @@ void GameScene::Initialize()
 	debugCamera_->Initialize(&vp_);
 
 	filePath_ = sceneManager_->GetFilePath();
+#ifdef _DEBUG
+	filePath_ = "resources/Maps/stage1.csv";
+#endif // DEBUG
+
 
 	///
 	///	各オブジェクト初期化
@@ -55,6 +59,7 @@ void GameScene::Initialize()
 	pause_ = std::make_unique<Pause>();
 	pause_->Init();
 	pause_->SetPlayer(player_.get());
+	pause_->SetStageNum(GetStageNum());
 }
 
 void GameScene::Update()
@@ -150,12 +155,12 @@ void GameScene::Draw()
 	//-----線描画-----
 //#ifdef _DEBUG
 	DrawLine3D::GetInstance()->Draw(vp_);
-//#endif // _DEBUG
-	//---------------
+	//#endif // _DEBUG
+		//---------------
 
-	/// ----------------------------------
+		/// ----------------------------------
 
-	/// -------描画処理終了-------
+		/// -------描画処理終了-------
 }
 
 void GameScene::DrawForOffScreen()
@@ -275,4 +280,28 @@ void GameScene::LoadFromJson()
 			j["gravityAcceleration"][0], j["gravityAcceleration"][1], j["gravityAcceleration"][2]
 		};
 	}
+}
+
+
+int GameScene::GetStageNum()
+{
+	// 現在のファイルパスを取得
+	filePath_ = sceneManager_->GetFilePath();
+	int stageNumber;
+	// 数字部分を探してインクリメントする
+	size_t stagePos = filePath_.find("stage");
+	if (stagePos != std::string::npos) {
+		size_t numberStart = filePath_.find_first_of("0123456789", stagePos);
+		if (numberStart != std::string::npos) {
+			size_t numberEnd = filePath_.find_first_not_of("0123456789", numberStart);
+			std::string numberStr = filePath_.substr(numberStart, numberEnd - numberStart);
+			stageNumber = std::stoi(numberStr); // 数字部分を取得
+		}
+	}
+
+#ifdef _DEBUG
+	stageNumber = 1;
+#endif // _DEBUG
+
+	return stageNumber;
 }

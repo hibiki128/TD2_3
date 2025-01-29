@@ -24,6 +24,7 @@ void ClearScene::Initialize()
 	debugCamera_->Initialize(&vp_);
 
 	clearUI_ = std::make_unique<ClearUI>();
+	clearUI_->SetStageNum(GetStageNum());
 	clearUI_->Init();
 
 }
@@ -186,3 +187,27 @@ void ClearScene::InitFilePath()
 		}
 	}
 }
+
+int ClearScene::GetStageNum()
+{
+	// 現在のファイルパスを取得
+	filePath_ = sceneManager_->GetFilePath();
+	int stageNumber;
+	// 数字部分を探してインクリメントする
+	size_t stagePos = filePath_.find("stage");
+	if (stagePos != std::string::npos) {
+		size_t numberStart = filePath_.find_first_of("0123456789", stagePos);
+		if (numberStart != std::string::npos) {
+			size_t numberEnd = filePath_.find_first_not_of("0123456789", numberStart);
+			std::string numberStr = filePath_.substr(numberStart, numberEnd - numberStart);
+			stageNumber = std::stoi(numberStr); // 数字部分を取得
+		}
+	}
+
+#ifdef _DEBUG
+	stageNumber = 1;
+#endif // _DEBUG
+
+	return stageNumber;
+}
+

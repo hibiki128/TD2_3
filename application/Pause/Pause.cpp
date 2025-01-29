@@ -71,7 +71,7 @@ void Pause::Update()
 
 	backGround_->SetSize({ 1280.0f,720.0f });
 	backGround_->SetAlpha(color_.w);
-	Debug();
+	//Debug();
 
 	if (player_->GetSquareTransition() && isPause_) {
 		isPause_ = false;
@@ -437,13 +437,8 @@ void Pause::MenuOperation()
 
 void Pause::Debug()
 {
-	//ImGui::Begin("Pause");
-	//ImGui::DragFloat2("ゲームに戻る", &backGamePos.x, 0.1f);
-	//ImGui::DragFloat2("セレクトに戻る", &backSelectPos.x, 0.1f);
-	//ImGui::DragFloat2("リスタート", &restartPos.x, 0.1f);
-	//ImGui::DragFloat2("ゲーム サイズ", &backGameSize.x, 0.1f);
-	//ImGui::DragFloat2("セレクト サイズ", &backSelectSize.x, 0.1f);
-	//ImGui::DragFloat2("リスタート サイズ", &restartSize.x, 0.1f);
-	//ImGui::Text("現在のアイテム %d", currentItem_);
-	//ImGui::End();
+	ImGui::Begin("Pause");
+	ImGui::Text("現在のアイテム %d", currentItem_);
+	ImGui::Text("現在のステージ %d", stageNum_);
+	ImGui::End();
 }

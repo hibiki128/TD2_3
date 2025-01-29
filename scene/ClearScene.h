@@ -48,6 +48,8 @@ private:
 
 	void InitFilePath();
 
+	int GetStageNum();
+
 private:
 	Audio* audio_;
 	Input* input_;

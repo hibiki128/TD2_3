@@ -18,6 +18,7 @@ public:
 	int GetItem() { return currentItem_; }
 
 	void SetPlayer(Player* player) { player_ = player; }
+	void SetStageNum(int num) { stageNum_ = num; }
 
 private:
 	/// ===================================================
@@ -67,6 +68,7 @@ private:
 	Vector2 pointerSize_;
 
 	int currentItem_ = 0;                      //  現在選択しているメニュー項目
+	int stageNum_ = 0;
 
 	bool isPause_ = false;                     //  ポーズしてるかどうか
 	bool CanEscape_ = false;                   //  エスケープのクールタイム用

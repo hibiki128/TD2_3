@@ -51,6 +51,8 @@ private:
 	void CameraUpdate();
 
 	void ChangeScene();
+
+	int GetStageNum();
 private:
 
 	Audio* audio_;

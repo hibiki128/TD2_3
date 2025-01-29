@@ -237,6 +237,11 @@ void Player::HandleInput() {
 	static bool wasPressedRB = false; // RBボタン
 	static bool wasPressedLB = false; // LBボタン
 
+	// ブロック反転クールタイムの減少
+	if (blockInvertCooldown_ > 0.0f) {
+		blockInvertCooldown_ -= kDeltaTime;
+	}
+
 	XINPUT_STATE joyState;
 	if (input_->GetJoystickState(0, joyState)) {
 
@@ -296,7 +301,7 @@ void Player::HandleInput() {
 		bool isPressedRB = joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER;
 
 		// RBボタンが押された瞬間のみ
-		if (isPressedRB && !wasPressedRB) {
+		if (isPressedRB && !wasPressedRB && blockInvertCooldown_ <= 0.0f) { // クールタイム中には反転できない
 			if (!isInverting_ && !collisionMapInfo_.isOverlapping_) { // ブロック反転中には反転できない && ブロックに埋まっていたら反転できない
 				if (mapChipField_) {
 					// 現在の位置を取得
@@ -308,6 +313,8 @@ void Player::HandleInput() {
 						mapChipField_->InvertBlocksInArea(position, xInvertRange_, yInvertRange_);
 						// 反転中であることを記録する
 						isInverting_ = true;
+						// ブロック反転クールタイムを設定
+						blockInvertCooldown_ = kBlockInvertCooldownTime;
 
 						///
 						/// 重力ブロックが範囲内に見つかった場合、プレイヤーの重力を反転する
@@ -409,7 +416,7 @@ void Player::HandleInput() {
 	///	範囲内のブロック反転入力
 	///
 
-	if (input_->TriggerKey(DIK_SPACE)) {
+	if (input_->TriggerKey(DIK_SPACE) && blockInvertCooldown_ <= 0.0f) { // クールタイム中には反転できない
 		if (!isInverting_ && !collisionMapInfo_.isOverlapping_) { // ブロック反転中には反転できない && ブロックに埋まっていたら反転できない
 			if (mapChipField_) {
 				// 現在の位置を取得
@@ -421,6 +428,8 @@ void Player::HandleInput() {
 					mapChipField_->InvertBlocksInArea(position, xInvertRange_, yInvertRange_);
 					// 反転中であることを記録する
 					isInverting_ = true;
+					// ブロック反転クールタイムを設定
+					blockInvertCooldown_ = kBlockInvertCooldownTime;
 
 					///
 					/// 重力ブロックが範囲内に見つかった場合、プレイヤーの重力を反転する

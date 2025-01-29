@@ -99,8 +99,13 @@ private:
 	// プレイヤー反転範囲スプライト
 	std::unique_ptr<Sprite> spritePlayerArea_;
 
+	// プレイヤー反転範囲スプライトのサイズ
 	float xSpritePlayerAreaSize_ = 0.0f;
 	float ySpritePlayerAreaSize_ = 0.0f;
+
+	// ブロック反転のクールタイム
+	float blockInvertCooldown_ = 0.0f;
+	const float kBlockInvertCooldownTime = 0.02f; // 再使用までの時間
 
 private:
 	// 入力操作

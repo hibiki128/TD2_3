@@ -295,7 +295,7 @@ void Player::HandleInput() {
 		bool isPressedRB = joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER;
 
 		// RBボタンが押された瞬間のみ
-		if (isPressedRB && wasPressedRB) {
+		if (isPressedRB && !wasPressedRB) {
 			if (!isInverting_) { // ブロック反転中には反転できない
 				if (mapChipField_) {
 					// 現在の位置を取得

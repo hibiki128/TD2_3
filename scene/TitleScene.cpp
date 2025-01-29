@@ -62,6 +62,7 @@ void TitleScene::Update()
 	// マップチップフィールド更新
 	mapChipField_->Update();
 
+	player_->Reset();
 	player_->PlaySE();
 	mapChipField_->PlaySE();
 
@@ -85,7 +86,7 @@ void TitleScene::Draw()
 	/// Spriteの描画準備
 	spCommon_->DrawCommonSetting();
 	//-----Spriteの描画開始-----
-
+	player_->DrawSprite();
 	//------------------------------
 
 	objCommon_->DrawCommonSetting();
@@ -165,13 +166,7 @@ void TitleScene::CameraUpdate()
 
 void TitleScene::ChangeScene()
 {
-	XINPUT_STATE joyState;
-	if (input_->GetJoystickState(0, joyState)) {
-		if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A) {
-			sceneManager_->NextSceneReservation("SELECT");
-		}
-	}
-	if (input_->TriggerKey(DIK_SPACE)) {
+	if(player_->IsGoalReached()){
 		sceneManager_->NextSceneReservation("SELECT");
 	}
 }

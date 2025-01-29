@@ -10,9 +10,11 @@ public:
 	void Draw(const ViewProjection& vp);
 	void Debug();
 private:
+	void TextMove();
+private:
 	std::unique_ptr<BaseObject> start_;
 	std::unique_ptr<BaseObject> title_;
-
-	bool isStart_ = false;
+	float t_;
+	float startTime_ = 1.0f;
 };
 

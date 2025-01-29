@@ -97,7 +97,8 @@ private:
 	// プレイヤー反転範囲スプライト
 	std::unique_ptr<Sprite> spritePlayerArea_;
 
-	float size_ = 165.0f;
+	float xSpritePlayerAreaSize_ = 0.0f;
+	float ySpritePlayerAreaSize_ = 0.0f;
 
 private:
 	// 入力操作
@@ -117,6 +118,8 @@ private:
 	void DrawInvertArea();
 	// 反転可能範囲画像をプレイヤーの座標にセット
 	void InvertAreaSpriteToPlayerPosition(const ViewProjection& viewProjection);
+	// 反転可能範囲画像サイズを現在の範囲によって変更（ごり押しで）
+	void InvertAreaSpriteAdjust();
 
 	// リセット
 	void Reset();

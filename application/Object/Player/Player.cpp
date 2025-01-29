@@ -46,8 +46,6 @@ void Player::Init(const std::string className) {
 }
 
 void Player::Update(MapChipField* mapChipField) {
-	this->SetWorldPosition({8.0f, -5.5f, 0.0f}); // デバッグで一旦
-
 	///
 	///	毎フレーム更新処理
 	///
@@ -95,13 +93,13 @@ void Player::Update(MapChipField* mapChipField) {
 	///	重力を常に受ける
 	///
 
-	//if (!isInverting_) { // ブロック反転中には重力を加算しない
-	//	if (isGravityReversed_) {  // 重力反転中
-	//		velocity_.y -= gravityAcceleration_; // 上向きに重力をかける (逆)
-	//	} else { // 通常重力
-	//		velocity_.y += gravityAcceleration_; // 下向きに重力をかける（順）
-	//	}
-	//}
+	if (!isInverting_) { // ブロック反転中には重力を加算しない
+		if (isGravityReversed_) {  // 重力反転中
+			velocity_.y -= gravityAcceleration_; // 上向きに重力をかける (逆)
+		} else { // 通常重力
+			velocity_.y += gravityAcceleration_; // 下向きに重力をかける（順）
+		}
+	}
 
 	///
 	///	全てのブロックとの衝突判定とプレイヤーの押し戻し
@@ -147,9 +145,6 @@ void Player::Update(MapChipField* mapChipField) {
 				ImGui::Text("現在の色 : 黒");
 			}
 
-			ImGui::DragFloat("size", &size_);
-			spritePlayerArea_->SetSize({size_, size_});
-
 			ImGui::EndTabItem();
 		}
 		ImGui::EndTabBar();
@@ -162,12 +157,14 @@ void Player::Draw(const ViewProjection& viewProjection) {
 	BaseObject::Draw(viewProjection);
 
 	// 反転可能範囲を描画
-	DrawInvertArea();
+	/*DrawInvertArea();*/
 }
 
 void Player::DrawSprite(const ViewProjection& viewProjection) { 
 	// プレイヤーのワールド座標をスクリーン座標に変換してspritePlayerAreaの位置をセット
 	InvertAreaSpriteToPlayerPosition(viewProjection);
+	// 現在の反転可能範囲の数値によってspritePlayerAreaのサイズを変更
+	InvertAreaSpriteAdjust();
 
 	// プレイヤー反転可能範囲の描画
 	spritePlayerArea_->Draw();
@@ -605,7 +602,7 @@ void Player::DrawInvertArea() {
 	float minY = playerPositon.y - yInvertRange_;
 	float maxY = playerPositon.y + yInvertRange_;
 	float minZ = playerPositon.z - 1.0f;
-	float maxZ = playerPositon.z - 1.0f;
+	float maxZ = playerPositon.z + 1.0f;
 
 	// AABBの頂点を計算
 	std::vector<Vector3> vertices = {
@@ -656,6 +653,28 @@ void Player::InvertAreaSpriteToPlayerPosition(const ViewProjection& viewProjecti
 	Vector3 screenPosition = Transformation(playerWorldPosition, matViewProjecitonViewport);
 
 	spritePlayerArea_->SetPosition({screenPosition.x, screenPosition.y});
+}
+
+void Player::InvertAreaSpriteAdjust()
+{
+	Vector2 spriteSize;
+
+	// 反転可能範囲の数値によってスプライトのサイズを設定する
+	const float sizes[] = { 0.0f, 55.0f, 0.0f, 165.0f, 0.0f, 275.0f, 0.0f, 383.0f, 0.0f, 490.0f, 0.0f, 598.0f }; // 目視で合わせた各サイズ
+
+	// xサイズ変更
+	if (xInvertRange_ >= 1 && xInvertRange_ <= 11 && xInvertRange_ % 2 == 1)
+	{
+		spriteSize.x = sizes[xInvertRange_];
+	}
+
+	// yサイズ変更
+	if (yInvertRange_ >= 1 && yInvertRange_ <= 11 && yInvertRange_ % 2 == 1)
+	{
+		spriteSize.y = sizes[yInvertRange_];
+	}
+
+	spritePlayerArea_->SetSize(spriteSize);
 }
 
 Player::CollisionMapInfo Player::GetMapCollisionInfo() {

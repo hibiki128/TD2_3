@@ -26,7 +26,7 @@ public:
 	void Init(const std::string className)override;
 	void Update(MapChipField* mapChipField);
 	void Draw(const ViewProjection& viewProjection)override;
-	void DrawSprite();
+	void DrawSprite(const ViewProjection& viewProjection);
 	void DebugImGui()override;
 
 	// プレイヤーがゴールに到達しているか判定
@@ -94,6 +94,10 @@ private:
 
 	// リセット時のトランジション
 	std::unique_ptr<SquareTransition> squareTransition_;
+	// プレイヤー反転範囲スプライト
+	std::unique_ptr<Sprite> spritePlayerArea_;
+
+	float size_ = 165.0f;
 
 private:
 	// 入力操作
@@ -111,6 +115,10 @@ private:
 
 	// 反転可能範囲のAABBを描画
 	void DrawInvertArea();
+	// 反転可能範囲画像をプレイヤーの座標にセット
+	void InvertAreaSpriteToPlayerPosition(const ViewProjection& viewProjection);
+
+	// リセット
 	void Reset();
 
 private:

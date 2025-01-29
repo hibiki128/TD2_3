@@ -3,6 +3,7 @@
 
 // Engine
 #include "myEngine/3d/line/DrawLine3D.h"
+#include "math/myMath.h"
 
 void Player::Init(const std::string className) {
 	input_ = Input::GetInstance();
@@ -30,11 +31,23 @@ void Player::Init(const std::string className) {
 	squareTransition_ = std::make_unique<SquareTransition>();
 	squareTransition_->Initialize();
 
+	// プレイヤー反転範囲スプライト生成
+	spritePlayerArea_ = std::make_unique<Sprite>();
+	spritePlayerArea_->Initialize(
+		"game/playerArea.png",
+		{0.0f, 0.0f},
+		{1.0f, 1.0f, 1.0f, 1.0f},
+		{0.5f, 0.5f}
+		);
+	spritePlayerArea_->SetSize({165.0f, 165.0f});
+
 	// Jsonからパラメーターの読み込み
 	LoadFromJson();
 }
 
 void Player::Update(MapChipField* mapChipField) {
+	this->SetWorldPosition({8.0f, -5.5f, 0.0f}); // デバッグで一旦
+
 	///
 	///	毎フレーム更新処理
 	///
@@ -82,13 +95,13 @@ void Player::Update(MapChipField* mapChipField) {
 	///	重力を常に受ける
 	///
 
-	if (!isInverting_) { // ブロック反転中には重力を加算しない
-		if (isGravityReversed_) {  // 重力反転中
-			velocity_.y -= gravityAcceleration_; // 上向きに重力をかける (逆)
-		} else { // 通常重力
-			velocity_.y += gravityAcceleration_; // 下向きに重力をかける（順）
-		}
-	}
+	//if (!isInverting_) { // ブロック反転中には重力を加算しない
+	//	if (isGravityReversed_) {  // 重力反転中
+	//		velocity_.y -= gravityAcceleration_; // 上向きに重力をかける (逆)
+	//	} else { // 通常重力
+	//		velocity_.y += gravityAcceleration_; // 下向きに重力をかける（順）
+	//	}
+	//}
 
 	///
 	///	全てのブロックとの衝突判定とプレイヤーの押し戻し
@@ -134,6 +147,9 @@ void Player::Update(MapChipField* mapChipField) {
 				ImGui::Text("現在の色 : 黒");
 			}
 
+			ImGui::DragFloat("size", &size_);
+			spritePlayerArea_->SetSize({size_, size_});
+
 			ImGui::EndTabItem();
 		}
 		ImGui::EndTabBar();
@@ -149,7 +165,16 @@ void Player::Draw(const ViewProjection& viewProjection) {
 	DrawInvertArea();
 }
 
-void Player::DrawSprite() { squareTransition_->Draw(); }
+void Player::DrawSprite(const ViewProjection& viewProjection) { 
+	// プレイヤーのワールド座標をスクリーン座標に変換してspritePlayerAreaの位置をセット
+	InvertAreaSpriteToPlayerPosition(viewProjection);
+
+	// プレイヤー反転可能範囲の描画
+	spritePlayerArea_->Draw();
+
+	// リセット時トランジションスプライトの描画
+	squareTransition_->Draw(); 
+}
 
 void Player::DebugImGui() {
 	// デフォルトデバッグ表示（トランスフォーム、コライダー）
@@ -580,7 +605,7 @@ void Player::DrawInvertArea() {
 	float minY = playerPositon.y - yInvertRange_;
 	float maxY = playerPositon.y + yInvertRange_;
 	float minZ = playerPositon.z - 1.0f;
-	float maxZ = playerPositon.z + 1.0f;
+	float maxZ = playerPositon.z - 1.0f;
 
 	// AABBの頂点を計算
 	std::vector<Vector3> vertices = {
@@ -614,6 +639,23 @@ void Player::DrawInvertArea() {
 	for (const auto& edge : edges) {
 		DrawLine3D::GetInstance()->SetPoints(vertices[edge.first], vertices[edge.second], {1.0f, 1.0f, 1.0f, 1.0f});
 	}
+}
+
+void Player::InvertAreaSpriteToPlayerPosition(const ViewProjection& viewProjection) {
+	// spritePlayerAreaにプレイヤーのワールド座標を設定
+	Vector3 playerWorldPosition = this->GetWorldPosition();
+
+	// ビューポート行列を作成
+	Matrix4x4 matViewport = MakeViewPortMatrix(0.0f, 0.0f, WinApp::kClientWidth, WinApp::kClientHeight, 0, 1);
+
+	// ビュー行列とプロジェクション行列を合成
+	Matrix4x4 matViewProjection = viewProjection.matView_ * viewProjection.matProjection_;
+	Matrix4x4 matViewProjecitonViewport = matViewProjection * matViewport;
+
+	// プレイヤーのワールド座標をスクリーン座標に変換
+	Vector3 screenPosition = Transformation(playerWorldPosition, matViewProjecitonViewport);
+
+	spritePlayerArea_->SetPosition({screenPosition.x, screenPosition.y});
 }
 
 Player::CollisionMapInfo Player::GetMapCollisionInfo() {

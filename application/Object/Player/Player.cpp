@@ -3,6 +3,7 @@
 
 // Engine
 #include "myEngine/3d/line/DrawLine3D.h"
+#include "math/myMath.h"
 #include"Audio.h"
 #include"myEngine/Frame/Frame.h"
 
@@ -31,6 +32,16 @@ void Player::Init(const std::string className) {
 	// SquareTransition初期化
 	squareTransition_ = std::make_unique<SquareTransition>();
 	squareTransition_->Initialize();
+
+	// プレイヤー反転範囲スプライト生成
+	spritePlayerArea_ = std::make_unique<Sprite>();
+	spritePlayerArea_->Initialize(
+		"game/playerArea.png",
+		{0.0f, 0.0f},
+		{1.0f, 1.0f, 1.0f, 1.0f},
+		{0.5f, 0.5f}
+		);
+	spritePlayerArea_->SetSize({165.0f, 165.0f});
 
 	// Jsonからパラメーターの読み込み
 	LoadFromJson();
@@ -113,10 +124,11 @@ void Player::Update(MapChipField* mapChipField) {
 
 			/*ImGui::DragFloat3("velocity", &velocity_.x);*/
 
-			/*ImGui::Text("hittingGround : %d", collisionMapInfo_.hittingGround_);
+			ImGui::Text("hittingGround : %d", collisionMapInfo_.hittingGround_);
 			ImGui::Text("hittingCeiling : %d", collisionMapInfo_.hittingCeiling_);
 			ImGui::Text("hittingLeft : %d", collisionMapInfo_.hittingLeft_);
-			ImGui::Text("hittingRight : %d", collisionMapInfo_.hittingRight_);*/
+			ImGui::Text("hittingRight : %d", collisionMapInfo_.hittingRight_);
+			ImGui::Text("isOverlapping : %d", collisionMapInfo_.isOverlapping_);
 
 			/*ImGui::Checkbox("ブロック反転中", &isInverting_);
 			ImGui::Checkbox("重力反転中", &isGravityReversed_);*/
@@ -156,10 +168,21 @@ void Player::Draw(const ViewProjection& viewProjection) {
 	BaseObject::Draw(viewProjection);
 
 	// 反転可能範囲を描画
-	DrawInvertArea();
+	/*DrawInvertArea();*/
 }
 
-void Player::DrawSprite() { squareTransition_->Draw(); }
+void Player::DrawSprite(const ViewProjection& viewProjection) { 
+	// プレイヤーのワールド座標をスクリーン座標に変換してspritePlayerAreaの位置をセット
+	InvertAreaSpriteToPlayerPosition(viewProjection);
+	// 現在の反転可能範囲の数値によってspritePlayerAreaのサイズを変更
+	InvertAreaSpriteAdjust();
+
+	// プレイヤー反転可能範囲の描画
+	spritePlayerArea_->Draw();
+
+	// リセット時トランジションスプライトの描画
+	squareTransition_->Draw(); 
+}
 
 void Player::DebugImGui() {
 	// デフォルトデバッグ表示（トランスフォーム、コライダー）
@@ -224,6 +247,11 @@ void Player::HandleInput() {
 	static bool wasPressedRB = false; // RBボタン
 	static bool wasPressedLB = false; // LBボタン
 
+	// ブロック反転クールタイムの減少
+	if (blockInvertCooldown_ > 0.0f) {
+		blockInvertCooldown_ -= kDeltaTime;
+	}
+
 	XINPUT_STATE joyState;
 	if (input_->GetJoystickState(0, joyState)) {
 
@@ -284,8 +312,8 @@ void Player::HandleInput() {
 		bool isPressedRB = joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER;
 
 		// RBボタンが押された瞬間のみ
-		if (isPressedRB && wasPressedRB) {
-			if (!isInverting_) { // ブロック反転中には反転できない
+		if (isPressedRB && !wasPressedRB && blockInvertCooldown_ <= 0.0f) { // クールタイム中には反転できない
+			if (!isInverting_ && !collisionMapInfo_.isOverlapping_) { // ブロック反転中には反転できない && ブロックに埋まっていたら反転できない
 				if (mapChipField_) {
 					// 現在の位置を取得
 					Vector3 position = BaseObject::GetWorldPosition();
@@ -296,6 +324,8 @@ void Player::HandleInput() {
 						mapChipField_->InvertBlocksInArea(position, xInvertRange_, yInvertRange_);
 						// 反転中であることを記録する
 						isInverting_ = true;
+						// ブロック反転クールタイムを設定
+						blockInvertCooldown_ = kBlockInvertCooldownTime;
 
 						///
 						/// 重力ブロックが範囲内に見つかった場合、プレイヤーの重力を反転する
@@ -399,8 +429,8 @@ void Player::HandleInput() {
 	///	範囲内のブロック反転入力
 	///
 
-	if (input_->TriggerKey(DIK_SPACE)) {
-		if (!isInverting_) { // ブロック反転中には反転できない
+	if (input_->TriggerKey(DIK_SPACE) && blockInvertCooldown_ <= 0.0f) { // クールタイム中には反転できない
+		if (!isInverting_ && !collisionMapInfo_.isOverlapping_) { // ブロック反転中には反転できない && ブロックに埋まっていたら反転できない
 			if (mapChipField_) {
 				// 現在の位置を取得
 				Vector3 position = BaseObject::GetWorldPosition();
@@ -411,6 +441,8 @@ void Player::HandleInput() {
 					mapChipField_->InvertBlocksInArea(position, xInvertRange_, yInvertRange_);
 					// 反転中であることを記録する
 					isInverting_ = true;
+					// ブロック反転クールタイムを設定
+					blockInvertCooldown_ = kBlockInvertCooldownTime;
 
 					///
 					/// 重力ブロックが範囲内に見つかった場合、プレイヤーの重力を反転する
@@ -620,6 +652,9 @@ void Player::CheckCollisionAndResolve() {
 	collisionMapInfo_.hittingLeft_ = collisionMapInfoX.hittingLeft_;
 	collisionMapInfo_.hittingRight_ = collisionMapInfoX.hittingRight_;
 
+	collisionMapInfo_.isOverlapping_ = collisionMapInfoX.isOverlapping_;
+	collisionMapInfo_.isOverlapping_ = collisionMapInfoY.isOverlapping_;
+
 	/// 速度リセット
 	velocity_.x = 0.0f;
 	/*velocity_.y = 0.0f;*/
@@ -671,11 +706,62 @@ void Player::DrawInvertArea() {
 	}
 }
 
+void Player::InvertAreaSpriteToPlayerPosition(const ViewProjection& viewProjection) {
+	// spritePlayerAreaにプレイヤーのワールド座標を設定
+	Vector3 playerWorldPosition = this->GetWorldPosition();
+
+	// ビューポート行列を作成
+	Matrix4x4 matViewport = MakeViewPortMatrix(0.0f, 0.0f, WinApp::kClientWidth, WinApp::kClientHeight, 0, 1);
+
+	// ビュー行列とプロジェクション行列を合成
+	Matrix4x4 matViewProjection = viewProjection.matView_ * viewProjection.matProjection_;
+	Matrix4x4 matViewProjecitonViewport = matViewProjection * matViewport;
+
+	// プレイヤーのワールド座標をスクリーン座標に変換
+	Vector3 screenPosition = Transformation(playerWorldPosition, matViewProjecitonViewport);
+
+	spritePlayerArea_->SetPosition({screenPosition.x, screenPosition.y});
+}
+
+void Player::InvertAreaSpriteAdjust()
+{
+	Vector2 spriteSize;
+
+	// 反転可能範囲の数値によってスプライトのサイズを設定する
+	const float sizes[] = { 0.0f, 55.0f, 0.0f, 165.0f, 0.0f, 275.0f, 0.0f, 383.0f, 0.0f, 490.0f, 0.0f, 598.0f }; // 目視で合わせた各サイズ
+
+	// xサイズ変更
+	if (xInvertRange_ >= 1 && xInvertRange_ <= 11 && xInvertRange_ % 2 == 1)
+	{
+		spriteSize.x = sizes[xInvertRange_];
+	}
+
+	// yサイズ変更
+	if (yInvertRange_ >= 1 && yInvertRange_ <= 11 && yInvertRange_ % 2 == 1)
+	{
+		spriteSize.y = sizes[yInvertRange_];
+	}
+
+	spritePlayerArea_->SetSize(spriteSize);
+}
+
 Player::CollisionMapInfo Player::GetMapCollisionInfo() {
 	CollisionMapInfo info;
 
 	// 現在位置の取得
 	Vector3 position = this->transform_.translation_;
+
+	// 重なり判定のオフセット（プレイヤーの実際のサイズよりも少し減らした値で判定）
+	const float overlapOffsetX = (kWidth / 2) - 0.02f;
+	const float overlapOffsetY = (kHeight / 2) - 0.02f;
+
+	// 重なり判定用の4点
+	Vector3 checkPoints[4] = {
+		{position.x - overlapOffsetX, position.y + overlapOffsetY, position.z}, // 左上
+		{position.x + overlapOffsetX, position.y + overlapOffsetY, position.z}, // 右上
+		{position.x - overlapOffsetX, position.y - overlapOffsetY, position.z}, // 左下
+		{position.x + overlapOffsetX, position.y - overlapOffsetY, position.z}, // 右下
+	};
 
 	// プレイヤーの4つの角を計算
 	Vector3 corners[4] = {
@@ -709,6 +795,22 @@ Player::CollisionMapInfo Player::GetMapCollisionInfo() {
 		float blockRight = blockPosition.x + blockSize / 2;
 		float blockTop = blockPosition.y + blockSize / 2;
 		float blockBottom = blockPosition.y - blockSize / 2;
+
+		// 重なり判定（プレイヤーの中心+-オフセットがブロックに接触しているか）
+		for (int i = 0; i < 4; ++i) {
+			if (checkPoints[i].x >= blockLeft && checkPoints[i].x <= blockRight &&
+				checkPoints[i].y >= blockBottom && checkPoints[i].y < blockTop) {
+				info.isOverlapping_ = true;
+				break;
+			}
+		}
+
+		// プレイヤーとブロックの色が同じ場合には上下左右の判定を取らない（押し戻しを行わないため）
+		if (this->colorState_ == ColorState::White && block->type_ == Block::ChipType::White) { // プレイヤーが白状態で、白ブロックの場合
+			continue;
+		} else if (this->colorState_ == ColorState::Black && block->type_ == Block::ChipType::Black) { // プレイヤーが黒状態で、黒ブロックの場合
+			continue;
+		}
 
 		// 各角の衝突を判定
 		for (int i = 0; i < 4; ++i) {

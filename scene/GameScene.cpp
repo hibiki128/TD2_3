@@ -114,6 +114,7 @@ void GameScene::Draw()
 	spCommon_->DrawCommonSetting();
 	//-----Spriteの描画開始-----
 
+	player_->DrawSprite(vp_);
 
 
 	//------------------------
@@ -148,7 +149,7 @@ void GameScene::Draw()
 
 	// ポーズ描画
 	pause_->Draw(vp_);
-	player_->DrawSprite();
+	player_->DrawSprite(vp_);
 
 	//------------------------
 

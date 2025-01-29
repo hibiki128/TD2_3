@@ -19,6 +19,8 @@ public:
 		bool hittingLeft_ = false;
 		bool hittingRight_ = false;
 
+		bool isOverlapping_ = false; // ブロックとの重なり状態
+
 		Block* blockX = nullptr; // X方向で衝突したブロック
 		Block* blockY = nullptr; // Y方向で衝突したブロック
 	};
@@ -26,7 +28,7 @@ public:
 	void Init(const std::string className)override;
 	void Update(MapChipField* mapChipField);
 	void Draw(const ViewProjection& viewProjection)override;
-	void DrawSprite();
+	void DrawSprite(const ViewProjection& viewProjection);
 	void DebugImGui()override;
 	void Reset();
 	void PlaySE();
@@ -104,6 +106,16 @@ private:
 
 	// リセット時のトランジション
 	std::unique_ptr<SquareTransition> squareTransition_;
+	// プレイヤー反転範囲スプライト
+	std::unique_ptr<Sprite> spritePlayerArea_;
+
+	// プレイヤー反転範囲スプライトのサイズ
+	float xSpritePlayerAreaSize_ = 0.0f;
+	float ySpritePlayerAreaSize_ = 0.0f;
+
+	// ブロック反転のクールタイム
+	float blockInvertCooldown_ = 0.0f;
+	const float kBlockInvertCooldownTime = 0.02f; // 再使用までの時間
 
 	// 音関連
 	uint32_t jumpSE_;
@@ -129,6 +141,10 @@ private:
 
 	// 反転可能範囲のAABBを描画
 	void DrawInvertArea();
+	// 反転可能範囲画像をプレイヤーの座標にセット
+	void InvertAreaSpriteToPlayerPosition(const ViewProjection& viewProjection);
+	// 反転可能範囲画像サイズを現在の範囲によって変更（ごり押しで）
+	void InvertAreaSpriteAdjust();
 
 
 private:

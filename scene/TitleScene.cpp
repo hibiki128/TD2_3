@@ -83,11 +83,6 @@ void TitleScene::Draw()
 {
 	/// -------描画処理開始-------
 
-	/// Spriteの描画準備
-	spCommon_->DrawCommonSetting();
-	//-----Spriteの描画開始-----
-	player_->DrawSprite();
-	//------------------------------
 
 	objCommon_->DrawCommonSetting();
 	//-----3DObjectの描画開始-----
@@ -108,6 +103,12 @@ void TitleScene::Draw()
 	mapChipField_->DrawParticle(vp_);
 	//-----------------------------
 
+	/// Spriteの描画準備
+	spCommon_->DrawCommonSetting();
+	//-----Spriteの描画開始-----
+	player_->DrawSprite(vp_);
+	//------------------------------
+	
 	//-----線描画-----
 	DrawLine3D::GetInstance()->Draw(vp_);
 	//---------------

@@ -127,6 +127,9 @@ private:
 	// 重力反転時のパーティクル用
 	void GravityParticleUpdate();
 
+	// 初期状態で挟み込みが起きないよう、プレイヤーが一度でも反転を行ったかを記録
+	bool hasPlayerInverted_ = false;
+
 	///
 	///	アニメーション関連
 	/// 

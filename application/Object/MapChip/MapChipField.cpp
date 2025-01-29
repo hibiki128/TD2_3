@@ -464,10 +464,10 @@ void MapChipField::UpdateChipAnimation(MapChip& chip)
 			chip.normal_->SetPosition(chip.object->GetCenterPosition());
 
 			if (chip.object->type_ == Block::ChipType::Black) {
-				chip.normal_->SetTexture("debug/black1x1.png");
+				chip.normal_->SetTexture("particle/blackBlock1x1.png");
 			}
 			if (chip.object->type_ == Block::ChipType::White) {
-				chip.normal_->SetTexture("debug/white1x1.png");
+				chip.normal_->SetTexture("particle/whiteBlock1x1.png");
 			}
 
 			if (chip.object->type_ == Block::ChipType::Black || chip.object->type_ == Block::ChipType::White) {

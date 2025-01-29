@@ -19,6 +19,8 @@ public:
 		bool hittingLeft_ = false;
 		bool hittingRight_ = false;
 
+		bool isOverlapping_ = false; // ブロックとの重なり状態
+
 		Block* blockX = nullptr; // X方向で衝突したブロック
 		Block* blockY = nullptr; // Y方向で衝突したブロック
 	};

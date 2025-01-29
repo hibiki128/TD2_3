@@ -115,10 +115,11 @@ void Player::Update(MapChipField* mapChipField) {
 
 			/*ImGui::DragFloat3("velocity", &velocity_.x);*/
 
-			/*ImGui::Text("hittingGround : %d", collisionMapInfo_.hittingGround_);
+			ImGui::Text("hittingGround : %d", collisionMapInfo_.hittingGround_);
 			ImGui::Text("hittingCeiling : %d", collisionMapInfo_.hittingCeiling_);
 			ImGui::Text("hittingLeft : %d", collisionMapInfo_.hittingLeft_);
-			ImGui::Text("hittingRight : %d", collisionMapInfo_.hittingRight_);*/
+			ImGui::Text("hittingRight : %d", collisionMapInfo_.hittingRight_);
+			ImGui::Text("isOverlapping : %d", collisionMapInfo_.isOverlapping_);
 
 			/*ImGui::Checkbox("ブロック反転中", &isInverting_);
 			ImGui::Checkbox("重力反転中", &isGravityReversed_);*/
@@ -296,7 +297,7 @@ void Player::HandleInput() {
 
 		// RBボタンが押された瞬間のみ
 		if (isPressedRB && !wasPressedRB) {
-			if (!isInverting_) { // ブロック反転中には反転できない
+			if (!isInverting_ && !collisionMapInfo_.isOverlapping_) { // ブロック反転中には反転できない && ブロックに埋まっていたら反転できない
 				if (mapChipField_) {
 					// 現在の位置を取得
 					Vector3 position = BaseObject::GetWorldPosition();
@@ -409,7 +410,7 @@ void Player::HandleInput() {
 	///
 
 	if (input_->TriggerKey(DIK_SPACE)) {
-		if (!isInverting_) { // ブロック反転中には反転できない
+		if (!isInverting_ && !collisionMapInfo_.isOverlapping_) { // ブロック反転中には反転できない && ブロックに埋まっていたら反転できない
 			if (mapChipField_) {
 				// 現在の位置を取得
 				Vector3 position = BaseObject::GetWorldPosition();
@@ -587,6 +588,9 @@ void Player::CheckCollisionAndResolve() {
 	collisionMapInfo_.hittingLeft_ = collisionMapInfoX.hittingLeft_;
 	collisionMapInfo_.hittingRight_ = collisionMapInfoX.hittingRight_;
 
+	collisionMapInfo_.isOverlapping_ = collisionMapInfoX.isOverlapping_;
+	collisionMapInfo_.isOverlapping_ = collisionMapInfoY.isOverlapping_;
+
 	/// 速度リセット
 	velocity_.x = 0.0f;
 	/*velocity_.y = 0.0f;*/
@@ -683,6 +687,18 @@ Player::CollisionMapInfo Player::GetMapCollisionInfo() {
 	// 現在位置の取得
 	Vector3 position = this->transform_.translation_;
 
+	// 重なり判定のオフセット（プレイヤーの実際のサイズよりも少し減らした値で判定）
+	const float overlapOffsetX = (kWidth / 2) - 0.02f;
+	const float overlapOffsetY = (kHeight / 2) - 0.02f;
+
+	// 重なり判定用の4点
+	Vector3 checkPoints[4] = {
+		{position.x - overlapOffsetX, position.y + overlapOffsetY, position.z}, // 左上
+		{position.x + overlapOffsetX, position.y + overlapOffsetY, position.z}, // 右上
+		{position.x - overlapOffsetX, position.y - overlapOffsetY, position.z}, // 左下
+		{position.x + overlapOffsetX, position.y - overlapOffsetY, position.z}, // 右下
+	};
+
 	// プレイヤーの4つの角を計算
 	Vector3 corners[4] = {
 	    {position.x - kWidth / 2, position.y + kHeight / 2, position.z}, // 左上
@@ -701,19 +717,28 @@ Player::CollisionMapInfo Player::GetMapCollisionInfo() {
 
 	// 全てのブロックとの衝突判定
 	for (const auto& block : blocks) {
-		// プレイヤーとブロックの色が同じ場合には判定を取らない
-		if (this->colorState_ == ColorState::White && block->type_ == Block::ChipType::White) { // プレイヤーが白状態で、白ブロックの場合
-			continue;
-		} else if (this->colorState_ == ColorState::Black && block->type_ == Block::ChipType::Black) { // プレイヤーが黒状態で、黒ブロックの場合
-			continue;
-		}
-
 		// ブロックの位置と範囲を計算
 		Vector3 blockPosition = block->GetWorldPosition();
 		float blockLeft = blockPosition.x - blockSize / 2;
 		float blockRight = blockPosition.x + blockSize / 2;
 		float blockTop = blockPosition.y + blockSize / 2;
 		float blockBottom = blockPosition.y - blockSize / 2;
+
+		// 重なり判定（プレイヤーの中心+-オフセットがブロックに接触しているか）
+		for (int i = 0; i < 4; ++i) {
+			if (checkPoints[i].x >= blockLeft && checkPoints[i].x <= blockRight &&
+				checkPoints[i].y >= blockBottom && checkPoints[i].y < blockTop) {
+				info.isOverlapping_ = true;
+				break;
+			}
+		}
+
+		// プレイヤーとブロックの色が同じ場合には上下左右の判定を取らない（押し戻しを行わないため）
+		if (this->colorState_ == ColorState::White && block->type_ == Block::ChipType::White) { // プレイヤーが白状態で、白ブロックの場合
+			continue;
+		} else if (this->colorState_ == ColorState::Black && block->type_ == Block::ChipType::Black) { // プレイヤーが黒状態で、黒ブロックの場合
+			continue;
+		}
 
 		// 各角の衝突を判定
 		for (int i = 0; i < 4; ++i) {

@@ -14,6 +14,7 @@ void Player::Init(const std::string className) {
 	BaseObject::CreateModel("game/Player.obj");
 	BaseObject::SetTexture("debug/white1x1.png"); // 白状態のプレイヤーテクスチャを設定
 	BaseObject::CreateCollider();
+	Collider::SetVisible(false);
 
 	///
 	///	各パラメーター初期化

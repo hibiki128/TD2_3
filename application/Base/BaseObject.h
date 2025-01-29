@@ -88,4 +88,6 @@ private:
 
 	std::vector<std::string> GetGltfFiles();
 
+	bool isCollider = false;
+
 };

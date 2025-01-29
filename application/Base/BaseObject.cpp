@@ -10,6 +10,7 @@ void BaseObject::Init(const std::string className) {
 	objColor_.SetColor(Vector4(1, 1, 1, 1));
 	// ライティングのセット
 	isLighting_ = true;
+	isCollider = false;
 
 	LoadFromJson();
 }
@@ -49,8 +50,8 @@ void BaseObject::CreateModel(const std::string modelname) {
 
 void BaseObject::CreateCollider()
 {
-
 	Collider::Initialize(className_);
+	isCollider = true;
 }
 
 void BaseObject::DebugImGui()
@@ -58,7 +59,9 @@ void BaseObject::DebugImGui()
 	ImGui::Begin(className_.c_str());
 	if (ImGui::BeginTabBar(className_.c_str())) {
 		DebugTransform();
-		DebugCollider();
+		if (isCollider) {
+			DebugCollider();
+		}
 		ImGui::EndTabBar();
 	}
 	ImGui::End();

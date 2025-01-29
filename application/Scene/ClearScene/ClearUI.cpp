@@ -1,5 +1,6 @@
 #include "ClearUI.h"
 #include"Input.h"
+#include"Easing.h"
 
 void ClearUI::Init()
 {
@@ -19,22 +20,19 @@ void ClearUI::Init()
 	backSelect_->Init("clear_backSelect");
 	backSelect_->CreateModel("clear/backSelect.obj");
 
-	restart_ = std::make_unique<BaseObject>();
-	restart_->Init("clear_restart");
-	restart_->CreateModel("clear/Retry.obj");
-
-	InitNumbers();
-
-	singleDigit_ = std::make_unique<BaseObject>();
-	twoDigit_ = std::make_unique<BaseObject>();
-	singleDigit_->Init("singleDigit");
-	twoDigit_->Init("twoDigit");
-	singleDigit_->CreateModel("clear/0.obj");
-	twoDigit_->CreateModel("clear/0.obj");
-
+	retry_ = std::make_unique<BaseObject>();
+	retry_->Init("clear_restart");
+	retry_->CreateModel("clear/Retry.obj");
 
 	input_ = Input::GetInstance();
 	currentItem_ = 0;
+	isDecision_ = false;
+
+	decisionEmitter_ = std::make_unique<ParticleEmitter>();
+	decisionEmitter_->Initialize("clearDesition", "debug/sphere.obj");
+	decisionEmitter_->SetTexture("clear/UI2_1x1.png");
+
+	InitNumbers();
 }
 
 void ClearUI::Update()
@@ -43,17 +41,38 @@ void ClearUI::Update()
 	stage_->Update();
 	nextStage_->Update();
 	backSelect_->Update();
-	restart_->Update();
-	MenuOperation();
+	retry_->Update();
+	singleDigit_->Update();
+	twoDigit_->Update();
+	if (!isDecision_) {
+		MenuOperation();
+	}
+	if (input_->TriggerKey(DIK_SPACE)) {
+		decisionEmitter_->UpdateOnce();
+	}
+	MoveUI();
 }
 
 void ClearUI::Draw(const ViewProjection& vp)
 {
 	book_->Draw(vp);
 	stage_->Draw(vp);
+	
+	singleDigit_->Draw(vp);
+	twoDigit_->Draw(vp);
+}
+
+void ClearUI::DrawParticle(const ViewProjection& vp)
+{
+	ParticleCommon::GetInstance()->SetBlendMode(BlendMode::kAdd);
+	decisionEmitter_->Draw(vp);
+}
+
+void ClearUI::DrawTexts(const ViewProjection& vp)
+{
 	nextStage_->Draw(vp);
 	backSelect_->Draw(vp);
-	restart_->Draw(vp);
+	retry_->Draw(vp);
 }
 
 void ClearUI::Debug()
@@ -65,7 +84,10 @@ void ClearUI::Debug()
 	stage_->DebugImGui();
 	nextStage_->DebugImGui();
 	backSelect_->DebugImGui();
-	restart_->DebugImGui();
+	retry_->DebugImGui();
+	singleDigit_->DebugImGui();
+	twoDigit_->DebugImGui();
+	decisionEmitter_->imgui();
 }
 
 void ClearUI::MenuOperation()
@@ -73,12 +95,12 @@ void ClearUI::MenuOperation()
 	if (input_->PushKey(DIK_W) && coolTime_ == 0.0f)
 	{
 		--currentItem_;
-		coolTime_ = 0.1f;
+		coolTime_ = 0.2f;
 	}
 	if (input_->PushKey(DIK_S) && coolTime_ == 0.0f)
 	{
 		++currentItem_;
-		coolTime_ = 0.1f;
+		coolTime_ = 0.2f;
 	}
 
 	XINPUT_STATE joyState;
@@ -87,12 +109,12 @@ void ClearUI::MenuOperation()
 		if ((joyState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP || joyState.Gamepad.sThumbLY > XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) && coolTime_ == 0.0f)
 		{
 			--currentItem_;
-			coolTime_ = 0.1f;
+			coolTime_ = 0.2f;
 		}
 		if ((joyState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN || joyState.Gamepad.sThumbLY < -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) && coolTime_ == 0.0f)
 		{
 			++currentItem_;
-			coolTime_ = 0.1f;
+			coolTime_ = 0.2f;
 		}
 	}
 
@@ -115,21 +137,128 @@ void ClearUI::MenuOperation()
 
 void ClearUI::InitNumbers()
 {
-	for (int i = 0; i < 10; i++) {
-		// numbers_ の i 番目に Object3d のユニークポインタを作成
-		numbers_[i] = std::make_unique<Object3d>();
+	singleDigit_ = std::make_unique<BaseObject>();
+	twoDigit_ = std::make_unique<BaseObject>();
 
-		// i に応じたファイルパスを生成（"clear/0.obj" ～ "clear/9.obj"）
-		std::string filePath = "clear/" + std::to_string(i) + ".obj";
+	singleDigit_->Init("singleDigit");
+	twoDigit_->Init("twoDigit");
 
-		// 生成したパスを使って初期化
-		numbers_[i]->Initialize(filePath);
+	// 一桁目のモデルを設定
+	int singleDigitValue = stageNum_ % 10;
+	std::string singleDigitModelPath = "clear/" + std::to_string(singleDigitValue) + ".obj";
+	singleDigit_->CreateModel(singleDigitModelPath);
+
+	// 二桁目のモデルを設定
+	int twoDigitValue = stageNum_ / 10;
+	if (twoDigitValue > 0)
+	{
+		std::string twoDigitModelPath = "clear/" + std::to_string(twoDigitValue) + ".obj";
+		twoDigit_->CreateModel(twoDigitModelPath);
+	}
+	else
+	{
+		// 二桁目がない場合は0を表すモデルを設定
+		twoDigit_->CreateModel("clear/0.obj");
 	}
 }
 
-void ClearUI::SetNumber()
+void ClearUI::MoveUI()
 {
-	stageNum_;
-	singleDigit_->SetModel(numbers_[0].get());
-	twoDigit_->SetModel(numbers_[0].get());
+	const float easeTMax = 1.0f;
+	const Vector3 startScale = { 0.5f, 0.5f, 0.5f };
+	const Vector3 endScale = { 0.6f, 0.6f, 0.6f };
+	const float deltaTime = 1.0f / 60.0f;
+
+	// 選択されているUI要素の拡縮アニメーション
+	if (currentItem_ == 0) {
+		decisionEmitter_->SetPositionY(-7.0f);
+		//decisionEmitter_->SetScale({ 1.7f,0.2f,0.0f });
+		nextStage_->SetTexture("clear/UI2_1x1.png");
+		if (!isDecision_) {
+			nextT_ += deltaTime;
+			if (nextT_ > easeTMax) {
+				nextT_ -= easeTMax; // ループさせるために初期化
+			}
+			nextStage_->SetScale(EaseInOutSine<Vector3>(startScale, endScale, nextT_, easeTMax));
+		}
+		else {
+			nextT_ += deltaTime;
+			if (nextT_ > easeTMax) {
+				nextT_ = easeTMax;
+			}
+			nextStage_->SetScale(EaseInSine<Vector3>(nextStage_->GetTransform().scale_, endScale, nextT_, easeTMax));
+		}
+
+	}
+	else {
+		nextStage_->SetTexture("clear/UI1x1.png");
+		if (nextT_ > 0.0f) {
+			nextT_ -= deltaTime;
+		}
+		else {
+			nextT_ = 0.0f;
+		}
+		nextStage_->SetScale(EaseInOutSine<Vector3>(startScale, nextStage_->GetTransform().scale_, nextT_, easeTMax)); // 選択されていない場合は縮小
+	}
+
+	if (currentItem_ == 1) {
+		decisionEmitter_->SetPositionY(-7.7f);
+		//decisionEmitter_->SetScale({ 1.2f,0.2f,0.0f });
+		retry_->SetTexture("clear/UI2_1x1.png");
+		if (!isDecision_) {
+
+			retryT_ += deltaTime;
+			if (retryT_ > easeTMax) {
+				retryT_ -= easeTMax; // ループさせるために初期化
+			}
+			retry_->SetScale(EaseInOutSine<Vector3>(startScale, endScale, retryT_, easeTMax));
+		}
+		else {
+			retryT_ += deltaTime;
+			if (retryT_ > easeTMax) {
+				retryT_ = easeTMax;
+			}
+			retry_->SetScale(EaseInSine<Vector3>(retry_->GetTransform().scale_, endScale, retryT_, easeTMax));
+		}
+	}
+	else {
+		retry_->SetTexture("clear/UI1x1.png");
+		if (retryT_ > 0.0f) {
+			retryT_ -= deltaTime;
+		}
+		else {
+			retryT_ = 0.0f;
+		}
+		retry_->SetScale(EaseInOutSine<Vector3>(startScale, retry_->GetTransform().scale_, retryT_, easeTMax)); // 選択されていない場合は縮小
+	}
+
+	if (currentItem_ == 2) {
+		decisionEmitter_->SetPositionY(-8.4f);
+		//decisionEmitter_->SetScale({ 1.4f,0.2f,0.0f });
+		backSelect_->SetTexture("clear/UI2_1x1.png");
+		if (!isDecision_) {
+			selectT_ += deltaTime;
+			if (selectT_ > easeTMax) {
+				selectT_ -= easeTMax; // ループさせるために初期化
+			}
+			backSelect_->SetScale(EaseInOutSine<Vector3>(startScale, endScale, selectT_, easeTMax));
+		}
+		else {
+			selectT_ += deltaTime;
+			if (selectT_ > easeTMax) {
+				selectT_ = easeTMax;
+			}
+			backSelect_->SetScale(EaseInSine<Vector3>(backSelect_->GetTransform().scale_, endScale, selectT_, easeTMax));
+		}
+	}
+	else {
+		backSelect_->SetTexture("clear/UI1x1.png");
+		if (selectT_ > 0.0f) {
+			selectT_ -= deltaTime;
+		}
+		else {
+			selectT_ = 0.0f;
+		}
+		backSelect_->SetScale(EaseInOutSine<Vector3>(startScale, backSelect_->GetTransform().scale_, selectT_, easeTMax)); // 選択されていない場合は縮小
+	}
 }

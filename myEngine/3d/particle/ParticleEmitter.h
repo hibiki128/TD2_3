@@ -32,6 +32,7 @@ public:
     void imgui(); // ImGui用の関数を追加
 
     void SetPosition(const Vector3& position) { transform_.translation_ = position; }
+    void SetPositionY(const float& positionY) { transform_.translation_.y = positionY; }
     void SetScale(const Vector3& scale) { transform_.scale_ = scale; }
     void SetCount(const int& count) { count_ = count; }
     void SetActive(bool isActive) { isActive_ = isActive; }

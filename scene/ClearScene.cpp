@@ -75,8 +75,15 @@ void ClearScene::Draw()
 	/// Particleの描画準備
 	ptCommon_->DrawCommonSetting();
 	//------Particleの描画開始-------
-
+	clearUI_->DrawParticle(vp_);
 	//-----------------------------
+
+	objCommon_->DrawCommonSetting();
+	//-----3DObjectの描画開始-----
+
+	clearUI_->DrawTexts(vp_);
+
+	//--------------------------
 
 	/// Spriteの描画準備
 	spCommon_->DrawCommonSetting();
@@ -147,6 +154,7 @@ void ClearScene::ChangeScene()
 	XINPUT_STATE joyState;
 	if (input_->GetJoystickState(0, joyState)) {
 		if ((joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A)) {
+			clearUI_->SetDecision(true);
 			if (clearUI_->GetItemNum() == 0 || clearUI_->GetItemNum() == 1) {
 				sceneManager_->NextSceneReservation("GAME");
 			}
@@ -155,7 +163,8 @@ void ClearScene::ChangeScene()
 			}
 		}
 	}
-	if (input_->TriggerKey(DIK_SPACE) ) {
+	if (input_->TriggerKey(DIK_SPACE)) {
+		clearUI_->SetDecision(true);
 		if (clearUI_->GetItemNum() == 0 || clearUI_->GetItemNum() == 1) {
 			sceneManager_->NextSceneReservation("GAME");
 		}

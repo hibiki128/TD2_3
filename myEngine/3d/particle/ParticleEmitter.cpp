@@ -76,6 +76,7 @@ void ParticleEmitter::Draw(const ViewProjection& vp_)
 	Manager_->Update(vp_);
 	transform_.UpdateMatrix();
 	Manager_->Draw();
+	DrawEmitter();
 }
 
 void ParticleEmitter::DrawEmitter()

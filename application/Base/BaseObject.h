@@ -73,6 +73,7 @@ public:
 	void SetScale(Vector3 scale) { transform_.scale_ = scale; }
 	void SetLighting(bool isLighting) { isLighting_ = isLighting; }
 	void SetTexture(const std::string& filePath) { obj3d_->SetTexture(filePath); }
+	void SetColor(const Vector4& color) { obj3d_->SetColor(color); }
 	void SetModel(std::unique_ptr<Object3d> obj) {
 		obj3d_ = std::move(obj);
 	}

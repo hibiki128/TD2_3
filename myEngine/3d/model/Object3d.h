@@ -130,6 +130,7 @@ public: // メンバ関数
 	void SetModel(const std::string& filePath);
 	void SetTexture(const std::string& filePath);
 	void SetUVTransform(const Matrix4x4& mat) { materialData->uvTransform = mat; }
+	void SetColor(const Vector4& color) { materialData->color = color; }
 
 	/// <summary>
 	/// 光沢度の設定

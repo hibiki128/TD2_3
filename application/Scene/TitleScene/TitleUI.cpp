@@ -37,9 +37,6 @@ void TitleUI::Draw(const ViewProjection& vp)
 	/// 各オブジェクト描画
 	title_->Draw(vp);
 	start_->Draw(vp);
-
-	/// 各スプライト描画
-	SpriteCommon::GetInstance()->DrawCommonSetting();
 }
 
 void TitleUI::Debug()
@@ -51,8 +48,8 @@ void TitleUI::Debug()
 
 void TitleUI::TextMove()
 {
-	const float startPos = 20.0f;
-	const float endPos = 6.0f;
+	const float startPos = 14.0f;
+	const float endPos = 0.0f;
 	const float easeTMax = 3.0f;
 
 	if (startTime_ <= 0) {

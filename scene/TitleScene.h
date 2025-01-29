@@ -9,9 +9,9 @@
 #include"Object3d.h"
 #include"WorldTransform.h"
 #include"ParticleEmitter.h"
-//#include <application/Player.h>
-
 // Application
+#include"application/Object/Player/Player.h"
+#include"application/Object/MapChip/MapChipField.h"
 #include "application/Scene/TitleScene/TitleUI.h"
 
 class TitleScene :public BaseScene
@@ -66,9 +66,15 @@ private:
 	///
 	///	オブジェクト
 	/// 
-	
+
 	// タイトルUI
 	std::unique_ptr<TitleUI> objectTitleUI_;
+
+	// プレイヤー
+	std::unique_ptr<Player> player_;
+
+	// マップチップフィールド
+	std::unique_ptr<MapChipField> mapChipField_;
 
 	// 音関連
 	uint32_t BGM_;

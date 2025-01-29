@@ -17,7 +17,7 @@ void TitleScene::Initialize()
 	ptCommon_ = ParticleCommon::GetInstance();
 	input_ = Input::GetInstance();
 	vp_.Initialize();
-	vp_.translation_ = { 0.0f,0.0f,-30.0f };
+	vp_.translation_ = { 12.0f,-6.0f,-30.0f };
 
 	debugCamera_ = std::make_unique<DebugCamera>();
 	debugCamera_->Initialize(&vp_);
@@ -26,6 +26,15 @@ void TitleScene::Initialize()
 	///	オブジェクト生成
 	/// 
 	
+	// マップチップフィールド
+	mapChipField_ = std::make_unique<MapChipField>();
+	mapChipField_->Init("resources/Maps/stage1.csv");
+
+	// プレイヤー（マップチップフィールドから初期位置を取得するので後）
+	player_ = std::make_unique<Player>();
+	player_->Init("player");
+	player_->SetInitialPosition(mapChipField_->GetPlayerInitialPosition()); // csvから読み込んだ初期位置を設定
+
 	// タイトルUIオブジェクト生成
 	objectTitleUI_ = std::make_unique<TitleUI>();
 	objectTitleUI_->Init();
@@ -46,6 +55,15 @@ void TitleScene::Update()
 	///	
 
 	objectTitleUI_->Update();
+
+	// プレイヤー更新
+	player_->Update(mapChipField_.get());
+
+	// マップチップフィールド更新
+	mapChipField_->Update();
+
+	player_->PlaySE();
+	mapChipField_->PlaySE();
 
 #ifdef _DEBUG
 	// デバッグ
@@ -75,12 +93,18 @@ void TitleScene::Draw()
 
 	objectTitleUI_->Draw(vp_);
 
+	// プレイヤー描画
+	player_->Draw(vp_);
+
+	// マップチップフィールド描画
+	mapChipField_->Draw(vp_);
+
 	//--------------------------
 
 	/// Particleの描画準備
 	ptCommon_->DrawCommonSetting();
 	//------Particleの描画開始-------
-
+	mapChipField_->DrawParticle(vp_);
 	//-----------------------------
 
 	//-----線描画-----

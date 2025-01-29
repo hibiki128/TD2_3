@@ -47,8 +47,15 @@ void ClearUI::Update()
 	if (!isDecision_) {
 		MenuOperation();
 	}
-	if (input_->TriggerKey(DIK_SPACE)) {
+	if (input_->TriggerKey(DIK_SPACE) && !isDecision_) {
 		decisionEmitter_->UpdateOnce();
+	}
+	XINPUT_STATE joyState;
+	XINPUT_STATE prejoyState;
+	if (input_->GetJoystickState(0, joyState) && input_->GetJoystickStatePrevious(0, prejoyState)) {
+		if ((joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A) && (!prejoyState.Gamepad.wButtons)&&!isDecision_) {
+			decisionEmitter_->UpdateOnce();
+		}
 	}
 	MoveUI();
 }
@@ -57,7 +64,7 @@ void ClearUI::Draw(const ViewProjection& vp)
 {
 	book_->Draw(vp);
 	stage_->Draw(vp);
-	
+
 	singleDigit_->Draw(vp);
 	twoDigit_->Draw(vp);
 }

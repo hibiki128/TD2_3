@@ -332,6 +332,9 @@
     <ClCompile Include="application\Object\UIObject\UIObject.cpp">
       <Filter>ソースファイル</Filter>
     </ClCompile>
+    <ClCompile Include="application\Object\Coin\Coin.cpp">
+      <Filter>ソースファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\shaders\Particle\Particle.hlsli">
@@ -578,6 +581,7 @@
     <ClInclude Include="application\Object\Goal\Goal.h" />
     <ClInclude Include="application\Transition\SquareTransition.h" />
     <ClInclude Include="application\Object\UIObject\UIObject.h" />
+    <ClInclude Include="application\Object\Coin\Coin.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Particle\Particle.PS.hlsl">

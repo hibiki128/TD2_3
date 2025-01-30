@@ -55,6 +55,18 @@ void MapChipField::Update()
 
 	// ゴールオブジェクト更新
 	goal_->Update();
+	// コインオブジェクト更新
+	for (auto& coin : coins_) {
+		coin->Update();
+
+		// 取得済みのコインを削除
+		if (coin->IsCollected()) {
+			coin.reset();
+		}
+	}
+	// 取得済みのコインを削除する（resetでnullptrになったコインの削除）
+	coins_.erase(std::remove_if(coins_.begin(), coins_.end(), 
+		[](const std::unique_ptr<Coin>& coin){ return !coin;} ),coins_.end());
 }
 
 void MapChipField::Draw(const ViewProjection& vp)
@@ -71,6 +83,10 @@ void MapChipField::Draw(const ViewProjection& vp)
 
 	// ゴールオブジェクト描画
 	goal_->Draw(vp);
+	// コインオブジェクト描画
+	for (auto& coin : coins_) {
+		coin->Draw(vp);
+	}
 }
 
 void MapChipField::DebugImGui(){ 
@@ -236,6 +252,17 @@ void MapChipField::LoadFromCSV(const std::string& filePath)
 				playerInitialPosition_ = {x * kChipSize, -y * kChipSize, 0.0f};
 			};
 
+			/*コインオブジェクトの生成*/
+			if (chipValue == 8) {
+				auto coin = std::make_unique<Coin>();
+				coin->Init("Coin");
+				coin->CreateModel("game/coin.obj");
+				coin->SetTexture("game/coin.png");
+				coin->SetWorldPosition({x * kChipSize, -y * kChipSize, 0.0f});
+				coin->CreateCollider();
+				coins_.push_back(std::move(coin)); // coinの配列に格納
+			}
+
 			// マップチップの二次元配列に格納
 			mapChips_[y].push_back(std::move(chip));
 			++x;
@@ -261,6 +288,7 @@ Block::ChipType MapChipField::GetChipTypeFromInt(int value)
 	case 5: return Block::ChipType::Empty; // プレイヤー初期位置は空白扱いとする
 	case 6: return Block::ChipType::Gravity;
 	case 7: return Block::ChipType::ColorChange;
+	case 8: return Block ::ChipType::Empty; // コインオブジェクトは空白扱いとする
 
 	default: return Block::ChipType::Empty;
 	}

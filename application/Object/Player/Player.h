@@ -31,8 +31,11 @@ public:
 	void DrawSprite(const ViewProjection& viewProjection);
 	void DebugImGui()override;
 
-	// プレイヤーがゴールに到達しているか判定
+	// プレイヤーがゴールに触れたか判定
 	bool IsGoalReached();
+	// 現在の取得コイン数
+	uint32_t GetCurrentCoinCount() { return currentCoinCount_; }
+	
 	// プレイヤーの位置を設定
 	void SetInitialPosition(Vector3 playerInitialPosition) { this->transform_.translation_ = playerInitialPosition; }
 
@@ -73,6 +76,9 @@ private:
 	};
 	// プレイヤーの色の状態
 	ColorState colorState_ = ColorState::White;
+
+	// 現在取得したコインの枚数
+	uint32_t currentCoinCount_ = 0;
 
 	//////////////////
 	/*調整パラメーター*/
@@ -128,6 +134,11 @@ private:
 	// 反転可能範囲画像サイズを現在の範囲によって変更（ごり押しで）
 	void InvertAreaSpriteAdjust();
 
+	// プレイヤーがコインオブジェクトに触れたかを判定
+	bool IsCollidingCoin(const Coin& coin);
+	// 取得したコインの座標を保存しておく
+	Vector3 lastCollectedCoinPosition_ = {0.0f, 0.0f, 0.0f};
+
 	// リセット
 	void Reset();
 
@@ -151,6 +162,8 @@ public:
 	bool IsGravityReversedOccurred() { return isGravityReversedOccurred_; }
 	// 着地した瞬間を判定
 	bool IsLandedOccurred();
+	// コインを取得した瞬間を判定
+	bool IsCollectCoinOccurred() { return isCollectCoinOccurred_; }
 
 private:
 	// ジャンプした瞬間を判定
@@ -164,4 +177,7 @@ private:
 
 	// 前フレームの接地状態を記録
 	bool prevHittingGround_ = false;
+
+	// コインを取得した瞬間を判定
+	bool isCollectCoinOccurred_ = false;
 };

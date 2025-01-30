@@ -208,7 +208,7 @@ void Framework::LoadResource()
 	modelManager_->LoadModel("game/L.obj");
 	modelManager_->LoadModel("game/notouchBlackBlock.obj");
 	modelManager_->LoadModel("game/notouchWhiteBlock.obj");
-	modelManager_->LoadModel("game/opneBook.obj");
+	modelManager_->LoadModel("game/openBook.obj");
 	modelManager_->LoadModel("game/Player.obj");
 	modelManager_->LoadModel("game/R.obj");
 	modelManager_->LoadModel("game/UI.obj");

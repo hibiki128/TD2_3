@@ -6,8 +6,6 @@
 #include"myEngine/Frame/Frame.h"
 #include <Object3dCommon.h>
 
-
-bool Model::isGltf = false;
 std::unordered_set<std::string> Model::jointNames = {};
 
 

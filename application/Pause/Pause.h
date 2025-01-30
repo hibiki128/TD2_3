@@ -37,6 +37,8 @@ private:
 
 	void Debug();
 
+	void InitNumbers();
+
 private:
 	/// ===================================================
 	/// private variaus
@@ -50,6 +52,8 @@ private:
 	std::unique_ptr<Sprite> Restart_;          // 「リスタート」の文字
 	std::unique_ptr<Sprite> Stage_;            // 「ステージ」の文字
 	std::unique_ptr<Sprite> Pointer_;          // 「ポインター」
+	std::unique_ptr<Sprite> singleDigit_;
+	std::unique_ptr<Sprite> twoDigit_;
 
 	Player* player_ = nullptr;
 
@@ -66,6 +70,10 @@ private:
 	Vector2 restartSize_;					   // 「リスタート」のサイズ
 	Vector2 stageSize_;						   // 「ステージ」のサイズ
 	Vector2 pointerSize_;
+	Vector2 singlePos_ = { 0.0f,0.0f };
+	Vector2 twoPos_ = {0.0f,0.0f};
+	Vector2 singleSize_;
+	Vector2 twoSize_;
 
 	int currentItem_ = 0;                      //  現在選択しているメニュー項目
 	int stageNum_ = 0;
@@ -90,6 +98,8 @@ private:
 	EasingValue restart_E;					   // 「リスタート」のイージング変数
 	EasingValue stage_E;				       // 「ステージ」のイージング変数
 	EasingValue pointer_E;                     // 「ポインター」のイージング変数
+	EasingValue single_E;                     // 「ポインター」のイージング変数
+	EasingValue two_E;                     // 「ポインター」のイージング変数
 
 	float EscapeCoolTime_ = 0.0f;              //  Escキーのクールタイム
 	float pointerYT_;

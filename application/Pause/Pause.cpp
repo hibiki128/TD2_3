@@ -37,6 +37,12 @@ void Pause::Init()
 	stage_E.start_.x = -360.0f;
 	stage_E.end_.x = -360.0f;
 	stage_E.T_ = 0.0f;
+	single_E.start_.x = -360.0f;
+	single_E.end_.x = -360.0f;
+	single_E.T_ = 0.0f;
+	two_E.start_.x = -360.0f;
+	two_E.end_.x = -360.0f;
+	two_E.T_ = 0.0f;
 	backGame_E.start_.x = -360.0f;
 	backGame_E.end_.x = -360.0f;
 	backGame_E.T_ = 0.0f;
@@ -52,6 +58,7 @@ void Pause::Init()
 	transitionTimer_ = 0.0f;
 	deltaTime_ = 1.0f / 60.0f;
 
+	InitNumbers();
 	InitText();
 }
 
@@ -87,7 +94,8 @@ void Pause::Draw(const ViewProjection& vp)
 	backGame_->Draw();
 	backSelect_->Draw();
 	Restart_->Draw();
-
+	singleDigit_->Draw();
+	twoDigit_->Draw();
 }
 #pragma region 文字関連
 
@@ -109,12 +117,16 @@ void Pause::InitText()
 
 	// 初期位置(右から中央へやるため画面外)
 	stagePos_ = { -360.0f,100.0f };
+	singlePos_ = { -360.0f,103.0f };
+	twoPos_ = { -360.0f,103.0f };
 	backGamePos_ = { -360.0f,420.0f };
 	backSelectPos_ = { -360.0f ,600.0f };
 	restartPos_ = { -360.0f ,510.0f };
 	pointerPos_ = { -360.0f,420.0f };
 
 	stageSize_ = Stage_->GetSize();
+	singleSize_ = singleDigit_->GetSize();
+	twoSize_ = twoDigit_->GetSize();
 	backGameSize_ = backGame_->GetSize();
 	backSelectSize_ = backSelect_->GetSize();
 	restartSize_ = Restart_->GetSize();
@@ -129,6 +141,8 @@ void Pause::UpdateText()
 	restart_E.TMax_ = 0.5f;
 	stage_E.TMax_ = 0.5f;
 	pointer_E.TMax_ = 0.5f;
+	single_E.TMax_ = 0.5f;
+	two_E.TMax_ = 0.5f;
 
 	// ポーズが解除された場合の初期設定
 	if (!isPause_ && previousIsPause_) {
@@ -138,6 +152,12 @@ void Pause::UpdateText()
 		stage_E.start_.x = 600.0f;
 		stage_E.end_.x = 1640.0f;
 		stage_E.T_ = 0.0f;
+		single_E.start_.x = 750.0f;
+		single_E.end_.x = 1640.0f;
+		single_E.T_ = 0.0f;
+		two_E.start_.x = 710.0f;
+		two_E.end_.x = 1640.0f;
+		two_E.T_ = 0.0f;
 		backGame_E.start_.x = 640.0f;
 		backGame_E.end_.x = 1640.0f; // 右側に移動する終点位置
 		backGame_E.T_ = 0.0f;
@@ -156,6 +176,12 @@ void Pause::UpdateText()
 		stage_E.start_.x = -360.0f;
 		stage_E.end_.x = 600.0f;
 		stage_E.T_ = 0.0f;
+		single_E.start_.x = -360.0f;
+		single_E.end_.x = 750.0f;
+		single_E.T_ = 0.0f;
+		two_E.start_.x = -360.0f;
+		two_E.end_.x = 710.0f;
+		two_E.T_ = 0.0f;
 		backGame_E.start_.x = -360.0f;
 		backGame_E.end_.x = 640.0f;
 		backGame_E.T_ = 0.0f;
@@ -169,6 +195,8 @@ void Pause::UpdateText()
 
 	// イージングによるアニメーション更新
 	stage_E.T_ += deltaTime_;
+	single_E.T_ += deltaTime_;
+	two_E.T_ += deltaTime_;
 	if (stage_E.T_ >= 0.1f) {
 		pointer_E.T_ += deltaTime_;
 		backGame_E.T_ += deltaTime_;
@@ -187,6 +215,12 @@ void Pause::UpdateText()
 	if (stage_E.T_ >= stage_E.TMax_) {
 		stage_E.T_ = stage_E.TMax_;
 	}
+	if (single_E.T_ >= single_E.TMax_) {
+		single_E.T_ = single_E.TMax_;
+	}
+	if (two_E.T_ >= two_E.TMax_) {
+		two_E.T_ = two_E.TMax_;
+	}
 	if (backGame_E.T_ >= backGame_E.TMax_) {
 		backGame_E.T_ = backGame_E.TMax_;
 	}
@@ -200,6 +234,8 @@ void Pause::UpdateText()
 	// イージング関数を使って位置を更新
 	pointerPos_.x = EaseInOutBack<float>(pointer_E.start_.x, pointer_E.end_.x, pointer_E.T_, pointer_E.TMax_);
 	stagePos_.x = EaseInOutBack<float>(stage_E.start_.x, stage_E.end_.x, stage_E.T_, stage_E.TMax_);
+	singlePos_.x = EaseInOutBack<float>(single_E.start_.x, single_E.end_.x, single_E.T_, single_E.TMax_);
+	twoPos_.x = EaseInOutBack<float>(two_E.start_.x, two_E.end_.x, two_E.T_, two_E.TMax_);
 	backGamePos_.x = EaseInOutBack<float>(backGame_E.start_.x, backGame_E.end_.x, backGame_E.T_, backGame_E.TMax_);
 	backSelectPos_.x = EaseInOutBack<float>(backSelect_E.start_.x, backSelect_E.end_.x, backSelect_E.T_, backSelect_E.TMax_);
 	restartPos_.x = EaseInOutBack<float>(restart_E.start_.x, restart_E.end_.x, restart_E.T_, restart_E.TMax_);
@@ -208,11 +244,17 @@ void Pause::UpdateText()
 	if (backGamePos_.x >= 1640.0f && backSelectPos_.x >= 1640.0f && restartPos_.x >= 1640.0f) {
 		textMovedRight_ = true; // フラグを設定
 		stagePos_.x = -360.0f;
+		singlePos_.x = -360.0f;
+		twoPos_.x = -360.0f;
 		backGamePos_.x = -360.0f;
 		backSelectPos_.x = -360.0f;
 		restartPos_.x = -360.0f;
 		stage_E.start_.x = -360.0f;
 		stage_E.end_.x = -360.0f;
+		single_E .start_.x = -360.0f;
+		single_E.end_.x = -360.0f;
+		two_E.start_.x = -360.0f;
+		two_E.end_.x = -360.0f;
 		backGame_E.start_.x = -360.0f;
 		backGame_E.end_.x = -360.0f;
 		backSelect_E.start_.x = -360.0f;
@@ -236,11 +278,15 @@ void Pause::MoveText()
 	backGame_->SetPosition(backGamePos_);
 	backSelect_->SetPosition(backSelectPos_);
 	Restart_->SetPosition(restartPos_);
+	singleDigit_->SetPosition(singlePos_);
+	twoDigit_->SetPosition(twoPos_);
 	Stage_->SetSize(stageSize_ / 1.25f);
 	backGame_->SetSize(backGameSize_ / 1.75f);
 	backSelect_->SetSize(backSelectSize_ / 1.75f);
 	Restart_->SetSize(restartSize_ / 1.75f);
 	Pointer_->SetSize(pointerSize_ / 1.75f);
+	singleDigit_->SetSize(singleSize_ / 1.5f);
+	twoDigit_->SetSize(twoSize_ / 1.5f);
 }
 #pragma endregion
 
@@ -441,4 +487,28 @@ void Pause::Debug()
 	ImGui::Text("現在のアイテム %d", currentItem_);
 	ImGui::Text("現在のステージ %d", stageNum_);
 	ImGui::End();
+}
+
+void Pause::InitNumbers()
+{
+	singleDigit_ = std::make_unique<Sprite>();
+	twoDigit_ = std::make_unique<Sprite>();
+
+	// 一桁目のモデルを設定
+	int singleDigitValue = stageNum_ % 10;
+	std::string singleDigitModelPath = "menu/" + std::to_string(singleDigitValue) + ".png";
+	singleDigit_->Initialize(singleDigitModelPath, singlePos_, { 1.0f,1.0f,1.0f,1.0f }, { 0.5f,0.5f });
+
+	// 二桁目のモデルを設定
+	int twoDigitValue = stageNum_ / 10;
+	if (twoDigitValue > 0)
+	{
+		std::string twoDigitModelPath = "menu/" + std::to_string(twoDigitValue) + ".png";
+		twoDigit_->Initialize(twoDigitModelPath, twoPos_, { 1.0f,1.0f,1.0f,1.0f }, { 0.5f,0.5f });
+	}
+	else
+	{
+		// 二桁目がない場合は0を表すモデルを設定
+		twoDigit_->Initialize("menu/0.png", twoPos_, { 1.0f,1.0f,1.0f,1.0f }, { 0.5f,0.5f });
+	}
 }

@@ -13,6 +13,7 @@ void BaseObject::Init(const std::string className) {
 	isCollider = false;
 
 	LoadFromJson();
+	AnimaLoadFromJson();
 }
 
 void BaseObject::Update() {
@@ -101,6 +102,11 @@ void BaseObject::DebugTransform()
 				ShowFileSelector();
 				ImGui::TreePop();
 			}
+			if (ImGui::Button("セーブ")) {
+				AnimaSaveToJson();
+				std::string message = std::format("Anima saved.");
+				MessageBoxA(nullptr, message.c_str(), "Object", 0);
+			}
 			ImGui::EndTabItem();
 		}
 	}
@@ -147,7 +153,31 @@ void BaseObject::LoadFromJson() {
 	transform_.translation_ = { j["translate"][0],j["translate"][1], j["translate"][2] };
 	transform_.rotation_ = { j["rotation"][0],j["rotation"][1], j["rotation"][2] };
 	transform_.scale_ = { j["scale"][0],j["scale"][1], j["scale"][2] };
+}
 
+void BaseObject::AnimaSaveToJson()
+{
+	json j;
+
+	j["loop"] = isLoop_;
+
+	// ディレクトリを作成し、JSONファイルを保存
+	std::filesystem::create_directories("resources/jsons/Anima/");
+	std::ofstream outFile("resources/jsons/Anima/" + className_ + ".json");
+	outFile << j.dump(4);
+}
+
+void BaseObject::AnimaLoadFromJson()
+{
+	std::ifstream inFile("resources/jsons/Anima/" + className_ + ".json");
+	if (!inFile.is_open()) {
+		return; // JSONファイルがない場合は早期リターン
+	}
+
+	json j;
+	inFile >> j;
+
+	isLoop_ = j["loop"];
 }
 
 void BaseObject::ShowFileSelector()

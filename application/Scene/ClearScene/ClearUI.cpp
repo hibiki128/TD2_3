@@ -24,6 +24,10 @@ void ClearUI::Init()
 	retry_->Init("clear_restart");
 	retry_->CreateModel("clear/Retry.obj");
 
+	animaChara_ = std::make_unique<BaseObject>();
+	animaChara_->Init("animaChara");
+	animaChara_->CreateModel("animation/test3.gltf");
+
 	input_ = Input::GetInstance();
 	currentItem_ = 0;
 	isDecision_ = false;
@@ -44,6 +48,7 @@ void ClearUI::Update()
 	retry_->Update();
 	singleDigit_->Update();
 	twoDigit_->Update();
+	animaChara_->Update();
 	if (!isDecision_) {
 		MenuOperation();
 	}
@@ -53,7 +58,7 @@ void ClearUI::Update()
 	XINPUT_STATE joyState;
 	XINPUT_STATE prejoyState;
 	if (input_->GetJoystickState(0, joyState) && input_->GetJoystickStatePrevious(0, prejoyState)) {
-		if ((joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A) && (!prejoyState.Gamepad.wButtons)&&!isDecision_) {
+		if ((joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A) && (!prejoyState.Gamepad.wButtons) && !isDecision_) {
 			decisionEmitter_->UpdateOnce();
 		}
 	}
@@ -67,6 +72,7 @@ void ClearUI::Draw(const ViewProjection& vp)
 
 	singleDigit_->Draw(vp);
 	twoDigit_->Draw(vp);
+	animaChara_->Draw(vp);
 }
 
 void ClearUI::DrawParticle(const ViewProjection& vp)
@@ -95,6 +101,7 @@ void ClearUI::Debug()
 	singleDigit_->DebugImGui();
 	twoDigit_->DebugImGui();
 	decisionEmitter_->imgui();
+	animaChara_->DebugImGui();
 }
 
 void ClearUI::MenuOperation()

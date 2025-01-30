@@ -57,9 +57,9 @@ void GameScene::Initialize()
 
 	// ポーズ
 	pause_ = std::make_unique<Pause>();
+	pause_->SetStageNum(GetStageNum());
 	pause_->Init();
 	pause_->SetPlayer(player_.get());
-	pause_->SetStageNum(GetStageNum());
 }
 
 void GameScene::Update()

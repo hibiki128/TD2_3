@@ -57,6 +57,7 @@ public: // メンバ関数
 	void SetFlipY(bool isFlipY) { isFlipY_ = isFlipY; }
 	void SetTexLeftTop(const Vector2& textureLeftTop) { this->textureLeftTop = textureLeftTop; }
 	void SetTexSize(const Vector2& textureSize) { this->textureSize = textureSize; }
+	void SetUVTransform(const Matrix4x4& uvTransform) { materialData->uvTransform = uvTransform; }
 
 private: // メンバ関数
 

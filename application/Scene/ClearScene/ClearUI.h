@@ -27,6 +27,7 @@ private:
 	std::unique_ptr<BaseObject> retry_;
 	std::unique_ptr<BaseObject> singleDigit_;
 	std::unique_ptr<BaseObject> twoDigit_;
+	std::unique_ptr<BaseObject> animaChara_;
 	std::unique_ptr<ParticleEmitter> decisionEmitter_;
 
 	int currentItem_;

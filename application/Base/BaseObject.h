@@ -84,6 +84,8 @@ private:
 	void DebugCollider();
 	void SaveToJson();
 	void LoadFromJson();
+	void AnimaSaveToJson();
+	void AnimaLoadFromJson();
 	void ShowFileSelector();
 
 	std::vector<std::string> GetGltfFiles();

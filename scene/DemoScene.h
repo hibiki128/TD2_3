@@ -9,6 +9,7 @@
 #include"Object3d.h"
 #include"WorldTransform.h"
 #include"ParticleEmitter.h"
+#include"Sprite.h"
 
 class DemoScene :public BaseScene
 {
@@ -63,4 +64,11 @@ private:
 
 	bool isAuto_ = false;
 
+	std::unique_ptr<Sprite> numbers_;
+	Vector2 pos_;
+
+	Vector3 scale_;
+	Vector3 rotate_;
+	Vector3 translation_;
+	Matrix4x4 transform_;
 };

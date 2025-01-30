@@ -11,11 +11,29 @@
 #include "application/Object/Goal/Goal.h"
 #include "application/Object/Coin/Coin.h"
 
-class MapChipField
-{
+class MapChipField {
+private:
+	// マップチップのデータ構造
+	struct MapChip {
+		std::unique_ptr<Block> object;
+
+		///
+		/// アニメーション関連
+		///
+		bool isAnimating = false;
+		float animationTime = 0.0f;
+
+		float delayTime = 0.0f;
+		bool isDelaying = false;
+
+		enum class AnimationState { None, Shrinking, ColorChange, Expanding } animState = AnimationState::None;
+
+		float currentScale = 1.0f;
+	};
+
 public:
-	size_t mapWidth = 13; // 横マス数
-	size_t mapHeight = 8; // 縦マス数
+	size_t mapWidth = 13;         // 横マス数
+	size_t mapHeight = 8;         // 縦マス数
 	static const float kChipSize; // 各マップチップのサイズ
 
 	///
@@ -42,7 +60,7 @@ public:
 
 	///
 	///	ブロックの反転処理（プレイヤー側で呼び出す）
-	/// 
+	///
 
 	// プレイヤー範囲内のブロックの色を反転（
 	void InvertBlocksInArea(const Vector3& center, int xRange, int yRange);
@@ -51,7 +69,7 @@ public:
 
 	///
 	///	その他
-	/// 
+	///
 
 	// 指定範囲内にブロックが存在しているかを判定
 	bool HasBlockInArea(const Vector3& center, int xRange, int yRange);
@@ -64,30 +82,12 @@ public:
 	// 指定範囲内にプレイヤー色反転ブロックがあるかどうかを判定
 	bool HasColorChangeBlockInArea(const Vector3& center, int xRange, int yRange);
 
+	// プレイヤーの色状態を確認してセットする
+	void SetIsPlayerWhite(bool flag) { isPlayerWhite_ = flag; }
+	// プレイヤーと同じ色のブロックをスカスカ状態に、違う色のブロックを通常状態にする
+	void SwitchThroughtBlock(MapChip* chip, bool flag); // アニメーション終了ブロックの判定にはtrue, 反転時の全てのブロック判定にはfalse
+
 private:
-	// マップチップのデータ構造
-	struct MapChip {
-		std::unique_ptr<Block> object;
-
-		///
-		/// アニメーション関連
-		/// 
-		bool isAnimating = false;
-		float animationTime = 0.0f;
-
-		float delayTime = 0.0f;
-		bool isDelaying = false;
-
-		enum class AnimationState {
-			None,
-			Shrinking,
-			ColorChange,
-			Expanding
-		} animState = AnimationState::None;
-
-		float currentScale = 1.0f;
-	};
-
 	// マップチップの二次元配列
 	std::vector<std::vector<MapChip>> mapChips_;
 	std::string csvFilePath_; // ファイルパス保存用
@@ -141,5 +141,8 @@ private:
 private:
 	// 重力反転状態かどうか（重力ブロックのテクスチャ変更のためだけに使用）
 	bool isGravityReversed_ = false; // 初期状態は通常
+
+	// プレイヤーが白いかどうか（通常ブロックとスカスカブロックの変更のためだけに使用）
+	bool isPlayerWhite_ = true;
 };
 

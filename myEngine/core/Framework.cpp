@@ -185,6 +185,14 @@ void Framework::LoadResource()
 
 	modelManager_->LoadModel("game/Player.obj"); // プレイヤー
 	modelManager_->LoadModel("game/ColorChangeBlock.obj"); // プレイヤー色反転ブロック
+
+	// 追加モデル
+	modelManager_->LoadModel("game/whiteBlock.obj");
+	modelManager_->LoadModel("game/blackBlock.obj");
+	modelManager_->LoadModel("game/notouchWhiteBlock.obj");
+	modelManager_->LoadModel("game/notouchBlackBlock.obj");
+	modelManager_->LoadModel("game/gravityBlockDown.obj");
+	modelManager_->LoadModel("game/gravityBlockUp.obj");
 	
 	// テクスチャ読み込み
 	textureManager_->LoadTexture("debug/uvChecker.png");
@@ -192,6 +200,14 @@ void Framework::LoadResource()
 	textureManager_->LoadTexture("game/playerWhite.png"); // プレイヤー白状態
 	textureManager_->LoadTexture("game/playerBlack.png"); // プレイヤー黒状態
 	textureManager_->LoadTexture("game/colorChangeBlock.png"); // プレイヤー色反転ブロック
+
+	// 追加テクスチャ
+	textureManager_->LoadTexture("game/whiteBlock.png");
+	textureManager_->LoadTexture("game/blackBlock.png");
+	textureManager_->LoadTexture("game/noTouchWhiteBlock.png");
+	textureManager_->LoadTexture("game/noTouchBlackBlock.png");
+	textureManager_->LoadTexture("game/gravityBlockDown.png");
+	textureManager_->LoadTexture("game/gravityBlockUp.png");
 }
 
 void  Framework::PlaySounds() 

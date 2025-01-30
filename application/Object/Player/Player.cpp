@@ -75,6 +75,13 @@ void Player::Update(MapChipField* mapChipField) {
 		}
 	}
 
+	// プレイヤーの色状態をmapChipFieldに知らせる
+	if (colorState_ == ColorState::White) {
+		mapChipField_->SetIsPlayerWhite(true);
+	} else if (colorState_ == ColorState::Black) {
+		mapChipField_->SetIsPlayerWhite(false);
+	}
+
 	// 接地しているか天井に接触した際にはY方向速度をリセット
 	if (collisionMapInfo_.hittingGround_) {
 		velocity_.y = 0.0f;
@@ -388,10 +395,12 @@ void Player::HandleInput() {
 							if (colorState_ == ColorState::White) {
 								this->SetTexture("game/playerBlack.png");
 								colorState_ = ColorState::Black;
+
 								// 現在が黒の場合、テクスチャと色状態を白に変更
 							} else if (colorState_ == ColorState::Black) {
 								this->SetTexture("game/playerWhite.png");
 								colorState_ = ColorState::White;
+
 							}
 						}
 
@@ -592,6 +601,8 @@ void Player::Reset() {
 		mapChipField_->ResetMapChip();
 		// マップの所持する重力状態をリセット
 		mapChipField_->SetIsGravityReversed(false);
+		// マップの所持するプレイヤーの色状態をリセット
+		mapChipField_->SetIsPlayerWhite(true); // 最初は白から始まるため
 
 		// SquareOutを開始する
 		squareTransition_->Start(SquareTransition::Status::SquareOut, kResetTransitionTime);

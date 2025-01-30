@@ -77,6 +77,7 @@ void TitleScene::Update()
 	// シーン切り替え
 	ChangeScene();
 
+
 }
 
 void TitleScene::Draw()
@@ -101,6 +102,7 @@ void TitleScene::Draw()
 	ptCommon_->DrawCommonSetting();
 	//------Particleの描画開始-------
 	mapChipField_->DrawParticle(vp_);
+
 	//-----------------------------
 
 	/// Spriteの描画準備

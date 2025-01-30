@@ -7,6 +7,7 @@
 #include"ParticleCommon.h"
 #include"DebugCamera.h"
 #include "application/Scene/SelectScene/MapPrev.h"
+#include"application/Scene/SelectScene/SelectUI.h"
 
 class SelectScene :public BaseScene
 {
@@ -66,8 +67,9 @@ private:
 
 	// マップチップフィールド
 	std::vector<std::unique_ptr<MapPrev>> mapPrevs_;
+	std::unique_ptr<SelectUI> selectUI_;
 
-	int stageNum = 2;
+	int stageNum = 4;
 	int currentStage = 0;
 	float cameraT_ = 0.0f;
 	bool isMoveCamera_ = false;

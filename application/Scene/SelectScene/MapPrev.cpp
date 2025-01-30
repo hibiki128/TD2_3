@@ -48,6 +48,11 @@ void MapPrev::Init(const std::string& csvFilePath)
 	twoDigit_ = std::make_unique<BaseObject>();
 	twoDigit_->Init("select_twoDigit");
 	twoDigit_->CreateModel("clear/0.obj");
+
+
+	stageTex_->SetParent(book_->GetWorldTransform());
+	singleDigit_->SetParent(book_->GetWorldTransform());
+	twoDigit_->SetParent(book_->GetWorldTransform());
 }
 
 void MapPrev::Update()
@@ -212,18 +217,17 @@ void MapPrev::UpdateMapChipsPosition()
 		for (int x = 0; x < mapWidth; ++x) {
 			auto& chip = mapChips_[y][x];
 			if (chip.object->type_ != Block::ChipType::Empty) {
+				// マップチップの位置を計算し、回転を適用
 				Vector3 originalPos = CalculateChipPosition(x, y);
 				Vector3 rotatedPos = RotateAroundCenter(originalPos, rotationAngleY_);
 
-				// 位置のみを更新し、オブジェクトの回転には影響を与えない
+				// マップチップの位置を更新（回転は影響を与えない）
 				chip.object->SetWorldPosition(rotatedPos);
-
 			}
 		}
 	}
+	book_->SetRotationY(degreesToRadians(-rotationAngleY_));
 }
-
-
 
 Vector3 MapPrev::CalculateChipPosition(int x, int y)
 {
@@ -306,8 +310,8 @@ void MapPrev::ApproachMap()
 {
 	const float startPos = center_.z;
 	const float endPos = 50.0f;
-    const float startPosBook = book_->GetWorldPosition().z;
-    const float endPosBook = 80.0f;
+	const float startPosBook = book_->GetWorldPosition().z;
+	const float endPosBook = 80.0f;
 	const float easeTMax = 1.5f;
 
 	// タイマーが上限を超えないように繰り返し増減させる
@@ -319,9 +323,7 @@ void MapPrev::ApproachMap()
 	}
 
 	center_.z = EaseInSine<float>(startPos, endPos, approachT_, easeTMax);
-	stageTex_->SetWorldPositionZ(EaseInSine<float>(startPos, endPos, approachT_, easeTMax));
-	singleDigit_->SetWorldPositionZ(EaseInSine<float>(startPos, endPos, approachT_, easeTMax));
-	twoDigit_->SetWorldPositionZ(EaseInSine<float>(startPos, endPos, approachT_, easeTMax));
+	
 	book_->SetWorldPositionZ(EaseInSine<float>(startPosBook, endPosBook, approachT_, easeTMax));
 
 }
@@ -346,9 +348,7 @@ void MapPrev::LeaveMap()
 
 	rotationAngleY_ = EaseInSine<float>(startAngle, endAngle, leaveT_, easeTMax);
 	center_.z = EaseInSine<float>(startPos, endPos, leaveT_, easeTMax);
-	stageTex_->SetWorldPositionZ(EaseInSine<float>(startPos, endPos, leaveT_, easeTMax));
-	singleDigit_->SetWorldPositionZ(EaseInSine<float>(startPos, endPos, leaveT_, easeTMax));
-	twoDigit_->SetWorldPositionZ(EaseInSine<float>(startPos, endPos, leaveT_, easeTMax));
+	
 	book_->SetWorldPositionZ(EaseInSine<float>(startPosBook, endPosBook, leaveT_, easeTMax));
 
 }
@@ -356,9 +356,9 @@ void MapPrev::LeaveMap()
 void MapPrev::DecisionMap()
 {
 	const float startPos = center_.z;
-	const float endPos = 0.0f;
+	const float endPos = 30.0f;
 	const float startPosBook = book_->GetWorldPosition().z;
-	const float endPosBook = 5.0f;
+	const float endPosBook = 60.0f;
 	const float easeTMax = 1.0f;
 	const float startAngle = rotationAngleY_;
 	const float endAngle = 0.0f;
@@ -370,9 +370,7 @@ void MapPrev::DecisionMap()
 
 	rotationAngleY_ = EaseInSine<float>(startAngle, endAngle, dicisionT_, easeTMax);
 	center_.z = EaseOutQuint<float>(startPos, endPos, dicisionT_, easeTMax);
-	stageTex_->SetWorldPositionZ(EaseInSine<float>(startPos, endPos, dicisionT_, easeTMax));
-	singleDigit_->SetWorldPositionZ(EaseInSine<float>(startPos, endPos, dicisionT_, easeTMax));
-	twoDigit_->SetWorldPositionZ(EaseInSine<float>(startPos, endPos, dicisionT_, easeTMax));
+	
 	book_->SetWorldPositionZ(EaseOutQuint<float>(startPosBook, endPosBook, dicisionT_, easeTMax));
 
 }

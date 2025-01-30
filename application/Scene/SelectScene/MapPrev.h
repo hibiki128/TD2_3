@@ -36,9 +36,6 @@ public:
 	void SetPosition(const Vector3 position) { center_ = position; }
 	void SetPositionX(const float position) {
 		book_->SetWorldPositionX(position);
-		stageTex_->SetWorldPositionX(position - 4.0f);
-		singleDigit_->SetWorldPositionX(position + 13.8f);
-		twoDigit_->SetWorldPositionX(position + 9.0f);
 	}
 	void SetSingleModel(const std::string& filePath) { singleDigit_->CreateModel(filePath); }
 	void SetTwoDigitModel(const std::string& filePath) { twoDigit_->CreateModel(filePath); }

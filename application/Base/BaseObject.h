@@ -78,6 +78,7 @@ public:
 		obj3d_ = std::move(obj);
 	}
 	void SetModel(const std::string& filePath) { obj3d_->SetModel(filePath); }
+	void SetParent(const WorldTransform& wt) { transform_.parent_ = &wt; }
 
 
 private:

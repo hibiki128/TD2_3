@@ -19,7 +19,7 @@ void SelectScene::Initialize()
 	ptCommon_ = ParticleCommon::GetInstance();
 	input_ = Input::GetInstance();
 	vp_.Initialize();
-	vp_.translation_ = { 0.0f,0.0f,-30.0f };
+	vp_.translation_ = { 0.0f,0.0f,-40.0f };
 
 	debugCamera_ = std::make_unique<DebugCamera>();
 	debugCamera_->Initialize(&vp_);
@@ -35,6 +35,10 @@ void SelectScene::Initialize()
 	audio_->PlayWave(BGM_, 0.2f, true);
 	selectSE_ = audio_->LoadWave("select/stageSelect.wav");
 	desitionSE_ = audio_->LoadWave("select/stageDesition.wav");
+
+	selectUI_ = std::make_unique<SelectUI>();
+	selectUI_->Init();
+
 
 }
 
@@ -66,17 +70,12 @@ void SelectScene::Update()
 	for (auto& mapPrev : mapPrevs_) {
 		mapPrev->Update();
 	}
+	selectUI_->Update();
 }
 
 void SelectScene::Draw()
 {
 	/// -------描画処理開始-------
-
-	/// Spriteの描画準備
-	spCommon_->DrawCommonSetting();
-	//-----Spriteの描画開始-----
-
-	//------------------------------
 
 	objCommon_->DrawCommonSetting();
 	//-----3DObjectの描画開始-----
@@ -89,7 +88,6 @@ void SelectScene::Draw()
 	for (auto& mapPrev : mapPrevs_) {
 		mapPrev->Draw(vp_);
 	}
-
 	//--------------------------
 
 	/// Particleの描画準備
@@ -97,6 +95,14 @@ void SelectScene::Draw()
 	//------Particleの描画開始-------
 
 	//-----------------------------
+
+	/// Spriteの描画準備
+	spCommon_->DrawCommonSetting();
+	//-----Spriteの描画開始-----
+
+	selectUI_->Draw();
+
+	//------------------------------
 
 	//-----線描画-----
 	DrawLine3D::GetInstance()->Draw(vp_);
@@ -146,6 +152,7 @@ void SelectScene::Debug()
 	ImGui::Checkbox("カメラ動いてるか", &isMoveCamera_);
 	ImGui::End();
 	mapPrevs_[0]->Debug("stage1");
+	selectUI_->Debug();
 }
 
 void SelectScene::CameraUpdate()

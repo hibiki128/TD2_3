@@ -31,7 +31,7 @@ public:
 	void DrawSprite(const ViewProjection& viewProjection);
 	void DebugImGui()override;
 
-	// プレイヤーがゴールに触れたか判定
+	// プレイヤーがゴールに触れたか判定（プレイヤーが接地しているかつ、Bボタンを押した時のみ）
 	bool IsGoalReached();
 	// 現在の取得コイン数
 	uint32_t GetCurrentCoinCount() { return currentCoinCount_; }

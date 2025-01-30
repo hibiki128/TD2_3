@@ -236,7 +236,14 @@ bool Player::IsGoalReached() {
 	// 各角がゴール内にあるかを判定
 	for (const auto& corner : corners) {
 		if (corner.x >= goalLeft && corner.x <= goalRight && corner.y >= goalBottom && corner.y <= goalTop) {
-			return true; // 4つ角のどれかが触れていたらtrue
+
+			XINPUT_STATE joyState;
+			if (input_->GetJoystickState(0, joyState)) {
+				if ((joyState.Gamepad.wButtons & XINPUT_GAMEPAD_B) && collisionMapInfo_.hittingGround_) { // Bボタンを押している && 接地状態のみ
+					return true; // 4つ角のどれかが触れていたらtrue
+				}
+			}
+			//return true; // 4つ角のどれかが触れていたらtrue
 		}
 	}
 

@@ -116,7 +116,7 @@ private:
 	bool IsValidPosition(int x, int y) const;
 
 	// 初期状態で挟み込みが起きないよう、プレイヤーが一度でも反転を行ったかを記録
-	bool hasPlayerInverted_ = false;
+	/*bool hasPlayerInverted_ = false;*/
 
 	///
 	///	アニメーション関連

@@ -19,7 +19,7 @@ MapChipField::MapChipField()
 void MapChipField::Init(const std::string& csvFilePath)
 {
 	// 初期状態で挟み込みが起きないようにするフラグ
-	hasPlayerInverted_ = false;
+	/*hasPlayerInverted_ = false;*/
 
 	// ファイルパスの保存をしておく
 	csvFilePath_ = csvFilePath;
@@ -46,9 +46,11 @@ void MapChipField::Update()
 	}
 
 	// 挟み込みが起こった場合に挟まれたブロックの色反転を行う
-	if (hasPlayerInverted_) {
+	InvertBlocksWithCapture();
+
+	/*if (hasPlayerInverted_) {
 		InvertBlocksWithCapture();
-	}
+	}*/
 
 
 	// ゴールオブジェクト更新
@@ -116,7 +118,7 @@ void MapChipField::ResetMapChip() {
 void MapChipField::InvertBlocksInArea(const Vector3& center, int xRange, int yRange)
 {
 	// プレイヤーが反転を行ったことを記録する
-	hasPlayerInverted_ = true;
+	/*hasPlayerInverted_ = true;*/
 
 	// 中心位置からマップ上のマス位置を計算
 	int centerX = static_cast<int>(std::round(center.x / kChipSize));

@@ -77,6 +77,7 @@ public:
 	void SetModel(std::unique_ptr<Object3d> obj) {
 		obj3d_ = std::move(obj);
 	}
+	void SetModel(const std::string& filePath) { obj3d_->SetModel(filePath); }
 
 
 private:

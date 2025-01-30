@@ -24,27 +24,7 @@ void SelectScene::Initialize()
 	debugCamera_ = std::make_unique<DebugCamera>();
 	debugCamera_->Initialize(&vp_);
 
-	if (!sceneManager_->GetFilePath().empty()) {
-		std::string filePath = sceneManager_->GetFilePath();
-
-		// ファイルパスから"stage"の後ろの数字部分を取得する
-		size_t startPos = filePath.find("stage");
-		if (startPos != std::string::npos) {
-			startPos += 5; // "stage"の後の位置に移動
-			size_t endPos = filePath.find(".csv", startPos); // ".csv"の位置を探す
-			if (endPos != std::string::npos) {
-				std::string stageNumberStr = filePath.substr(startPos, endPos - startPos);
-				try {
-					currentStage = std::stoi(stageNumberStr) - 1; // stringをintに変換
-					BackGameScene_ = true;
-					// stageNumberが取得できました
-				}
-				catch (const std::invalid_argument& e) {
-					e;
-				}
-			}
-		}
-	}
+	SetStage();
 
 	MapLoad();
 
@@ -165,7 +145,7 @@ void SelectScene::Debug()
 	ImGui::DragFloat("タイマー", &cameraT_, 0.1f);
 	ImGui::Checkbox("カメラ動いてるか", &isMoveCamera_);
 	ImGui::End();
-
+	mapPrevs_[0]->Debug("stage1");
 }
 
 void SelectScene::CameraUpdate()
@@ -198,23 +178,42 @@ void SelectScene::ChangeScene()
 
 void SelectScene::MapLoad()
 {
-	const Vector3 Space = { 25.0f, 0.0f, 0.0f }; // ステージ間の間隔
+	const Vector3 Space = { 50.0f, 0.0f, 0.0f }; // ステージ間の間隔
 	for (int i = 0; i < stageNum; i++) {
 		std::unique_ptr<MapPrev> mapPrev = std::make_unique<MapPrev>();
 
-		// ステージ番号に応じたファイルパスを生成
-		filePath = "resources/Maps/stage" + std::to_string(i + 1) + ".csv";
+		// ステージ番号を取得（1-based index）
+		int stageIndex = i + 1;
+		std::string stageStr = std::to_string(stageIndex);
+
+		// ステージ番号の一桁目と二桁目を取得
+		std::string firstDigit = stageStr.substr(0, 1); // 先頭の桁
+		std::string secondDigit = "0"; // デフォルトで "0" を設定
+		if (stageStr.length() > 1) {
+			secondDigit = stageStr.substr(1, 1); // 2桁目がある場合のみ上書き
+		}
+
+		// ステージデータのファイルパスを生成
+		filePath = "resources/Maps/stage" + stageStr + ".csv";
+
+		// 一桁目と二桁目のモデルパスを作成
+		std::string singlePath = "clear/" + firstDigit + ".obj";
+		std::string twoPath = "clear/" + secondDigit + ".obj"; // 必ず "0" 以上の値になる
 
 		// マップ初期化
 		mapPrev->Init(filePath);
+		mapPrev->SetSingleModel(singlePath);
+		mapPrev->SetTwoDigitModel(twoPath); // 必ず適用
 
 		// 配置位置を設定
 		mapPrev->SetPosition(Space * i);
+		mapPrev->SetPositionX(Space.x * 2.0f * i);
 
 		// 配列に追加
 		mapPrevs_.push_back(std::move(mapPrev));
 	}
 }
+
 
 void SelectScene::MapSelect()
 {
@@ -295,7 +294,7 @@ void SelectScene::CameraMove()
 	// キーボードの右キーが押されたとき
 	if ((input_->PushKey(DIK_D) && !isMoveCamera_) || BackGameScene_) {
 		startPos = vp_.translation_.x;
-		endPos = currentStage * 50.0f;
+		endPos = currentStage * 100.0f;
 		cameraT_ = 0.0f;
 		isMoveCamera_ = true;
 		BackGameScene_ = false;
@@ -303,7 +302,7 @@ void SelectScene::CameraMove()
 	// キーボードの左キーが押されたとき
 	if (input_->PushKey(DIK_A) && !isMoveCamera_) {
 		startPos = vp_.translation_.x;
-		endPos = currentStage * 50.0f;
+		endPos = currentStage * 100.0f;
 		cameraT_ = 0.0f;
 		isMoveCamera_ = true;
 	}
@@ -316,14 +315,14 @@ void SelectScene::CameraMove()
 		// 右スティック入力 (正の値)
 		if (stickX > XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE && !isMoveCamera_) {
 			startPos = vp_.translation_.x;
-			endPos = currentStage * 50.0f;
+			endPos = currentStage * 100.0f;
 			cameraT_ = 0.0f;
 			isMoveCamera_ = true;
 		}
 		// 左スティック入力 (負の値)
 		else if (stickX < -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE && !isMoveCamera_) {
 			startPos = vp_.translation_.x;
-			endPos = currentStage * 50.0f;
+			endPos = currentStage * 100.0f;
 			cameraT_ = 0.0f;
 			isMoveCamera_ = true;
 		}
@@ -337,6 +336,31 @@ void SelectScene::CameraMove()
 		if (cameraT_ >= easeTMax) {
 			cameraT_ = easeTMax;
 			isMoveCamera_ = false;
+		}
+	}
+}
+
+void SelectScene::SetStage()
+{
+	if (!sceneManager_->GetFilePath().empty()) {
+		std::string filePath = sceneManager_->GetFilePath();
+
+		// ファイルパスから"stage"の後ろの数字部分を取得する
+		size_t startPos = filePath.find("stage");
+		if (startPos != std::string::npos) {
+			startPos += 5; // "stage"の後の位置に移動
+			size_t endPos = filePath.find(".csv", startPos); // ".csv"の位置を探す
+			if (endPos != std::string::npos) {
+				std::string stageNumberStr = filePath.substr(startPos, endPos - startPos);
+				try {
+					currentStage = std::stoi(stageNumberStr) - 1; // stringをintに変換
+					BackGameScene_ = true;
+					// stageNumberが取得できました
+				}
+				catch (const std::invalid_argument& e) {
+					e;
+				}
+			}
 		}
 	}
 }

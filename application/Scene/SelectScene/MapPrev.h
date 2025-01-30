@@ -26,7 +26,7 @@ public:
 	void Init(const std::string& csvFilePath);
 	void Update();
 	void Draw(const ViewProjection& vp);
-	void Debug(std::string& name);
+	void Debug(const std::string& name);
 
 	bool GetIsSelect() { return isSelect_; }
 	bool GetDecision() { return isDecision_; }
@@ -34,6 +34,14 @@ public:
 	void SetIsSelect(bool isSelect) { isSelect_ = isSelect; }
 	void SetDecision(bool isDecision) { isDecision_ = isDecision; }
 	void SetPosition(const Vector3 position) { center_ = position; }
+	void SetPositionX(const float position) {
+		book_->SetWorldPositionX(position);
+		stageTex_->SetWorldPositionX(position - 4.0f);
+		singleDigit_->SetWorldPositionX(position + 13.8f);
+		twoDigit_->SetWorldPositionX(position + 9.0f);
+	}
+	void SetSingleModel(const std::string& filePath) { singleDigit_->CreateModel(filePath); }
+	void SetTwoDigitModel(const std::string& filePath) { twoDigit_->CreateModel(filePath); }
 	bool IsFinish() { return isFinish_; }
 
 private:
@@ -48,7 +56,12 @@ private:
 
 	Vector3 center_;
 	float rotationAngleY_;
-	
+
+	std::unique_ptr<BaseObject> book_;
+	std::unique_ptr<BaseObject> stageTex_;
+	std::unique_ptr<BaseObject> singleDigit_;
+	std::unique_ptr<BaseObject> twoDigit_;
+
 private:
 	///
 	///	CSVファイルからマップチップの読み込み
@@ -58,9 +71,9 @@ private:
 	void LoadFromCSV(const std::string& filePath);
 	// ChipTypeを整数値から取得する関数
 	Block::ChipType GetChipTypeFromInt(int value);
-	
+
 	void UpdateMapChipsPosition();
-	
+
 	Vector3 CalculateChipPosition(int x, int y);
 
 	// 中心を基準にY軸回転を行う関数を追加

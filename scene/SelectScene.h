@@ -52,6 +52,8 @@ private:
 
 	void CameraMove();
 
+	void SetStage();
+
 private:
 	Audio* audio_;
 	Input* input_;
@@ -65,7 +67,7 @@ private:
 	// マップチップフィールド
 	std::vector<std::unique_ptr<MapPrev>> mapPrevs_;
 
-	int stageNum = 8;
+	int stageNum = 2;
 	int currentStage = 0;
 	float cameraT_ = 0.0f;
 	bool isMoveCamera_ = false;
@@ -79,4 +81,5 @@ private:
 
 	std::string filePath;
 	bool BackGameScene_ = false;
+
 };

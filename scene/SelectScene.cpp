@@ -152,7 +152,6 @@ void SelectScene::Debug()
 	ImGui::Checkbox("カメラ動いてるか", &isMoveCamera_);
 	ImGui::End();
 	mapPrevs_[0]->Debug("stage1");
-	selectUI_->Debug();
 }
 
 void SelectScene::CameraUpdate()

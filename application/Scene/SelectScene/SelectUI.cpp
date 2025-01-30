@@ -1,5 +1,5 @@
 #include "SelectUI.h"
-#include <imgui.h>
+
 
 void SelectUI::Init()
 {
@@ -26,12 +26,4 @@ void SelectUI::Draw()
 {
 	backTitle_->Draw();
 	decision_->Draw();
-}
-
-void SelectUI::Debug()
-{
-	ImGui::Begin("タイトルへ戻る");
-	ImGui::DragFloat2("位置", &pos_.x, 0.1f);
-	ImGui::DragFloat("大きさ", &value_, 0.1f);
-	ImGui::End();
 }

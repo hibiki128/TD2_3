@@ -86,7 +86,7 @@ void GameScene::Update()
 	pause_->Update();
 
 	// UIObject更新
-	uiObject_->Update();
+	uiObject_->Update(vp_);
 }
 
 void GameScene::Draw()
@@ -197,7 +197,7 @@ void GameScene::Debug()
 	// マップチップフィールドデバッグ情報
 	mapChipField_->DebugImGui();
 	// UIObjectデバッグ情報
-	/*uiObject_->DebugImGui();*/
+	uiObject_->DebugImGui();
 }
 
 void GameScene::CameraUpdate()

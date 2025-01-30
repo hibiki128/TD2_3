@@ -58,8 +58,7 @@ void BaseObject::DebugImGui()
 	ImGui::End();
 }
 
-void BaseObject::DebugTransform()
-{
+void BaseObject::DebugTransform() {
 	if (ImGui::BeginTabItem("トランスフォーム")) {
 		ImGui::DragFloat3("位置", &transform_.translation_.x, 0.1f);
 		float rotationDegrees[3] = {

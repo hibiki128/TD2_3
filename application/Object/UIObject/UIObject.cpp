@@ -37,9 +37,14 @@ void UIObject::Init() {
 	objectR_->Init("objectR");
 	objectR_->CreateModel("game/R.obj");
 	objectR_->SetTexture("game/R.png");
+
+	// 各ボタンオブジェクトを、栞オブジェクトと親子付け
+	objectL_->SetParent(&objectUI_->GetWorldTransform());
+	objectA_->SetParent(&objectUI_->GetWorldTransform());
+	objectR_->SetParent(&objectUI_->GetWorldTransform());
 }
 
-void UIObject::Update() {
+void UIObject::Update(const ViewProjection& viewProjection) {
 	// パッド入力による反応
 	InputReaction();
 
@@ -60,11 +65,11 @@ void UIObject::Draw(const ViewProjection& viewProjection) {
 
 void UIObject::DebugImGui()
 {
-	objectBook_->DebugImGui();
+	/*objectBook_->DebugImGui();*/
 	objectUI_->DebugImGui();
-	objectL_->DebugImGui();
+	/*objectL_->DebugImGui();
 	objectA_->DebugImGui();
-	objectR_->DebugImGui();
+	objectR_->DebugImGui();*/
 }
 
 void UIObject::InputReaction()
@@ -97,10 +102,10 @@ void UIObject::InputReaction()
 			float adjustedY = leftStickX * sinAngle + leftStickY * cosAngle;
 
 			// 移動範囲の制限
-			const float moveRange = 0.5f;
+			const float moveRange = 0.3f;
 			Vector3 newPosition = initLstickPos_;
 			newPosition.x += adjustedX * moveRange;
-			newPosition.y += adjustedY * moveRange;
+			newPosition.z += adjustedY * moveRange;
 
 			// Lオブジェクトの位置を更新
 			objectL_->SetWorldPosition(newPosition);

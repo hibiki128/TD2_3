@@ -22,7 +22,7 @@ void TitleUI::Init()
 	title_->SetTexture("title/title.png");
 
 	t_ = 0.0f;
-	startTime_ = 1.0f;
+	startTime_ = 1.5f;
 
 	input_ = Input::GetInstance();
 
@@ -104,8 +104,8 @@ void TitleUI::Debug()
 
 void TitleUI::TextMove()
 {
-	const float startPos = 14.0f;
-	const float endPos = 0.0f;
+	const float startPos = 16.0f;
+	const float endPos = 4.0f;
 	const float easeTMax = 3.0f;
 
 	if (startTime_ <= 0) {

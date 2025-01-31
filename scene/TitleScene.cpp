@@ -17,7 +17,7 @@ void TitleScene::Initialize()
 	ptCommon_ = ParticleCommon::GetInstance();
 	input_ = Input::GetInstance();
 	vp_.Initialize();
-	vp_.translation_ = { 12.0f,-6.0f,-30.0f };
+	vp_.translation_ = { 12.0f,-4.0f,-30.0f };
 
 	debugCamera_ = std::make_unique<DebugCamera>();
 	debugCamera_->Initialize(&vp_);

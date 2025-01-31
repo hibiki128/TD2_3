@@ -53,7 +53,9 @@ public:// メンバ関数
 	bool GetTransitionEnd() { return transitionEnd; }
 
 	void SetFilePath(std::string filePath) { this->filePath = filePath; }
+	void SetCoinNum(int coin) { coinNum = coin; }
 	std::string GetFilePath() { return filePath; }
+	int GetCoin() { return coinNum; }
 
 public: // setter
 	/// <summary>
@@ -88,5 +90,7 @@ private:
 
 	bool transitionEnd = false;
 	bool firstChange = false;
+
+	int coinNum = 0;
 };
 

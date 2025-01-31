@@ -260,6 +260,9 @@ bool Player::IsGoalReached() {
 					return true; // 4つ角のどれかが触れていたらtrue
 				}
 			}
+			if (input_->TriggerKey(DIK_SPACE) && collisionMapInfo_.hittingGround_) {
+				return true;
+			}
 			//return true; // 4つ角のどれかが触れていたらtrue
 		}
 	}

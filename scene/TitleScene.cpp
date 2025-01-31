@@ -17,7 +17,7 @@ void TitleScene::Initialize()
 	ptCommon_ = ParticleCommon::GetInstance();
 	input_ = Input::GetInstance();
 	vp_.Initialize();
-	vp_.translation_ = { 12.0f,-6.0f,-30.0f };
+	vp_.translation_ = { 12.0f,-4.0f,-30.0f };
 
 	debugCamera_ = std::make_unique<DebugCamera>();
 	debugCamera_->Initialize(&vp_);
@@ -77,6 +77,7 @@ void TitleScene::Update()
 	// シーン切り替え
 	ChangeScene();
 
+
 }
 
 void TitleScene::Draw()
@@ -101,6 +102,7 @@ void TitleScene::Draw()
 	ptCommon_->DrawCommonSetting();
 	//------Particleの描画開始-------
 	mapChipField_->DrawParticle(vp_);
+
 	//-----------------------------
 
 	/// Spriteの描画準備

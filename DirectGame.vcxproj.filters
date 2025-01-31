@@ -353,6 +353,9 @@
     <ClCompile Include="application\SelectScene\MapPrev.cpp">
       <Filter>ソースファイル</Filter>
     </ClCompile>
+    <ClCompile Include="application\Camera\ClearCamera.cpp">
+      <Filter>ソースファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\shaders\Particle\Particle.hlsli">
@@ -605,6 +608,7 @@
     <ClInclude Include="scene\DemoScene.h" />
     <ClInclude Include="application\Scene\SelectScene\SelectUI.h" />
     <ClInclude Include="application\Object\Coin\Coin.h" />
+    <ClInclude Include="application\Camera\ClearCamera.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Particle\Particle.PS.hlsl">

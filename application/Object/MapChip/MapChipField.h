@@ -22,8 +22,7 @@ private:
 
 		///
 		/// アニメーション関連
-		///
-
+		/// 
 		float animationTime = 0.0f;
 		float currentRotation = 0.0f;
 		float delayTime = 0.0f;
@@ -108,9 +107,6 @@ private:
 	// コインオブジェクト
 	std::vector<std::unique_ptr<Coin>> coins_;
 
-	// 音関連
-	uint32_t invertSE_;
-
 private:
 	///
 	///	CSVファイルからマップチップの読み込み
@@ -131,11 +127,12 @@ private:
 	void InvertBlock(int x, int y);
 	// 指定された座標が有効範囲内か確認
 	bool IsValidPosition(int x, int y) const;
-	// 重力反転時のパーティクル用
-	void GravityParticleUpdate();
 
 	// 初期状態で挟み込みが起きないよう、プレイヤーが一度でも反転を行ったかを記録
 	/*bool hasPlayerInverted_ = false;*/
+
+	// 重力反転時のパーティクル用
+	void GravityParticleUpdate();
 
 	///
 	///	アニメーション関連
@@ -154,9 +151,9 @@ private:
 private:
 	// 重力反転状態かどうか（重力ブロックのテクスチャ変更のためだけに使用）
 	bool isGravityReversed_ = false; // 初期状態は通常
-	// プレイヤーの色状態
-	bool isPlayerWhite_ = true; // 白から始まる
+
+	// プレイヤーが白いかどうか（通常ブロックとスカスカブロックの変更のためだけに使用）
+	bool isPlayerWhite_ = true;
 	bool prevGravityState = false;
 	float arrowTime_ = 0.0f;
 };
-

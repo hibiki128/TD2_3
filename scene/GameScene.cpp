@@ -45,6 +45,9 @@ void GameScene::Initialize()
 	uiObject_ = std::make_unique<UIObject>();
 	uiObject_->Init();
 
+	// クリアカメラ
+	clearCamera_ = std::make_unique<ClearCamera>();
+
 	///
 	///	スプライト初期化
 	/// 
@@ -54,6 +57,8 @@ void GameScene::Initialize()
 
 	BGM_ = audio_->LoadWave("game/gameBgm.wav");
 	audio_->PlayWave(BGM_, 0.2f, true);
+
+	clearCamera_->Init(&vp_);
 
 	// ポーズ
 	pause_ = std::make_unique<Pause>();
@@ -69,8 +74,6 @@ void GameScene::Update()
 	Debug();
 #endif // _DEBUG
 
-	// カメラ更新
-	CameraUpdate();
 
 	///
 	///	各オブジェクト更新
@@ -101,6 +104,10 @@ void GameScene::Update()
 
 	// UIObject更新
 	uiObject_->Update();
+
+
+	// カメラ更新
+	CameraUpdate();
 
 	// シーン切り替え
 	ChangeScene();
@@ -229,12 +236,25 @@ void GameScene::Debug()
 
 void GameScene::CameraUpdate()
 {
-	if (debugCamera_->GetActive()) {
+#ifdef _DEBUG
+	/*if (debugCamera_->GetActive()) {
 		debugCamera_->Update();
 	}
 	else {
 		vp_.UpdateMatrix();
+	}*/
+#endif // _DEBUG
+
+	if (player_->IsGoalReached()) {
+		clearCamera_->SetActive(true);
 	}
+	if (clearCamera_->GetActive()) {
+		clearCamera_->Update(player_->GetWorldPosition());
+	}
+	else {
+		vp_.UpdateMatrix();
+	}
+
 }
 
 void GameScene::ChangeScene()
@@ -247,7 +267,7 @@ void GameScene::ChangeScene()
 		// SELECTシーンへの遷移を予約
 		sceneManager_->NextSceneReservation("SELECT");
 	}
-	if (player_->IsGoalReached()) {
+	if (player_->IsGoalReached()&&clearCamera_->GetFinish()) {
 		sceneManager_->NextSceneReservation("CLEAR");
 	}
 }

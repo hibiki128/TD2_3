@@ -347,6 +347,9 @@
     <ClCompile Include="application\Scene\SelectScene\SelectUI.cpp">
       <Filter>ソースファイル</Filter>
     </ClCompile>
+    <ClCompile Include="application\Camera\ClearCamera.cpp">
+      <Filter>ソースファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\shaders\Particle\Particle.hlsli">
@@ -598,6 +601,7 @@
     <ClInclude Include="application\Scene\ClearScene\ClearUI.h" />
     <ClInclude Include="scene\DemoScene.h" />
     <ClInclude Include="application\Scene\SelectScene\SelectUI.h" />
+    <ClInclude Include="application\Camera\ClearCamera.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Particle\Particle.PS.hlsl">

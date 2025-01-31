@@ -2,13 +2,21 @@
 #include <LightGroup.h>
 #include"SceneManager.h"
 #include <line/DrawLine3D.h>
+#include <iostream>
+#include <fstream>
+#include "externals/nlohmann/json.hpp"
+#include <filesystem>
 
 void ClearScene::Finalize()
 {
 	InitFilePath();
+
+#ifndef _DEBUG 
+	StageDataForJson();
+#endif
+
 	sceneManager_->SetFilePath(filePath_);
 }
-
 void ClearScene::Initialize()
 {
 
@@ -26,7 +34,6 @@ void ClearScene::Initialize()
 	clearUI_ = std::make_unique<ClearUI>();
 	clearUI_->SetStageNum(GetStageNum());
 	clearUI_->Init();
-
 }
 
 void ClearScene::Update()
@@ -220,3 +227,38 @@ int ClearScene::GetStageNum()
 	return stageNumber;
 }
 
+void ClearScene::StageDataForJson()
+{
+	// ステージのファイルパスを取得
+	std::string filePath = sceneManager_->GetFilePath();
+
+	// ステージ番号を抽出
+	std::size_t found = filePath.find_last_of("/\\");
+	std::string fileName = filePath.substr(found + 1);
+	std::string stageNumber = fileName.substr(5, fileName.find_last_of(".") - 5);
+
+	// コインの数を取得
+	coinNum_ = sceneManager_->GetCoin();
+
+	// JSONオブジェクトを作成
+	nlohmann::json jsonData = {
+		{"FilePath", filePath},
+		{"CoinNum", coinNum_}
+	};
+
+	// StageDataフォルダのパス
+	std::string stageDataFolderPath = "resources/jsons/StageData/";
+
+	// フォルダが存在しない場合は作成
+	if (!std::filesystem::exists(stageDataFolderPath)) {
+		std::filesystem::create_directories(stageDataFolderPath);
+	}
+
+	// JSONファイルの保存
+	std::string jsonFileName = stageDataFolderPath + "stage" + stageNumber + ".json";
+	std::ofstream jsonFile(jsonFileName);
+	if (jsonFile.is_open()) {
+		jsonFile << jsonData.dump(4); // 4はインデントのスペース数
+		jsonFile.close();
+	}
+}

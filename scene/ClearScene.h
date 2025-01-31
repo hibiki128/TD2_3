@@ -50,6 +50,8 @@ private:
 
 	int GetStageNum();
 
+	void StageDataForJson();
+
 private:
 	Audio* audio_;
 	Input* input_;
@@ -63,4 +65,6 @@ private:
 	std::string filePath_;
 
 	std::unique_ptr<ClearUI> clearUI_;
+
+	int coinNum_;
 };

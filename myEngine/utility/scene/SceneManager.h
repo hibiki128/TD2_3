@@ -90,7 +90,6 @@ private:
 
 	bool transitionEnd = false;
 	bool firstChange = false;
-
-	int coinNum = 0;
+	int coinNum;
 };
 

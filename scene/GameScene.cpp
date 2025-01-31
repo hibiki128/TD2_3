@@ -6,7 +6,7 @@
 void GameScene::Finalize()
 {
 	sceneManager_->SetFilePath(filePath_);
-	//sceneManager_->SetCoinNum();
+	sceneManager_->SetCoinNum(player_->GetCurrentCoinCount());
 	audio_->StopWave(BGM_);
 }
 

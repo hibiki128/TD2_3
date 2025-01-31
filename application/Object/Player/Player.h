@@ -33,7 +33,6 @@ public:
 	void Reset();
 	void PlaySE();
 
-
 	// プレイヤーがゴールに到達しているか判定
 	bool IsGoalReached();
 	bool GetSquareTransition() {
@@ -42,6 +41,9 @@ public:
 		}
 		return false;
 	}
+	// 現在の取得コイン数
+	uint32_t GetCurrentCoinCount() { return currentCoinCount_; }
+	
 	// プレイヤーの位置を設定
 	void SetInitialPosition(Vector3 playerInitialPosition) { this->transform_.translation_ = playerInitialPosition; }
 	void SetTransitionStart() { if (squareTransition_->IsFinished()) { squareTransition_->Start(SquareTransition::Status::SquareIn, kResetTransitionTime); } }
@@ -83,6 +85,9 @@ private:
 	};
 	// プレイヤーの色の状態
 	ColorState colorState_ = ColorState::White;
+
+	// 現在取得したコインの枚数
+	uint32_t currentCoinCount_ = 0;
 
 	//////////////////
 	/*調整パラメーター*/
@@ -146,6 +151,10 @@ private:
 	// 反転可能範囲画像サイズを現在の範囲によって変更（ごり押しで）
 	void InvertAreaSpriteAdjust();
 
+	// プレイヤーがコインオブジェクトに触れたかを判定
+	bool IsCollidingCoin(const Coin& coin);
+	// 取得したコインの座標を保存しておく
+	Vector3 lastCollectedCoinPosition_ = {0.0f, 0.0f, 0.0f};
 
 private:
 	using json = nlohmann::json;
@@ -169,6 +178,8 @@ private:
 	bool IsLandedOccurred();
 	// 歩いているかどうかの判定
 	bool IsWalking();
+	// コインを取得した瞬間を判定
+	bool IsCollectCoinOccurred() { return isCollectCoinOccurred_; }
 
 private:
 	// ジャンプした瞬間を判定
@@ -185,4 +196,7 @@ private:
 	
 	bool isWalking_ = false;
 
+
+	// コインを取得した瞬間を判定
+	bool isCollectCoinOccurred_ = false;
 };

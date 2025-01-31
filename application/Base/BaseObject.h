@@ -9,16 +9,15 @@
 
 class BaseObject : public Collider {
 protected:
-
 	/// ===================================================
-	///protected variaus
+	/// protected variaus
 	/// ===================================================
 
 	// モデル配列データ
 	std::unique_ptr<Object3d> obj3d_;
 	// ベースのワールド変換データ
 	WorldTransform transform_;
-	//カラー
+	// カラー
 	ObjColor objColor_;
 	// ライティング
 	bool isLighting_;
@@ -31,12 +30,11 @@ private:
 	using json = nlohmann::json;
 
 public:
-
 	/// ===================================================
-	///public method
+	/// public method
 	/// ===================================================
 
-	//初期化、更新、描画
+	// 初期化、更新、描画
 	virtual void Init(const std::string className);
 	virtual void Update();
 	virtual void Draw(const ViewProjection& viewProjection);
@@ -46,21 +44,21 @@ public:
 
 	virtual void DebugImGui();
 
-	Vector3 GetCenterPosition()const override;
-	Vector3 GetCenterRotation()const override;
+	Vector3 GetCenterPosition() const override;
+	Vector3 GetCenterRotation() const override;
 
 	// 中心座標取得
 	virtual Vector3 GetWorldPosition() const;
 	virtual const WorldTransform& GetWorldTransform() const { return transform_; }
 
 	/// ===================================================
-	///getter 
+	/// getter
 	/// ===================================================
 	const WorldTransform& GetTransform() { return transform_; }
 	const Object3d* GetObject3d() { return obj3d_.get(); }
 
 	/// ===================================================
-	///setter 
+	/// setter
 	/// ===================================================
 	void SetObjColor(Vector4 c) { objColor_.SetColor(c); }
 	void SetWorldPosition(Vector3 pos) { transform_.translation_ = pos; }
@@ -73,6 +71,7 @@ public:
 	void SetScale(Vector3 scale) { transform_.scale_ = scale; }
 	void SetLighting(bool isLighting) { isLighting_ = isLighting; }
 	void SetTexture(const std::string& filePath) { obj3d_->SetTexture(filePath); }
+	void SetParent(const WorldTransform* parent) { transform_.parent_ = parent; }
 	void SetColor(const Vector4& color) { obj3d_->SetColor(color); }
 	void SetModel(std::unique_ptr<Object3d> obj) {
 		obj3d_ = std::move(obj);

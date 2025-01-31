@@ -9,13 +9,37 @@
 #include "application/Base/BaseObject.h"
 #include "application/Object/MapChip/Block/Block.h"
 #include "application/Object/Goal/Goal.h"
+#include "application/Object/Coin/Coin.h"
 #include <ParticleEmitter.h>
 
-class MapChipField
-{
+class MapChipField {
+private:
+	// マップチップのデータ構造
+	struct MapChip {
+		std::unique_ptr<Block> object;
+		std::unique_ptr<ParticleEmitter> normal_;
+		std::unique_ptr<ParticleEmitter> arrow_;
+
+		///
+		/// アニメーション関連
+		///
+
+		float animationTime = 0.0f;
+		float currentRotation = 0.0f;
+		float delayTime = 0.0f;
+
+		bool isAnimating = false;
+		bool isDelaying = false;
+		bool hasColorChanged = false;
+
+		enum class AnimationState { None, Shrinking, ColorChange, Expanding } animState = AnimationState::None;
+
+		float currentScale = 1.0f;
+	};
+
 public:
-	size_t mapWidth = 13; // 横マス数
-	size_t mapHeight = 8; // 縦マス数
+	size_t mapWidth = 13;         // 横マス数
+	size_t mapHeight = 8;         // 縦マス数
 	static const float kChipSize; // 各マップチップのサイズ
 
 	///
@@ -35,6 +59,8 @@ public:
 	std::vector<Block*> GetBlocks() const;
 	// ゴールオブジェクトの取得
 	Goal* GetGoal() const { return goal_.get(); }
+	// コインオブジェクトの取得
+	std::vector<std::unique_ptr<Coin>>& GetCoins() { return coins_; }
 	// プレイヤー初期位置を返す
 	Vector3 GetPlayerInitialPosition() { return playerInitialPosition_; }
 	// マップの状態を初期状態に戻す
@@ -42,7 +68,7 @@ public:
 
 	///
 	///	ブロックの反転処理（プレイヤー側で呼び出す）
-	/// 
+	///
 
 	// プレイヤー範囲内のブロックの色を反転（
 	void InvertBlocksInArea(const Vector3& center, int xRange, int yRange);
@@ -51,7 +77,7 @@ public:
 
 	///
 	///	その他
-	/// 
+	///
 
 	// 指定範囲内にブロックが存在しているかを判定
 	bool HasBlockInArea(const Vector3& center, int xRange, int yRange);
@@ -64,34 +90,12 @@ public:
 	// 指定範囲内にプレイヤー色反転ブロックがあるかどうかを判定
 	bool HasColorChangeBlockInArea(const Vector3& center, int xRange, int yRange);
 
+	// プレイヤーの色状態を確認してセットする
+	void SetIsPlayerWhite(bool flag) { isPlayerWhite_ = flag; }
+	// プレイヤーと同じ色のブロックをスカスカ状態に、違う色のブロックを通常状態にする
+	void SwitchThroughtBlock(MapChip* chip, bool flag); // アニメーション終了ブロックの判定にはtrue, 反転時の全てのブロック判定にはfalse
+
 private:
-	// マップチップのデータ構造
-	struct MapChip {
-		std::unique_ptr<Block> object;
-		std::unique_ptr<ParticleEmitter> normal_;
-		std::unique_ptr<ParticleEmitter> arrow_;
-
-		///
-		/// アニメーション関連
-		/// 
-		float animationTime = 0.0f;
-		float currentRotation = 0.0f;
-		float delayTime = 0.0f;
-
-		bool isAnimating = false;
-		bool isDelaying = false;
-		bool hasColorChanged = false;
-
-		enum class AnimationState {
-			None,
-			Shrinking,
-			ColorChange,
-			Expanding
-		} animState = AnimationState::None;
-
-		float currentScale = 1.0f;
-	};
-
 	// マップチップの二次元配列
 	std::vector<std::vector<MapChip>> mapChips_;
 	std::string csvFilePath_; // ファイルパス保存用
@@ -100,6 +104,9 @@ private:
 	std::unique_ptr<Goal> goal_;
 	// プレイヤー初期位置を格納
 	Vector3 playerInitialPosition_;
+
+	// コインオブジェクト
+	std::vector<std::unique_ptr<Coin>> coins_;
 
 	// 音関連
 	uint32_t invertSE_;
@@ -128,7 +135,7 @@ private:
 	void GravityParticleUpdate();
 
 	// 初期状態で挟み込みが起きないよう、プレイヤーが一度でも反転を行ったかを記録
-	bool hasPlayerInverted_ = false;
+	/*bool hasPlayerInverted_ = false;*/
 
 	///
 	///	アニメーション関連

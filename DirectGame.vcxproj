@@ -110,6 +110,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="application\Object\MapChip\MapChipField.cpp" />
     <ClCompile Include="application\Object\MapChip\Block\Block.cpp" />
     <ClCompile Include="application\Object\Goal\Goal.cpp" />
+    <ClCompile Include="application\Object\Coin\Coin.cpp" />
     <ClCompile Include="application\Scene\SelectScene\MapPrev.cpp" />
     <ClCompile Include="application\Scene\ClearScene\ClearUI.cpp" />
     <ClCompile Include="scene\DemoScene.cpp" />
@@ -212,6 +213,7 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\Scene\SelectScene\MapPrev.h" />
     <ClInclude Include="application\Object\MapChip\Block\Block.h" />
     <ClInclude Include="application\Object\Goal\Goal.h" />
+    <ClInclude Include="application\Object\Coin\Coin.h" />
     <ClInclude Include="application\Scene\ClearScene\ClearUI.h" />
     <ClInclude Include="scene\DemoScene.h" />
     <ClInclude Include="scene\ClearScene.h" />

@@ -16,6 +16,7 @@ public:
 		Player,      // プレイヤー初期位置
 		Gravity,     // 重力反転ブロック
 		ColorChange, // プレイヤー色反転ブロック
+		Coin,        // コイン
 	};
 
 	void Init(const std::string className) override;

@@ -224,7 +224,7 @@ void GameScene::Debug()
 	// マップチップフィールドデバッグ情報
 	mapChipField_->DebugImGui();
 	// UIObjectデバッグ情報
-	/*uiObject_->DebugImGui();*/
+	uiObject_->DebugImGui();
 }
 
 void GameScene::CameraUpdate()

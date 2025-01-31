@@ -27,6 +27,12 @@ private:
 	std::unique_ptr<BaseObject> objectA_; // Aボタン
 	std::unique_ptr<BaseObject> objectR_; // RBボタン
 
+	///
+	///	その他
+	/// 
+
+	// ビルボード行列
+	Matrix4x4 billboardMatrix_;
 
 private:
 	// Lスティックオブジェクトの初期位置

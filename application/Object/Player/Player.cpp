@@ -2,10 +2,10 @@
 #include "Player.h"
 
 // Engine
-#include "myEngine/3d/line/DrawLine3D.h"
 #include "math/myMath.h"
 #include"Audio.h"
 #include"myEngine/Frame/Frame.h"
+#include "myEngine/3d/line/DrawLine3D.h"
 
 void Player::Init(const std::string className) {
 	input_ = Input::GetInstance();
@@ -36,12 +36,7 @@ void Player::Init(const std::string className) {
 
 	// プレイヤー反転範囲スプライト生成
 	spritePlayerArea_ = std::make_unique<Sprite>();
-	spritePlayerArea_->Initialize(
-		"game/playerArea.png",
-		{0.0f, 0.0f},
-		{1.0f, 1.0f, 1.0f, 1.0f},
-		{0.5f, 0.5f}
-		);
+	spritePlayerArea_->Initialize("game/playerArea.png", {0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.5f, 0.5f});
 	spritePlayerArea_->SetSize({165.0f, 165.0f});
 
 	// Jsonからパラメーターの読み込み
@@ -55,6 +50,9 @@ void Player::Init(const std::string className) {
 }
 
 void Player::Update(MapChipField* mapChipField) {
+	// 各種瞬間判定フラグをリセット
+	isCollectCoinOccurred_ = false; // なぜか下に記述するとずっとfalseになってしまうのでここに記述
+
 	///
 	///	毎フレーム更新処理
 	///
@@ -77,6 +75,21 @@ void Player::Update(MapChipField* mapChipField) {
 
 	mapChipField_ = mapChipField;
 
+	// コインの取得処理
+	for (auto& coin : mapChipField_->GetCoins()) {
+		// プレイヤーがコインに触れたかを判定
+		if (IsCollidingCoin(*coin)) {
+			coin->SetCollected(true); // コインを取得済みにする
+		}
+	}
+
+	// プレイヤーの色状態をmapChipFieldに知らせる
+	if (colorState_ == ColorState::White) {
+		mapChipField_->SetIsPlayerWhite(true);
+	} else if (colorState_ == ColorState::Black) {
+		mapChipField_->SetIsPlayerWhite(false);
+	}
+
 	// 接地しているか天井に接触した際にはY方向速度をリセット
 	if (collisionMapInfo_.hittingGround_) {
 		velocity_.y = 0.0f;
@@ -91,6 +104,7 @@ void Player::Update(MapChipField* mapChipField) {
 	isBlockInversionOccurred_ = false;
 	isResetOccurred_ = false;
 	isGravityReversedOccurred_ = false;
+	/*isCollectCoinOccurred_ = false;*/
 
 	///
 	///	入力操作
@@ -102,11 +116,10 @@ void Player::Update(MapChipField* mapChipField) {
 	///	重力を常に受ける
 	///
 
-	if (!isInverting_) { // ブロック反転中には重力を加算しない
-		if (isGravityReversed_) {  // 重力反転中
+	if (!isInverting_) {                         // ブロック反転中には重力を加算しない
+		if (isGravityReversed_) {                // 重力反転中
 			velocity_.y -= gravityAcceleration_; // 上向きに重力をかける (逆)
-		}
-		else { // 通常重力
+		} else {                                 // 通常重力
 			velocity_.y += gravityAcceleration_; // 下向きに重力をかける（順）
 		}
 	}
@@ -137,18 +150,20 @@ void Player::Update(MapChipField* mapChipField) {
 			/*ImGui::Text("TransitionStatus : %d", squareTransition_->GetCurrentStatus());
 			ImGui::Text("TransitionIsFinished : %d", squareTransition_->IsFinished());*/
 
-			bool flag[5] = { false };
+			bool flag[6] = {false};
 			flag[0] = IsJumpOccurred();
 			flag[1] = IsBlockInversionOccurred();
 			flag[2] = IsResetOccurred();
 			flag[3] = IsGravityReversedOccurred();
 			flag[4] = IsLandedOccurred();
+			flag[5] = IsCollectCoinOccurred();
 
 			ImGui::Checkbox("ジャンプした瞬間", &flag[0]);
 			ImGui::Checkbox("ブロック反転した瞬間", &flag[1]);
 			ImGui::Checkbox("リセットした瞬間", &flag[2]);
 			ImGui::Checkbox("重力反転した瞬間", &flag[3]);
 			ImGui::Checkbox("着地した瞬間", &flag[4]);
+			ImGui::Checkbox("コインを取得した瞬間", &flag[5]);
 
 			if (colorState_ == ColorState::White) {
 				ImGui::Text("現在の色 : 白");
@@ -156,6 +171,10 @@ void Player::Update(MapChipField* mapChipField) {
 			else if (colorState_ == ColorState::Black) {
 				ImGui::Text("現在の色 : 黒");
 			}
+
+			ImGui::Text("現在の取得コイン数 : %d", currentCoinCount_);
+
+			ImGui::DragFloat3("最後に取得したコインの座標", &lastCollectedCoinPosition_.x);
 
 			ImGui::EndTabItem();
 		}
@@ -172,7 +191,7 @@ void Player::Draw(const ViewProjection& viewProjection) {
 	/*DrawInvertArea();*/
 }
 
-void Player::DrawSprite(const ViewProjection& viewProjection) { 
+void Player::DrawSprite(const ViewProjection& viewProjection) {
 	// プレイヤーのワールド座標をスクリーン座標に変換してspritePlayerAreaの位置をセット
 	InvertAreaSpriteToPlayerPosition(viewProjection);
 	// 現在の反転可能範囲の数値によってspritePlayerAreaのサイズを変更
@@ -182,7 +201,7 @@ void Player::DrawSprite(const ViewProjection& viewProjection) {
 	spritePlayerArea_->Draw();
 
 	// リセット時トランジションスプライトの描画
-	squareTransition_->Draw(); 
+	squareTransition_->Draw();
 }
 
 void Player::DebugImGui() {
@@ -234,7 +253,48 @@ bool Player::IsGoalReached() {
 	// 各角がゴール内にあるかを判定
 	for (const auto& corner : corners) {
 		if (corner.x >= goalLeft && corner.x <= goalRight && corner.y >= goalBottom && corner.y <= goalTop) {
-			return true; // 4つ角のどれかが触れていたらtrue
+
+			XINPUT_STATE joyState;
+			if (input_->GetJoystickState(0, joyState)) {
+				if ((joyState.Gamepad.wButtons & XINPUT_GAMEPAD_B) && collisionMapInfo_.hittingGround_) { // Bボタンを押している && 接地状態のみ
+					return true; // 4つ角のどれかが触れていたらtrue
+				}
+			}
+			//return true; // 4つ角のどれかが触れていたらtrue
+		}
+	}
+
+	return false;
+}
+
+bool Player::IsCollidingCoin(const Coin& coin) {
+	// 現在位置の取得
+	Vector3 position = this->transform_.translation_;
+	// プレイヤーの4つの角を計算
+	Vector3 corners[4] = {
+	    {position.x - kWidth / 2, position.y + kHeight / 2, position.z}, // 左上
+	    {position.x + kWidth / 2, position.y + kHeight / 2, position.z}, // 右上
+	    {position.x - kWidth / 2, position.y - kHeight / 2, position.z}, // 左下
+	    {position.x + kWidth / 2, position.y - kHeight / 2, position.z}  // 右下
+	};
+
+	// コインとの当たり判定
+	Vector3 coinPosition = coin.GetWorldPosition();
+	float coinLeft = coinPosition.x - MapChipField::kChipSize / 2;
+	float coinRight = coinPosition.x + MapChipField::kChipSize / 2;
+	float coinTop = coinPosition.y + MapChipField::kChipSize / 2;
+	float coinBottom = coinPosition.y - MapChipField::kChipSize / 2;
+
+	// プレイヤーの角がコインの範囲内にあるかをチェック
+	for (const auto& corner : corners) {
+		if (corner.x >= coinLeft && corner.x <= coinRight && corner.y >= coinBottom && corner.y <= coinTop) {
+			currentCoinCount_++; // 現在のコイン数を1増やす
+
+			lastCollectedCoinPosition_ = coinPosition; // 触れたコインの座標を記録しておく
+
+			isCollectCoinOccurred_ = true; // コインを取得したことを記録（SE・エフェクト用）
+
+			return true; // 4つの角のどれかが触れていたらtrue
 		}
 	}
 
@@ -244,7 +304,7 @@ bool Player::IsGoalReached() {
 void Player::HandleInput() {
 #pragma region ゲームパッド入力
 	// 前フレームの押下状態を保存
-	static bool wasPressedA = false; // Aボタン
+	static bool wasPressedA = false;  // Aボタン
 	static bool wasPressedRB = false; // RBボタン
 	static bool wasPressedLB = false; // LBボタン
 
@@ -314,7 +374,7 @@ void Player::HandleInput() {
 
 		// RBボタンが押された瞬間のみ
 		if (isPressedRB && !wasPressedRB && blockInvertCooldown_ <= 0.0f) { // クールタイム中には反転できない
-			if (!isInverting_ && !collisionMapInfo_.isOverlapping_) { // ブロック反転中には反転できない && ブロックに埋まっていたら反転できない
+			if (!isInverting_ && !collisionMapInfo_.isOverlapping_) {       // ブロック反転中には反転できない && ブロックに埋まっていたら反転できない
 				if (mapChipField_) {
 					// 現在の位置を取得
 					Vector3 position = BaseObject::GetWorldPosition();
@@ -330,10 +390,9 @@ void Player::HandleInput() {
 
 						///
 						/// 重力ブロックが範囲内に見つかった場合、プレイヤーの重力を反転する
-						/// 
+						///
 						if (mapChipField_->HasGravityBlockInArea(position, xInvertRange_, yInvertRange_)) {
 							isGravityReversed_ = !isGravityReversed_;
-
 
 							// 重力反転したことを記録（SE・エフェクト用）
 							isGravityReversedOccurred_ = true;
@@ -341,17 +400,19 @@ void Player::HandleInput() {
 
 						///
 						///	プレイヤー色反転ブロックが範囲内に見つかった場合、プレイヤーの色を反転する
-						/// 
+						///
 						if (mapChipField_->HasColorChangeBlockInArea(position, xInvertRange_, yInvertRange_)) {
 							// 現在が白の場合、テクスチャと色状態を黒に変更
 							if (colorState_ == ColorState::White) {
 								this->SetTexture("debug/black1x1.png");
 								colorState_ = ColorState::Black;
+
 								// 現在が黒の場合、テクスチャと色状態を白に変更
 							}
 							else if (colorState_ == ColorState::Black) {
 								this->SetTexture("debug/white1x1.png");
 								colorState_ = ColorState::White;
+
 							}
 						}
 
@@ -431,7 +492,7 @@ void Player::HandleInput() {
 	///
 
 	if (input_->TriggerKey(DIK_SPACE) && blockInvertCooldown_ <= 0.0f) { // クールタイム中には反転できない
-		if (!isInverting_ && !collisionMapInfo_.isOverlapping_) { // ブロック反転中には反転できない && ブロックに埋まっていたら反転できない
+		if (!isInverting_ && !collisionMapInfo_.isOverlapping_) {        // ブロック反転中には反転できない && ブロックに埋まっていたら反転できない
 			if (mapChipField_) {
 				// 現在の位置を取得
 				Vector3 position = BaseObject::GetWorldPosition();
@@ -447,10 +508,9 @@ void Player::HandleInput() {
 
 					///
 					/// 重力ブロックが範囲内に見つかった場合、プレイヤーの重力を反転する
-					/// 
+					///
 					if (mapChipField_->HasGravityBlockInArea(position, xInvertRange_, yInvertRange_)) {
 						isGravityReversed_ = !isGravityReversed_;
-
 
 						// 重力反転したことを記録（SE・エフェクト用）
 						isGravityReversedOccurred_ = true;
@@ -458,16 +518,15 @@ void Player::HandleInput() {
 
 					///
 					///	プレイヤー色反転ブロックが範囲内に見つかった場合、プレイヤーの色を反転する
-					/// 
+					///
 					if (mapChipField_->HasColorChangeBlockInArea(position, xInvertRange_, yInvertRange_)) {
 						// 現在が白の場合、テクスチャと色状態を黒に変更
 						if (colorState_ == ColorState::White) {
 							this->SetTexture("debug/black1x1.png");
 							colorState_ = ColorState::Black;
 							// 現在が黒の場合、テクスチャと色状態を白に変更
-						}
-						else if (colorState_ == ColorState::Black) {
-							this->SetTexture("debug/white1x1.png");
+						} else if (colorState_ == ColorState::Black) {
+							this->SetTexture("game/playerWhite.png");
 							colorState_ = ColorState::White;
 						}
 					}
@@ -556,7 +615,7 @@ void Player::Reset() {
 	if (squareTransition_->IsFinished() && squareTransition_->GetCurrentStatus() == SquareTransition::Status::SquareIn) {
 		///
 		///	各種リセット処理
-		/// 
+		///
 
 		// プレイヤーの位置をリセット
 		this->transform_.translation_ = mapChipField_->GetPlayerInitialPosition();
@@ -567,12 +626,15 @@ void Player::Reset() {
 		// プレイヤーの色状態をリセット（とりあえずデフォルトを白としておく）
 		this->SetTexture("debug/white1x1.png");
 		colorState_ = ColorState::White;
+		// 現在の取得コイン数をリセット
+		currentCoinCount_ = 0;
 
 		// マップのリセット
 		mapChipField_->ResetMapChip();
 		// マップの所持する重力状態をリセット
 		mapChipField_->SetIsGravityReversed(false);
-
+		// マップの所持するプレイヤーの色状態をリセット
+		mapChipField_->SetIsPlayerWhite(true); // 最初は白から始まるため
 
 		// SquareOutを開始する
 		squareTransition_->Start(SquareTransition::Status::SquareOut, kResetTransitionTime);
@@ -724,22 +786,19 @@ void Player::InvertAreaSpriteToPlayerPosition(const ViewProjection& viewProjecti
 	spritePlayerArea_->SetPosition({screenPosition.x, screenPosition.y});
 }
 
-void Player::InvertAreaSpriteAdjust()
-{
+void Player::InvertAreaSpriteAdjust() {
 	Vector2 spriteSize;
 
 	// 反転可能範囲の数値によってスプライトのサイズを設定する
-	const float sizes[] = { 0.0f, 55.0f, 0.0f, 165.0f, 0.0f, 275.0f, 0.0f, 383.0f, 0.0f, 490.0f, 0.0f, 598.0f }; // 目視で合わせた各サイズ
+	const float sizes[] = {0.0f, 55.0f, 0.0f, 165.0f, 0.0f, 275.0f, 0.0f, 383.0f, 0.0f, 490.0f, 0.0f, 598.0f}; // 目視で合わせた各サイズ
 
 	// xサイズ変更
-	if (xInvertRange_ >= 1 && xInvertRange_ <= 11 && xInvertRange_ % 2 == 1)
-	{
+	if (xInvertRange_ >= 1 && xInvertRange_ <= 11 && xInvertRange_ % 2 == 1) {
 		spriteSize.x = sizes[xInvertRange_];
 	}
 
 	// yサイズ変更
-	if (yInvertRange_ >= 1 && yInvertRange_ <= 11 && yInvertRange_ % 2 == 1)
-	{
+	if (yInvertRange_ >= 1 && yInvertRange_ <= 11 && yInvertRange_ % 2 == 1) {
 		spriteSize.y = sizes[yInvertRange_];
 	}
 
@@ -758,10 +817,10 @@ Player::CollisionMapInfo Player::GetMapCollisionInfo() {
 
 	// 重なり判定用の4点
 	Vector3 checkPoints[4] = {
-		{position.x - overlapOffsetX, position.y + overlapOffsetY, position.z}, // 左上
-		{position.x + overlapOffsetX, position.y + overlapOffsetY, position.z}, // 右上
-		{position.x - overlapOffsetX, position.y - overlapOffsetY, position.z}, // 左下
-		{position.x + overlapOffsetX, position.y - overlapOffsetY, position.z}, // 右下
+	    {position.x - overlapOffsetX, position.y + overlapOffsetY, position.z}, // 左上
+	    {position.x + overlapOffsetX, position.y + overlapOffsetY, position.z}, // 右上
+	    {position.x - overlapOffsetX, position.y - overlapOffsetY, position.z}, // 左下
+	    {position.x + overlapOffsetX, position.y - overlapOffsetY, position.z}, // 右下
 	};
 
 	// プレイヤーの4つの角を計算
@@ -799,8 +858,7 @@ Player::CollisionMapInfo Player::GetMapCollisionInfo() {
 
 		// 重なり判定（プレイヤーの中心+-オフセットがブロックに接触しているか）
 		for (int i = 0; i < 4; ++i) {
-			if (checkPoints[i].x >= blockLeft && checkPoints[i].x <= blockRight &&
-				checkPoints[i].y >= blockBottom && checkPoints[i].y < blockTop) {
+			if (checkPoints[i].x >= blockLeft && checkPoints[i].x <= blockRight && checkPoints[i].y >= blockBottom && checkPoints[i].y < blockTop) {
 				info.isOverlapping_ = true;
 				break;
 			}
@@ -820,8 +878,7 @@ Player::CollisionMapInfo Player::GetMapCollisionInfo() {
 				if (i < 2) { // 左上・右上
 					info.hittingCeiling_ = true;
 					info.blockY = block; // Y方向で衝突したブロックを格納
-				}
-				else if (i >= 2) { // 左下・右下
+				} else if (i >= 2) {     // 左下・右下
 					info.hittingGround_ = true;
 					info.blockY = block; // Y方向で衝突したブロックを格納
 				}

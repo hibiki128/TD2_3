@@ -50,6 +50,7 @@ private:
 	// マップチップの二次元配列
 	std::vector<std::vector<MapChip>> mapChips_;
 	std::string csvFilePath_; // ファイルパス保存用
+	std::string jsonFilePath_; // ファイルパス保存用
 
 	Vector3 center_;
 	float rotationAngleY_;
@@ -58,6 +59,7 @@ private:
 	std::unique_ptr<BaseObject> stageTex_;
 	std::unique_ptr<BaseObject> singleDigit_;
 	std::unique_ptr<BaseObject> twoDigit_;
+	std::vector<std::unique_ptr<BaseObject>> coins_;
 
 private:
 	///
@@ -87,6 +89,9 @@ private:
 	void DecisionMap();
 
 	void FinishScene();
+
+	void LoadFromJson();
+
 private:
 
 	// -----各イージング用 T-----
@@ -102,5 +107,7 @@ private:
 
 	bool isFinish_ = false;
 	float finishT_ = 0.0f;
+
+	int coinNum_ = 0;
 };
 

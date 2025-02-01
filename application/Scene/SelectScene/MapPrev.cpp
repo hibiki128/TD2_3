@@ -8,6 +8,7 @@
 // Engine
 #include "math/Easing.h"
 #include <myEngine/Frame/Frame.h>
+#include"externals/nlohmann/json.hpp"
 
 // ブロックの大きさを定義
 const float MapPrev::kChipSize = 2.0f;
@@ -27,6 +28,7 @@ void MapPrev::Init(const std::string& csvFilePath)
 
 	// CSVファイルからマップの読み込み
 	LoadFromCSV(csvFilePath_);
+	LoadFromJson();
 	rotationT_ = 0.0f;
 	approachT_ = 0.0f;
 	leaveT_ = 0.0f;
@@ -49,6 +51,19 @@ void MapPrev::Init(const std::string& csvFilePath)
 	twoDigit_->Init("select_twoDigit");
 	twoDigit_->CreateModel("clear/0.obj");
 
+	coins_.resize(3);
+	for (size_t i = 0; i < coins_.size(); i++) {
+		coins_[i] = std::make_unique<BaseObject>();
+		coins_[i]->Init("select_coin" + std::to_string(i + 1));
+		coins_[i]->CreateModel("game/coin.obj");
+		coins_[i]->SetTexture("debug/white1x1.png");
+		coins_[i]->SetColor({ 0.0f, 0.0f, 0.0f, 1.0f });
+		coins_[i]->SetParent(book_->GetWorldTransform());
+	}
+
+	for (int i = 0; i < coinNum_; ++i) {
+		coins_[i]->SetColor({ 1.0f, 1.0f, 0.0f, 1.0f });
+	}
 
 	stageTex_->SetParent(book_->GetWorldTransform());
 	singleDigit_->SetParent(book_->GetWorldTransform());
@@ -70,6 +85,10 @@ void MapPrev::Update()
 	stageTex_->Update();
 	singleDigit_->Update();
 	twoDigit_->Update();
+
+	for (auto& coin : coins_) {
+		coin->Update();
+	}
 
 	MapMove();
 
@@ -93,6 +112,9 @@ void MapPrev::Debug(const std::string& name)
 	stageTex_->DebugImGui();
 	singleDigit_->DebugImGui();
 	twoDigit_->DebugImGui();
+	for (auto& coin : coins_) {
+		coin->DebugImGui();
+	}
 }
 
 
@@ -110,6 +132,9 @@ void MapPrev::Draw(const ViewProjection& vp)
 	stageTex_->Draw(vp);
 	singleDigit_->Draw(vp);
 	twoDigit_->Draw(vp);
+	for (auto& coin : coins_) {
+		coin->Draw(vp);
+	}
 	//centerObj_->Draw(vp);
 
 }
@@ -323,7 +348,7 @@ void MapPrev::ApproachMap()
 	}
 
 	center_.z = EaseInSine<float>(startPos, endPos, approachT_, easeTMax);
-	
+
 	book_->SetWorldPositionZ(EaseInSine<float>(startPosBook, endPosBook, approachT_, easeTMax));
 
 }
@@ -348,7 +373,7 @@ void MapPrev::LeaveMap()
 
 	rotationAngleY_ = EaseInSine<float>(startAngle, endAngle, leaveT_, easeTMax);
 	center_.z = EaseInSine<float>(startPos, endPos, leaveT_, easeTMax);
-	
+
 	book_->SetWorldPositionZ(EaseInSine<float>(startPosBook, endPosBook, leaveT_, easeTMax));
 
 }
@@ -370,7 +395,7 @@ void MapPrev::DecisionMap()
 
 	rotationAngleY_ = EaseInSine<float>(startAngle, endAngle, dicisionT_, easeTMax);
 	center_.z = EaseOutQuint<float>(startPos, endPos, dicisionT_, easeTMax);
-	
+
 	book_->SetWorldPositionZ(EaseOutQuint<float>(startPosBook, endPosBook, dicisionT_, easeTMax));
 
 }
@@ -382,5 +407,50 @@ void MapPrev::FinishScene()
 		if (finishT_ > 1.0f) {
 			isFinish_ = true;
 		}
+	}
+}
+
+void MapPrev::LoadFromJson()
+{
+	// CSV のパスから stage 番号を抽出
+	std::string stageName;
+	size_t lastSlash = csvFilePath_.find_last_of("/\\");
+	if (lastSlash != std::string::npos) {
+		size_t dotPosition = csvFilePath_.find('.', lastSlash);
+		if (dotPosition != std::string::npos) {
+			stageName = csvFilePath_.substr(lastSlash + 1, dotPosition - lastSlash - 1);
+		}
+	}
+
+	// JSON ファイルのパスを構築
+	jsonFilePath_ = "resources/jsons/StageData/" + stageName + ".json";
+
+	// JSON ファイルを読み込む
+	std::ifstream jsonFile(jsonFilePath_);
+	if (!jsonFile.is_open()) {
+		coinNum_ = 0;
+		return;
+	}
+
+	// JSON をパース
+	nlohmann::json data;
+	try {
+		jsonFile >> data;
+		jsonFile.close(); // 早めにファイルを閉じる
+
+		// "CoinNum" が存在するかチェック
+		if (data.contains("CoinNum")) {
+			// 型が int ならそのまま取得
+			if (data["CoinNum"].is_number_integer()) {
+				coinNum_ = data["CoinNum"].get<int>();
+			}
+			// 型が string の場合は変換
+			else if (data["CoinNum"].is_string()) {
+				coinNum_ = std::stoi(data["CoinNum"].get<std::string>());
+			}
+		}
+	}
+	catch (const nlohmann::json::exception&) {
+		return;
 	}
 }

@@ -251,7 +251,6 @@ void ClearScene::StageDataForJson()
 
 	// JSONオブジェクトを作成
 	nlohmann::json jsonData = {
-		{"FilePath", filePath},
 		{"CoinNum", coinNum_}
 	};
 

@@ -6,7 +6,6 @@
 void GameScene::Finalize()
 {
 	sceneManager_->SetFilePath(filePath_);
-	sceneManager_->SetCoinNum(player_->GetCurrentCoinCount());
 	audio_->StopWave(BGM_);
 }
 
@@ -269,8 +268,10 @@ void GameScene::ChangeScene()
 			(input_->GetJoystickState(0, joyState) && (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A)))) {
 		// SELECTシーンへの遷移を予約
 		sceneManager_->NextSceneReservation("SELECT");
+		sceneManager_->SetCoinNum(0);
 	}
 	if (clearCamera_->GetFinish()) {
+		sceneManager_->SetCoinNum(player_->GetCurrentCoinCount());
 		sceneManager_->NextSceneReservation("CLEAR");
 	}
 }

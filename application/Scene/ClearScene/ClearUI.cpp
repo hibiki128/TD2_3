@@ -1,6 +1,7 @@
 #include "ClearUI.h"
 #include"Input.h"
 #include"Easing.h"
+#include"Audio.h"
 
 void ClearUI::Init()
 {
@@ -37,6 +38,20 @@ void ClearUI::Init()
 	decisionEmitter_->SetTexture("clear/UI2_1x1.png");
 
 	InitNumbers();
+
+	coins_.resize(3);
+	for (size_t index = 0; index < coins_.size(); index++) {
+		coins_[index] = std::make_unique<BaseObject>();
+		coins_[index]->Init("coin" + std::to_string(index + 1));
+		coins_[index]->CreateModel("game/coin.obj");
+		coins_[index]->SetTexture("debug/white1x1.png");
+		coins_[index]->SetColor({ 0.0f, 0.0f, 0.0f, 1.0f });
+		t_[index] = 0.0f;
+	}
+	coinSE_ = Audio::GetInstance()->LoadWave("action/coinResult.wav");
+	desitionSE_ = Audio::GetInstance()->LoadWave("select/stageDesition.wav");
+	selectSE_ = Audio::GetInstance()->LoadWave("select/stageSelect.wav");
+
 }
 
 void ClearUI::Update()
@@ -54,15 +69,23 @@ void ClearUI::Update()
 	}
 	if (input_->TriggerKey(DIK_SPACE) && !isDecision_) {
 		decisionEmitter_->UpdateOnce();
+		Audio::GetInstance()->PlayWave(desitionSE_,0.2f);
 	}
 	XINPUT_STATE joyState;
 	XINPUT_STATE prejoyState;
 	if (input_->GetJoystickState(0, joyState) && input_->GetJoystickStatePrevious(0, prejoyState)) {
 		if ((joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A) && (!prejoyState.Gamepad.wButtons) && !isDecision_) {
 			decisionEmitter_->UpdateOnce();
+			Audio::GetInstance()->PlayWave(desitionSE_, 0.2f);
 		}
 	}
 	MoveUI();
+
+	for (auto& coin : coins_) {
+		coin->Update();
+	}
+	CoinUpdate();
+
 }
 
 void ClearUI::Draw(const ViewProjection& vp)
@@ -73,6 +96,11 @@ void ClearUI::Draw(const ViewProjection& vp)
 	singleDigit_->Draw(vp);
 	twoDigit_->Draw(vp);
 	animaChara_->Draw(vp);
+
+	for (auto& coin : coins_) {
+		coin->Draw(vp);
+	}
+
 }
 
 void ClearUI::DrawParticle(const ViewProjection& vp)
@@ -92,6 +120,7 @@ void ClearUI::Debug()
 {
 	ImGui::Begin("Clear");
 	ImGui::Text("選択してる項目 : %d", currentItem_);
+	ImGui::SliderInt("コイン", &coinNum_, 0, 3);
 	ImGui::End();
 	book_->DebugImGui();
 	stage_->DebugImGui();
@@ -102,6 +131,9 @@ void ClearUI::Debug()
 	twoDigit_->DebugImGui();
 	decisionEmitter_->imgui();
 	animaChara_->DebugImGui();
+	for (auto& coin : coins_) {
+		coin->DebugImGui();
+	}
 }
 
 void ClearUI::MenuOperation()
@@ -110,11 +142,13 @@ void ClearUI::MenuOperation()
 	{
 		--currentItem_;
 		coolTime_ = 0.2f;
+		Audio::GetInstance()->PlayWave(selectSE_, 0.2f);
 	}
 	if (input_->PushKey(DIK_S) && coolTime_ == 0.0f)
 	{
 		++currentItem_;
 		coolTime_ = 0.2f;
+		Audio::GetInstance()->PlayWave(selectSE_, 0.2f);
 	}
 
 	XINPUT_STATE joyState;
@@ -124,11 +158,13 @@ void ClearUI::MenuOperation()
 		{
 			--currentItem_;
 			coolTime_ = 0.2f;
+			Audio::GetInstance()->PlayWave(selectSE_, 0.2f);
 		}
 		if ((joyState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN || joyState.Gamepad.sThumbLY < -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) && coolTime_ == 0.0f)
 		{
 			++currentItem_;
 			coolTime_ = 0.2f;
+			Audio::GetInstance()->PlayWave(selectSE_, 0.2f);
 		}
 	}
 
@@ -274,5 +310,73 @@ void ClearUI::MoveUI()
 			selectT_ = 0.0f;
 		}
 		backSelect_->SetScale(EaseInOutSine<Vector3>(startScale, backSelect_->GetTransform().scale_, selectT_, easeTMax)); // 選択されていない場合は縮小
+	}
+}
+
+void ClearUI::CoinUpdate()
+{
+	// アニメーション中のコインがcoinNum_より大きいならアニメーション終了
+	if (currentCoinIndex_ >= coinNum_) {
+		return;
+	}
+
+	// アニメーション用の共通パラメータ
+	float startY = initialY_;      // 初期Y座標
+	float peakY = startY + 0.5f;   // 上昇する高さ
+	float startRot = 0.0f;         // 初期回転
+	float endRot = 1080.0f;        // 3回転
+
+	// 各コインのアニメーションを更新
+	for (int i = 0; i <= currentCoinIndex_ && i < coinNum_; i++) {
+		if (t_[i] >= tMax_) {
+			continue;  // このコインのアニメーションは終了済み
+		}
+
+		float currentY;
+		// 前半（0.0f～0.5f）: 上昇
+		// 後半（0.5f～1.0f）: 下降
+		if (t_[i] < tMax_ * 0.5f) {
+			// 上昇処理（0～0.5の間）
+			float normalizedT = t_[i] / (tMax_ * 0.5f);  // 0～1の範囲に正規化
+			currentY = EaseOutQuad<float>(startY, peakY, normalizedT, 1.0f);
+		}
+		else {
+			// 下降処理（0.5～1.0の間）
+			float normalizedT = (t_[i] - tMax_ * 0.5f) / (tMax_ * 0.5f);  // 0～1の範囲に正規化
+			currentY = EaseOutQuad<float>(peakY, startY, normalizedT, 1.0f);
+		}
+
+		// 回転の処理
+		float easedRot = EaseInSine<float>(startRot, endRot, t_[i], tMax_);
+
+		// Y座標と回転を適用
+		coins_[i]->SetWorldPositionY(currentY);
+		coins_[i]->SetRotationY(degreesToRadians(easedRot));
+
+		// 全体の回転の半分を超えたら色を黄色にする
+		if (easedRot >= endRot / 2.0f) {
+			// まだ黄色になっていないコインの場合
+			if (!isPlayedSE_[i]) {
+				coins_[i]->SetColor({ 1.0f, 1.0f, 0.0f, 1.0f });
+				Audio::GetInstance()->PlayWave(coinSE_, 0.2f);
+				isPlayedSE_[i] = true;  // 効果音再生済みフラグを立てる
+			}
+		}
+
+		// このコインのアニメーション時間を進める
+		t_[i] += deltaTime_;
+
+		// アニメーション終了処理
+		if (t_[i] >= tMax_) {
+			coins_[i]->SetWorldPositionY(startY);
+			coins_[i]->SetRotationY(degreesToRadians(startRot));
+		}
+	}
+
+	// 次のコインのアニメーション開始判定
+	if (currentCoinIndex_ < coinNum_ - 1) {  // 最後のコイン以外で
+		if (t_[currentCoinIndex_] > tMax_ * 0.75f) {  // 現在のコインが50%を超えたら
+			currentCoinIndex_++;  // 次のコインを開始
+		}
 	}
 }

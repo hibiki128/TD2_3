@@ -72,7 +72,7 @@ public:
 	void SetLighting(bool isLighting) { isLighting_ = isLighting; }
 	void SetTexture(const std::string& filePath) { obj3d_->SetTexture(filePath); }
 	void SetParent(const WorldTransform* parent) { transform_.parent_ = parent; }
-	void SetColor(const Vector4& color) { obj3d_->SetColor(color); }
+	void SetColor(const Vector4& color) { objColor_.SetColor(color); }
 	void SetModel(std::unique_ptr<Object3d> obj) {
 		obj3d_ = std::move(obj);
 	}

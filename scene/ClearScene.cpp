@@ -16,7 +16,9 @@ void ClearScene::Finalize()
 #endif
 
 	sceneManager_->SetFilePath(filePath_);
+	audio_->StopWave(BGM_);
 }
+
 void ClearScene::Initialize()
 {
 
@@ -31,9 +33,17 @@ void ClearScene::Initialize()
 	debugCamera_ = std::make_unique<DebugCamera>();
 	debugCamera_->Initialize(&vp_);
 
+	// コインの数を取得
+	coinNum_ = sceneManager_->GetCoin();
+
 	clearUI_ = std::make_unique<ClearUI>();
 	clearUI_->SetStageNum(GetStageNum());
 	clearUI_->Init();
+
+	clearUI_->SetCoin(coinNum_);
+
+	BGM_ = audio_->LoadWave("clear/clearBgm.wav");
+	audio_->PlayWave(BGM_, 0.2f, true);
 }
 
 void ClearScene::Update()
@@ -237,8 +247,7 @@ void ClearScene::StageDataForJson()
 	std::string fileName = filePath.substr(found + 1);
 	std::string stageNumber = fileName.substr(5, fileName.find_last_of(".") - 5);
 
-	// コインの数を取得
-	coinNum_ = sceneManager_->GetCoin();
+
 
 	// JSONオブジェクトを作成
 	nlohmann::json jsonData = {

@@ -14,10 +14,12 @@ public:
 	int GetItemNum() { return currentItem_; }
 	void SetStageNum(const int& stageNum) { stageNum_ = stageNum; }
 	void SetDecision(const bool& dicision) { isDecision_ = dicision; }
+	void SetCoin(int coinNum) { coinNum_ = coinNum; }
 private:
 	void MenuOperation();
 	void InitNumbers();
 	void MoveUI();
+	void CoinUpdate();
 private:
 	Input* input_ = nullptr;
 	std::unique_ptr<BaseObject> book_;
@@ -30,7 +32,11 @@ private:
 	std::unique_ptr<BaseObject> animaChara_;
 	std::unique_ptr<ParticleEmitter> decisionEmitter_;
 
+	std::vector<std::unique_ptr<BaseObject>> coins_;
+	
+
 	int currentItem_;
+	int coinNum_;
 	int stageNum_;
 
 	float coolTime_;
@@ -39,5 +45,17 @@ private:
 	float selectT_;
 
 	bool isDecision_ = false;
+	bool isPlayedSE_[3] = { false };
+
+	float t_[3];           // アニメーションの進行度
+	float tMax_ = 0.75f;           // アニメーションの最大時間
+	float deltaTime_ = 0.016f;    // フレームごとの進行時間（仮）
+	size_t currentCoinIndex_ = 0; // 現在アニメーション中のコイン
+	float initialY_ = -5.7f;       // コインの初期Y座標
+
+	uint32_t coinSE_;
+	uint32_t desitionSE_;
+	uint32_t selectSE_;
+
 };
 

@@ -67,4 +67,6 @@ private:
 	std::unique_ptr<ClearUI> clearUI_;
 
 	int coinNum_;
+
+	uint32_t BGM_;
 };

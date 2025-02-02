@@ -27,7 +27,7 @@ void Sprite::Initialize(const std::string& textureFilePath, Vector2 position, Ve
 	AdjustTextureSize();
 }
 
-void Sprite::Update()
+void Sprite::Update(bool isbackmost_)
 {
 
 	float left = 0.0f - anchorPoint_.x;
@@ -75,8 +75,12 @@ void Sprite::Update()
 	///=======================================================
 
 	Transform transform{ {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,0.0f} };
-
+	if (isbackmost_) {
+		transform.translate = { position_.x,position_.y,10000.0f };
+	}
+	else {
 	transform.translate = { position_.x,position_.y,0.0f };
+	}
 	transform.rotate = { 0.0f,0.0f,rotation };
 	transform.scale = { size.x,size.y,1.0f };
 
@@ -88,10 +92,10 @@ void Sprite::Update()
 	transformationMatrixData->World = worldMatrix;
 }
 
-void Sprite::Draw()
+void Sprite::Draw(bool isBackMost)
 {
 
-	Update();
+	Update(isBackMost);
 
 	// Spriteの描画。変更が必要な物だけ変更する
 	spriteCommon_->GetDxCommon()->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferView); // VBVを設定

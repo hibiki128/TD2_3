@@ -48,6 +48,10 @@ public:
 	void SetInitialPosition(Vector3 playerInitialPosition) { this->transform_.translation_ = playerInitialPosition; }
 	void SetTransitionStart() { if (squareTransition_->IsFinished()) { squareTransition_->Start(SquareTransition::Status::SquareIn, kResetTransitionTime); } }
 
+	// プレイヤーの反転範囲の取得
+	int GetInvertRangeX() { return xInvertRange_; }
+	int GetInvertRangeY() { return yInvertRange_; }
+
 private:
 	const float kDeltaTime = 1.0f / 60.0f;
 

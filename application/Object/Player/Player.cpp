@@ -12,7 +12,7 @@ void Player::Init(const std::string className) {
 
 	BaseObject::Init(className);
 	BaseObject::CreateModel("game/Player.obj");
-	BaseObject::SetTexture("debug/white1x1.png"); // 白状態のプレイヤーテクスチャを設定
+	BaseObject::SetTexture("game/playerWhite.png"); // 白状態のプレイヤーテクスチャを設定
 	BaseObject::CreateCollider();
 	Collider::SetVisible(false);
 
@@ -36,7 +36,7 @@ void Player::Init(const std::string className) {
 
 	// プレイヤー反転範囲スプライト生成
 	spritePlayerArea_ = std::make_unique<Sprite>();
-	spritePlayerArea_->Initialize("game/playerArea.png", {0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.5f, 0.5f});
+	spritePlayerArea_->Initialize("game/playerFlame.png", {0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.5f, 0.5f});
 	spritePlayerArea_->SetSize({165.0f, 165.0f});
 
 	// Jsonからパラメーターの読み込み
@@ -627,7 +627,7 @@ void Player::Reset() {
 		// プレイヤーの重力状態をリセット
 		isGravityReversed_ = false;
 		// プレイヤーの色状態をリセット（とりあえずデフォルトを白としておく）
-		this->SetTexture("debug/white1x1.png");
+		this->SetTexture("game/playerWhite.png");
 		colorState_ = ColorState::White;
 		// 現在の取得コイン数をリセット
 		currentCoinCount_ = 0;

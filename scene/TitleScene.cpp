@@ -41,6 +41,13 @@ void TitleScene::Initialize()
 
 	BGM_ = audio_->LoadWave("title/titleBgm.wav");
 	audio_->PlayWave(BGM_, 0.2f, true);
+
+	///
+	///	スプライト生成
+	/// 
+	
+	spriteBackGround_ = std::make_unique<Sprite>();
+	spriteBackGround_->Initialize("title/backGround.png", { 0.0f, 0.0f });
 }
 
 void TitleScene::Finalize()
@@ -60,7 +67,7 @@ void TitleScene::Update()
 	player_->Update(mapChipField_.get());
 
 	// マップチップフィールド更新
-	mapChipField_->Update();
+	mapChipField_->Update(player_->GetCenterPosition(), player_->GetInvertRangeX(), player_->GetInvertRangeY());
 
 	player_->Reset();
 	player_->PlaySE();
@@ -84,6 +91,11 @@ void TitleScene::Draw()
 {
 	/// -------描画処理開始-------
 
+	/// Spriteの描画準備
+	spCommon_->DrawCommonSetting();
+	//-----Spriteの描画開始-----
+
+	spriteBackGround_->Draw(true);
 
 	objCommon_->DrawCommonSetting();
 	//-----3DObjectの描画開始-----
@@ -109,6 +121,7 @@ void TitleScene::Draw()
 	spCommon_->DrawCommonSetting();
 	//-----Spriteの描画開始-----
 	player_->DrawSprite(vp_);
+
 	//------------------------------
 	
 	//-----線描画-----

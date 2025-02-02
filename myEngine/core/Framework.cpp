@@ -236,7 +236,7 @@ void Framework::LoadResource()
 	textureManager_->LoadTexture("game/noTouchWhiteBlock.png");
 	textureManager_->LoadTexture("game/openBook.png");
 	textureManager_->LoadTexture("game/player.png");
-	textureManager_->LoadTexture("game/playerArea.png");
+	textureManager_->LoadTexture("game/playerFlame.png");
 	textureManager_->LoadTexture("game/playerBlack.png");
 	textureManager_->LoadTexture("game/playerWhite.png");
 	textureManager_->LoadTexture("game/R.png");

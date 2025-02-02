@@ -43,7 +43,7 @@ private:
 	std::string filename_;
 	std::string directorypath_;
 
-	static bool isGltf;
+	bool isGltf;
 
 	Matrix4x4 localMatrix;
 
@@ -94,7 +94,7 @@ private:
 	/// <param name="directoryPath"></param>
 	/// <param name="filename"></param>
 	/// <returns></returns>
-	static MaterialData LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename);
+	MaterialData LoadMaterialTemplateFile(const std::string& directoryPath, const std::string& filename);
 
 	/// <summary>
 	///  .objファイルの読み取り
@@ -102,7 +102,7 @@ private:
 	/// <param name="directoryPath"></param>
 	/// <param name="filename"></param>
 	/// <returns></returns>
-	static ModelData LoadModelFile(const std::string& directoryPath, const std::string& filename);
+	ModelData LoadModelFile(const std::string& directoryPath, const std::string& filename);
 
 	/// <summary>
 	/// ノード読み取り

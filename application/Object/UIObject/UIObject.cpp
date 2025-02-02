@@ -44,7 +44,7 @@ void UIObject::Init() {
 	objectR_->SetParent(&objectUI_->GetWorldTransform());
 }
 
-void UIObject::Update(const ViewProjection& viewProjection) {
+void UIObject::Update() {
 	// パッド入力による反応
 	InputReaction();
 

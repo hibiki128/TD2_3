@@ -30,14 +30,23 @@ public:
 	void Draw(const ViewProjection& viewProjection)override;
 	void DrawSprite(const ViewProjection& viewProjection);
 	void DebugImGui()override;
+	void Reset();
+	void PlaySE();
 
-	// プレイヤーがゴールに触れたか判定（プレイヤーが接地しているかつ、Bボタンを押した時のみ）
+	// プレイヤーがゴールに到達しているか判定
 	bool IsGoalReached();
+	bool GetSquareTransition() {
+		if (squareTransition_->GetCurrentStatus() == SquareTransition::Status::SquareIn) {
+			return true;
+		}
+		return false;
+	}
 	// 現在の取得コイン数
 	uint32_t GetCurrentCoinCount() { return currentCoinCount_; }
 	
 	// プレイヤーの位置を設定
 	void SetInitialPosition(Vector3 playerInitialPosition) { this->transform_.translation_ = playerInitialPosition; }
+	void SetTransitionStart() { if (squareTransition_->IsFinished()) { squareTransition_->Start(SquareTransition::Status::SquareIn, kResetTransitionTime); } }
 
 	// プレイヤーの反転範囲の取得
 	int GetInvertRangeX() { return xInvertRange_; }
@@ -52,7 +61,7 @@ private:
 	///
 	/// 基本的なパラメータ
 	/// 
-	
+
 	// マップとの当たり判定情報
 	CollisionMapInfo collisionMapInfo_;
 	// 微小な値
@@ -117,6 +126,14 @@ private:
 	float blockInvertCooldown_ = 0.0f;
 	const float kBlockInvertCooldownTime = 0.02f; // 再使用までの時間
 
+	// 音関連
+	uint32_t jumpSE_;
+	uint32_t landingSE_;
+	uint32_t walkSE_;
+	uint32_t gravitySE_;
+	uint32_t inversionSE_;
+	float walkSEcoolTime_ = 0.0f;
+
 private:
 	// 入力操作
 	void HandleInput();
@@ -143,19 +160,16 @@ private:
 	// 取得したコインの座標を保存しておく
 	Vector3 lastCollectedCoinPosition_ = {0.0f, 0.0f, 0.0f};
 
-	// リセット
-	void Reset();
-
 private:
 	using json = nlohmann::json;
 
 	void SaveToJson();
 	void LoadFromJson();
 
-///
-/// SE・エフェクト用のフラグ
-/// 
-public:
+	///
+	/// SE・エフェクト用のフラグ
+	/// 
+private:
 	// ジャンプした瞬間を判定
 	bool IsJumpOccurred() { return isJumpOccurred_; }
 	// ブロック反転した瞬間を判定
@@ -166,6 +180,8 @@ public:
 	bool IsGravityReversedOccurred() { return isGravityReversedOccurred_; }
 	// 着地した瞬間を判定
 	bool IsLandedOccurred();
+	// 歩いているかどうかの判定
+	bool IsWalking();
 	// コインを取得した瞬間を判定
 	bool IsCollectCoinOccurred() { return isCollectCoinOccurred_; }
 
@@ -181,6 +197,9 @@ private:
 
 	// 前フレームの接地状態を記録
 	bool prevHittingGround_ = false;
+	
+	bool isWalking_ = false;
+
 
 	// コインを取得した瞬間を判定
 	bool isCollectCoinOccurred_ = false;

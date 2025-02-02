@@ -2,7 +2,7 @@
 #include"Input.h"
 #include"Sprite.h"
 #include"application/Base/BaseObject.h"
-
+class Player;
 class Pause
 {
 public:
@@ -16,6 +16,9 @@ public:
 
 	bool IsPause() { return isPause_; };
 	int GetItem() { return currentItem_; }
+
+	void SetPlayer(Player* player) { player_ = player; }
+	void SetStageNum(int num) { stageNum_ = num; }
 
 private:
 	/// ===================================================
@@ -34,6 +37,8 @@ private:
 
 	void Debug();
 
+	void InitNumbers();
+
 private:
 	/// ===================================================
 	/// private variaus
@@ -47,6 +52,10 @@ private:
 	std::unique_ptr<Sprite> Restart_;          // 「リスタート」の文字
 	std::unique_ptr<Sprite> Stage_;            // 「ステージ」の文字
 	std::unique_ptr<Sprite> Pointer_;          // 「ポインター」
+	std::unique_ptr<Sprite> singleDigit_;
+	std::unique_ptr<Sprite> twoDigit_;
+
+	Player* player_ = nullptr;
 
 	Vector4 color_ = { 1.0f,1.0f,1.0f,0.0f };  //  ポーズ中の背景の色
 
@@ -61,13 +70,20 @@ private:
 	Vector2 restartSize_;					   // 「リスタート」のサイズ
 	Vector2 stageSize_;						   // 「ステージ」のサイズ
 	Vector2 pointerSize_;
+	Vector2 singlePos_ = { 0.0f,0.0f };
+	Vector2 twoPos_ = {0.0f,0.0f};
+	Vector2 singleSize_;
+	Vector2 twoSize_;
 
 	int currentItem_ = 0;                      //  現在選択しているメニュー項目
+	int stageNum_ = 0;
 
 	bool isPause_ = false;                     //  ポーズしてるかどうか
 	bool CanEscape_ = false;                   //  エスケープのクールタイム用
 	bool previousIsPause_ = false;             //  クラスメンバに前フレームのポーズ状態を保持する変数を追加
 	bool textMovedRight_ = false;              //  全部のテキストが右に行ったかどうか
+	bool prevEscapeState_ = false;
+	bool prevStartState_ = false;
 
 	struct EasingValue {
 		Vector2 start_;
@@ -82,8 +98,12 @@ private:
 	EasingValue restart_E;					   // 「リスタート」のイージング変数
 	EasingValue stage_E;				       // 「ステージ」のイージング変数
 	EasingValue pointer_E;                     // 「ポインター」のイージング変数
+	EasingValue single_E;                     // 「ポインター」のイージング変数
+	EasingValue two_E;                     // 「ポインター」のイージング変数
 
 	float EscapeCoolTime_ = 0.0f;              //  Escキーのクールタイム
 	float pointerYT_;
+	float transitionTimer_ = 0.0f; // 経過時間を保持する変数
+	float deltaTime_ = 1.0f / 60.0f;
 }; 
 

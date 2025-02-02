@@ -36,9 +36,9 @@ void DebugCamera::Update()
 		Matrix4x4 cameraMatrix = (scaleMatrix * rotateXYZMatrix) * translateMatrix;
 		viewProjection_->matWorld_ = cameraMatrix;
 		viewProjection_->matView_ = Inverse(cameraMatrix);
-		viewProjection_->matProjection_ = MakePerspectiveFovMatrix(0.45f,
-			float(WinApp::GetInstance()->kClientWidth) / float(WinApp::GetInstance()->kClientHeight),
-			0.1f, 100.0f);;
+		viewProjection_->matProjection_ = MakePerspectiveFovMatrix(45.0f * std::numbers::pi_v<float> / 180.0f,
+			float(WinApp::kClientWidth) / float(WinApp::kClientHeight),
+			0.1f, 1000.0f);;
 	}
 }
 

@@ -314,7 +314,7 @@
     <ClCompile Include="scene\SelectScene.cpp">
       <Filter>ソースファイル\scene</Filter>
     </ClCompile>
-    <ClCompile Include="application\SelectScene\MapPrev.cpp">
+    <ClCompile Include="application\Scene\SelectScene\MapPrev.cpp">
       <Filter>ソースファイル</Filter>
     </ClCompile>
     <ClCompile Include="application\Pause\Pause.cpp">
@@ -329,10 +329,31 @@
     <ClCompile Include="application\Transition\SquareTransition.cpp">
       <Filter>ソースファイル</Filter>
     </ClCompile>
+    <ClCompile Include="application\Scene\TitleScene\TitleUI.cpp">
+      <Filter>ソースファイル</Filter>
+    </ClCompile>
     <ClCompile Include="application\Object\UIObject\UIObject.cpp">
       <Filter>ソースファイル</Filter>
     </ClCompile>
+    <ClCompile Include="scene\ClearScene.cpp">
+      <Filter>ソースファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Scene\ClearScene\ClearUI.cpp">
+      <Filter>ソースファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="scene\DemoScene.cpp">
+      <Filter>ソースファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Scene\SelectScene\SelectUI.cpp">
+      <Filter>ソースファイル</Filter>
+    </ClCompile>
     <ClCompile Include="application\Object\Coin\Coin.cpp">
+      <Filter>ソースファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="application\SelectScene\MapPrev.cpp">
+      <Filter>ソースファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="application\Camera\ClearCamera.cpp">
       <Filter>ソースファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -575,13 +596,19 @@
     <ClInclude Include="scene\SelectScene.h">
       <Filter>ソースファイル\scene</Filter>
     </ClInclude>
-    <ClInclude Include="application\SelectScene\MapPrev.h" />
+    <ClInclude Include="application\Scene\SelectScene\MapPrev.h" />
     <ClInclude Include="application\Pause\Pause.h" />
     <ClInclude Include="application\Object\MapChip\Block\Block.h" />
     <ClInclude Include="application\Object\Goal\Goal.h" />
     <ClInclude Include="application\Transition\SquareTransition.h" />
+    <ClInclude Include="application\Scene\TitleScene\TitleUI.h" />
     <ClInclude Include="application\Object\UIObject\UIObject.h" />
+    <ClInclude Include="scene\ClearScene.h" />
+    <ClInclude Include="application\Scene\ClearScene\ClearUI.h" />
+    <ClInclude Include="scene\DemoScene.h" />
+    <ClInclude Include="application\Scene\SelectScene\SelectUI.h" />
     <ClInclude Include="application\Object\Coin\Coin.h" />
+    <ClInclude Include="application\Camera\ClearCamera.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Particle\Particle.PS.hlsl">
@@ -638,6 +665,7 @@
     <FxCompile Include="resources\shaders\OffScreen\RadialBlur.PS.hlsl">
       <Filter>リソース ファイル\OffScreen</Filter>
     </FxCompile>
+    <FxCompile Include="resources\shaders\OffScreen\Cinematic.PS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt">

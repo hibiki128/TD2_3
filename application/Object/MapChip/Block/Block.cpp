@@ -3,6 +3,7 @@
 void Block::Init(const std::string className) { 
 	BaseObject::Init(className);
 	Collider::SetCollisionType(CollisionType::AABB);
+	Collider::SetVisible(false);
 }
 
 void Block::Update() { BaseObject::Update(); }

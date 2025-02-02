@@ -52,6 +52,11 @@ public:// メンバ関数
 
 	bool GetTransitionEnd() { return transitionEnd; }
 
+	void SetFilePath(std::string filePath) { this->filePath = filePath; }
+	void SetCoinNum(int coin) { coinNum = coin; }
+	std::string GetFilePath() { return filePath; }
+	int GetCoin() { return coinNum; }
+
 public: // setter
 	/// <summary>
 	/// シーンファクトリーのセット
@@ -81,7 +86,10 @@ private:
 	AbstractSceneFactory* sceneFactory_ = nullptr;
 	std::unique_ptr<SceneTransition> transition_;
 
+	std::string filePath;
+
 	bool transitionEnd = false;
 	bool firstChange = false;
+	int coinNum;
 };
 

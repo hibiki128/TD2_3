@@ -8,6 +8,8 @@
 // Engine
 #include "math/Easing.h"
 #include "myEngine/utility/graphics/TextureManager.h"
+#include <myEngine/Frame/Frame.h>
+#include <ParticleCommon.h>
 
 // ブロックの大きさを定義
 const float MapChipField::kChipSize = 2.0f;
@@ -34,7 +36,8 @@ void MapChipField::Update(const Vector3& center, int xRange, int yRange) {
 				if (chip.isAnimating) {
 					UpdateChipAnimation(chip);
 					// 通常の更新
-				} else {
+				}
+				else {
 					chip.object->Update();
 				}
 			}
@@ -48,7 +51,7 @@ void MapChipField::Update(const Vector3& center, int xRange, int yRange) {
 	InvertBlocksWithCapture();
 
 	/*if (hasPlayerInverted_) {
-	    InvertBlocksWithCapture();
+		InvertBlocksWithCapture();
 	}*/
 
 	// ゴールオブジェクト更新
@@ -91,6 +94,35 @@ void MapChipField::DebugImGui() {
 	ImGui::Checkbox("プレイヤーは白い？", &isPlayerWhite_);
 
 	ImGui::End();
+}
+
+void MapChipField::DrawParticle(const ViewProjection& vp)
+{
+	for (const auto& row : mapChips_) {
+		for (const auto& chip : row) {
+			// 空白ブロックではない場合のみ描画
+			if (chip.object->type_ == Block::ChipType::Black || chip.object->type_ == Block::ChipType::White) {
+				ParticleCommon::GetInstance()->SetBlendMode(BlendMode::kNormal);
+				chip.normal_->Draw(vp);
+			}
+			if (chip.object->type_ == Block::ChipType::Gravity) {
+				ParticleCommon::GetInstance()->SetBlendMode(BlendMode::kAdd);
+				chip.arrow_->Draw(vp);
+			}
+		}
+	}
+}
+
+void MapChipField::PlaySE()
+{
+	//for (auto& row : mapChips_) {
+//	for (auto& chip : row) {
+//		if (chip.isInvers) {
+//			Audio::GetInstance()->PlayWave(invertSE_, 0.1f);
+//			chip.isInvers = false;
+//		}
+//	}
+//}
 }
 
 std::vector<Block*> MapChipField::GetBlocks() const {
@@ -192,15 +224,20 @@ void MapChipField::LoadFromCSV(const std::string& filePath) {
 			MapChip chip;
 			chip.object = std::make_unique<Block>();
 			chip.object->type_ = chipType;
+			chip.normal_ = std::make_unique<ParticleEmitter>();
+			chip.arrow_ = std::make_unique<ParticleEmitter>();
 
 			/*BaseObjectの初期化*/
 
 			// 空白ブロックの場合にはスキップ
 			if (chip.object->type_ != Block::ChipType::Empty) {
 				chip.object->Init("Block");
-				chip.object->SetScale({1.0f, 1.0f, 1.0f});
-				chip.object->SetWorldPosition({x * kChipSize, -y * kChipSize, 0.0f});
+				chip.object->SetScale({ 1.0f, 1.0f, 1.0f });
+				chip.object->SetWorldPosition({ x * kChipSize, -y * kChipSize, 0.0f });
 				chip.object->CreateCollider();
+				chip.normal_->Initialize("reverse", "debug/sphere.obj");
+				chip.arrow_->Initialize("arrow_up", "debug/plane.obj");
+				chip.arrow_->SetTexture("Particle/Arrow.png");
 
 				// モデルと色を設定
 				switch (chip.object->type_) {
@@ -235,14 +272,14 @@ void MapChipField::LoadFromCSV(const std::string& filePath) {
 				goal_->Init("Goal");
 				goal_->CreateModel("game/goal.obj");
 				goal_->SetTexture("game/goal.png");
-				goal_->SetWorldPosition({x * kChipSize, -y * kChipSize, 0.0f});
+				goal_->SetWorldPosition({ x * kChipSize, -y * kChipSize, 0.0f });
 				goal_->CreateCollider();
-				goal_->SetObjColor({1.0f, 1.0f, 0.0f, 1.0f}); // 黄色にしておく
+				goal_->SetObjColor({ 1.0f, 1.0f, 0.0f, 1.0f }); // 黄色にしておく
 			}
 
 			/*プレイヤー初期位置の格納*/
 			if (chipValue == 5) {
-				playerInitialPosition_ = {x * kChipSize, -y * kChipSize, 0.0f};
+				playerInitialPosition_ = { x * kChipSize, -y * kChipSize, 0.0f };
 			};
 
 			/*コインオブジェクトの生成*/
@@ -251,7 +288,7 @@ void MapChipField::LoadFromCSV(const std::string& filePath) {
 				coin->Init("Coin");
 				coin->CreateModel("game/coin.obj");
 				coin->SetTexture("game/coin.png");
-				coin->SetWorldPosition({x * kChipSize, -y * kChipSize, 0.0f});
+				coin->SetWorldPosition({ x * kChipSize, -y * kChipSize, 0.0f });
 				coin->CreateCollider();
 				coins_.push_back(std::move(coin)); // coinの配列に格納
 			}
@@ -289,7 +326,7 @@ Block::ChipType MapChipField::GetChipTypeFromInt(int value) {
 	case 7:
 		return Block::ChipType::ColorChange;
 	case 8:
-		return Block ::ChipType::Empty; // コインオブジェクトは空白扱いとする
+		return Block::ChipType::Empty; // コインオブジェクトは空白扱いとする
 
 	default:
 		return Block::ChipType::Empty;
@@ -299,11 +336,11 @@ Block::ChipType MapChipField::GetChipTypeFromInt(int value) {
 void MapChipField::InvertBlocksWithCapture() {
 	// 8方向を表すオフセット（x, y）
 	const std::vector<std::pair<int, int>> directions = {
-	    {0,  -1},
-        {0,  1 },
-        {-1, 0 },
-        {1,  0 }, // 上下左右
-  //{-1, -1}, {-1, 1}, {1, -1}, {1, 1} // 斜め方向
+		{0,  -1},
+		{0,  1 },
+		{-1, 0 },
+		{1,  0 }, // 上下左右
+		//{-1, -1}, {-1, 1}, {1, -1}, {1, 1} // 斜め方向
 	};
 
 	// ステージ全体のブロックを探索
@@ -375,7 +412,39 @@ void MapChipField::InvertBlock(int x, int y) {
 
 bool MapChipField::IsValidPosition(int x, int y) const { return x >= 0 && x < static_cast<int>(mapWidth) && y >= 0 && y < static_cast<int>(mapHeight); }
 
-void MapChipField::UpdateChipAnimation(MapChip& chip) {
+void MapChipField::GravityParticleUpdate()
+{
+	if (isGravityReversed_ != prevGravityState) {
+		arrowTime_ = 1.0f;
+	}
+
+	if (arrowTime_ > 0.0f) {
+		arrowTime_ -= Frame::DeltaTime();
+		for (const auto& row : mapChips_) {
+			for (const auto& chip : row) {
+				if (chip.object->type_ == Block::ChipType::Gravity) {
+					if (isGravityReversed_ && !prevGravityState) {
+						chip.arrow_->SetColor({ 1.0f,0.0f,0.0f,1.0f });
+						chip.arrow_->LoadFromJson("arrow_up");
+					}
+					if (!isGravityReversed_ && prevGravityState) {
+						chip.arrow_->SetColor({ 0.0f,0.0f,1.0f,1.0f });
+						chip.arrow_->LoadFromJson("arrow_down");
+					}
+					chip.arrow_->SetPosition({ chip.object->GetCenterPosition().x,chip.object->GetCenterPosition().y,-1.5f });
+					// 重力ブロックのみ
+					chip.arrow_->Update();
+				}
+			}
+		}
+	}
+
+	// 現在の状態を前回の状態として保存
+	prevGravityState = isGravityReversed_;
+}
+
+void MapChipField::UpdateChipAnimation(MapChip& chip)
+{
 	// 動かないブロックの場合はスキップ
 	if (chip.object->type_ == Block::ChipType::Gray) {
 		chip.isAnimating = false; // 念のためアニメーション状態のリセット
@@ -384,7 +453,7 @@ void MapChipField::UpdateChipAnimation(MapChip& chip) {
 	}
 
 	///
-	///	アニメーション開始の遅延処理
+	/// アニメーション開始の遅延処理
 	///
 
 	if (chip.isDelaying) {
@@ -392,66 +461,86 @@ void MapChipField::UpdateChipAnimation(MapChip& chip) {
 
 		if (chip.delayTime <= 0.0f) {
 			chip.isDelaying = false; // 遅延終了
-			chip.animState = MapChip::AnimationState::Shrinking;
+			chip.animState = MapChip::AnimationState::Shrinking; // 回転アニメーションに移行
 			chip.animationTime = 0.0f;
 		}
 		return; // 遅延中はここで処理を終了する
 	}
 
-	constexpr float shrinkDuration = 0.2f; // 縮小時間
-	constexpr float expandDuration = 0.2f; // 拡大時間
+	constexpr float rotationDuration = 0.4f; // 回転アニメーションの時間
+	constexpr float halfRotationTime = rotationDuration / 2.0f; // 半回転のタイミング
 
 	///
-	///	アニメーション処理開始
+	/// アニメーション処理開始
 	///
 
 	chip.animationTime += 1.0f / 60.0f; // フレーム進行
 
-	/* ブロックの縮小->色変更->拡大の順番で処理を行う */
+	/* ブロックの一回転 -> 拡縮 -> 半回転時に色変更 -> 終了 の順番で処理を行う */
 
 	///
-	/// ブロックの収縮状態
+	/// ブロックの回転およびスケールアニメーション
 	///
 	if (chip.animState == MapChip::AnimationState::Shrinking) {
 		// 終了した場合
-		if (chip.animationTime >= shrinkDuration) {
-			chip.animationTime = 0.0f;                             // タイマーリセット
-			chip.animState = MapChip::AnimationState::ColorChange; // 次の状態に移行
-
-			// ブロックの色変更
-			if (chip.object->type_ == Block::ChipType::Black) {
-				chip.object->type_ = Block::ChipType::White;
-			} else if (chip.object->type_ == Block::ChipType::White) {
-				chip.object->type_ = Block::ChipType::Black;
-			}
-			// 実際に収縮を行う
-		} else {
-			chip.currentScale = EaseOutQuad(1.0f, 0.5f, chip.animationTime, shrinkDuration); // スケールを { 1.0f -> 0.5f } へ縮小
-			chip.object->SetScale({chip.currentScale, chip.currentScale, chip.currentScale});
-		}
-		///
-		/// ブロックの拡大状態
-		///
-	} else if (chip.animState == MapChip::AnimationState::Expanding) {
-		// 終了した場合
-		if (chip.animationTime >= expandDuration) {
-			chip.animationTime = 0.0f;                      // タイマーリセット
+		if (chip.animationTime >= rotationDuration) {
+			chip.animationTime = 0.0f; // タイマーリセット
 			chip.animState = MapChip::AnimationState::None; // 次の状態に移行
-			chip.isAnimating = false;                       // アニメーション終了
-			// 実際に拡大を行う
-		} else {
-			chip.currentScale = EaseOutQuad(0.5f, 1.0f, chip.animationTime, expandDuration); // スケールを { 0.5f -> 1.0f } へ拡大
-			chip.object->SetScale({chip.currentScale, chip.currentScale, chip.currentScale});
-		}
-		///
-		/// ブロックの色変更状態
-		///
-	} else if (chip.animState == MapChip::AnimationState::ColorChange) {
-		SwitchThroughtBlock(&chip, true);
+			chip.isAnimating = false; // アニメーション終了
+			chip.hasColorChanged = false;
 
-		// 次の状態に移行
-		chip.animState = MapChip::AnimationState::Expanding;
-		chip.animationTime = 0.0f;
+			// 最終的に回転角度とスケールをリセットして終了
+			chip.currentRotation = 0.0f;
+			chip.currentScale = 1.0f;
+			chip.object->SetRotation({ 0.0f, chip.currentRotation, 0.0f });
+			chip.object->SetScale({ chip.currentScale, chip.currentScale, chip.currentScale });
+
+			chip.normal_->SetPosition(chip.object->GetCenterPosition());
+
+			if (chip.object->type_ == Block::ChipType::Black) {
+				chip.normal_->SetTexture("particle/blackBlock1x1.png");
+			}
+			if (chip.object->type_ == Block::ChipType::White) {
+				chip.normal_->SetTexture("particle/whiteBlock1x1.png");
+			}
+
+			if (chip.object->type_ == Block::ChipType::Black || chip.object->type_ == Block::ChipType::White) {
+				chip.normal_->UpdateOnce();
+			}
+
+		}
+		else {
+			// 回転角度を更新
+			chip.currentRotation = EaseOutQuad(0.0f, 720.0f, chip.animationTime, rotationDuration); // 回転を0° -> 360°へ
+			chip.object->SetRotation({ 0.0f, degreesToRadians(chip.currentRotation), 0.0f });
+
+			// スケールの更新
+			if (chip.animationTime <= halfRotationTime) {
+				// 半回転までは縮小
+				chip.currentScale = EaseOutQuad(1.0f, 0.5f, chip.animationTime, halfRotationTime); // スケールを1.0 -> 0.5へ縮小
+			}
+			else {
+				// 半回転以降は拡大
+				float timeSinceHalf = chip.animationTime - halfRotationTime;
+				chip.currentScale = EaseOutQuad(0.5f, 1.0f, timeSinceHalf, halfRotationTime); // スケールを0.5 -> 1.0へ拡大
+			}
+			chip.object->SetScale({ chip.currentScale, chip.currentScale, chip.currentScale });
+			// 半回転のタイミングで色を変更
+			if (chip.animationTime >= halfRotationTime && !chip.hasColorChanged) {
+				chip.hasColorChanged = true; // 色変更が一度だけ行われるようにフラグを設定
+				// ブロックの色変更
+				if (chip.object->type_ == Block::ChipType::Black) {
+					chip.object->type_ = Block::ChipType::White;
+					chip.object->CreateModel("game/noTouchWhiteBlock.obj");
+					chip.object->SetTexture("game/noTouchWhiteBlock.png"); // 白ブロックのテクスチャをセット
+				}
+				else if (chip.object->type_ == Block::ChipType::White) {
+					chip.object->type_ = Block::ChipType::Black;
+					chip.object->CreateModel("game/blackBlock.obj");
+					chip.object->SetTexture("game/blackBlock.png"); // 黒ブロックのテクスチャをセット
+				}
+			}
+		}
 	}
 }
 
@@ -464,7 +553,8 @@ void MapChipField::ChangeTextureAllGravityBlock() {
 				if (!isGravityReversed_) {
 					chip.object->CreateModel("game/gravityBlockDown.obj"); // 重力通常状態のテクスチャを設定
 					chip.object->SetTexture("game/gravityBlockDown.png");  // 重力通常状態のテクスチャを設定
-				} else {
+				}
+				else {
 					chip.object->CreateModel("game/gravityBlockUp.obj"); // 重力反転状態のテクスチャを設定
 					chip.object->SetTexture("game/gravityBlockUp.png");  // 重力反転状態のテクスチャを設定
 				}
@@ -567,7 +657,7 @@ bool MapChipField::HasBlockInArea(const Vector3& center, int xRange, int yRange)
 			// マスにブロックが存在するかをチェック
 			MapChip& chip = mapChips_[targetY][targetX];
 			if (chip.object->type_ != Block::ChipType::Empty && // 空ブロックを除外する
-			    chip.object->type_ != Block::ChipType::Gray) {  // 動かないブロックを除外する（あとで変更する可能性あり）
+				chip.object->type_ != Block::ChipType::Gray) {  // 動かないブロックを除外する（あとで変更する可能性あり）
 				return true;
 			}
 		}
@@ -667,7 +757,8 @@ void MapChipField::SwitchThroughtBlock(MapChip* chip, bool flag) {
 				chip->object->SetTexture("game/blackBlock.png");
 			}
 			// プレイヤーが黒い場合
-		} else {
+		}
+		else {
 			// 通常白ブロックの適用
 			if (chip->object->type_ == Block::ChipType::White) {
 				chip->object->CreateModel("game/whiteBlock.obj");
@@ -679,7 +770,8 @@ void MapChipField::SwitchThroughtBlock(MapChip* chip, bool flag) {
 				chip->object->SetTexture("game/noTouchBlackBlock.png");
 			}
 		}
-	} else {
+	}
+	else {
 		// プレイヤーが白い場合
 		if (!isPlayerWhite_) { // 一見逆だけどこうするとなぜか上手くいく
 			// スカスカ白ブロックの適用
@@ -693,7 +785,8 @@ void MapChipField::SwitchThroughtBlock(MapChip* chip, bool flag) {
 				chip->object->SetTexture("game/blackBlock.png");
 			}
 			// プレイヤーが黒い場合
-		} else {
+		}
+		else {
 			// 通常白ブロックの適用
 			if (chip->object->type_ == Block::ChipType::White) {
 				chip->object->CreateModel("game/whiteBlock.obj");

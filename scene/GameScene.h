@@ -14,6 +14,7 @@
 #include "application/Object/MapChip/MapChipField.h"
 #include"application/Pause/Pause.h"
 #include "application/Object/UIObject/UIObject.h"
+#include"application/Camera/ClearCamera.h"
 
 class GameScene : public BaseScene
 {
@@ -51,6 +52,8 @@ private:
 	void CameraUpdate();
 
 	void ChangeScene();
+
+	int GetStageNum();
 private:
 
 	Audio* audio_;
@@ -75,6 +78,14 @@ private:
 
 	// UI
 	std::unique_ptr<UIObject> uiObject_;
+
+	// クリアカメラ
+	std::unique_ptr<ClearCamera> clearCamera_;
+
+	// 音関連
+	uint32_t BGM_;
+
+	std::string filePath_;
 
 // JSON
 private:

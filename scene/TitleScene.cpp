@@ -17,38 +17,55 @@ void TitleScene::Initialize()
 	ptCommon_ = ParticleCommon::GetInstance();
 	input_ = Input::GetInstance();
 	vp_.Initialize();
-	vp_.translation_ = { 0.0f,0.0f,-30.0f };
+	vp_.translation_ = { 12.0f,-4.0f,-30.0f };
 
 	debugCamera_ = std::make_unique<DebugCamera>();
 	debugCamera_->Initialize(&vp_);
 
-	wt1_.Initialize();
-	wt2_.Initialize();
+	///
+	///	オブジェクト生成
+	/// 
+	
+	// マップチップフィールド
+	mapChipField_ = std::make_unique<MapChipField>();
+	mapChipField_->Init("resources/Maps/stage1.csv");
 
-	wt1_.translation_ = { -2.0f,0.0f,0.0f };
-	wt2_.translation_ = { 2.0f,0.0f,0.0f };
+	// プレイヤー（マップチップフィールドから初期位置を取得するので後）
+	player_ = std::make_unique<Player>();
+	player_->Init("player");
+	player_->SetInitialPosition(mapChipField_->GetPlayerInitialPosition()); // csvから読み込んだ初期位置を設定
 
-	walk_ = std::make_unique<Object3d>();
-	walk_->Initialize("animation/walk.gltf");
-	walk_->SetAnimation("animation/test2.gltf");
-	sphere_ = std::make_unique<Object3d>();
-	sphere_->Initialize("animation/walk.gltf");
-	sphere_->SetAnimation("animation/test3.gltf");
+	// タイトルUIオブジェクト生成
+	objectTitleUI_ = std::make_unique<TitleUI>();
+	objectTitleUI_->Init();
 
-	emitter_ = std::make_unique<ParticleEmitter>();
-	emitter_->Initialize("test", "debug/sphere.obj");
-
-	/*player_ = std::make_unique<Player>();
-	player_->Init("player");*/
+	BGM_ = audio_->LoadWave("title/titleBgm.wav");
+	audio_->PlayWave(BGM_, 0.2f, true);
 }
 
 void TitleScene::Finalize()
 {
-
+	audio_->StopWave(BGM_);
 }
 
 void TitleScene::Update()
 {
+	///
+	///	オブジェクト更新
+	///	
+
+	objectTitleUI_->Update();
+
+	// プレイヤー更新
+	player_->Update(mapChipField_.get());
+
+	// マップチップフィールド更新
+	mapChipField_->Update();
+
+	player_->Reset();
+	player_->PlaySE();
+	mapChipField_->PlaySE();
+
 #ifdef _DEBUG
 	// デバッグ
 	Debug();
@@ -60,47 +77,40 @@ void TitleScene::Update()
 	// シーン切り替え
 	ChangeScene();
 
-	emitter_->Update();
-	walk_->AnimationUpdate(roop);
-	sphere_->AnimationUpdate(roop);
 
-	/*player_->Update();*/
-	
-	wt1_.UpdateMatrix();
-	wt2_.UpdateMatrix();
 }
 
 void TitleScene::Draw()
 {
 	/// -------描画処理開始-------
 
-	emitter_->DrawEmitter();
-
-	/// Spriteの描画準備
-	spCommon_->DrawCommonSetting();
-	//-----Spriteの描画開始-----
-
-
-
-	//------------------------------
 
 	objCommon_->DrawCommonSetting();
 	//-----3DObjectの描画開始-----
-	walk_->Draw(wt1_, vp_);
-	walk_->DrawSkeleton(wt1_, vp_);
-	sphere_->Draw(wt2_, vp_);
-	sphere_->DrawSkeleton(wt2_, vp_);
 
-	/*player_->Draw(vp_);*/
+	objectTitleUI_->Draw(vp_);
+
+	// プレイヤー描画
+	player_->Draw(vp_);
+
+	// マップチップフィールド描画
+	mapChipField_->Draw(vp_);
 
 	//--------------------------
 
 	/// Particleの描画準備
 	ptCommon_->DrawCommonSetting();
 	//------Particleの描画開始-------
-	emitter_->Draw(vp_);
+	mapChipField_->DrawParticle(vp_);
+
 	//-----------------------------
 
+	/// Spriteの描画準備
+	spCommon_->DrawCommonSetting();
+	//-----Spriteの描画開始-----
+	player_->DrawSprite(vp_);
+	//------------------------------
+	
 	//-----線描画-----
 	DrawLine3D::GetInstance()->Draw(vp_);
 	//---------------
@@ -122,7 +132,7 @@ void TitleScene::DrawForOffScreen()
 
 	objCommon_->DrawCommonSetting();
 	//-----3DObjectの描画開始-----
-	//sphere_->Draw(wt2_, vp_);
+
 	//--------------------------
 
 	/// Particleの描画準備
@@ -143,22 +153,8 @@ void TitleScene::Debug()
 	ImGui::Begin("TitleScene:Debug");
 	debugCamera_->imgui();
 	LightGroup::GetInstance()->imgui();
-	ImGui::Checkbox("roop", &roop);
-
-	if (ImGui::Button("walk")) {
-		walk_->SetAnimation("animation/walk.gltf");
-	}
-	if (ImGui::Button("sneakWalk")) {
-		walk_->SetAnimation("animation/sneakWalk.gltf");
-	}
-	if (ImGui::Button("Jump")) {
-		walk_->SetAnimation("animation/test.gltf");
-	}
-
 	ImGui::End();
-
-	emitter_->imgui();
-	/*player_->DebugImGui();*/
+	objectTitleUI_->Debug();
 }
 
 void TitleScene::CameraUpdate()
@@ -173,7 +169,7 @@ void TitleScene::CameraUpdate()
 
 void TitleScene::ChangeScene()
 {
-	if (input_->TriggerKey(DIK_SPACE)) {
-		sceneManager_->NextSceneReservation("GAME");
+	if(player_->IsGoalReached()){
+		sceneManager_->NextSceneReservation("SELECT");
 	}
 }

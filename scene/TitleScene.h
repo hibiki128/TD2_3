@@ -9,7 +9,11 @@
 #include"Object3d.h"
 #include"WorldTransform.h"
 #include"ParticleEmitter.h"
-//#include <application/Player.h>
+// Application
+#include"application/Object/Player/Player.h"
+#include"application/Object/MapChip/MapChipField.h"
+#include "application/Scene/TitleScene/TitleUI.h"
+
 
 class TitleScene :public BaseScene
 {
@@ -60,15 +64,19 @@ private:
 	ViewProjection vp_;
 	std::unique_ptr<DebugCamera> debugCamera_;
 
-	WorldTransform wt1_;
-	WorldTransform wt2_;
+	///
+	///	オブジェクト
+	/// 
 
-	std::unique_ptr<Object3d> walk_;
-	std::unique_ptr<Object3d> sphere_;
+	// タイトルUI
+	std::unique_ptr<TitleUI> objectTitleUI_;
 
-	std::unique_ptr<ParticleEmitter> emitter_;
+	// プレイヤー
+	std::unique_ptr<Player> player_;
 
-	/*std::unique_ptr<Player> player_;*/
+	// マップチップフィールド
+	std::unique_ptr<MapChipField> mapChipField_;
 
-	bool roop = true;
+	// 音関連
+	uint32_t BGM_;
 };

@@ -10,21 +10,26 @@
 #include "application/Object/MapChip/Block/Block.h"
 #include "application/Object/Goal/Goal.h"
 #include "application/Object/Coin/Coin.h"
+#include <ParticleEmitter.h>
 
 class MapChipField {
 private:
 	// マップチップのデータ構造
 	struct MapChip {
 		std::unique_ptr<Block> object;
+		std::unique_ptr<ParticleEmitter> normal_;
+		std::unique_ptr<ParticleEmitter> arrow_;
 
 		///
 		/// アニメーション関連
-		///
-		bool isAnimating = false;
+		/// 
 		float animationTime = 0.0f;
-
+		float currentRotation = 0.0f;
 		float delayTime = 0.0f;
+
+		bool isAnimating = false;
 		bool isDelaying = false;
+		bool hasColorChanged = false;
 
 		enum class AnimationState { None, Shrinking, ColorChange, Expanding } animState = AnimationState::None;
 
@@ -46,6 +51,8 @@ public:
 	void Update(const Vector3& center, int xRange, int yRange);
 	void Draw(const ViewProjection& vp);
 	void DebugImGui();
+	void DrawParticle(const ViewProjection& vp);
+	void PlaySE();
 
 	// 全てのブロックのBaseObjectポインタを取得
 	std::vector<Block*> GetBlocks() const;
@@ -116,7 +123,7 @@ private:
 	///
 	///	ブロックの挟み込み反転処理
 	/// 
-	
+
 	// 挟み込み処理を汎用化
 	void ProcessCapture(int startX, int startY, Block::ChipType targetType, Block::ChipType ownType, const std::vector<std::pair<int, int>>& directions);
 	// 指定された座標のブロックを反転する
@@ -127,10 +134,13 @@ private:
 	// 初期状態で挟み込みが起きないよう、プレイヤーが一度でも反転を行ったかを記録
 	/*bool hasPlayerInverted_ = false;*/
 
+	// 重力反転時のパーティクル用
+	void GravityParticleUpdate();
+
 	///
 	///	アニメーション関連
 	/// 
-	
+
 	// ブロックの色反転時に { 縮小->色反転->拡大 } を行うアニメーション
 	void UpdateChipAnimation(MapChip& chip);
 
@@ -147,5 +157,6 @@ private:
 
 	// プレイヤーが白いかどうか（通常ブロックとスカスカブロックの変更のためだけに使用）
 	bool isPlayerWhite_ = true;
+	bool prevGravityState = false;
+	float arrowTime_ = 0.0f;
 };
-

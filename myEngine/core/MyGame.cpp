@@ -13,7 +13,7 @@ void MyGame::Initialize()
 	sceneFactory_ = new SceneFactory();
 	// シーンマネージャに最初のシーンをセット
 	sceneManager_->SetSceneFactory(sceneFactory_);
-	sceneManager_->NextSceneReservation("GAME");
+	sceneManager_->NextSceneReservation("TITLE");
 	// -----------------------
 
 }
@@ -57,7 +57,6 @@ void MyGame::Draw()
 	offscreen_->Draw();
 	dxCommon->TransitionDepthBarrier();
 	sceneManager_->DrawForOffScreen();
-	spriteCommon->DrawCommonSetting();
 	sceneManager_->DrawTransition();
 
 #ifdef _DEBUG

@@ -21,6 +21,8 @@ protected:
 	ObjColor objColor_;
 	// ライティング
 	bool isLighting_;
+	bool isLoop_;
+	bool skeletonDraw_;
 
 	std::string className_;
 
@@ -53,6 +55,7 @@ public:
 	/// getter
 	/// ===================================================
 	const WorldTransform& GetTransform() { return transform_; }
+	const Object3d* GetObject3d() { return obj3d_.get(); }
 
 	/// ===================================================
 	/// setter
@@ -69,10 +72,25 @@ public:
 	void SetLighting(bool isLighting) { isLighting_ = isLighting; }
 	void SetTexture(const std::string& filePath) { obj3d_->SetTexture(filePath); }
 	void SetParent(const WorldTransform* parent) { transform_.parent_ = parent; }
+	void SetColor(const Vector4& color) { objColor_.SetColor(color); }
+	void SetModel(std::unique_ptr<Object3d> obj) {
+		obj3d_ = std::move(obj);
+	}
+	void SetModel(const std::string& filePath) { obj3d_->SetModel(filePath); }
+	void SetParent(const WorldTransform& wt) { transform_.parent_ = &wt; }
+
 
 private:
 	void DebugTransform();
 	void DebugCollider();
 	void SaveToJson();
 	void LoadFromJson();
+	void AnimaSaveToJson();
+	void AnimaLoadFromJson();
+	void ShowFileSelector();
+
+	std::vector<std::string> GetGltfFiles();
+
+	bool isCollider = false;
+
 };

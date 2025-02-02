@@ -6,6 +6,7 @@
 #include <Matrix4x4.h>
 #include"myMath.h"
 #include <Vector2.h>
+#include "externals/nlohmann/json.hpp"
 class DirectXCommon;
 class OffScreen
 {
@@ -24,17 +25,22 @@ private:
 	void CreateVignette();
 	void CreateDepth();
 	void CreateRadial();
+	void CreateCinematic();
+	void SaveToJson();
+	void LoadFromJson(ShaderMode shaderMode);
+	void LoadFromJson();
 private:
 	DirectXCommon* dxCommon;
 	SrvManager* srvManager_;
 	std::unique_ptr<PipeLineManager> psoManager_ = nullptr;
 	// ルートシグネチャ
-	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature[6];
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature[7];
 
 	// グラフィックスパイプライン
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineState[8];
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> graphicsPipelineState[9];
 	ShaderMode shaderMode_ = ShaderMode::kNone;
 
+	using json = nlohmann::json;
 
 	struct KernelSettings {
 		int kernelSize;
@@ -64,6 +70,13 @@ private:
 		float kBlurWidth;
 	};
 
+	struct Cinematic{
+		Vector2 iResolution;
+		float contrast;
+		float saturation;
+		float brightness;
+	};
+
 	// バッファリソース
 	Microsoft::WRL::ComPtr<ID3D12Resource> vignetteResource;
 	// バッファリソース内のデータを指すポインタ
@@ -90,5 +103,11 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> radialResource;
 	// バッファリソース内のデータを指すポインタ
 	RadialBlur* radialData = nullptr;
+
+	// バッファリソース
+	Microsoft::WRL::ComPtr<ID3D12Resource> cinematicResource;
+	// バッファリソース内のデータを指すポインタ
+	Cinematic* cinematicData = nullptr;
+
 };
 

@@ -9,7 +9,7 @@ class UIObject
 {
 public:
 	void Init();
-	void Update(const ViewProjection& viewProjection);
+	void Update();
 	void Draw(const ViewProjection& viewProjection);
 	void DebugImGui();
 

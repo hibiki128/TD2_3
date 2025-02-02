@@ -6,7 +6,8 @@
 #include "SpriteCommon.h"
 #include"ParticleCommon.h"
 #include"DebugCamera.h"
-#include "application/SelectScene/MapPrev.h"
+#include"application/Scene/SelectScene/MapPrev.h"
+#include"application/Scene/SelectScene/SelectUI.h"
 
 class SelectScene :public BaseScene
 {
@@ -52,6 +53,8 @@ private:
 
 	void CameraMove();
 
+	void SetStage();
+
 private:
 	Audio* audio_;
 	Input* input_;
@@ -64,6 +67,7 @@ private:
 
 	// マップチップフィールド
 	std::vector<std::unique_ptr<MapPrev>> mapPrevs_;
+	std::unique_ptr<SelectUI> selectUI_;
 
 	int stageNum = 3;
 	int currentStage = 0;
@@ -71,4 +75,13 @@ private:
 	bool isMoveCamera_ = false;
 	float startPos = 0.0f;
 	float endPos = 0.0f;
+
+	// 音関連
+	uint32_t BGM_;
+	uint32_t selectSE_;
+	uint32_t desitionSE_;
+
+	std::string filePath;
+	bool BackGameScene_ = false;
+
 };

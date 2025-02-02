@@ -3,6 +3,7 @@
 void Goal::Init(const std::string className)
 {
 	BaseObject::Init(className);
+	Collider::SetVisible(false);
 }
 
 void Goal::Update()

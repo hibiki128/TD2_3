@@ -14,6 +14,7 @@ private:
     static int frameCount_;   ///< フレームカウント
     static std::chrono::high_resolution_clock::time_point fpsTime_;  ///< FPS計算のリセット時間
     static float fps_;        ///< FPS
+    static float  accumulatedTime_;
 
 public:
     /// ========================================================

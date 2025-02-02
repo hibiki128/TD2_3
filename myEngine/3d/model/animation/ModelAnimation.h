@@ -18,6 +18,8 @@ public:
 
 	void Update(bool roop);
 
+	void PlayAnimation();
+
 	void SetModelData(ModelData modelData) { modelData_ = modelData; }
 	Skeleton GetSkeletonData() { return bone_->GetSkeleton(); }
 	Animator* GetAnimator() { return animator_.get(); }

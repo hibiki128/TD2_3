@@ -56,7 +56,25 @@ void SceneManager::Update()
 		nextScene_ = sceneFactory_->CreateScene("GAME");
 		transition_->SetFadeInStart(true);
 	}
+	if (ImGui::Button("ClearScene") && (transition_->IsEnd() && !transition_->FadeInStart())) {
+		if (!transition_->IsEnd() && transition_->FadeInStart()) {
+			return; // すでに遷移中なので、次の遷移予約はしない
+		}
+		transition_->Reset();
+		nextScene_ = sceneFactory_->CreateScene("CLEAR");
+		transition_->SetFadeInStart(true);
+	}
+	if (ImGui::Button("DemoScene") && (transition_->IsEnd() && !transition_->FadeInStart())) {
+		if (!transition_->IsEnd() && transition_->FadeInStart()) {
+			return; // すでに遷移中なので、次の遷移予約はしない
+		}
+		transition_->Reset();
+		nextScene_ = sceneFactory_->CreateScene("DEMO");
+		transition_->SetFadeInStart(true);
+	}
 	ImGui::End();
+
+	//transition_->Debug();
 
 #endif // _DEBUG
 

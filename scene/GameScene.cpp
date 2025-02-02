@@ -80,7 +80,7 @@ void GameScene::Update()
 		}
 
 		// マップチップフィールド更新
-		mapChipField_->Update();
+		mapChipField_->Update(player_->GetCenterPosition(), player_->GetInvertRangeX(), player_->GetInvertRangeY());
 	}
 	// ポーズ更新
 	pause_->Update();

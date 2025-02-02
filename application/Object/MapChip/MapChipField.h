@@ -43,7 +43,7 @@ public:
 	MapChipField();
 
 	void Init(const std::string& csvFilePath);
-	void Update();
+	void Update(const Vector3& center, int xRange, int yRange);
 	void Draw(const ViewProjection& vp);
 	void DebugImGui();
 
@@ -70,6 +70,9 @@ public:
 	///
 	///	その他
 	///
+
+	// プレイヤー範囲内のブロックを拡大->縮小させる
+	void UpdateBlockScaleAnimation(const Vector3& center, int xRange, int yRange);
 
 	// 指定範囲内にブロックが存在しているかを判定
 	bool HasBlockInArea(const Vector3& center, int xRange, int yRange);

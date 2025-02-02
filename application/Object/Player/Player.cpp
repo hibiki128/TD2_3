@@ -12,7 +12,7 @@ void Player::Init(const std::string className) {
 
 	BaseObject::Init(className);
 	BaseObject::CreateModel("game/Player.obj");
-	BaseObject::SetTexture("game/player.png"); // 白状態のプレイヤーテクスチャを設定
+	BaseObject::SetTexture("game/playerWhite.png"); // 白状態のプレイヤーテクスチャを設定
 	BaseObject::CreateCollider();
 	Collider::SetVisible(false);
 
@@ -627,7 +627,7 @@ void Player::Reset() {
 		// プレイヤーの重力状態をリセット
 		isGravityReversed_ = false;
 		// プレイヤーの色状態をリセット（とりあえずデフォルトを白としておく）
-		this->SetTexture("game/player.png");
+		this->SetTexture("game/playerWhite.png");
 		colorState_ = ColorState::White;
 		// 現在の取得コイン数をリセット
 		currentCoinCount_ = 0;

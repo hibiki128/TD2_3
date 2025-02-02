@@ -60,7 +60,7 @@ void TitleScene::Update()
 	player_->Update(mapChipField_.get());
 
 	// マップチップフィールド更新
-	mapChipField_->Update();
+	mapChipField_->Update(player_->GetCenterPosition(), player_->GetInvertRangeX(), player_->GetInvertRangeY());
 
 	player_->Reset();
 	player_->PlaySE();

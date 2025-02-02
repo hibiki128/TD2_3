@@ -11,7 +11,7 @@ void Player::Init(const std::string className) {
 	input_ = Input::GetInstance();
 
 	BaseObject::Init(className);
-	BaseObject::CreateModel("game/Player.obj");
+	BaseObject::CreateModel("game/player.obj");
 	BaseObject::SetTexture("game/playerWhite.png"); // 白状態のプレイヤーテクスチャを設定
 	BaseObject::CreateCollider();
 	Collider::SetVisible(false);

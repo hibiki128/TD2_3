@@ -168,6 +168,7 @@ void TitleScene::Debug()
 	LightGroup::GetInstance()->imgui();
 	ImGui::End();
 	objectTitleUI_->Debug();
+	player_->DebugImGui();
 }
 
 void TitleScene::CameraUpdate()

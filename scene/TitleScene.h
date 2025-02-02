@@ -79,4 +79,7 @@ private:
 
 	// 音関連
 	uint32_t BGM_;
+
+	// 背景
+	std::unique_ptr<Sprite> spriteBackGround_;
 };

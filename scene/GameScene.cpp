@@ -95,7 +95,7 @@ void GameScene::Update()
 
 #endif // _DEBUG
 		// マップチップフィールド更新
-		mapChipField_->Update();
+		mapChipField_->Update(player_->GetCenterPosition(), player_->GetInvertRangeX(), player_->GetInvertRangeY());
 	}
 	player_->Reset();
 	if (!clearCamera_->GetActive()) {

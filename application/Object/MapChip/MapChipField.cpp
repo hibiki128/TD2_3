@@ -27,7 +27,7 @@ void MapChipField::Init(const std::string& csvFilePath) {
 	LoadFromCSV(csvFilePath_);
 }
 
-void MapChipField::Update() {
+void MapChipField::Update(const Vector3& center, int xRange, int yRange) {
 	for (auto& row : mapChips_) {
 		for (auto& chip : row) {
 			// 空白ブロックではない場合のみ更新
@@ -43,6 +43,9 @@ void MapChipField::Update() {
 			}
 		}
 	}
+
+	// プレイヤー範囲内のブロックを半透明にする
+	UpdateBlockScaleAnimation(center, xRange, yRange);
 
 	// 挟み込みが起こった場合に挟まれたブロックの色反転を行う
 	InvertBlocksWithCapture();
@@ -554,6 +557,77 @@ void MapChipField::ChangeTextureAllGravityBlock() {
 				else {
 					chip.object->CreateModel("game/gravityBlockUp.obj"); // 重力反転状態のテクスチャを設定
 					chip.object->SetTexture("game/gravityBlockUp.png");  // 重力反転状態のテクスチャを設定
+				}
+			}
+		}
+	}
+}
+
+void MapChipField::UpdateBlockScaleAnimation(const Vector3& center, int xRange, int yRange)
+{
+	constexpr float kMinScale = 1.0;
+	constexpr float kMaxScale = 1.075f;
+	constexpr float kCycleDuration = 0.75f; // 拡大と縮小の一周期の時間
+
+	const float kDeltaTime = 1.0f / 60.0f;
+
+	static float globalAnimTime = 0.0f;
+	globalAnimTime += kDeltaTime;
+
+	// 周期毎にリセット（0 ~ 1になるように）
+	float tCycle = std::fmod(globalAnimTime, kCycleDuration) / kCycleDuration;
+	
+	float animatedScale = 0.0f;
+	// 拡大中の処理（0.0f ~ 0.5f）
+	if(tCycle < 0.5f){
+		float t = tCycle * 2.0f; // 0 ~ 1に正規化
+		animatedScale = EaseInQuad<float>(kMinScale, kMaxScale, t, 1.0f);
+	// 縮小中の処理（0.5f ~ 1.0f）
+	} else {
+		float t = (tCycle - 0.5f) * 2.0f; // 0 ~ 1に正規化
+		animatedScale = EaseInQuad<float>(kMaxScale, kMinScale, t, 1.0f);
+	}
+
+	// 最初に、全てのブロックの透明度を通常に戻す
+	for (size_t y = 0; y < mapHeight; ++y) {
+		for (size_t x = 0; x < mapWidth; ++x) {
+			MapChip& chip = mapChips_[y][x];
+			// 対象外のブロックはスキップ
+			if (chip.object->type_ == Block::ChipType::Empty ||
+				chip.object->type_ == Block::ChipType::Gray) {
+				continue;
+			}
+			if (!chip.isAnimating) {
+				chip.object->SetScale({ kMinScale, kMinScale, kMinScale });
+			}
+		}
+	}
+
+	// 中心位置からマップ上のマス位置を計算
+	int centerX = static_cast<int>(std::round(center.x / kChipSize));
+	int centerY = static_cast<int>(std::round(-center.y / kChipSize));
+
+	int halfXRange = xRange / 2;
+	int halfYRange = yRange / 2;
+
+	// 範囲内のブロックを探索
+	for (int y = -halfYRange; y <= halfYRange; ++y) {
+		for (int x = -halfXRange; x <= halfXRange; ++x) {
+			// 対象位置を計算
+			int targetX = centerX + x;
+			int targetY = centerY + y;
+
+			// マップ範囲外を無視
+			if (targetX < 0 || targetX >= static_cast<int>(mapWidth) || targetY < 0 || targetY >= static_cast<int>(mapHeight)) {
+				continue;
+			}
+
+			// 対象外のブロックはスキップ
+			MapChip& chip = mapChips_[targetY][targetX];
+			if (chip.object->type_ != Block::ChipType::Empty &&
+				chip.object->type_ != Block::ChipType::Gray) {
+				if (!chip.isAnimating) {
+					chip.object->SetScale({ animatedScale, animatedScale, animatedScale });
 				}
 			}
 		}

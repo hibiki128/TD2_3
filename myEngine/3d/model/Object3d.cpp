@@ -137,6 +137,16 @@ void Object3d::SetModel(const std::string& filePath)
 {
 	// モデルを検索してセットする
 	model = ModelManager::GetInstance()->FindModel(filePath);
+
+	materialData->textureFilePath = model->GetModelData().material.textureFilePath;
+	materialData->textureIndex = model->GetModelData().material.textureIndex;
+	modelAnimation_->SetModelData(model->GetModelData());
+
+	modelAnimation_->Initialize("resources/models/", filePath);
+
+	model->SetAnimator(modelAnimation_->GetAnimator());
+	model->SetBone(modelAnimation_->GetBone());
+	model->SetSkin(modelAnimation_->GetSkin());
 }
 
 void Object3d::SetTexture(const std::string& filePath)

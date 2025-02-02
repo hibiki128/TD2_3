@@ -109,6 +109,8 @@ private:
 	int xInvertRange_;
 	int yInvertRange_;
 
+	int prevDirection_ = 1; // 1: 右向き, -1: 左向き
+
 	///
 	///	その他
 	///	

@@ -14,21 +14,21 @@ ModelManager* ModelManager::GetInstance()
 
 void ModelManager::LoadModel(const std::string& filePath)
 {
-    // .gltfファイルの場合、内容に基づくハッシュを生成しない（毎回新しいモデルを作成）
-    if (filePath.substr(filePath.find_last_of(".") + 1) == "gltf") {
-        // 新しいユニークな識別子を生成する（例えば、インデックスなど）
-        static int modelIndex = 0;
-        std::string uniqueKey = filePath + "_" + std::to_string(modelIndex++);
+    //// .gltfファイルの場合、内容に基づくハッシュを生成しない（毎回新しいモデルを作成）
+    //if (filePath.substr(filePath.find_last_of(".") + 1) == "gltf") {
+    //    // 新しいユニークな識別子を生成する（例えば、インデックスなど）
+    //    static int modelIndex = 0;
+    //    std::string uniqueKey = filePath + "_" + std::to_string(modelIndex++);
 
-        // モデルの生成とファイル読み込み、初期化
-        std::unique_ptr<Model> model = std::make_unique<Model>();
-        model->Initialize(modelCommon, "resources/models/", filePath);
-        model->SetSrv(srvManager);
+    //    // モデルの生成とファイル読み込み、初期化
+    //    std::unique_ptr<Model> model = std::make_unique<Model>();
+    //    model->Initialize(modelCommon, "resources/models/", filePath);
+    //    model->SetSrv(srvManager);
 
-        // モデルをmapコンテナに格納する
-        models.insert(std::make_pair(uniqueKey, std::move(model)));
-        return;
-    }
+    //    // モデルをmapコンテナに格納する
+    //    models.insert(std::make_pair(uniqueKey, std::move(model)));
+    //    return;
+    //}
 
     // .gltf以外のファイルは元のパスで検索（重複チェック）
     if (models.contains(filePath)) {

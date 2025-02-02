@@ -11,6 +11,7 @@ void Player::Init(const std::string className) {
 	input_ = Input::GetInstance();
 
 	BaseObject::Init(className);
+	BaseObject::SetRotationY(0.0f);
 	BaseObject::CreateModel("game/player.obj");
 	BaseObject::SetTexture("game/playerWhite.png"); // 白状態のプレイヤーテクスチャを設定
 	BaseObject::CreateCollider();
@@ -36,8 +37,8 @@ void Player::Init(const std::string className) {
 
 	// プレイヤー反転範囲スプライト生成
 	spritePlayerArea_ = std::make_unique<Sprite>();
-	spritePlayerArea_->Initialize("game/playerFlame.png", {0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.5f, 0.5f});
-	spritePlayerArea_->SetSize({165.0f, 165.0f});
+	spritePlayerArea_->Initialize("game/playerFlame.png", { 0.0f, 0.0f }, { 1.0f, 1.0f, 1.0f, 1.0f }, { 0.5f, 0.5f });
+	spritePlayerArea_->SetSize({ 165.0f, 165.0f });
 
 	// Jsonからパラメーターの読み込み
 	LoadFromJson();
@@ -86,7 +87,8 @@ void Player::Update(MapChipField* mapChipField) {
 	// プレイヤーの色状態をmapChipFieldに知らせる
 	if (colorState_ == ColorState::White) {
 		mapChipField_->SetIsPlayerWhite(true);
-	} else if (colorState_ == ColorState::Black) {
+	}
+	else if (colorState_ == ColorState::Black) {
 		mapChipField_->SetIsPlayerWhite(false);
 	}
 
@@ -119,7 +121,8 @@ void Player::Update(MapChipField* mapChipField) {
 	if (!isInverting_) {                         // ブロック反転中には重力を加算しない
 		if (isGravityReversed_) {                // 重力反転中
 			velocity_.y -= gravityAcceleration_; // 上向きに重力をかける (逆)
-		} else {                                 // 通常重力
+		}
+		else {                                 // 通常重力
 			velocity_.y += gravityAcceleration_; // 下向きに重力をかける（順）
 		}
 	}
@@ -150,7 +153,7 @@ void Player::Update(MapChipField* mapChipField) {
 			/*ImGui::Text("TransitionStatus : %d", squareTransition_->GetCurrentStatus());
 			ImGui::Text("TransitionIsFinished : %d", squareTransition_->IsFinished());*/
 
-			bool flag[6] = {false};
+			bool flag[6] = { false };
 			flag[0] = IsJumpOccurred();
 			flag[1] = IsBlockInversionOccurred();
 			flag[2] = IsResetOccurred();
@@ -275,10 +278,10 @@ bool Player::IsCollidingCoin(const Coin& coin) {
 	Vector3 position = this->transform_.translation_;
 	// プレイヤーの4つの角を計算
 	Vector3 corners[4] = {
-	    {position.x - kWidth / 2, position.y + kHeight / 2, position.z}, // 左上
-	    {position.x + kWidth / 2, position.y + kHeight / 2, position.z}, // 右上
-	    {position.x - kWidth / 2, position.y - kHeight / 2, position.z}, // 左下
-	    {position.x + kWidth / 2, position.y - kHeight / 2, position.z}  // 右下
+		{position.x - kWidth / 2, position.y + kHeight / 2, position.z}, // 左上
+		{position.x + kWidth / 2, position.y + kHeight / 2, position.z}, // 右上
+		{position.x - kWidth / 2, position.y - kHeight / 2, position.z}, // 左下
+		{position.x + kWidth / 2, position.y - kHeight / 2, position.z}  // 右下
 	};
 
 	// コインとの当たり判定
@@ -455,14 +458,34 @@ void Player::HandleInput() {
 	///
 	///	左右移動入力
 	///
-
 	if (!isInverting_) { // ブロック反転中には移動できない
+		// 前フレームの移動状態を記録
+		static bool wasMoving = false; // 直前のフレームで動いていたかどうか
+
 		if (input_->PushKey(DIK_A)) {
 			velocity_.x = -kMoveSpeed;
 		}
 		if (input_->PushKey(DIK_D)) {
 			velocity_.x = kMoveSpeed;
 		}
+		if (input_->TriggerKey(DIK_D)) {
+			BaseObject::SetRotationY(degreesToRadians(90.0f));
+			BaseObject::SetModel("animation/playerWalk.gltf");
+		}
+		if (input_->TriggerKey(DIK_A)) {
+			BaseObject::SetRotationY(degreesToRadians(-90.0f));
+			BaseObject::SetModel("animation/playerWalk.gltf");
+		}
+
+		// 停止状態の処理（velocity_ が 0 に変わった瞬間にのみ実行）
+		bool isMoving = (velocity_.x != 0.0f);
+		if (!isMoving && wasMoving) { // 直前まで動いていて、今回初めて停止したとき
+			BaseObject::SetRotationY(degreesToRadians(0.0f));
+			BaseObject::SetModel("game/player.obj");
+		}
+
+		// 次のフレーム用に現在の移動状態を記録
+		wasMoving = isMoving;
 	}
 
 	///
@@ -528,7 +551,8 @@ void Player::HandleInput() {
 							this->SetTexture("debug/black1x1.png");
 							colorState_ = ColorState::Black;
 							// 現在が黒の場合、テクスチャと色状態を白に変更
-						} else if (colorState_ == ColorState::Black) {
+						}
+						else if (colorState_ == ColorState::Black) {
 							this->SetTexture("game/playerWhite.png");
 							colorState_ = ColorState::White;
 						}
@@ -786,14 +810,14 @@ void Player::InvertAreaSpriteToPlayerPosition(const ViewProjection& viewProjecti
 	// プレイヤーのワールド座標をスクリーン座標に変換
 	Vector3 screenPosition = Transformation(playerWorldPosition, matViewProjecitonViewport);
 
-	spritePlayerArea_->SetPosition({screenPosition.x, screenPosition.y});
+	spritePlayerArea_->SetPosition({ screenPosition.x, screenPosition.y });
 }
 
 void Player::InvertAreaSpriteAdjust() {
 	Vector2 spriteSize;
 
 	// 反転可能範囲の数値によってスプライトのサイズを設定する
-	const float sizes[] = {0.0f, 55.0f, 0.0f, 165.0f, 0.0f, 275.0f, 0.0f, 383.0f, 0.0f, 490.0f, 0.0f, 598.0f}; // 目視で合わせた各サイズ
+	const float sizes[] = { 0.0f, 55.0f, 0.0f, 165.0f, 0.0f, 275.0f, 0.0f, 383.0f, 0.0f, 490.0f, 0.0f, 598.0f }; // 目視で合わせた各サイズ
 
 	// xサイズ変更
 	if (xInvertRange_ >= 1 && xInvertRange_ <= 11 && xInvertRange_ % 2 == 1) {
@@ -820,10 +844,10 @@ Player::CollisionMapInfo Player::GetMapCollisionInfo() {
 
 	// 重なり判定用の4点
 	Vector3 checkPoints[4] = {
-	    {position.x - overlapOffsetX, position.y + overlapOffsetY, position.z}, // 左上
-	    {position.x + overlapOffsetX, position.y + overlapOffsetY, position.z}, // 右上
-	    {position.x - overlapOffsetX, position.y - overlapOffsetY, position.z}, // 左下
-	    {position.x + overlapOffsetX, position.y - overlapOffsetY, position.z}, // 右下
+		{position.x - overlapOffsetX, position.y + overlapOffsetY, position.z}, // 左上
+		{position.x + overlapOffsetX, position.y + overlapOffsetY, position.z}, // 右上
+		{position.x - overlapOffsetX, position.y - overlapOffsetY, position.z}, // 左下
+		{position.x + overlapOffsetX, position.y - overlapOffsetY, position.z}, // 右下
 	};
 
 	// プレイヤーの4つの角を計算
@@ -870,7 +894,8 @@ Player::CollisionMapInfo Player::GetMapCollisionInfo() {
 		// プレイヤーとブロックの色が同じ場合には上下左右の判定を取らない（押し戻しを行わないため）
 		if (this->colorState_ == ColorState::White && block->type_ == Block::ChipType::White) { // プレイヤーが白状態で、白ブロックの場合
 			continue;
-		} else if (this->colorState_ == ColorState::Black && block->type_ == Block::ChipType::Black) { // プレイヤーが黒状態で、黒ブロックの場合
+		}
+		else if (this->colorState_ == ColorState::Black && block->type_ == Block::ChipType::Black) { // プレイヤーが黒状態で、黒ブロックの場合
 			continue;
 		}
 
@@ -881,7 +906,8 @@ Player::CollisionMapInfo Player::GetMapCollisionInfo() {
 				if (i < 2) { // 左上・右上
 					info.hittingCeiling_ = true;
 					info.blockY = block; // Y方向で衝突したブロックを格納
-				} else if (i >= 2) {     // 左下・右下
+				}
+				else if (i >= 2) {     // 左下・右下
 					info.hittingGround_ = true;
 					info.blockY = block; // Y方向で衝突したブロックを格納
 				}

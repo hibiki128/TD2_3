@@ -476,7 +476,7 @@ void MapChipField::ChangeTextureAllGravityBlock() {
 void MapChipField::UpdateBlockScaleAnimation(const Vector3& center, int xRange, int yRange)
 {
 	constexpr float kMinScale = 1.0;
-	constexpr float kMaxScale = 1.1f;
+	constexpr float kMaxScale = 1.075f;
 	constexpr float kCycleDuration = 0.75f; // 拡大と縮小の一周期の時間
 
 	const float kDeltaTime = 1.0f / 60.0f;
@@ -484,12 +484,19 @@ void MapChipField::UpdateBlockScaleAnimation(const Vector3& center, int xRange, 
 	static float globalAnimTime = 0.0f;
 	globalAnimTime += kDeltaTime;
 
-	// 周期毎にリセット
+	// 周期毎にリセット（0 ~ 1になるように）
 	float tCycle = std::fmod(globalAnimTime, kCycleDuration) / kCycleDuration;
-	// 0.0 ~ 0.5の間は拡大、0.5 ~ 1.0fの間は縮小
-	float factor = (tCycle < 0.5f) ? (tCycle * 2.0f) : ((1.0f - tCycle) * 2.0f);
-	// 実際のスケールを算出
-	float animatedScale = kMinScale + factor * (kMaxScale - kMinScale);
+	
+	float animatedScale = 0.0f;
+	// 拡大中の処理（0.0f ~ 0.5f）
+	if(tCycle < 0.5f){
+		float t = tCycle * 2.0f; // 0 ~ 1に正規化
+		animatedScale = EaseInQuad<float>(kMinScale, kMaxScale, t, 1.0f);
+	// 縮小中の処理（0.5f ~ 1.0f）
+	} else {
+		float t = (tCycle - 0.5f) * 2.0f; // 0 ~ 1に正規化
+		animatedScale = EaseInQuad<float>(kMaxScale, kMinScale, t, 1.0f);
+	}
 
 	// 最初に、全てのブロックの透明度を通常に戻す
 	for (size_t y = 0; y < mapHeight; ++y) {

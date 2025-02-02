@@ -115,24 +115,56 @@ void UIObject::InputReaction()
 			objectL_->SetWorldPosition(initLstickPos_);
 		}
 
+		/*押されたボタンの色の補間処理*/
+
+		const float kDeltaTime = 1.0f / 60.0f;
+		const float kLerpSpeed = 30.0f; // 補間速度
+
 		///
 		///	Aボタンが押されている間は色を濃くする
 		/// 
 		
+		static Vector4 currentColorA(1.0f, 1.0f, 1.0f, 1.0f);
+		Vector4 targetColorA;
+
 		if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A) {
-			objectA_->SetObjColor({ 0.3f, 0.3f, 0.3f, 1.0f });
+			targetColorA = { 0.3f, 0.3f, 0.3f, 1.0f };
 		} else {
-			objectA_->SetObjColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+			targetColorA = { 1.0f, 1.0f, 1.0f, 1.0f };
 		}
+		// 現在の色を線形補間で更新
+		currentColorA = Lerp(currentColorA, targetColorA, kLerpSpeed * kDeltaTime);
+		objectA_->SetObjColor(currentColorA);
 
 		///
 		///	 RBボタンが押されている間は色を濃くする
 		/// 
 		
+		static Vector4 currentColorR(1.0f, 1.0f, 1.0f, 1.0f);
+		Vector4 targetColorR;
+
 		if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) {
-			objectR_->SetObjColor({ 0.3f, 0.3f, 0.3f, 1.0f });
+			targetColorR = { 0.3f, 0.3f, 0.3f, 1.0f };
 		} else {
-			objectR_->SetObjColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+			targetColorR = { 1.0f, 1.0f, 1.0f, 1.0f };
 		}
+		// 現在の色を線形補間で更新
+		currentColorR = Lerp(currentColorR, targetColorR, kLerpSpeed * kDeltaTime);
+		objectR_->SetObjColor(currentColorR);
+
+		///
+		///	Lスティック押し込み時にも色を濃くする
+		/// 
+		
+		static Vector4 currentColorL(1.0f, 1.0f, 1.0f, 1.0f);
+		Vector4 targetColorL;
+		if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_THUMB) {
+			targetColorL = { 0.3f, 0.3f, 0.3f, 1.0f };
+		} else {
+			targetColorL = { 1.0f, 1.0f, 1.0f, 1.0f };
+		}
+		// 現在の色を線形補間で更新
+		currentColorL = Lerp(currentColorL, targetColorL, kLerpSpeed * kDeltaTime);
+		objectL_->SetObjColor(currentColorL);
 	}
 }

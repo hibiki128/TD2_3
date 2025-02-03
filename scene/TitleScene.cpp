@@ -95,6 +95,7 @@ void TitleScene::Draw()
 	spCommon_->DrawCommonSetting();
 	//-----Spriteの描画開始-----
 
+	// 背景
 	spriteBackGround_->Draw(true);
 
 	objCommon_->DrawCommonSetting();

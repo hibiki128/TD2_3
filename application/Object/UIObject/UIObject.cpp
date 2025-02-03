@@ -42,6 +42,14 @@ void UIObject::Init() {
 	objectL_->SetParent(&objectUI_->GetWorldTransform());
 	objectA_->SetParent(&objectUI_->GetWorldTransform());
 	objectR_->SetParent(&objectUI_->GetWorldTransform());
+
+	///
+	///	スプライト生成
+	/// 
+	
+	spritePause_ = std::make_unique<Sprite>();
+	spritePause_->Initialize("game/pause.png", {64.0f, 64.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.5f, 0.5f});
+	spritePause_->SetSize({96.0f, 96.0f});
 }
 
 void UIObject::Update() {
@@ -62,6 +70,8 @@ void UIObject::Draw(const ViewProjection& viewProjection) {
 	objectA_->Draw(viewProjection);
 	objectR_->Draw(viewProjection);
 }
+
+void UIObject::DrawSprite() { spritePause_->Draw(true); }
 
 void UIObject::DebugImGui()
 {
@@ -166,5 +176,21 @@ void UIObject::InputReaction()
 		// 現在の色を線形補間で更新
 		currentColorL = Lerp(currentColorL, targetColorL, kLerpSpeed * kDeltaTime);
 		objectL_->SetObjColor(currentColorL);
+
+		///
+		///	ポーズボタンの押下時にも色を濃くする
+		/// 
+		
+		static Vector4 currentColorPause(1.0f, 1.0f, 1.0f, 1.0f);
+		Vector4 targetColorPause;
+		if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_START) {
+			targetColorPause = {0.3f, 0.3f, 0.3f, 1.0f};
+		} else {
+			targetColorPause = {1.0f, 1.0f, 1.0f, 1.0f};
+		}
+		// 現在の色を線形補間で更新
+		currentColorPause = Lerp(currentColorPause, targetColorPause, kLerpSpeed * kDeltaTime);
+		spritePause_->SetColor({currentColorPause.x, currentColorPause.y, currentColorPause.z});
+		spritePause_->SetAlpha(currentColorPause.w);
 	}
 }

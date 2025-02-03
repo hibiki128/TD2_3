@@ -7,6 +7,7 @@
 #include"ParticleCommon.h"
 #include"DebugCamera.h"
 #include"application/Scene/ClearScene/ClearUI.h"
+#include "Sprite.h"
 
 class ClearScene :public BaseScene
 {
@@ -69,4 +70,7 @@ private:
 	int coinNum_;
 
 	uint32_t BGM_;
+
+	// 背景
+	std::unique_ptr<Sprite> spriteBackGround_;
 };

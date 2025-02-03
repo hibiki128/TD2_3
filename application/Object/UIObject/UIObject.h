@@ -1,6 +1,7 @@
 #pragma once
 
 #include "application/Base/BaseObject.h"
+#include "Sprite.h"
 
 // Engine
 #include "Input.h"
@@ -11,6 +12,7 @@ public:
 	void Init();
 	void Update();
 	void Draw(const ViewProjection& viewProjection);
+	void DrawSprite();
 	void DebugImGui();
 
 private:
@@ -28,11 +30,9 @@ private:
 	std::unique_ptr<BaseObject> objectR_; // RBボタン
 
 	///
-	///	その他
+	///	スプライト
 	/// 
-
-	// ビルボード行列
-	Matrix4x4 billboardMatrix_;
+	std::unique_ptr<Sprite> spritePause_; // ポーズボタン
 
 private:
 	// Lスティックオブジェクトの初期位置

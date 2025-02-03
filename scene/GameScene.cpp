@@ -52,6 +52,10 @@ void GameScene::Initialize()
 	///	スプライト初期化
 	/// 
 
+	// 背景
+	spriteBackGround_ = std::make_unique<Sprite>();
+	spriteBackGround_->Initialize("title/backGround.png", {0.0f, 0.0f});
+
 	// Jsonから保存情報の読み込み
 	LoadFromJson();
 
@@ -122,6 +126,12 @@ void GameScene::Draw()
 	/// Spriteの描画準備
 	spCommon_->DrawCommonSetting();
 	//-----Spriteの描画開始-----
+
+	// 背景
+	spriteBackGround_->Draw(true);
+	
+	// UI（ポーズボタン）
+	uiObject_->DrawSprite();
 
 	player_->DrawSprite(vp_);
 

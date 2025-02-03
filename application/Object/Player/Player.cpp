@@ -6,6 +6,7 @@
 #include"Audio.h"
 #include"myEngine/Frame/Frame.h"
 #include "myEngine/3d/line/DrawLine3D.h"
+#include "math/Easing.h"
 
 void Player::Init(const std::string className) {
 	input_ = Input::GetInstance();
@@ -135,7 +136,17 @@ void Player::Update(MapChipField* mapChipField) {
 	///	反転操作無効時には反転範囲のスプライトを揺らす
 	/// 
 
-	DisabledInvert();
+	// 反転操作が無効になった瞬間にシェイク開始
+	if (isInvertDisabled_) {
+		spriteShakeTimer_ = kShakeDuration; // シェイク時間のセット
+	} 
+
+	///
+	///	反転が成立した瞬間に拡大->縮小アニメーション開始
+	/// 
+	if (isBlockInversionOccurred_) {
+		spriteScaleTimer_ = kSpriteScaleDuration;
+	}
 
 #ifdef _DEBUG
 	ImGui::Begin("player");
@@ -206,21 +217,8 @@ void Player::DrawSprite(const ViewProjection& viewProjection) {
 	// 現在の反転可能範囲の数値によってspritePlayerAreaのサイズを変更
 	InvertAreaSpriteAdjust();
 
-	// シェイク処理
-	if (spriteShakeTimer_ > 0.0f) {
-		float shakeStrength = 10.0f; // シェイクの強さ
-
-		// 減衰係数
-		float damping = spriteShakeTimer_ / kShakeDuration;
-
-		float shakeOffset = shakeStrength * damping * std::sinf(spriteShakeTimer_ * 60.0f); // 振動の速さを調整
-
-		Vector2 currentPos = spritePlayerArea_->GetPosition();
-		spritePlayerArea_->SetPosition({currentPos.x + shakeOffset, currentPos.y});
-
-		// シェイク時間の減少
-		spriteShakeTimer_ -= kDeltaTime;
-	}
+	// 反転無効時と反転成立時にspritePlayerAreaにアニメーションを適用する
+	SpritePlayerAreaAnimation();
 
 	// プレイヤー反転可能範囲の描画
 	spritePlayerArea_->Draw();
@@ -327,15 +325,6 @@ bool Player::IsCollidingCoin(const Coin& coin) {
 	}
 
 	return false;
-}
-
-void Player::DisabledInvert() { 
-	// 反転操作が無効になった瞬間にシェイク開始
-	if (isInvertDisabled_) {
-		spriteShakeTimer_ = kShakeDuration; // シェイク時間のセット
-	} 
-
-	// シェイク処理自体はDrawに記述
 }
 
 void Player::HandleInput() {
@@ -655,8 +644,46 @@ bool Player::IsLandedOccurred() {
 	return false;
 }
 
-bool Player::IsWalking()
-{
+void Player::SpritePlayerAreaAnimation() {
+	// 反転無効時のシェイク処理
+	if (spriteShakeTimer_ > 0.0f) {
+		float shakeStrength = 10.0f; // シェイクの強さ
+
+		// 減衰係数
+		float damping = spriteShakeTimer_ / kShakeDuration;
+
+		float shakeOffset = shakeStrength * damping * std::sinf(spriteShakeTimer_ * 60.0f); // 振動の速さを調整
+
+		Vector2 currentPos = spritePlayerArea_->GetPosition();
+		spritePlayerArea_->SetPosition({currentPos.x + shakeOffset, currentPos.y});
+
+		// シェイク時間の減少
+		spriteShakeTimer_ -= kDeltaTime;
+	}
+	// 反転成立時の拡縮処理
+	if (spriteScaleTimer_ > 0.0f) {
+		constexpr float minScale = 1.0f;
+		constexpr float maxScale = 1.2f;
+		float progress = (kSpriteScaleDuration - spriteScaleTimer_) / kSpriteScaleDuration; // 0 -> 1 へ進行
+
+		// 拡大（前半 0.0f ~ 0.5f）
+		float scaleFactor;
+		if (progress < 0.5f) {
+			scaleFactor = EaseOutQuad(minScale, maxScale, progress, 0.5f);
+			// 縮小（後半 0.5f ~ 1.0f）
+		} else {
+			scaleFactor = EaseOutQuad(maxScale, minScale, progress - 0.5f, 0.5f);
+		}
+
+		// スプライトのスケールを設定
+		spritePlayerArea_->SetSize({spritePlayerArea_->GetSize().x * scaleFactor, spritePlayerArea_->GetSize().y * scaleFactor});
+
+		// タイマーを減少
+		spriteScaleTimer_ -= kDeltaTime;
+	}
+}
+
+bool Player::IsWalking() {
 	if (input_->PushKey(DIK_D) || input_->PushKey(DIK_A)) {
 		isWalking_ = true;
 	}

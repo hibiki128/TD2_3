@@ -57,6 +57,11 @@ void TitleUI::Init()
 	objectR_->Init("title_objectR");
 	objectR_->CreateModel("game/R.obj");
 	objectR_->SetTexture("game/R.png");
+
+	// 各ボタンオブジェクトを、栞オブジェクトと親子付け
+	objectL_->SetParent(&objectUI_->GetWorldTransform());
+	objectA_->SetParent(&objectUI_->GetWorldTransform());
+	objectR_->SetParent(&objectUI_->GetWorldTransform());
 }
 
 void TitleUI::Update()
@@ -131,7 +136,7 @@ void TitleUI::InputReaction()
 	if (input_->GetJoystickState(0, joyState)) {
 		///
 		///	Lスティックオブジェクトを動かす
-		/// 
+		///
 
 		// 左スティックの入力値を取得
 		float leftStickX = static_cast<float>(joyState.Gamepad.sThumbLX) / 32768.0f;
@@ -139,9 +144,10 @@ void TitleUI::InputReaction()
 
 		// デッドゾーン処理
 		const float deadZone = 0.2f;
-		if (std::abs(leftStickX) < deadZone) leftStickX = 0.0f;
-		if (std::abs(leftStickY) < deadZone) leftStickY = 0.0f;
-
+		if (std::abs(leftStickX) < deadZone)
+			leftStickX = 0.0f;
+		if (std::abs(leftStickY) < deadZone)
+			leftStickY = 0.0f;
 
 		// 入力がある場合のみ処理
 		if (leftStickX != 0.0f || leftStickY != 0.0f) {
@@ -155,40 +161,69 @@ void TitleUI::InputReaction()
 			float adjustedY = leftStickX * sinAngle + leftStickY * cosAngle;
 
 			// 移動範囲の制限
-			const float moveRange = 0.5f;
+			const float moveRange = 0.3f;
 			Vector3 newPosition = initLstickPos_;
 			newPosition.x += adjustedX * moveRange;
-			newPosition.y += adjustedY * moveRange;
+			newPosition.z += adjustedY * moveRange;
 
 			// Lオブジェクトの位置を更新
 			objectL_->SetWorldPosition(newPosition);
 
 			// 入力が無い場合は初期位置に戻す
-		}
-		else {
+		} else {
 			objectL_->SetWorldPosition(initLstickPos_);
 		}
 
+		/*押されたボタンの色の補間処理*/
+
+		const float kDeltaTime = 1.0f / 60.0f;
+		const float kLerpSpeed = 30.0f; // 補間速度
+
 		///
 		///	Aボタンが押されている間は色を濃くする
-		/// 
+		///
+
+		static Vector4 currentColorA(1.0f, 1.0f, 1.0f, 1.0f);
+		Vector4 targetColorA;
 
 		if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A) {
-			objectA_->SetObjColor({ 0.3f, 0.3f, 0.3f, 1.0f });
+			targetColorA = {0.3f, 0.3f, 0.3f, 1.0f};
+		} else {
+			targetColorA = {1.0f, 1.0f, 1.0f, 1.0f};
 		}
-		else {
-			objectA_->SetObjColor({ 1.0f, 1.0f, 1.0f, 1.0f });
-		}
+		// 現在の色を線形補間で更新
+		currentColorA = Lerp(currentColorA, targetColorA, kLerpSpeed * kDeltaTime);
+		objectA_->SetObjColor(currentColorA);
 
 		///
 		///	 RBボタンが押されている間は色を濃くする
-		/// 
+		///
+
+		static Vector4 currentColorR(1.0f, 1.0f, 1.0f, 1.0f);
+		Vector4 targetColorR;
 
 		if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) {
-			objectR_->SetObjColor({ 0.3f, 0.3f, 0.3f, 1.0f });
+			targetColorR = {0.3f, 0.3f, 0.3f, 1.0f};
+		} else {
+			targetColorR = {1.0f, 1.0f, 1.0f, 1.0f};
 		}
-		else {
-			objectR_->SetObjColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+		// 現在の色を線形補間で更新
+		currentColorR = Lerp(currentColorR, targetColorR, kLerpSpeed * kDeltaTime);
+		objectR_->SetObjColor(currentColorR);
+
+		///
+		///	Lスティック押し込み時にも色を濃くする
+		///
+
+		static Vector4 currentColorL(1.0f, 1.0f, 1.0f, 1.0f);
+		Vector4 targetColorL;
+		if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_THUMB) {
+			targetColorL = {0.3f, 0.3f, 0.3f, 1.0f};
+		} else {
+			targetColorL = {1.0f, 1.0f, 1.0f, 1.0f};
 		}
+		// 現在の色を線形補間で更新
+		currentColorL = Lerp(currentColorL, targetColorL, kLerpSpeed * kDeltaTime);
+		objectL_->SetObjColor(currentColorL);
 	}
 }

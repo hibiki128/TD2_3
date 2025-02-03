@@ -124,7 +124,7 @@ private:
 
 	// ブロック反転のクールタイム
 	float blockInvertCooldown_ = 0.0f;
-	const float kBlockInvertCooldownTime = 0.02f; // 再使用までの時間
+	const float kBlockInvertCooldownTime = 0.7f; // 再使用までの時間
 
 	// 音関連
 	uint32_t jumpSE_;

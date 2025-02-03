@@ -65,11 +65,11 @@ void UIObject::Draw(const ViewProjection& viewProjection) {
 
 void UIObject::DebugImGui()
 {
-	/*objectBook_->DebugImGui();*/
+	objectBook_->DebugImGui();
 	objectUI_->DebugImGui();
-	/*objectL_->DebugImGui();
+	objectL_->DebugImGui();
 	objectA_->DebugImGui();
-	objectR_->DebugImGui();*/
+	objectR_->DebugImGui();
 }
 
 void UIObject::InputReaction()

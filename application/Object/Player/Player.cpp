@@ -844,14 +844,6 @@ Player::CollisionMapInfo Player::GetMapCollisionInfo() {
 
 	// 全てのブロックとの衝突判定
 	for (const auto& block : blocks) {
-		// プレイヤーとブロックの色が同じ場合には判定を取らない
-		if (this->colorState_ == ColorState::White && block->type_ == Block::ChipType::White) { // プレイヤーが白状態で、白ブロックの場合
-			continue;
-		}
-		else if (this->colorState_ == ColorState::Black && block->type_ == Block::ChipType::Black) { // プレイヤーが黒状態で、黒ブロックの場合
-			continue;
-		}
-
 		// ブロックの位置と範囲を計算
 		Vector3 blockPosition = block->GetWorldPosition();
 		float blockLeft = blockPosition.x - blockSize / 2;

@@ -158,7 +158,7 @@ void GameScene::Draw()
 
 	// ポーズ描画
 	pause_->Draw(vp_);
-	player_->DrawSprite(vp_);
+	/*player_->DrawSprite(vp_);*/
 
 	//------------------------
 

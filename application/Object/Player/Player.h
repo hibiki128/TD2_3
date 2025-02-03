@@ -160,6 +160,12 @@ private:
 	// 取得したコインの座標を保存しておく
 	Vector3 lastCollectedCoinPosition_ = {0.0f, 0.0f, 0.0f};
 
+	// 反転操作が無効の際、反転枠を揺らす
+	void DisabledInvert();
+	const float kShakeDuration = 0.5f; // シェイクの継続時間（秒）
+	float spriteShakeTimer_; // シェイクの管理時間
+	float spriteShakeOffset_; // シェイクによる位置のずれ
+
 private:
 	using json = nlohmann::json;
 
@@ -184,6 +190,10 @@ private:
 	bool IsWalking();
 	// コインを取得した瞬間を判定
 	bool IsCollectCoinOccurred() { return isCollectCoinOccurred_; }
+	// 最後に取得したコインの座標を返す
+	Vector3 GetLastCollectedCoinPosition() { return lastCollectedCoinPosition_; }
+	// 反転操作が無効の瞬間を判定
+	bool IsInvertDisabled() { return isInvertDisabled_; }
 
 private:
 	// ジャンプした瞬間を判定
@@ -203,4 +213,6 @@ private:
 
 	// コインを取得した瞬間を判定
 	bool isCollectCoinOccurred_ = false;
+	// 反転操作が無効の場合を判定
+	bool isInvertDisabled_ = false;
 };

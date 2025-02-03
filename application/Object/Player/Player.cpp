@@ -105,6 +105,7 @@ void Player::Update(MapChipField* mapChipField) {
 	isResetOccurred_ = false;
 	isGravityReversedOccurred_ = false;
 	/*isCollectCoinOccurred_ = false;*/
+	isInvertDisabled_ = false;
 
 	///
 	///	入力操作
@@ -130,6 +131,12 @@ void Player::Update(MapChipField* mapChipField) {
 
 	CheckCollisionAndResolve();
 
+	///
+	///	反転操作無効時には反転範囲のスプライトを揺らす
+	/// 
+
+	DisabledInvert();
+
 #ifdef _DEBUG
 	ImGui::Begin("player");
 
@@ -150,13 +157,14 @@ void Player::Update(MapChipField* mapChipField) {
 			/*ImGui::Text("TransitionStatus : %d", squareTransition_->GetCurrentStatus());
 			ImGui::Text("TransitionIsFinished : %d", squareTransition_->IsFinished());*/
 
-			bool flag[6] = {false};
+			bool flag[7] = {false};
 			flag[0] = IsJumpOccurred();
 			flag[1] = IsBlockInversionOccurred();
 			flag[2] = IsResetOccurred();
 			flag[3] = IsGravityReversedOccurred();
 			flag[4] = IsLandedOccurred();
 			flag[5] = IsCollectCoinOccurred();
+			flag[6] = IsInvertDisabled();
 
 			ImGui::Checkbox("ジャンプした瞬間", &flag[0]);
 			ImGui::Checkbox("ブロック反転した瞬間", &flag[1]);
@@ -164,6 +172,7 @@ void Player::Update(MapChipField* mapChipField) {
 			ImGui::Checkbox("重力反転した瞬間", &flag[3]);
 			ImGui::Checkbox("着地した瞬間", &flag[4]);
 			ImGui::Checkbox("コインを取得した瞬間", &flag[5]);
+			ImGui::Checkbox("反転操作が無効の瞬間", &flag[6]);
 
 			if (colorState_ == ColorState::White) {
 				ImGui::Text("現在の色 : 白");
@@ -196,6 +205,22 @@ void Player::DrawSprite(const ViewProjection& viewProjection) {
 	InvertAreaSpriteToPlayerPosition(viewProjection);
 	// 現在の反転可能範囲の数値によってspritePlayerAreaのサイズを変更
 	InvertAreaSpriteAdjust();
+
+	// シェイク処理
+	if (spriteShakeTimer_ > 0.0f) {
+		float shakeStrength = 10.0f; // シェイクの強さ
+
+		// 減衰係数
+		float damping = spriteShakeTimer_ / kShakeDuration;
+
+		float shakeOffset = shakeStrength * damping * std::sinf(spriteShakeTimer_ * 60.0f); // 振動の速さを調整
+
+		Vector2 currentPos = spritePlayerArea_->GetPosition();
+		spritePlayerArea_->SetPosition({currentPos.x + shakeOffset, currentPos.y});
+
+		// シェイク時間の減少
+		spriteShakeTimer_ -= kDeltaTime;
+	}
 
 	// プレイヤー反転可能範囲の描画
 	spritePlayerArea_->Draw();
@@ -304,6 +329,15 @@ bool Player::IsCollidingCoin(const Coin& coin) {
 	return false;
 }
 
+void Player::DisabledInvert() { 
+	// 反転操作が無効になった瞬間にシェイク開始
+	if (isInvertDisabled_) {
+		spriteShakeTimer_ = kShakeDuration; // シェイク時間のセット
+	} 
+
+	// シェイク処理自体はDrawに記述
+}
+
 void Player::HandleInput() {
 #pragma region ゲームパッド入力
 	// 前フレームの押下状態を保存
@@ -390,6 +424,8 @@ void Player::HandleInput() {
 						isInverting_ = true;
 						// ブロック反転クールタイムを設定
 						blockInvertCooldown_ = kBlockInvertCooldownTime;
+						// 反転が成立したら強制的にシェイクを終わらせる
+						spriteShakeTimer_ = 0.0f;
 
 						///
 						/// 重力ブロックが範囲内に見つかった場合、プレイヤーの重力を反転する
@@ -421,8 +457,21 @@ void Player::HandleInput() {
 
 						// ブロック反転したことを記録（SE・エフェクト用）
 						isBlockInversionOccurred_ = true;
+
+					// 反転範囲内に反転可能ブロックが無かった場合
+					} else {
+						isInvertDisabled_ = true; // 反転無効であることを知らせる
 					}
 				}
+			}
+		}
+
+		// RBを押した際にブロックに埋まっていた場合にも反転無効にする
+		if (isPressedRB && !wasPressedRB && blockInvertCooldown_ <= 0.0f) {
+			if (collisionMapInfo_.isOverlapping_) {
+				blockInvertCooldown_ = kBlockInvertCooldownTime; // ブロック反転クールタイムを設定
+
+				isInvertDisabled_ = true; // 反転無効であることを知らせる
 			}
 		}
 
@@ -508,6 +557,8 @@ void Player::HandleInput() {
 					isInverting_ = true;
 					// ブロック反転クールタイムを設定
 					blockInvertCooldown_ = kBlockInvertCooldownTime;
+					// 反転が成立したら強制的にシェイクを終わらせる
+					spriteShakeTimer_ = 0.0f;
 
 					///
 					/// 重力ブロックが範囲内に見つかった場合、プレイヤーの重力を反転する
@@ -536,8 +587,21 @@ void Player::HandleInput() {
 
 					// ブロック反転したことを記録（SE・エフェクト用）
 					isBlockInversionOccurred_ = true;
+
+					// 反転範囲内に反転可能ブロックが無かった場合
+				} else {
+					isInvertDisabled_ = true; // 反転無効であることを知らせる
 				}
 			}
+		}
+	}
+
+	// SPACEを押した際にブロックに埋まっていた場合にも反転無効にする
+	if (input_->TriggerKey(DIK_SPACE) && blockInvertCooldown_ <= 0.0f) {
+		if (collisionMapInfo_.isOverlapping_) {
+			blockInvertCooldown_ = kBlockInvertCooldownTime; // ブロック反転クールタイムを設定
+
+			isInvertDisabled_ = true; // 反転無効であることを知らせる
 		}
 	}
 

@@ -116,11 +116,14 @@ void Player::Update(MapChipField *mapChipField) {
 
     if (velocity_.y == 0) {
         if (velocity_.x == 0) {
+            BaseObject::SetLoop(true);
             BaseObject::SetAnima("animation/playerStandby.gltf");
         } else {
+            BaseObject::SetLoop(true);
             BaseObject::SetAnima("animation/playerWalk.gltf");
         }
     } else {
+        BaseObject::SetLoop(false);
         BaseObject::SetAnima("animation/playerJump.gltf");
     }
     BaseObject::Update();

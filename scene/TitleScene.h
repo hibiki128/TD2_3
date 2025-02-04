@@ -54,6 +54,8 @@ private:
 
 	void ChangeScene();
 
+	void DeleteData();
+
 private:
 	Audio* audio_;
 	Input* input_;

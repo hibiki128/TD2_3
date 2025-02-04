@@ -12,7 +12,7 @@ void Player::Init(const std::string className) {
 	// ゴールガイドスプライト生成
 	spriteGoalGuide_ = std::make_unique<Sprite>();
 	spriteGoalGuide_->Initialize("game/goalGuide.png", {0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.5f, 0.5f});
-	spriteGoalGuide_->SetSize({128.0f, 64.0f});
+	spriteGoalGuide_->SetSize({160.0f, 90.0f});
 
     input_ = Input::GetInstance();
 
@@ -400,7 +400,7 @@ void Player::GoalGuideSpriteToPlayerPosition(const ViewProjection& viewProjectio
 	Vector3 screenPosition = Transformation(playerWorldPosition, matViewProjecitonViewport);
 
 
-	const float offsetY = 128.0f;
+	const float offsetY = 118.0f;
 
 	spriteGoalGuide_->SetPosition({screenPosition.x, screenPosition.y - offsetY}); // プレイヤーの頭上に表示されるように変更
 }

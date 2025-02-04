@@ -288,7 +288,7 @@ bool Player::IsGoalReached() {
 					return true; // 4つ角のどれかが触れていたらtrue
 				}
 			}
-			if (input_->TriggerKey(DIK_SPACE) && collisionMapInfo_.hittingGround_) {
+			if (input_->TriggerKey(DIK_RETURN) && collisionMapInfo_.hittingGround_) {
 				return true;
 			}
 		} else {
@@ -403,6 +403,10 @@ void Player::HandleInput() {
 		///
 
 		bool isPressedRB = joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER;
+
+		/*if (isPressedRB && !wasPressedRB && blockInvertCooldown_ > 0) {
+			isInvertDisabled_ = true;
+		}*/
 
 		// RBボタンが押された瞬間のみ
 		if (isPressedRB && !wasPressedRB && blockInvertCooldown_ <= 0.0f) { // クールタイム中には反転できない

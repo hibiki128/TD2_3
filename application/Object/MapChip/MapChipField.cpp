@@ -143,6 +143,9 @@ void MapChipField::ResetMapChip() {
 	// マップチップの二次元配列をクリアする
 	mapChips_.clear();
 
+	// コインの配列もクリアする
+	coins_.clear();
+
 	// Initを呼んでマップ再生成
 	Init(csvFilePath_);
 

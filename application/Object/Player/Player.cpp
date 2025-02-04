@@ -6,6 +6,7 @@
 #include "math/myMath.h"
 #include "myEngine/3d/line/DrawLine3D.h"
 #include "math/Easing.h"
+#include <myEngine/Frame/Frame.h>
 
 void Player::Init(const std::string className) {
     input_ = Input::GetInstance();

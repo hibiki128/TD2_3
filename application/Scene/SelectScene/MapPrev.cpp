@@ -199,8 +199,8 @@ void MapPrev::LoadFromCSV(const std::string& filePath)
 					chip.object->SetTexture("game/gravityBlockDown.png"); // 重力通常状態のテクスチャをセット
 					break;
 				case Block::ChipType::ColorChange: // プレイヤー色変更ブロック
-					chip.object->CreateModel("game/ColorChangeBlock.obj");
-					chip.object->SetTexture("game/colorChangeBlock.png"); // プレイヤー色変更ブロックのテクスチャをセット
+					chip.object->CreateModel("game/playerSwitchBlockWhite.obj");
+					chip.object->SetTexture("game/playerSwitchBlockWhite.png"); // プレイヤー色変更ブロックのテクスチャをセット
 					break;
 				default:
 					break;

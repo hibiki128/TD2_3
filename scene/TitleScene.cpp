@@ -64,7 +64,7 @@ void TitleScene::Update() {
 
     // プレイヤー更新
     player_->Update(mapChipField_.get());
-
+    player_->AnimaUpdate();
     // マップチップフィールド更新
     mapChipField_->Update(player_->GetCenterPosition(), player_->GetInvertRangeX(), player_->GetInvertRangeY());
 

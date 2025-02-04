@@ -30,8 +30,8 @@ void Pause::Init() {
     pointerPos_ = {0.0f, 0.0f};
     spritePosition_ = {0.0f, 0.0f};
 
-   /* pointer_E.start_ = {-360.0f, 420.0f};
-    pointer_E.end_ = {-360.0f, 420.0f};*/
+    pointer_E.start_ = {-360.0f, 420.0f};
+    pointer_E.end_ = {-360.0f, 420.0f};
     pointer_E.T_ = 0.0f;
     stage_E.start_.x = -360.0f;
     stage_E.end_.x = -360.0f;

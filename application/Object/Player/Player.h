@@ -31,6 +31,7 @@ class Player : public BaseObject {
     void DebugImGui() override;
     void Reset();
     void PlaySE();
+    void AnimaUpdate();
 
     // プレイヤーがゴールに到達しているか判定
     bool IsGoalReached();

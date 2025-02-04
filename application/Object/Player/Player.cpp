@@ -118,7 +118,8 @@ void Player::Update(MapChipField *mapChipField) {
     ///
 
     HandleInput();
-
+    
+    
     if (velocity_.y == 0) {
         if (velocity_.x == 0) {
             BaseObject::SetLoop(true);
@@ -139,7 +140,7 @@ void Player::Update(MapChipField *mapChipField) {
         BaseObject::SetRotationY(degreesToRadians(-90.0f));
     }
 
-    BaseObject::Update();
+
     ///
     ///	重力を常に受ける
     ///
@@ -847,6 +848,11 @@ void Player::PlaySE() {
     if (IsGravityReversedOccurred()) {
         audio->PlayWave(gravitySE_, 0.1f);
     }
+}
+
+void Player::AnimaUpdate() {
+
+    BaseObject::Update();
 }
 
 void Player::CheckCollisionAndResolve() {

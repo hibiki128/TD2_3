@@ -103,6 +103,7 @@ void GameScene::Update() {
         // ポーズ更新
         pause_->Update();
     }
+    player_->AnimaUpdate();
 
     // UIObject更新
     uiObject_->Update();

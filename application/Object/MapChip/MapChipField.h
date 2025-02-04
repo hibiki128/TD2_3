@@ -31,6 +31,9 @@ private:
 		bool isDelaying = false;
 		bool hasColorChanged = false;
 
+		// このアニメーションが「プレイヤー色変更ブロック由来」か否か
+		bool isColorChangeAnimation = false;
+
 		enum class AnimationState { None, Shrinking, ColorChange, Expanding } animState = AnimationState::None;
 
 		float currentScale = 1.0f;

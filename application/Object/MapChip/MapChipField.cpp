@@ -493,6 +493,7 @@ void MapChipField::UpdateChipAnimation(MapChip& chip)
 			chip.animState = MapChip::AnimationState::None; // 次の状態に移行
 			chip.isAnimating = false; // アニメーション終了
 			chip.hasColorChanged = false;
+			chip.isColorChangeAnimation = false;
 
 			// 最終的に回転角度とスケールをリセットして終了
 			chip.currentRotation = 0.0f;
@@ -533,29 +534,60 @@ void MapChipField::UpdateChipAnimation(MapChip& chip)
 			// 半回転のタイミングで色を変更
 			if (chip.animationTime >= halfRotationTime && !chip.hasColorChanged) {
 				chip.hasColorChanged = true; // 色変更が一度だけ行われるようにフラグを設定
-				// プレイヤーが白い場合には白ブロックをスカスカに、黒ブロックを通常に
-				if (isPlayerWhite_) {
-					// ブロックの色変更
-					if (chip.object->type_ == Block::ChipType::Black) {
-							chip.object->type_ = Block::ChipType::White;
-						chip.object->CreateModel("game/noTouchWhiteBlock.obj");
-						chip.object->SetTexture("game/noTouchWhiteBlock.png"); // 白ブロックのテクスチャをセット
-					} else if (chip.object->type_ == Block::ChipType::White) {
-							chip.object->type_ = Block::ChipType::Black;
-						chip.object->CreateModel("game/blackBlock.obj");
-						chip.object->SetTexture("game/blackBlock.png"); // 黒ブロックのテクスチャをセット
+
+				///
+				/// プレイヤー色反転ブロック由来の場合、ブロックのタイプは変更しないで、通常->スカスカのみを変更する
+				/// 
+				if (chip.isColorChangeAnimation) {
+					// プレイヤーが白い場合には白ブロックをスカスカに、黒ブロックを通常に
+					if (isPlayerWhite_) {
+						// ブロックの色変更
+						if (chip.object->type_ == Block::ChipType::White) {
+							chip.object->CreateModel("game/noTouchWhiteBlock.obj");
+							chip.object->SetTexture("game/noTouchWhiteBlock.png");
+						} else if (chip.object->type_ == Block::ChipType::Black) {
+							chip.object->CreateModel("game/blackBlock.obj");
+							chip.object->SetTexture("game/blackBlock.png");
+						}
+						// プレイヤーが黒い場合には黒ブロックをスカスカに、白ブロックを通常に
+					} else {
+						// ブロックの色変更
+						if (chip.object->type_ == Block::ChipType::Black) {
+							chip.object->CreateModel("game/noTouchBlackBlock.obj");
+							chip.object->SetTexture("game/noTouchBlackBlock.png");
+						} else if (chip.object->type_ == Block::ChipType::White) {
+							chip.object->CreateModel("game/whiteBlock.obj");
+							chip.object->SetTexture("game/whiteBlock.png");
+						}
 					}
-				// プレイヤーが黒い場合には黒ブロックをスカスカに、白ブロックを通常に
+				///
+				/// 色変更を伴う反転の場合には、ブロックのtypeを変更
+				/// 
 				} else {
-					// ブロックの色変更
-					if (chip.object->type_ == Block::ChipType::Black) {
+					// プレイヤーが白い場合には白ブロックをスカスカに、黒ブロックを通常に
+					if (isPlayerWhite_) {
+						// ブロックの色変更
+						if (chip.object->type_ == Block::ChipType::Black) {
 							chip.object->type_ = Block::ChipType::White;
-						chip.object->CreateModel("game/whiteBlock.obj");
-						chip.object->SetTexture("game/whiteBlock.png"); // 白ブロックのテクスチャをセット
-					} else if (chip.object->type_ == Block::ChipType::White) {
+							chip.object->CreateModel("game/noTouchWhiteBlock.obj");
+							chip.object->SetTexture("game/noTouchWhiteBlock.png"); // 白ブロックのテクスチャをセット
+						} else if (chip.object->type_ == Block::ChipType::White) {
 							chip.object->type_ = Block::ChipType::Black;
-						chip.object->CreateModel("game/noTouchBlackBlock.obj");
-						chip.object->SetTexture("game/noTouchBlackBlock.png"); // 黒ブロックのテクスチャをセット
+							chip.object->CreateModel("game/blackBlock.obj");
+							chip.object->SetTexture("game/blackBlock.png"); // 黒ブロックのテクスチャをセット
+						}
+						// プレイヤーが黒い場合には黒ブロックをスカスカに、白ブロックを通常に
+					} else {
+						// ブロックの色変更
+						if (chip.object->type_ == Block::ChipType::Black) {
+							chip.object->type_ = Block::ChipType::White;
+							chip.object->CreateModel("game/whiteBlock.obj");
+							chip.object->SetTexture("game/whiteBlock.png"); // 白ブロックのテクスチャをセット
+						} else if (chip.object->type_ == Block::ChipType::White) {
+							chip.object->type_ = Block::ChipType::Black;
+							chip.object->CreateModel("game/noTouchBlackBlock.obj");
+							chip.object->SetTexture("game/noTouchBlackBlock.png"); // 黒ブロックのテクスチャをセット
+						}
 					}
 				}
 			}
@@ -754,6 +786,8 @@ bool MapChipField::HasColorChangeBlockInArea(const Vector3& center, int xRange, 
 								chip.isAnimating = true;
 								chip.animState = MapChip::AnimationState::Shrinking;
 								chip.animationTime = 0.0f;
+								// ここでは type は変更せず、後のアニメーション処理で見た目のみ切り替える
+								chip.isColorChangeAnimation = true;
 							}
 						}
 					}

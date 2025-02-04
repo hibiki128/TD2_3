@@ -184,7 +184,7 @@ void Framework::LoadResource()
 	modelManager_->LoadModel("debug/cube.obj");
 
 	modelManager_->LoadModel("game/Player.obj"); // プレイヤー
-	modelManager_->LoadModel("game/ColorChangeBlock.obj"); // プレイヤー色反転ブロック
+	modelManager_->LoadModel("game/playerSwitchBlock.obj"); // プレイヤー色反転ブロック
 	modelManager_->LoadModel("clear/0.obj");
 	modelManager_->LoadModel("clear/1.obj");
 	modelManager_->LoadModel("clear/2.obj");
@@ -201,7 +201,6 @@ void Framework::LoadResource()
 	modelManager_->LoadModel("clear/backSelect.obj");
 	modelManager_->LoadModel("game/A.obj");
 	modelManager_->LoadModel("game/blackBlock.obj");
-	modelManager_->LoadModel("game/ColorChangeBlock.obj");
 	modelManager_->LoadModel("game/goal.obj");
 	modelManager_->LoadModel("game/gravityBlockDown.obj");
 	modelManager_->LoadModel("game/gravityBlockUp.obj");
@@ -262,6 +261,7 @@ void Framework::LoadResource()
 	textureManager_->LoadTexture("particle/whiteBlock1x1.png");
 	textureManager_->LoadTexture("select/book.png");
 	textureManager_->LoadTexture("title/title.png");
+	textureManager_->LoadTexture("game/playerSwitchBlock.png");
 }
 
 void  Framework::PlaySounds() 

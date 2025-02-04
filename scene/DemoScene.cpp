@@ -23,8 +23,7 @@ void DemoScene::Initialize()
 	debugCamera_->Initialize(&vp_);
 
 	emitter_ = std::make_unique<ParticleEmitter>();
-	emitter_->Initialize("clearDesition", "debug/sphere.obj");
-	emitter_->SetTexture("clear/UI2_1x1.png");
+	emitter_->Initialize("leaf", "game/leaf.obj");
 	
 }
 

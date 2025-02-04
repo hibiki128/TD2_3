@@ -1,6 +1,6 @@
 # Blender 4.3.2
 # www.blender.org
-mtllib playerSwitchBlock.mtl
+mtllib playerSwitchBlockWhite.mtl
 o Cube.002
 v 0.740698 -0.168560 -0.027697
 v 0.740698 -0.020741 -0.385396

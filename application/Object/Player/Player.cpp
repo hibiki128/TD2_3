@@ -442,13 +442,13 @@ void Player::HandleInput() {
 						if (mapChipField_->HasColorChangeBlockInArea(position, xInvertRange_, yInvertRange_)) {
 							// 現在が白の場合、テクスチャと色状態を黒に変更
 							if (colorState_ == ColorState::White) {
-								this->SetTexture("debug/black1x1.png");
+								this->SetTexture("game/player.png");
 								colorState_ = ColorState::Black;
 
 								// 現在が黒の場合、テクスチャと色状態を白に変更
 							}
 							else if (colorState_ == ColorState::Black) {
-								this->SetTexture("debug/white1x1.png");
+								this->SetTexture("game/playerWhite.png");
 								colorState_ = ColorState::White;
 
 							}

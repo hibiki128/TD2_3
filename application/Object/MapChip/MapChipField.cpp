@@ -266,8 +266,8 @@ void MapChipField::LoadFromCSV(const std::string& filePath) {
 					chip.object->SetTexture("game/gravityBlockDown.png"); // 重力通常状態のテクスチャをセット
 					break;
 				case Block::ChipType::ColorChange: // プレイヤー色変更ブロック
-					chip.object->CreateModel("game/playerSwitchBlock.obj");
-					chip.object->SetTexture("game/playerSwitchBlock.png"); // プレイヤー色変更ブロックのテクスチャをセット
+					chip.object->CreateModel("game/playerSwitchBlockWhite.obj");
+					chip.object->SetTexture("game/playerSwitchBlockWhite.png"); // プレイヤー色変更ブロックのテクスチャをセット
 					break;
 				default:
 					break;
@@ -591,6 +591,22 @@ void MapChipField::UpdateChipAnimation(MapChip& chip)
 							chip.object->CreateModel("game/noTouchBlackBlock.obj");
 							chip.object->SetTexture("game/noTouchBlackBlock.png"); // 黒ブロックのテクスチャをセット
 						}
+					}
+				}
+
+				// プレイヤーが白い場合には
+				if (isPlayerWhite_) {
+					// プレイヤー色変更ブロックを白くする
+					if (chip.object->type_ == Block::ChipType::ColorChange) {
+						chip.object->CreateModel("game/playerSwitchBlockWhite.obj");
+						chip.object->SetTexture("game/playerSwitchBlockWhite.png");
+					}
+				// プレイヤーが黒い場合には
+					// プレイヤー色変更ブロックを黒くする
+				} else {
+					if (chip.object->type_ == Block::ChipType::ColorChange) {
+						chip.object->CreateModel("game/playerSwitchBlockBlack.obj");
+						chip.object->SetTexture("game/playerSwitchBlockBlack.png");
 					}
 				}
 			}

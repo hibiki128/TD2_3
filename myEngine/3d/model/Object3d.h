@@ -69,6 +69,8 @@ private: // メンバ変数
 	Vector3 size = { 1.0f,1.0f,1.0f };
 	bool HaveAnimation;
 
+	std::string filePath_;
+
 public: // メンバ関数
 
 	/// <summary>

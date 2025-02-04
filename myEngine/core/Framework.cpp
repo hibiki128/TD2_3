@@ -217,6 +217,7 @@ void Framework::LoadResource()
 	modelManager_->LoadModel("select/book.obj");
 	modelManager_->LoadModel("title/title.obj");
 	modelManager_->LoadModel("title/titleStart.obj");
+	modelManager_->LoadModel("animation/playerWalk.gltf");
 	
 	// テクスチャ読み込み
 	textureManager_->LoadTexture("debug/uvChecker.png");

@@ -69,7 +69,7 @@ private:
 
 	// サイズ
 	const float kWidth = 1.8f;
-	const float kHeight = 1.8f;
+	const float kHeight = 3.6f; // 縦長になるよう変更
 
 	// リセット時のトランジションにかける時間
 	const float kResetTransitionTime = 0.3f;

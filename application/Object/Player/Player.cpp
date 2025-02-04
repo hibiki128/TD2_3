@@ -33,6 +33,8 @@ void Player::Init(const std::string className) {
     xInvertRange_ = 3;
     yInvertRange_ = 3;
 
+    goalGuideAlpha_ = 0.0f;
+
     ///
     ///	その他
     ///
@@ -174,11 +176,11 @@ void Player::Update(MapChipField *mapChipField) {
 
             /*ImGui::DragFloat3("velocity", &velocity_.x);*/
 
-			/*ImGui::Text("hittingGround : %d", collisionMapInfo_.hittingGround_);
+			ImGui::Text("hittingGround : %d", collisionMapInfo_.hittingGround_);
 			ImGui::Text("hittingCeiling : %d", collisionMapInfo_.hittingCeiling_);
 			ImGui::Text("hittingLeft : %d", collisionMapInfo_.hittingLeft_);
 			ImGui::Text("hittingRight : %d", collisionMapInfo_.hittingRight_);
-			ImGui::Text("isOverlapping : %d", collisionMapInfo_.isOverlapping_);*/
+			ImGui::Text("isOverlapping : %d", collisionMapInfo_.isOverlapping_);
 			ImGui::Text("isTouchGoal : %d", isTouchGoal_);
 
             /*ImGui::Checkbox("ブロック反転中", &isInverting_);
@@ -259,7 +261,6 @@ void Player::DrawSprite(const ViewProjection& viewProjection) {
 
 	// ゴールガイドの描画（alphaが0.0fよりも大きければ描画）
 	if (goalGuideAlpha_ > 0.0f) {
-		spriteGoalGuide_->SetAlpha(goalGuideAlpha_);
 		spriteGoalGuide_->Draw();
 	}
 
@@ -296,8 +297,10 @@ void Player::DebugImGui() {
 }
 
 bool Player::IsGoalReached() {
+    const float colliderYOffset = (kHeight - 1.8f) / 2.0f;
+
     // 現在位置の取得
-    Vector3 position = this->transform_.translation_;
+    Vector3 position = this->transform_.translation_ + Vector3(0.0f, colliderYOffset, 0.0f);
     // プレイヤーの4つの角を計算
     Vector3 corners[4] = {
         {position.x - kWidth / 2, position.y + kHeight / 2, position.z}, // 左上
@@ -313,32 +316,43 @@ bool Player::IsGoalReached() {
 	float goalTop = goalPosition.y + MapChipField::kChipSize;
 	float goalBottom = goalPosition.y - MapChipField::kChipSize;
 
+    // ループ外でフラグを初期化
+    bool reached = false;
+
     // 各角がゴール内にあるかを判定
     for (const auto &corner : corners) {
         if (corner.x >= goalLeft && corner.x <= goalRight && corner.y >= goalBottom && corner.y <= goalTop) {
 
-			isTouchGoal_ = true; // ゴールに触れている状態であることを知らせる
-
-			XINPUT_STATE joyState;
-			if (input_->GetJoystickState(0, joyState)) {
-				if ((joyState.Gamepad.wButtons & XINPUT_GAMEPAD_B) && collisionMapInfo_.hittingGround_) { // Bボタンを押している && 接地状態のみ
-					return true; // 4つ角のどれかが触れていたらtrue
-				}
-			}
-			if (input_->TriggerKey(DIK_RETURN) && collisionMapInfo_.hittingGround_) {
-				return true;
-			}
-		} else {
-			isTouchGoal_ = false; // ゴールに触れていないことを知らせる
+			reached = true; // ゴール内の角が見つかったらフラグを立てる
+            break;          // 一つでも見つかれば、他の角のチェックは不要
 		}
 	}
+
+    // ゴールに触れていて、なおかつ操作入力と接地状態があればゴール到達とする
+    if (reached) {
+        isTouchGoal_ = true; // ゴールに触れている状態をセット
+
+        XINPUT_STATE joyState;
+        if (input_->GetJoystickState(0, joyState)) {
+            if ((joyState.Gamepad.wButtons & XINPUT_GAMEPAD_B) && collisionMapInfo_.hittingGround_) {
+                return true;
+            }
+        }
+        if (input_->TriggerKey(DIK_RETURN) && collisionMapInfo_.hittingGround_) {
+            return true;
+        }
+    } else {
+        isTouchGoal_ = false;
+    }
 
     return false;
 }
 
 bool Player::IsCollidingCoin(const Coin &coin) {
+    const float colliderYOffset = (kHeight - 1.8f) / 2.0f;
+
     // 現在位置の取得
-    Vector3 position = this->transform_.translation_;
+    Vector3 position = this->transform_.translation_ + Vector3(0.0f, colliderYOffset, 0.0f);
     // プレイヤーの4つの角を計算
     Vector3 corners[4] = {
         {position.x - kWidth / 2, position.y + kHeight / 2, position.z}, // 左上
@@ -402,6 +416,8 @@ void Player::UpdateGoalGuideSpriteAlpha() {
 
 	// 透明度を0.0f ~ 1.0fの範囲に制限
 	goalGuideAlpha_ = std::clamp(goalGuideAlpha_, 0.0f, 1.0f);
+
+    spriteGoalGuide_->SetAlpha(goalGuideAlpha_);
 }
 
 void Player::HandleInput() {
@@ -873,15 +889,17 @@ void Player::CheckCollisionAndResolve() {
     /// 衝突判定
     CollisionMapInfo collisionMapInfoY = GetMapCollisionInfo();
 
+    const float colliderYOffset = (kHeight - 1.8f) / 2.0f; // 0.9f
+
     /// 押し戻し
     if (collisionMapInfoY.hittingGround_) {
         Vector3 blockPosition = collisionMapInfoY.blockY->GetWorldPosition();
         float blockBottom = blockPosition.y + MapChipField::kChipSize / 2;
-        BaseObject::transform_.translation_.y = blockBottom + kHeight / 2 + kBlank; // 地面の位置に押し戻し
+        BaseObject::transform_.translation_.y = blockBottom + kHeight / 2 - colliderYOffset + kBlank; // 地面の位置に押し戻し
     } else if (collisionMapInfoY.hittingCeiling_) {
         Vector3 blockPosition = collisionMapInfoY.blockY->GetWorldPosition();
         float blockTop = blockPosition.y - MapChipField::kChipSize / 2;
-        BaseObject::transform_.translation_.y = blockTop - kHeight / 2 - kBlank; // 天井の位置に押し戻し
+        BaseObject::transform_.translation_.y = blockTop - kHeight / 2 - kBlank - colliderYOffset; // 天井の位置に押し戻し
     }
 
     /// 衝突判定を格納
@@ -984,8 +1002,10 @@ void Player::InvertAreaSpriteAdjust() {
 Player::CollisionMapInfo Player::GetMapCollisionInfo() {
     CollisionMapInfo info;
 
-    // 現在位置の取得
-    Vector3 position = this->transform_.translation_;
+    // ずらす分（新しい高さと元の高さの差の半分）
+    const float colliderYOffset = (kHeight - 1.8f) / 2.0f; // 0.9f
+    // 衝突判定用の実際の中心は、transform_.translation_ から上方向にオフセット
+    Vector3 position = this->transform_.translation_ + Vector3(0.0f, colliderYOffset, 0.0f);
 
     // 重なり判定のオフセット（プレイヤーの実際のサイズよりも少し減らした値で判定）
     const float overlapOffsetX = (kWidth / 2) - 0.02f;

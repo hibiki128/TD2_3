@@ -40,6 +40,11 @@ void Player::Init(const std::string className) {
 	spritePlayerArea_->Initialize("game/playerFlame.png", {0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.5f, 0.5f});
 	spritePlayerArea_->SetSize({165.0f, 165.0f});
 
+	// ゴールガイドスプライト生成
+	spriteGoalGuide_ = std::make_unique<Sprite>();
+	spriteGoalGuide_->Initialize("game/goalGuide.png", {0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.5f, 0.5f});
+	spriteGoalGuide_->SetSize({128.0f, 64.0f});
+
 	// Jsonからパラメーターの読み込み
 	LoadFromJson();
 
@@ -215,6 +220,10 @@ void Player::Draw(const ViewProjection& viewProjection) {
 }
 
 void Player::DrawSprite(const ViewProjection& viewProjection) {
+	///
+	///	プレイヤーの反転可能範囲画像について
+	/// 
+
 	// プレイヤーのワールド座標をスクリーン座標に変換してspritePlayerAreaの位置をセット
 	InvertAreaSpriteToPlayerPosition(viewProjection);
 	// 現在の反転可能範囲の数値によってspritePlayerAreaのサイズを変更
@@ -225,6 +234,22 @@ void Player::DrawSprite(const ViewProjection& viewProjection) {
 
 	// プレイヤー反転可能範囲の描画
 	spritePlayerArea_->Draw();
+
+	///
+	///	ゴールガイド画像について
+	///		
+
+	// ゴールガイド画像をプレイヤーの位置に合わせる
+	GoalGuideSpriteToPlayerPosition(viewProjection);
+
+	// ゴールガイド画像の透明度を変更
+	UpdateGoalGuideSpriteAlpha();
+
+	// ゴールガイドの描画（alphaが0.0fよりも大きければ描画）
+	if (goalGuideAlpha_ > 0.0f) {
+		spriteGoalGuide_->SetAlpha(goalGuideAlpha_);
+		spriteGoalGuide_->Draw();
+	}
 
 	// リセット時トランジションスプライトの描画
 	squareTransition_->Draw();
@@ -331,6 +356,40 @@ bool Player::IsCollidingCoin(const Coin& coin) {
 	}
 
 	return false;
+}
+
+void Player::GoalGuideSpriteToPlayerPosition(const ViewProjection& viewProjection) 
+{
+	// spritePlayerAreaにプレイヤーのワールド座標を設定
+	Vector3 playerWorldPosition = this->GetWorldPosition();
+
+	// ビューポート行列を作成
+	Matrix4x4 matViewport = MakeViewPortMatrix(0.0f, 0.0f, WinApp::kClientWidth, WinApp::kClientHeight, 0, 1);
+
+	// ビュー行列とプロジェクション行列を合成
+	Matrix4x4 matViewProjection = viewProjection.matView_ * viewProjection.matProjection_;
+	Matrix4x4 matViewProjecitonViewport = matViewProjection * matViewport;
+
+	// プレイヤーのワールド座標をスクリーン座標に変換
+	Vector3 screenPosition = Transformation(playerWorldPosition, matViewProjecitonViewport);
+
+
+	const float offsetY = 128.0f;
+
+	spriteGoalGuide_->SetPosition({screenPosition.x, screenPosition.y - offsetY}); // プレイヤーの頭上に表示されるように変更
+}
+
+void Player::UpdateGoalGuideSpriteAlpha() {
+	// ゴールに触れているかつ、接地状態であれば透明度を徐々に上げる
+	if (isTouchGoal_ && collisionMapInfo_.hittingGround_) {
+		goalGuideAlpha_ += alphaIncreaseSpeed;
+	// そうでない場合には減少
+	} else {
+		goalGuideAlpha_ -= alphaDecreaseSpeed;
+	}
+
+	// 透明度を0.0f ~ 1.0fの範囲に制限
+	goalGuideAlpha_ = std::clamp(goalGuideAlpha_, 0.0f, 1.0f);
 }
 
 void Player::HandleInput() {

@@ -1,189 +1,200 @@
 #include "TitleScene.h"
 #include "ImGuiManager.h"
-#include"SceneManager.h"
-#include"SrvManager.h"
+#include "SceneManager.h"
+#include "SrvManager.h"
 
 #ifdef _DEBUG
-#include<imgui.h>
+#include <imgui.h>
 #endif // _DEBUG
+#include "line/DrawLine3D.h"
 #include <LightGroup.h>
-#include"line/DrawLine3D.h"
+#include <filesystem>
+#include <iostream>
 
-void TitleScene::Initialize()
-{
-	audio_ = Audio::GetInstance();
-	objCommon_ = Object3dCommon::GetInstance();
-	spCommon_ = SpriteCommon::GetInstance();
-	ptCommon_ = ParticleCommon::GetInstance();
-	input_ = Input::GetInstance();
-	vp_.Initialize();
-	vp_.translation_ = { 12.0f,-4.0f,-30.0f };
+void TitleScene::Initialize() {
+    audio_ = Audio::GetInstance();
+    objCommon_ = Object3dCommon::GetInstance();
+    spCommon_ = SpriteCommon::GetInstance();
+    ptCommon_ = ParticleCommon::GetInstance();
+    input_ = Input::GetInstance();
+    vp_.Initialize();
+    vp_.translation_ = {12.0f, -4.0f, -30.0f};
 
-	debugCamera_ = std::make_unique<DebugCamera>();
-	debugCamera_->Initialize(&vp_);
+    debugCamera_ = std::make_unique<DebugCamera>();
+    debugCamera_->Initialize(&vp_);
 
-	///
-	///	オブジェクト生成
-	/// 
-	
-	// マップチップフィールド
-	mapChipField_ = std::make_unique<MapChipField>();
-	mapChipField_->Init("resources/Maps/stage1.csv");
+    ///
+    ///	オブジェクト生成
+    ///
 
-	// プレイヤー（マップチップフィールドから初期位置を取得するので後）
-	player_ = std::make_unique<Player>();
-	player_->Init("player");
-	player_->SetInitialPosition(mapChipField_->GetPlayerInitialPosition()); // csvから読み込んだ初期位置を設定
+    // マップチップフィールド
+    mapChipField_ = std::make_unique<MapChipField>();
+    mapChipField_->Init("resources/Maps/stage1.csv");
 
-	// タイトルUIオブジェクト生成
-	objectTitleUI_ = std::make_unique<TitleUI>();
-	objectTitleUI_->Init();
+    // プレイヤー（マップチップフィールドから初期位置を取得するので後）
+    player_ = std::make_unique<Player>();
+    player_->Init("player");
+    player_->SetInitialPosition(mapChipField_->GetPlayerInitialPosition()); // csvから読み込んだ初期位置を設定
 
-	BGM_ = audio_->LoadWave("title/titleBgm.wav");
-	audio_->PlayWave(BGM_, 0.2f, true);
+    // タイトルUIオブジェクト生成
+    objectTitleUI_ = std::make_unique<TitleUI>();
+    objectTitleUI_->Init();
 
-	///
-	///	スプライト生成
-	/// 
-	
-	spriteBackGround_ = std::make_unique<Sprite>();
-	spriteBackGround_->Initialize("title/backGround.png", { 0.0f, 0.0f });
+    BGM_ = audio_->LoadWave("title/titleBgm.wav");
+    audio_->PlayWave(BGM_, 0.2f, true);
+
+    ///
+    ///	スプライト生成
+    ///
+
+    spriteBackGround_ = std::make_unique<Sprite>();
+    spriteBackGround_->Initialize("title/backGround.png", {0.0f, 0.0f});
 }
 
-void TitleScene::Finalize()
-{
-	audio_->StopWave(BGM_);
+void TitleScene::Finalize() {
+    audio_->StopWave(BGM_);
 }
 
-void TitleScene::Update()
-{
-	///
-	///	オブジェクト更新
-	///	
+void TitleScene::Update() {
+    ///
+    ///	オブジェクト更新
+    ///
 
-	objectTitleUI_->Update();
+    objectTitleUI_->Update();
 
-	// プレイヤー更新
-	player_->Update(mapChipField_.get());
+    // プレイヤー更新
+    player_->Update(mapChipField_.get());
 
-	// マップチップフィールド更新
-	mapChipField_->Update(player_->GetCenterPosition(), player_->GetInvertRangeX(), player_->GetInvertRangeY());
+    // マップチップフィールド更新
+    mapChipField_->Update(player_->GetCenterPosition(), player_->GetInvertRangeX(), player_->GetInvertRangeY());
 
-	player_->Reset();
-	player_->PlaySE();
-	mapChipField_->PlaySE();
+    player_->Reset();
+    player_->PlaySE();
+    mapChipField_->PlaySE();
 
 #ifdef _DEBUG
-	// デバッグ
-	Debug();
+    // デバッグ
+    Debug();
 #endif // _DEBUG
 
-	// カメラ更新
-	CameraUpdate();
+    // カメラ更新
+    CameraUpdate();
 
-	// シーン切り替え
-	ChangeScene();
+    // シーン切り替え
+    ChangeScene();
 
-
+    if (input_->PushKey(DIK_ESCAPE) && input_->PushKey(DIK_RETURN)) {
+        DeleteData();
+    }
 }
 
-void TitleScene::Draw()
-{
-	/// -------描画処理開始-------
+void TitleScene::Draw() {
+    /// -------描画処理開始-------
 
-	/// Spriteの描画準備
-	spCommon_->DrawCommonSetting();
-	//-----Spriteの描画開始-----
+    /// Spriteの描画準備
+    spCommon_->DrawCommonSetting();
+    //-----Spriteの描画開始-----
 
-	spriteBackGround_->Draw(true);
+    spriteBackGround_->Draw(true);
 
-	objCommon_->DrawCommonSetting();
-	//-----3DObjectの描画開始-----
+    objCommon_->DrawCommonSetting();
+    //-----3DObjectの描画開始-----
 
-	objectTitleUI_->Draw(vp_);
+    objectTitleUI_->Draw(vp_);
 
-	// プレイヤー描画
-	player_->Draw(vp_);
+    // プレイヤー描画
+    player_->Draw(vp_);
 
-	// マップチップフィールド描画
-	mapChipField_->Draw(vp_);
+    // マップチップフィールド描画
+    mapChipField_->Draw(vp_);
 
-	//--------------------------
+    //--------------------------
 
-	/// Particleの描画準備
-	ptCommon_->DrawCommonSetting();
-	//------Particleの描画開始-------
-	mapChipField_->DrawParticle(vp_);
+    /// Particleの描画準備
+    ptCommon_->DrawCommonSetting();
+    //------Particleの描画開始-------
+    mapChipField_->DrawParticle(vp_);
 
-	//-----------------------------
+    //-----------------------------
 
-	/// Spriteの描画準備
-	spCommon_->DrawCommonSetting();
-	//-----Spriteの描画開始-----
-	player_->DrawSprite(vp_);
+    /// Spriteの描画準備
+    spCommon_->DrawCommonSetting();
+    //-----Spriteの描画開始-----
+    player_->DrawSprite(vp_);
 
-	//------------------------------
-	
-	//-----線描画-----
-	DrawLine3D::GetInstance()->Draw(vp_);
-	//---------------
+    //------------------------------
 
-	/// ----------------------------------
+    //-----線描画-----
+    DrawLine3D::GetInstance()->Draw(vp_);
+    //---------------
 
-	/// -------描画処理終了-------
+    /// ----------------------------------
+
+    /// -------描画処理終了-------
 }
 
-void TitleScene::DrawForOffScreen()
-{
-	/// -------描画処理開始-------
+void TitleScene::DrawForOffScreen() {
+    /// -------描画処理開始-------
 
-	/// Spriteの描画準備
-	spCommon_->DrawCommonSetting();
-	//-----Spriteの描画開始-----
+    /// Spriteの描画準備
+    spCommon_->DrawCommonSetting();
+    //-----Spriteの描画開始-----
 
-	//------------------------
+    //------------------------
 
-	objCommon_->DrawCommonSetting();
-	//-----3DObjectの描画開始-----
+    objCommon_->DrawCommonSetting();
+    //-----3DObjectの描画開始-----
 
-	//--------------------------
+    //--------------------------
 
-	/// Particleの描画準備
-	ptCommon_->DrawCommonSetting();
-	//------Particleの描画開始-------
+    /// Particleの描画準備
+    ptCommon_->DrawCommonSetting();
+    //------Particleの描画開始-------
 
-	//-----------------------------
+    //-----------------------------
 
+    /// ----------------------------------
 
-	/// ----------------------------------
-
-	/// -------描画処理終了-------
+    /// -------描画処理終了-------
 }
 
-
-void TitleScene::Debug()
-{
-	ImGui::Begin("TitleScene:Debug");
-	debugCamera_->imgui();
-	LightGroup::GetInstance()->imgui();
-	ImGui::End();
-	objectTitleUI_->Debug();
-	player_->DebugImGui();
+void TitleScene::Debug() {
+    ImGui::Begin("TitleScene:Debug");
+    debugCamera_->imgui();
+    LightGroup::GetInstance()->imgui();
+    ImGui::End();
+    objectTitleUI_->Debug();
+    player_->DebugImGui();
 }
 
-void TitleScene::CameraUpdate()
-{
-	if (debugCamera_->GetActive()) {
-		debugCamera_->Update();
-	}
-	else {
-		vp_.UpdateMatrix();
-	}
+void TitleScene::CameraUpdate() {
+    if (debugCamera_->GetActive()) {
+        debugCamera_->Update();
+    } else {
+        vp_.UpdateMatrix();
+    }
 }
 
-void TitleScene::ChangeScene()
-{
-	if(player_->IsGoalReached()){
-		sceneManager_->NextSceneReservation("SELECT");
-	}
+void TitleScene::ChangeScene() {
+    if (player_->IsGoalReached()) {
+        sceneManager_->NextSceneReservation("SELECT");
+    }
+}
+
+void TitleScene::DeleteData() {
+    namespace fs = std::filesystem;
+    std::string directory = "resources/jsons/StageData/";
+
+    try {
+        // Iterate through the directory
+        for (const auto &entry : fs::directory_iterator(directory)) {
+            // Check if it's a regular file ending with .json
+            if (entry.is_regular_file() && entry.path().extension() == ".json") {
+                fs::remove(entry); // Remove the file
+                std::cout << "Deleted: " << entry.path() << std::endl;
+            }
+        }
+    } catch (const fs::filesystem_error &e) {
+        std::cerr << "Filesystem error: " << e.what() << std::endl;
+    }
 }

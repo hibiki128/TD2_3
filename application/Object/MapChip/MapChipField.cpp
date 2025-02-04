@@ -184,7 +184,7 @@ void MapChipField::InvertBlocksInArea(const Vector3& center, int xRange, int yRa
 
 			// ブロックを取得して反転処理（アニメーション開始）
 			MapChip& chip = mapChips_[targetY][targetX];
-			if (!chip.isAnimating && chip.object->type_ != Block::ChipType::Empty) {
+			if (!chip.isAnimating && chip.object->type_ != Block::ChipType::Empty && chip.object->type_ != Block::ChipType::Goal) {
 				chip.isAnimating = true;
 				chip.animState = MapChip::AnimationState::Shrinking;
 				chip.animationTime = 0.0f;
@@ -645,7 +645,8 @@ void MapChipField::UpdateBlockScaleAnimation(const Vector3& center, int xRange, 
 			MapChip& chip = mapChips_[y][x];
 			// 対象外のブロックはスキップ
 			if (chip.object->type_ == Block::ChipType::Empty ||
-				chip.object->type_ == Block::ChipType::Gray) {
+				chip.object->type_ == Block::ChipType::Gray || 
+				chip.object->type_ == Block::ChipType::Goal) {
 				continue;
 			}
 			if (!chip.isAnimating) {
@@ -676,7 +677,8 @@ void MapChipField::UpdateBlockScaleAnimation(const Vector3& center, int xRange, 
 			// 対象外のブロックはスキップ
 			MapChip& chip = mapChips_[targetY][targetX];
 			if (chip.object->type_ != Block::ChipType::Empty &&
-				chip.object->type_ != Block::ChipType::Gray) {
+				chip.object->type_ != Block::ChipType::Gray && 
+				chip.object->type_ != Block::ChipType::Goal) {
 				if (!chip.isAnimating) {
 					chip.object->SetScale({ animatedScale, animatedScale, animatedScale });
 				}

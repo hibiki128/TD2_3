@@ -156,11 +156,11 @@ void Player::Update(MapChipField* mapChipField) {
 
 			/*ImGui::DragFloat3("velocity", &velocity_.x);*/
 
-			ImGui::Text("hittingGround : %d", collisionMapInfo_.hittingGround_);
+			/*ImGui::Text("hittingGround : %d", collisionMapInfo_.hittingGround_);
 			ImGui::Text("hittingCeiling : %d", collisionMapInfo_.hittingCeiling_);
 			ImGui::Text("hittingLeft : %d", collisionMapInfo_.hittingLeft_);
 			ImGui::Text("hittingRight : %d", collisionMapInfo_.hittingRight_);
-			ImGui::Text("isOverlapping : %d", collisionMapInfo_.isOverlapping_);
+			ImGui::Text("isOverlapping : %d", collisionMapInfo_.isOverlapping_);*/
 			ImGui::Text("isTouchGoal : %d", isTouchGoal_);
 
 			/*ImGui::Checkbox("ブロック反転中", &isInverting_);
@@ -169,7 +169,7 @@ void Player::Update(MapChipField* mapChipField) {
 			/*ImGui::Text("TransitionStatus : %d", squareTransition_->GetCurrentStatus());
 			ImGui::Text("TransitionIsFinished : %d", squareTransition_->IsFinished());*/
 
-			bool flag[7] = {false};
+			bool flag[8] = {false};
 			flag[0] = IsJumpOccurred();
 			flag[1] = IsBlockInversionOccurred();
 			flag[2] = IsResetOccurred();
@@ -177,6 +177,7 @@ void Player::Update(MapChipField* mapChipField) {
 			flag[4] = IsLandedOccurred();
 			flag[5] = IsCollectCoinOccurred();
 			flag[6] = IsInvertDisabled();
+			flag[7] = IsTouchGoalAndOnGround();
 
 			ImGui::Checkbox("ジャンプした瞬間", &flag[0]);
 			ImGui::Checkbox("ブロック反転した瞬間", &flag[1]);
@@ -185,6 +186,7 @@ void Player::Update(MapChipField* mapChipField) {
 			ImGui::Checkbox("着地した瞬間", &flag[4]);
 			ImGui::Checkbox("コインを取得した瞬間", &flag[5]);
 			ImGui::Checkbox("反転操作が無効の瞬間", &flag[6]);
+			ImGui::Checkbox("ゴールに触れていて地面にいる間", &flag[7]);
 
 			if (colorState_ == ColorState::White) {
 				ImGui::Text("現在の色 : 白");

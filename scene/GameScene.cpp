@@ -133,7 +133,10 @@ void GameScene::Draw()
 	// UI（ポーズボタン）
 	uiObject_->DrawSprite();
 
-	player_->DrawSprite(vp_);
+	// プレイヤーUI
+	if (!clearCamera_->GetActive()) { // クリアカメラがアクティブになったら非表示にするため
+		player_->DrawSprite(vp_);
+	}
 
 
 	//------------------------

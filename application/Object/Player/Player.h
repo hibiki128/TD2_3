@@ -200,7 +200,7 @@ private:
 	// 反転操作が無効の瞬間を判定
 	bool IsInvertDisabled() { return isInvertDisabled_; }
 	// ゴールに触れていて、地面にいる間ずっと（ゴールボタンの表示とかに使用）
-	bool IsTouchGoalAndOnGround();
+	bool IsTouchGoalAndOnGround() { return isTouchGoal_ && collisionMapInfo_.hittingGround_; }
 
 private:
 	// ジャンプした瞬間を判定

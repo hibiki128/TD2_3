@@ -528,16 +528,30 @@ void MapChipField::UpdateChipAnimation(MapChip& chip)
 			// 半回転のタイミングで色を変更
 			if (chip.animationTime >= halfRotationTime && !chip.hasColorChanged) {
 				chip.hasColorChanged = true; // 色変更が一度だけ行われるようにフラグを設定
-				// ブロックの色変更
-				if (chip.object->type_ == Block::ChipType::Black) {
-					chip.object->type_ = Block::ChipType::White;
-					chip.object->CreateModel("game/noTouchWhiteBlock.obj");
-					chip.object->SetTexture("game/noTouchWhiteBlock.png"); // 白ブロックのテクスチャをセット
-				}
-				else if (chip.object->type_ == Block::ChipType::White) {
-					chip.object->type_ = Block::ChipType::Black;
-					chip.object->CreateModel("game/blackBlock.obj");
-					chip.object->SetTexture("game/blackBlock.png"); // 黒ブロックのテクスチャをセット
+				// プレイヤーが白い場合には白ブロックをスカスカに、黒ブロックを通常に
+				if (isPlayerWhite_) {
+					// ブロックの色変更
+					if (chip.object->type_ == Block::ChipType::Black) {
+						chip.object->type_ = Block::ChipType::White;
+						chip.object->CreateModel("game/noTouchWhiteBlock.obj");
+						chip.object->SetTexture("game/noTouchWhiteBlock.png"); // 白ブロックのテクスチャをセット
+					} else if (chip.object->type_ == Block::ChipType::White) {
+						chip.object->type_ = Block::ChipType::Black;
+						chip.object->CreateModel("game/blackBlock.obj");
+						chip.object->SetTexture("game/blackBlock.png"); // 黒ブロックのテクスチャをセット
+					}
+				// プレイヤーが黒い場合には黒ブロックをスカスカに、白ブロックを通常に
+				} else {
+					// ブロックの色変更
+					if (chip.object->type_ == Block::ChipType::Black) {
+						chip.object->type_ = Block::ChipType::White;
+						chip.object->CreateModel("game/whiteBlock.obj");
+						chip.object->SetTexture("game/whiteBlock.png"); // 白ブロックのテクスチャをセット
+					} else if (chip.object->type_ == Block::ChipType::White) {
+						chip.object->type_ = Block::ChipType::Black;
+						chip.object->CreateModel("game/noTouchBlackBlock.obj");
+						chip.object->SetTexture("game/noTouchBlackBlock.png"); // 黒ブロックのテクスチャをセット
+					}
 				}
 			}
 		}
@@ -729,7 +743,14 @@ bool MapChipField::HasColorChangeBlockInArea(const Vector3& center, int xRange, 
 				// 全てのブロックを探索
 				for (auto& row : mapChips_) {
 					for (auto& chip : row) {
-						SwitchThroughtBlock(&chip, false); // プレイヤーと同じ色のブロックをスカスカ状態に、違う色のブロックを通常状態にする
+						if (!chip.isAnimating) {
+							// 白ブロックまたは黒ブロックの場合のみ
+							if (chip.object->type_ == Block::ChipType::White || chip.object->type_ == Block::ChipType::Black) {
+								chip.isAnimating = true;
+								chip.animState = MapChip::AnimationState::Shrinking;
+								chip.animationTime = 0.0f;
+							}
+						}
 					}
 				}
 
@@ -739,64 +760,4 @@ bool MapChipField::HasColorChangeBlockInArea(const Vector3& center, int xRange, 
 	}
 
 	return false;
-}
-
-void MapChipField::SwitchThroughtBlock(MapChip* chip, bool flag) {
-	// 全てのブロックを探索する際
-	if (flag) {
-		// プレイヤーが白い場合
-		if (isPlayerWhite_) { // 一見逆だけどこうするとなぜか上手くいく
-			// スカスカ白ブロックの適用
-			if (chip->object->type_ == Block::ChipType::White) {
-				chip->object->CreateModel("game/noTouchWhiteBlock.obj");
-				chip->object->SetTexture("game/noTouchWhiteBlock.png");
-			}
-			// 通常黒ブロックの適用
-			if (chip->object->type_ == Block::ChipType::Black) {
-				chip->object->CreateModel("game/blackBlock.obj");
-				chip->object->SetTexture("game/blackBlock.png");
-			}
-			// プレイヤーが黒い場合
-		}
-		else {
-			// 通常白ブロックの適用
-			if (chip->object->type_ == Block::ChipType::White) {
-				chip->object->CreateModel("game/whiteBlock.obj");
-				chip->object->SetTexture("game/whiteBlock.png");
-			}
-			// スカスカ黒ブロックの適用
-			if (chip->object->type_ == Block::ChipType::Black) {
-				chip->object->CreateModel("game/noTouchBlackBlock.obj");
-				chip->object->SetTexture("game/noTouchBlackBlock.png");
-			}
-		}
-	}
-	else {
-		// プレイヤーが白い場合
-		if (!isPlayerWhite_) { // 一見逆だけどこうするとなぜか上手くいく
-			// スカスカ白ブロックの適用
-			if (chip->object->type_ == Block::ChipType::White) {
-				chip->object->CreateModel("game/noTouchWhiteBlock.obj");
-				chip->object->SetTexture("game/noTouchWhiteBlock.png");
-			}
-			// 通常黒ブロックの適用
-			if (chip->object->type_ == Block::ChipType::Black) {
-				chip->object->CreateModel("game/blackBlock.obj");
-				chip->object->SetTexture("game/blackBlock.png");
-			}
-			// プレイヤーが黒い場合
-		}
-		else {
-			// 通常白ブロックの適用
-			if (chip->object->type_ == Block::ChipType::White) {
-				chip->object->CreateModel("game/whiteBlock.obj");
-				chip->object->SetTexture("game/whiteBlock.png");
-			}
-			// スカスカ黒ブロックの適用
-			if (chip->object->type_ == Block::ChipType::Black) {
-				chip->object->CreateModel("game/noTouchBlackBlock.obj");
-				chip->object->SetTexture("game/noTouchBlackBlock.png");
-			}
-		}
-	}
 }

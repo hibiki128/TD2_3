@@ -94,8 +94,6 @@ public:
 
 	// プレイヤーの色状態を確認してセットする
 	void SetIsPlayerWhite(bool flag) { isPlayerWhite_ = flag; }
-	// プレイヤーと同じ色のブロックをスカスカ状態に、違う色のブロックを通常状態にする
-	void SwitchThroughtBlock(MapChip* chip, bool flag); // アニメーション終了ブロックの判定にはtrue, 反転時の全てのブロック判定にはfalse
 
 private:
 	// マップチップの二次元配列

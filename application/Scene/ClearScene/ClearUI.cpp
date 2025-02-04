@@ -26,7 +26,11 @@ void ClearUI::Init() {
 
     animaChara_ = std::make_unique<BaseObject>();
     animaChara_->Init("animaChara");
-    animaChara_->CreateModel("animation/test3.gltf");
+    animaChara_->CreateModel("animation/playerClear.gltf");
+
+    animaGoal_ = std::make_unique<BaseObject>();
+    animaGoal_->Init("animaGoal");
+    animaGoal_->CreateModel("animation/goalClear.gltf");
 
     input_ = Input::GetInstance();
     currentItem_ = 0;
@@ -59,6 +63,7 @@ void ClearUI::Update() {
     singleDigit_->Update();
     twoDigit_->Update();
     animaChara_->Update();
+    animaGoal_->Update();
     if (!isDecision_) {
         MenuOperation();
     }
@@ -89,6 +94,7 @@ void ClearUI::Draw(const ViewProjection &vp) {
     singleDigit_->Draw(vp);
     twoDigit_->Draw(vp);
     animaChara_->Draw(vp);
+    animaGoal_->Draw(vp);
 
     for (auto &coin : coins_) {
         coin->Draw(vp);
@@ -120,6 +126,7 @@ void ClearUI::Debug() {
     twoDigit_->DebugImGui();
     decisionEmitter_->imgui();
     animaChara_->DebugImGui();
+    animaGoal_->DebugImGui();
     for (auto &coin : coins_) {
         coin->DebugImGui();
     }

@@ -62,8 +62,7 @@ void ClearUI::Update() {
     retry_->Update();
     singleDigit_->Update();
     twoDigit_->Update();
-    animaChara_->Update();
-    animaGoal_->Update();
+ 
     if (!isDecision_) {
         MenuOperation();
     }
@@ -80,6 +79,18 @@ void ClearUI::Update() {
         }
     }
     MoveUI();
+
+    if (animaChara_->IsFinish()) {
+        animaChara_->SetAnima("animation/playerClearAfter2.gltf");
+        animaChara_->SetLoop(true);
+    }
+    if (animaGoal_->IsFinish()) {
+        animaGoal_->SetAnima("animation/goalClearAfter2.gltf");
+        animaGoal_->SetLoop(true);
+    }
+
+    animaChara_->Update();
+    animaGoal_->Update();
 
     for (auto &coin : coins_) {
         coin->Update();

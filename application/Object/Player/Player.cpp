@@ -9,6 +9,11 @@
 #include <myEngine/Frame/Frame.h>
 
 void Player::Init(const std::string className) {
+	// ゴールガイドスプライト生成
+	spriteGoalGuide_ = std::make_unique<Sprite>();
+	spriteGoalGuide_->Initialize("game/goalGuide.png", {0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.5f, 0.5f});
+	spriteGoalGuide_->SetSize({128.0f, 64.0f});
+
     input_ = Input::GetInstance();
 
     BaseObject::Init(className);
@@ -226,11 +231,15 @@ void Player::Draw(const ViewProjection &viewProjection) {
     /*DrawInvertArea();*/
 }
 
-void Player::DrawSprite(const ViewProjection &viewProjection) {
-    // プレイヤーのワールド座標をスクリーン座標に変換してspritePlayerAreaの位置をセット
-    InvertAreaSpriteToPlayerPosition(viewProjection);
-    // 現在の反転可能範囲の数値によってspritePlayerAreaのサイズを変更
-    InvertAreaSpriteAdjust();
+void Player::DrawSprite(const ViewProjection& viewProjection) {
+	///
+	///	プレイヤーの反転可能範囲画像について
+	/// 
+
+	// プレイヤーのワールド座標をスクリーン座標に変換してspritePlayerAreaの位置をセット
+	InvertAreaSpriteToPlayerPosition(viewProjection);
+	// 現在の反転可能範囲の数値によってspritePlayerAreaのサイズを変更
+	InvertAreaSpriteAdjust();
 
 	// 反転無効時と反転成立時にspritePlayerAreaにアニメーションを適用する
 	SpritePlayerAreaAnimation();
@@ -238,8 +247,24 @@ void Player::DrawSprite(const ViewProjection &viewProjection) {
 	// プレイヤー反転可能範囲の描画
 	spritePlayerArea_->Draw();
 
-    // リセット時トランジションスプライトの描画
-    squareTransition_->Draw();
+	///
+	///	ゴールガイド画像について
+	///		
+
+	// ゴールガイド画像をプレイヤーの位置に合わせる
+	GoalGuideSpriteToPlayerPosition(viewProjection);
+
+	// ゴールガイド画像の透明度を変更
+	UpdateGoalGuideSpriteAlpha();
+
+	// ゴールガイドの描画（alphaが0.0fよりも大きければ描画）
+	if (goalGuideAlpha_ > 0.0f) {
+		spriteGoalGuide_->SetAlpha(goalGuideAlpha_);
+		spriteGoalGuide_->Draw();
+	}
+
+	// リセット時トランジションスプライトの描画
+	squareTransition_->Draw();
 }
 
 void Player::DebugImGui() {
@@ -345,6 +370,40 @@ bool Player::IsCollidingCoin(const Coin &coin) {
     return false;
 }
 
+void Player::GoalGuideSpriteToPlayerPosition(const ViewProjection& viewProjection) 
+{
+	// spritePlayerAreaにプレイヤーのワールド座標を設定
+	Vector3 playerWorldPosition = this->GetWorldPosition();
+
+	// ビューポート行列を作成
+	Matrix4x4 matViewport = MakeViewPortMatrix(0.0f, 0.0f, WinApp::kClientWidth, WinApp::kClientHeight, 0, 1);
+
+	// ビュー行列とプロジェクション行列を合成
+	Matrix4x4 matViewProjection = viewProjection.matView_ * viewProjection.matProjection_;
+	Matrix4x4 matViewProjecitonViewport = matViewProjection * matViewport;
+
+	// プレイヤーのワールド座標をスクリーン座標に変換
+	Vector3 screenPosition = Transformation(playerWorldPosition, matViewProjecitonViewport);
+
+
+	const float offsetY = 128.0f;
+
+	spriteGoalGuide_->SetPosition({screenPosition.x, screenPosition.y - offsetY}); // プレイヤーの頭上に表示されるように変更
+}
+
+void Player::UpdateGoalGuideSpriteAlpha() {
+	// ゴールに触れているかつ、接地状態であれば透明度を徐々に上げる
+	if (isTouchGoal_ && collisionMapInfo_.hittingGround_) {
+		goalGuideAlpha_ += alphaIncreaseSpeed;
+	// そうでない場合には減少
+	} else {
+		goalGuideAlpha_ -= alphaDecreaseSpeed;
+	}
+
+	// 透明度を0.0f ~ 1.0fの範囲に制限
+	goalGuideAlpha_ = std::clamp(goalGuideAlpha_, 0.0f, 1.0f);
+}
+
 void Player::HandleInput() {
 #pragma region ゲームパッド入力
     // 前フレームの押下状態を保存
@@ -437,31 +496,33 @@ void Player::HandleInput() {
 						// 反転が成立したら強制的にシェイクを終わらせる
 						spriteShakeTimer_ = 0.0f;
 
-                        ///
-                        /// 重力ブロックが範囲内に見つかった場合、プレイヤーの重力を反転する
-                        ///
-                        if (mapChipField_->HasGravityBlockInArea(position, xInvertRange_, yInvertRange_)) {
-                            isGravityReversed_ = !isGravityReversed_;
+						///
+						/// 重力ブロックが範囲内に見つかった場合、プレイヤーの重力を反転する
+						///
+						if (mapChipField_->HasGravityBlockInArea(position, xInvertRange_, yInvertRange_)) {
+							isGravityReversed_ = !isGravityReversed_;
 
-                            // 重力反転したことを記録（SE・エフェクト用）
-                            isGravityReversedOccurred_ = true;
-                        }
+							// 重力反転したことを記録（SE・エフェクト用）
+							isGravityReversedOccurred_ = true;
+						}
 
-                        ///
-                        ///	プレイヤー色反転ブロックが範囲内に見つかった場合、プレイヤーの色を反転する
-                        ///
-                        if (mapChipField_->HasColorChangeBlockInArea(position, xInvertRange_, yInvertRange_)) {
-                            // 現在が白の場合、テクスチャと色状態を黒に変更
-                            if (colorState_ == ColorState::White) {
-                                this->SetTexture("debug/black1x1.png");
-                                colorState_ = ColorState::Black;
+						///
+						///	プレイヤー色反転ブロックが範囲内に見つかった場合、プレイヤーの色を反転する
+						///
+						if (mapChipField_->HasColorChangeBlockInArea(position, xInvertRange_, yInvertRange_)) {
+							// 現在が白の場合、テクスチャと色状態を黒に変更
+							if (colorState_ == ColorState::White) {
+								this->SetTexture("game/player.png");
+								colorState_ = ColorState::Black;
 
-                                // 現在が黒の場合、テクスチャと色状態を白に変更
-                            } else if (colorState_ == ColorState::Black) {
-                                this->SetTexture("debug/white1x1.png");
-                                colorState_ = ColorState::White;
-                            }
-                        }
+								// 現在が黒の場合、テクスチャと色状態を白に変更
+							}
+							else if (colorState_ == ColorState::Black) {
+								this->SetTexture("game/playerWhite.png");
+								colorState_ = ColorState::White;
+
+							}
+						}
 
 						// ブロック反転したことを記録（SE・エフェクト用）
 						isBlockInversionOccurred_ = true;

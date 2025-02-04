@@ -119,6 +119,8 @@ private:
 	std::unique_ptr<SquareTransition> squareTransition_;
 	// プレイヤー反転範囲スプライト
 	std::unique_ptr<Sprite> spritePlayerArea_;
+	// ゴール接触時スプライト
+	std::unique_ptr<Sprite> spriteGoalGuide_;
 
 	// プレイヤー反転範囲スプライトのサイズ
 	float xSpritePlayerAreaSize_ = 0.0f;
@@ -156,6 +158,13 @@ private:
 	void InvertAreaSpriteToPlayerPosition(const ViewProjection& viewProjection);
 	// 反転可能範囲画像サイズを現在の範囲によって変更（ごり押しで）
 	void InvertAreaSpriteAdjust();
+
+	// ゴールガイド画像をプレイヤーの座標にセット
+	void GoalGuideSpriteToPlayerPosition(const ViewProjection& viewProjection);
+	void UpdateGoalGuideSpriteAlpha();
+	float goalGuideAlpha_ = 0.0f;
+	const float alphaIncreaseSpeed = 0.05f; // 徐々に透明度を上げるスピード
+	const float alphaDecreaseSpeed = 0.05f; // 徐々に透明度を下げるスピード
 
 	// プレイヤーがコインオブジェクトに触れたかを判定
 	bool IsCollidingCoin(const Coin& coin);

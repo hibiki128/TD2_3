@@ -202,6 +202,8 @@ private:
 	
 	bool isWalking_ = false;
 
+	bool isLanded_ = false;
+
 
 	// コインを取得した瞬間を判定
 	bool isCollectCoinOccurred_ = false;

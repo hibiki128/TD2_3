@@ -168,6 +168,12 @@ void Player::Update(MapChipField *mapChipField) {
 		spriteScaleTimer_ = kSpriteScaleDuration;
 	}
 
+    ///
+    /// 色反転時にプレイヤー本体の拡縮を行う
+    ///
+
+    UpdateScalingAnimation();
+
 #ifdef _DEBUG
     ImGui::Begin("player");
 
@@ -420,6 +426,36 @@ void Player::UpdateGoalGuideSpriteAlpha() {
     spriteGoalGuide_->SetAlpha(goalGuideAlpha_);
 }
 
+void Player::UpdateScalingAnimation() {
+    if (isScaling_) {
+        // 経過時間の更新
+        scaleTimer_ += kDeltaTime;
+
+        // 指定秒を超えたら終了
+        if (scaleTimer_ >= kScaleDuration) {
+            scaleTimer_ = kScaleDuration;
+            isScaling_ = false;
+        }
+
+        float halfTime = kScaleDuration / 2.0f;
+        float newScaleValue = initialScale_;
+
+        if (scaleTimer_ <= halfTime) {
+            newScaleValue = EaseInQuad(initialScale_, targetScale_, scaleTimer_, halfTime);
+        } else {
+            if (!isChangedColor_) {
+
+
+                isChangedColor_ = true;
+            }
+
+            float t = scaleTimer_ - halfTime;
+            newScaleValue = EaseInQuad(targetScale_, initialScale_, t, halfTime);
+        }
+        this->SetScale({newScaleValue, newScaleValue, newScaleValue});
+    }
+}
+
 void Player::HandleInput() {
 #pragma region ゲームパッド入力
     // 前フレームの押下状態を保存
@@ -526,12 +562,15 @@ void Player::HandleInput() {
 						///	プレイヤー色反転ブロックが範囲内に見つかった場合、プレイヤーの色を反転する
 						///
 						if (mapChipField_->HasColorChangeBlockInArea(position, xInvertRange_, yInvertRange_)) {
+                            isScaling_ = true;
+                            scaleTimer_ = 0.0f;
+
 							// 現在が白の場合、テクスチャと色状態を黒に変更
 							if (colorState_ == ColorState::White) {
 								this->SetTexture("game/player.png");
 								colorState_ = ColorState::Black;
 
-								// 現在が黒の場合、テクスチャと色状態を白に変更
+						    // 現在が黒の場合、テクスチャと色状態を白に変更
 							}
 							else if (colorState_ == ColorState::Black) {
 								this->SetTexture("game/playerWhite.png");
@@ -663,9 +702,12 @@ void Player::HandleInput() {
                     ///	プレイヤー色反転ブロックが範囲内に見つかった場合、プレイヤーの色を反転する
                     ///
                     if (mapChipField_->HasColorChangeBlockInArea(position, xInvertRange_, yInvertRange_)) {
+                        isScaling_ = true;
+                        scaleTimer_ = 0.0f;
+
                         // 現在が白の場合、テクスチャと色状態を黒に変更
                         if (colorState_ == ColorState::White) {
-                            this->SetTexture("debug/black1x1.png");
+                            this->SetTexture("game/player.png");
                             colorState_ = ColorState::Black;
                             // 現在が黒の場合、テクスチャと色状態を白に変更
                         } else if (colorState_ == ColorState::Black) {

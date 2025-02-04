@@ -130,6 +130,15 @@ private:
 	float blockInvertCooldown_ = 0.0f;
 	const float kBlockInvertCooldownTime = 0.7f; // 再使用までの時間
 
+	// プレイヤー本体の色反転時の拡縮アニメーション
+    bool isScaling_ = false;           // スケーリング中かどうか
+    float scaleTimer_;                 // アニメーションの進行度を管理
+    float initialScale_ = 0.9f;        // アニメーション開始時スケール
+    float targetScale_ = 0.45f;        // 最小時スケール
+    const float kScaleDuration = 0.5f; // アニメーションにかける時間
+    bool isChangedColor_ = true;
+    void UpdateScalingAnimation();
+
 	// 音関連
 	uint32_t jumpSE_;
 	uint32_t landingSE_;

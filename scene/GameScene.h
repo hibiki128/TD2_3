@@ -87,6 +87,9 @@ private:
 
 	std::string filePath_;
 
+	// 背景
+	std::unique_ptr<Sprite> spriteBackGround_;
+
 // JSON
 private:
 	using json = nlohmann::json;

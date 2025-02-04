@@ -52,6 +52,10 @@ void GameScene::Initialize()
 	///	スプライト初期化
 	/// 
 
+	// 背景
+	spriteBackGround_ = std::make_unique<Sprite>();
+	spriteBackGround_->Initialize("title/backGround.png", {0.0f, 0.0f});
+
 	// Jsonから保存情報の読み込み
 	LoadFromJson();
 
@@ -123,7 +127,16 @@ void GameScene::Draw()
 	spCommon_->DrawCommonSetting();
 	//-----Spriteの描画開始-----
 
-	player_->DrawSprite(vp_);
+	// 背景
+	spriteBackGround_->Draw(true);
+	
+	// UI（ポーズボタン）
+	uiObject_->DrawSprite();
+
+	// プレイヤーUI
+	if (!clearCamera_->GetActive()) { // クリアカメラがアクティブになったら非表示にするため
+		player_->DrawSprite(vp_);
+	}
 
 
 	//------------------------
@@ -158,7 +171,7 @@ void GameScene::Draw()
 
 	// ポーズ描画
 	pause_->Draw(vp_);
-	player_->DrawSprite(vp_);
+	/*player_->DrawSprite(vp_);*/
 
 	//------------------------
 

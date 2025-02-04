@@ -44,6 +44,13 @@ void ClearScene::Initialize()
 
 	BGM_ = audio_->LoadWave("clear/clearBgm.wav");
 	audio_->PlayWave(BGM_, 0.2f, true);
+
+	///
+	///	スプライト生成
+	///
+
+	spriteBackGround_ = std::make_unique<Sprite>();
+	spriteBackGround_->Initialize("title/backGround.png", {0.0f, 0.0f});
 }
 
 void ClearScene::Update()
@@ -74,7 +81,8 @@ void ClearScene::Draw()
 	spCommon_->DrawCommonSetting();
 	//-----Spriteの描画開始-----
 
-
+	// 背景
+	spriteBackGround_->Draw(true);
 
 	//------------------------
 

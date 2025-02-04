@@ -124,7 +124,7 @@ private:
 
 	// ブロック反転のクールタイム
 	float blockInvertCooldown_ = 0.0f;
-	const float kBlockInvertCooldownTime = 0.02f; // 再使用までの時間
+	const float kBlockInvertCooldownTime = 0.7f; // 再使用までの時間
 
 	// 音関連
 	uint32_t jumpSE_;
@@ -160,6 +160,17 @@ private:
 	// 取得したコインの座標を保存しておく
 	Vector3 lastCollectedCoinPosition_ = {0.0f, 0.0f, 0.0f};
 
+	// 反転操作が無効の際、反転枠を揺らす用
+	const float kShakeDuration = 0.5f; // シェイクの継続時間（秒）
+	float spriteShakeTimer_; // シェイクの管理時間
+	float spriteShakeOffset_; // シェイクによる位置のずれ
+
+	// 反転成立時、反転枠の拡縮アニメーションを行う用
+	const float kSpriteScaleDuration = 0.4f; // 拡縮時間（秒）
+	float spriteScaleTimer_; // 拡縮の管理時間
+
+	void SpritePlayerAreaAnimation();
+
 private:
 	using json = nlohmann::json;
 
@@ -184,6 +195,12 @@ private:
 	bool IsWalking();
 	// コインを取得した瞬間を判定
 	bool IsCollectCoinOccurred() { return isCollectCoinOccurred_; }
+	// 最後に取得したコインの座標を返す
+	Vector3 GetLastCollectedCoinPosition() { return lastCollectedCoinPosition_; }
+	// 反転操作が無効の瞬間を判定
+	bool IsInvertDisabled() { return isInvertDisabled_; }
+	// ゴールに触れていて、地面にいる間ずっと（ゴールボタンの表示とかに使用）
+	bool IsTouchGoalAndOnGround() { return isTouchGoal_ && collisionMapInfo_.hittingGround_; }
 
 private:
 	// ジャンプした瞬間を判定
@@ -203,4 +220,8 @@ private:
 
 	// コインを取得した瞬間を判定
 	bool isCollectCoinOccurred_ = false;
+	// 反転操作が無効の場合を判定
+	bool isInvertDisabled_ = false;
+	// ゴールに触れている間を判定
+	bool isTouchGoal_ = false;
 };

@@ -6,6 +6,7 @@
 #include"Audio.h"
 #include"myEngine/Frame/Frame.h"
 #include "myEngine/3d/line/DrawLine3D.h"
+#include "math/Easing.h"
 
 void Player::Init(const std::string className) {
 	input_ = Input::GetInstance();
@@ -105,6 +106,7 @@ void Player::Update(MapChipField* mapChipField) {
 	isResetOccurred_ = false;
 	isGravityReversedOccurred_ = false;
 	/*isCollectCoinOccurred_ = false;*/
+	isInvertDisabled_ = false;
 
 	///
 	///	入力操作
@@ -130,6 +132,22 @@ void Player::Update(MapChipField* mapChipField) {
 
 	CheckCollisionAndResolve();
 
+	///
+	///	反転操作無効時には反転範囲のスプライトを揺らす
+	/// 
+
+	// 反転操作が無効になった瞬間にシェイク開始
+	if (isInvertDisabled_) {
+		spriteShakeTimer_ = kShakeDuration; // シェイク時間のセット
+	} 
+
+	///
+	///	反転が成立した瞬間に拡大->縮小アニメーション開始
+	/// 
+	if (isBlockInversionOccurred_) {
+		spriteScaleTimer_ = kSpriteScaleDuration;
+	}
+
 #ifdef _DEBUG
 	ImGui::Begin("player");
 
@@ -138,11 +156,12 @@ void Player::Update(MapChipField* mapChipField) {
 
 			/*ImGui::DragFloat3("velocity", &velocity_.x);*/
 
-			ImGui::Text("hittingGround : %d", collisionMapInfo_.hittingGround_);
+			/*ImGui::Text("hittingGround : %d", collisionMapInfo_.hittingGround_);
 			ImGui::Text("hittingCeiling : %d", collisionMapInfo_.hittingCeiling_);
 			ImGui::Text("hittingLeft : %d", collisionMapInfo_.hittingLeft_);
 			ImGui::Text("hittingRight : %d", collisionMapInfo_.hittingRight_);
-			ImGui::Text("isOverlapping : %d", collisionMapInfo_.isOverlapping_);
+			ImGui::Text("isOverlapping : %d", collisionMapInfo_.isOverlapping_);*/
+			ImGui::Text("isTouchGoal : %d", isTouchGoal_);
 
 			/*ImGui::Checkbox("ブロック反転中", &isInverting_);
 			ImGui::Checkbox("重力反転中", &isGravityReversed_);*/
@@ -150,13 +169,15 @@ void Player::Update(MapChipField* mapChipField) {
 			/*ImGui::Text("TransitionStatus : %d", squareTransition_->GetCurrentStatus());
 			ImGui::Text("TransitionIsFinished : %d", squareTransition_->IsFinished());*/
 
-			bool flag[6] = {false};
+			bool flag[8] = {false};
 			flag[0] = IsJumpOccurred();
 			flag[1] = IsBlockInversionOccurred();
 			flag[2] = IsResetOccurred();
 			flag[3] = IsGravityReversedOccurred();
 			flag[4] = IsLandedOccurred();
 			flag[5] = IsCollectCoinOccurred();
+			flag[6] = IsInvertDisabled();
+			flag[7] = IsTouchGoalAndOnGround();
 
 			ImGui::Checkbox("ジャンプした瞬間", &flag[0]);
 			ImGui::Checkbox("ブロック反転した瞬間", &flag[1]);
@@ -164,6 +185,8 @@ void Player::Update(MapChipField* mapChipField) {
 			ImGui::Checkbox("重力反転した瞬間", &flag[3]);
 			ImGui::Checkbox("着地した瞬間", &flag[4]);
 			ImGui::Checkbox("コインを取得した瞬間", &flag[5]);
+			ImGui::Checkbox("反転操作が無効の瞬間", &flag[6]);
+			ImGui::Checkbox("ゴールに触れていて地面にいる間", &flag[7]);
 
 			if (colorState_ == ColorState::White) {
 				ImGui::Text("現在の色 : 白");
@@ -196,6 +219,9 @@ void Player::DrawSprite(const ViewProjection& viewProjection) {
 	InvertAreaSpriteToPlayerPosition(viewProjection);
 	// 現在の反転可能範囲の数値によってspritePlayerAreaのサイズを変更
 	InvertAreaSpriteAdjust();
+
+	// 反転無効時と反転成立時にspritePlayerAreaにアニメーションを適用する
+	SpritePlayerAreaAnimation();
 
 	// プレイヤー反転可能範囲の描画
 	spritePlayerArea_->Draw();
@@ -244,15 +270,17 @@ bool Player::IsGoalReached() {
 	};
 
 	// ゴール位置の取得
-	Vector3 goalPosition = mapChipField_->GetGoal()->GetWorldPosition();
-	float goalLeft = goalPosition.x - MapChipField::kChipSize / 2;
-	float goalRight = goalPosition.x + MapChipField::kChipSize / 2;
-	float goalTop = goalPosition.y + MapChipField::kChipSize / 2;
-	float goalBottom = goalPosition.y - MapChipField::kChipSize / 2;
+	Vector3 goalPosition = mapChipField_->GetGoalPosition();
+	float goalLeft = goalPosition.x - MapChipField::kChipSize;
+	float goalRight = goalPosition.x + MapChipField::kChipSize;
+	float goalTop = goalPosition.y + MapChipField::kChipSize;
+	float goalBottom = goalPosition.y - MapChipField::kChipSize;
 
 	// 各角がゴール内にあるかを判定
 	for (const auto& corner : corners) {
 		if (corner.x >= goalLeft && corner.x <= goalRight && corner.y >= goalBottom && corner.y <= goalTop) {
+
+			isTouchGoal_ = true; // ゴールに触れている状態であることを知らせる
 
 			XINPUT_STATE joyState;
 			if (input_->GetJoystickState(0, joyState)) {
@@ -260,10 +288,11 @@ bool Player::IsGoalReached() {
 					return true; // 4つ角のどれかが触れていたらtrue
 				}
 			}
-			if (input_->TriggerKey(DIK_SPACE) && collisionMapInfo_.hittingGround_) {
+			if (input_->TriggerKey(DIK_RETURN) && collisionMapInfo_.hittingGround_) {
 				return true;
 			}
-			//return true; // 4つ角のどれかが触れていたらtrue
+		} else {
+			isTouchGoal_ = false; // ゴールに触れていないことを知らせる
 		}
 	}
 
@@ -375,6 +404,10 @@ void Player::HandleInput() {
 
 		bool isPressedRB = joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER;
 
+		/*if (isPressedRB && !wasPressedRB && blockInvertCooldown_ > 0) {
+			isInvertDisabled_ = true;
+		}*/
+
 		// RBボタンが押された瞬間のみ
 		if (isPressedRB && !wasPressedRB && blockInvertCooldown_ <= 0.0f) { // クールタイム中には反転できない
 			if (!isInverting_ && !collisionMapInfo_.isOverlapping_) {       // ブロック反転中には反転できない && ブロックに埋まっていたら反転できない
@@ -390,6 +423,8 @@ void Player::HandleInput() {
 						isInverting_ = true;
 						// ブロック反転クールタイムを設定
 						blockInvertCooldown_ = kBlockInvertCooldownTime;
+						// 反転が成立したら強制的にシェイクを終わらせる
+						spriteShakeTimer_ = 0.0f;
 
 						///
 						/// 重力ブロックが範囲内に見つかった場合、プレイヤーの重力を反転する
@@ -421,8 +456,21 @@ void Player::HandleInput() {
 
 						// ブロック反転したことを記録（SE・エフェクト用）
 						isBlockInversionOccurred_ = true;
+
+					// 反転範囲内に反転可能ブロックが無かった場合
+					} else {
+						isInvertDisabled_ = true; // 反転無効であることを知らせる
 					}
 				}
+			}
+		}
+
+		// RBを押した際にブロックに埋まっていた場合にも反転無効にする
+		if (isPressedRB && !wasPressedRB && blockInvertCooldown_ <= 0.0f) {
+			if (collisionMapInfo_.isOverlapping_) {
+				blockInvertCooldown_ = kBlockInvertCooldownTime; // ブロック反転クールタイムを設定
+
+				isInvertDisabled_ = true; // 反転無効であることを知らせる
 			}
 		}
 
@@ -508,6 +556,8 @@ void Player::HandleInput() {
 					isInverting_ = true;
 					// ブロック反転クールタイムを設定
 					blockInvertCooldown_ = kBlockInvertCooldownTime;
+					// 反転が成立したら強制的にシェイクを終わらせる
+					spriteShakeTimer_ = 0.0f;
 
 					///
 					/// 重力ブロックが範囲内に見つかった場合、プレイヤーの重力を反転する
@@ -536,8 +586,21 @@ void Player::HandleInput() {
 
 					// ブロック反転したことを記録（SE・エフェクト用）
 					isBlockInversionOccurred_ = true;
+
+					// 反転範囲内に反転可能ブロックが無かった場合
+				} else {
+					isInvertDisabled_ = true; // 反転無効であることを知らせる
 				}
 			}
+		}
+	}
+
+	// SPACEを押した際にブロックに埋まっていた場合にも反転無効にする
+	if (input_->TriggerKey(DIK_SPACE) && blockInvertCooldown_ <= 0.0f) {
+		if (collisionMapInfo_.isOverlapping_) {
+			blockInvertCooldown_ = kBlockInvertCooldownTime; // ブロック反転クールタイムを設定
+
+			isInvertDisabled_ = true; // 反転無効であることを知らせる
 		}
 	}
 
@@ -591,8 +654,46 @@ bool Player::IsLandedOccurred() {
 	return false;
 }
 
-bool Player::IsWalking()
-{
+void Player::SpritePlayerAreaAnimation() {
+	// 反転無効時のシェイク処理
+	if (spriteShakeTimer_ > 0.0f) {
+		float shakeStrength = 10.0f; // シェイクの強さ
+
+		// 減衰係数
+		float damping = spriteShakeTimer_ / kShakeDuration;
+
+		float shakeOffset = shakeStrength * damping * std::sinf(spriteShakeTimer_ * 60.0f); // 振動の速さを調整
+
+		Vector2 currentPos = spritePlayerArea_->GetPosition();
+		spritePlayerArea_->SetPosition({currentPos.x + shakeOffset, currentPos.y});
+
+		// シェイク時間の減少
+		spriteShakeTimer_ -= kDeltaTime;
+	}
+	// 反転成立時の拡縮処理
+	if (spriteScaleTimer_ > 0.0f) {
+		constexpr float minScale = 1.0f;
+		constexpr float maxScale = 1.2f;
+		float progress = (kSpriteScaleDuration - spriteScaleTimer_) / kSpriteScaleDuration; // 0 -> 1 へ進行
+
+		// 拡大（前半 0.0f ~ 0.5f）
+		float scaleFactor;
+		if (progress < 0.5f) {
+			scaleFactor = EaseOutQuad(minScale, maxScale, progress, 0.5f);
+			// 縮小（後半 0.5f ~ 1.0f）
+		} else {
+			scaleFactor = EaseOutQuad(maxScale, minScale, progress - 0.5f, 0.5f);
+		}
+
+		// スプライトのスケールを設定
+		spritePlayerArea_->SetSize({spritePlayerArea_->GetSize().x * scaleFactor, spritePlayerArea_->GetSize().y * scaleFactor});
+
+		// タイマーを減少
+		spriteScaleTimer_ -= kDeltaTime;
+	}
+}
+
+bool Player::IsWalking() {
 	if (input_->PushKey(DIK_D) || input_->PushKey(DIK_A)) {
 		isWalking_ = true;
 	}
@@ -844,14 +945,6 @@ Player::CollisionMapInfo Player::GetMapCollisionInfo() {
 
 	// 全てのブロックとの衝突判定
 	for (const auto& block : blocks) {
-		// プレイヤーとブロックの色が同じ場合には判定を取らない
-		if (this->colorState_ == ColorState::White && block->type_ == Block::ChipType::White) { // プレイヤーが白状態で、白ブロックの場合
-			continue;
-		}
-		else if (this->colorState_ == ColorState::Black && block->type_ == Block::ChipType::Black) { // プレイヤーが黒状態で、黒ブロックの場合
-			continue;
-		}
-
 		// ブロックの位置と範囲を計算
 		Vector3 blockPosition = block->GetWorldPosition();
 		float blockLeft = blockPosition.x - blockSize / 2;

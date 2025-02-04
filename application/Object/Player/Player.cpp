@@ -121,6 +121,14 @@ void Player::Update(MapChipField *mapChipField) {
     } else {
         BaseObject::SetAnima("animation/playerJump.gltf");
     }
+
+    if (velocity_.x > 0) {
+        BaseObject::SetRotationY(degreesToRadians(90.0f));
+    }
+    if (velocity_.x < 0) {
+        BaseObject::SetRotationY(degreesToRadians(-90.0f));
+    }
+
     BaseObject::Update();
     ///
     ///	重力を常に受ける
@@ -468,12 +476,6 @@ void Player::HandleInput() {
         }
         if (input_->PushKey(DIK_D)) {
             velocity_.x = kMoveSpeed;
-        }
-        if (input_->TriggerKey(DIK_D)) {
-            BaseObject::SetRotationY(degreesToRadians(90.0f));
-        }
-        if (input_->TriggerKey(DIK_A)) {
-            BaseObject::SetRotationY(degreesToRadians(-90.0f));
         }
     }
 

@@ -78,6 +78,7 @@ public:
 	}
 	void SetModel(const std::string& filePath) { obj3d_->SetModel(filePath); }
 	void SetParent(const WorldTransform& wt) { transform_.parent_ = &wt; }
+	void SetAnima(const std::string& filePath) { obj3d_->SetAnimation(filePath); }
 
 
 private:

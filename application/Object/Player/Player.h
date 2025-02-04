@@ -109,6 +109,8 @@ private:
 	int xInvertRange_;
 	int yInvertRange_;
 
+	int prevDirection_ = 1; // 1: 右向き, -1: 左向き
+
 	///
 	///	その他
 	///	
@@ -216,6 +218,8 @@ private:
 	bool prevHittingGround_ = false;
 	
 	bool isWalking_ = false;
+
+	bool isLanded_ = false;
 
 
 	// コインを取得した瞬間を判定

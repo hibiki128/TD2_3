@@ -84,4 +84,7 @@ private:
 	std::string filePath;
 	bool BackGameScene_ = false;
 
+	// 背景
+    std::unique_ptr<Sprite> spriteBackGround_;
+
 };

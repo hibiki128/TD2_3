@@ -199,6 +199,8 @@ private:
 	Vector3 GetLastCollectedCoinPosition() { return lastCollectedCoinPosition_; }
 	// 反転操作が無効の瞬間を判定
 	bool IsInvertDisabled() { return isInvertDisabled_; }
+	// ゴールに触れていて、地面にいる間ずっと（ゴールボタンの表示とかに使用）
+	bool IsTouchGoalAndOnGround();
 
 private:
 	// ジャンプした瞬間を判定
@@ -220,4 +222,6 @@ private:
 	bool isCollectCoinOccurred_ = false;
 	// 反転操作が無効の場合を判定
 	bool isInvertDisabled_ = false;
+	// ゴールに触れている間を判定
+	bool isTouchGoal_ = false;
 };

@@ -55,7 +55,7 @@ void MapChipField::Update(const Vector3& center, int xRange, int yRange) {
 	}*/
 
 	// ゴールオブジェクト更新
-	goal_->Update();
+	/*goal_->Update();*/
 	// コインオブジェクト更新
 	for (auto& coin : coins_) {
 		coin->Update();
@@ -80,7 +80,7 @@ void MapChipField::Draw(const ViewProjection& vp) {
 	}
 
 	// ゴールオブジェクト描画
-	goal_->Draw(vp);
+	/*goal_->Draw(vp);*/
 	// コインオブジェクト描画
 	for (auto& coin : coins_) {
 		coin->Draw(vp);
@@ -253,6 +253,11 @@ void MapChipField::LoadFromCSV(const std::string& filePath) {
 					chip.object->CreateModel("game/block.obj");
 					chip.object->SetTexture("game/block.png"); // 動かないブロックのテクスチャをセット
 					break;
+				case Block::ChipType::Goal: // ゴールブロック
+					chip.object->CreateModel("game/goal.obj");
+					chip.object->SetTexture("game/goal.png"); // ゴールブロックのテクスチャをセット
+					goalPosition_ = {x * kChipSize, -y * kChipSize, 0.0f}; // ゴールの生成位置を格納
+					break;
 				case Block::ChipType::Gravity: // 重力反転ブロック
 					chip.object->CreateModel("game/gravityBlockDown.obj");
 					chip.object->SetTexture("game/gravityBlockDown.png"); // 重力通常状態のテクスチャをセット
@@ -267,15 +272,15 @@ void MapChipField::LoadFromCSV(const std::string& filePath) {
 			}
 
 			/*ゴールオブジェクトの生成*/
-			if (chipValue == 4) {
-				goal_ = std::make_unique<Goal>();
-				goal_->Init("Goal");
-				goal_->CreateModel("game/goal.obj");
-				goal_->SetTexture("game/goal.png");
-				goal_->SetWorldPosition({ x * kChipSize, -y * kChipSize, 0.0f });
-				goal_->CreateCollider();
-				goal_->SetObjColor({ 1.0f, 1.0f, 0.0f, 1.0f }); // 黄色にしておく
-			}
+			//if (chipValue == 4) {
+			//	goal_ = std::make_unique<Goal>();
+			//	goal_->Init("Goal");
+			//	goal_->CreateModel("game/goal.obj");
+			//	goal_->SetTexture("game/goal.png");
+			//	goal_->SetWorldPosition({ x * kChipSize, -y * kChipSize, 0.0f });
+			//	goal_->CreateCollider();
+			//	goal_->SetObjColor({ 1.0f, 1.0f, 0.0f, 1.0f }); // 黄色にしておく
+			//}
 
 			/*プレイヤー初期位置の格納*/
 			if (chipValue == 5) {
@@ -318,7 +323,7 @@ Block::ChipType MapChipField::GetChipTypeFromInt(int value) {
 	case 3:
 		return Block::ChipType::Gray;
 	case 4:
-		return Block::ChipType::Empty; // ゴールオブジェクトは空白扱いとする
+		return Block::ChipType::Goal;
 	case 5:
 		return Block::ChipType::Empty; // プレイヤー初期位置は空白扱いとする
 	case 6:
@@ -532,11 +537,11 @@ void MapChipField::UpdateChipAnimation(MapChip& chip)
 				if (isPlayerWhite_) {
 					// ブロックの色変更
 					if (chip.object->type_ == Block::ChipType::Black) {
-						chip.object->type_ = Block::ChipType::White;
+							chip.object->type_ = Block::ChipType::White;
 						chip.object->CreateModel("game/noTouchWhiteBlock.obj");
 						chip.object->SetTexture("game/noTouchWhiteBlock.png"); // 白ブロックのテクスチャをセット
 					} else if (chip.object->type_ == Block::ChipType::White) {
-						chip.object->type_ = Block::ChipType::Black;
+							chip.object->type_ = Block::ChipType::Black;
 						chip.object->CreateModel("game/blackBlock.obj");
 						chip.object->SetTexture("game/blackBlock.png"); // 黒ブロックのテクスチャをセット
 					}
@@ -544,11 +549,11 @@ void MapChipField::UpdateChipAnimation(MapChip& chip)
 				} else {
 					// ブロックの色変更
 					if (chip.object->type_ == Block::ChipType::Black) {
-						chip.object->type_ = Block::ChipType::White;
+							chip.object->type_ = Block::ChipType::White;
 						chip.object->CreateModel("game/whiteBlock.obj");
 						chip.object->SetTexture("game/whiteBlock.png"); // 白ブロックのテクスチャをセット
 					} else if (chip.object->type_ == Block::ChipType::White) {
-						chip.object->type_ = Block::ChipType::Black;
+							chip.object->type_ = Block::ChipType::Black;
 						chip.object->CreateModel("game/noTouchBlackBlock.obj");
 						chip.object->SetTexture("game/noTouchBlackBlock.png"); // 黒ブロックのテクスチャをセット
 					}

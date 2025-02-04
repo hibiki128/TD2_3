@@ -161,6 +161,7 @@ void Player::Update(MapChipField* mapChipField) {
 			ImGui::Text("hittingLeft : %d", collisionMapInfo_.hittingLeft_);
 			ImGui::Text("hittingRight : %d", collisionMapInfo_.hittingRight_);
 			ImGui::Text("isOverlapping : %d", collisionMapInfo_.isOverlapping_);
+			ImGui::Text("isTouchGoal : %d", isTouchGoal_);
 
 			/*ImGui::Checkbox("ブロック反転中", &isInverting_);
 			ImGui::Checkbox("重力反転中", &isGravityReversed_);*/
@@ -267,15 +268,17 @@ bool Player::IsGoalReached() {
 	};
 
 	// ゴール位置の取得
-	Vector3 goalPosition = mapChipField_->GetGoal()->GetWorldPosition();
-	float goalLeft = goalPosition.x - MapChipField::kChipSize / 2;
-	float goalRight = goalPosition.x + MapChipField::kChipSize / 2;
-	float goalTop = goalPosition.y + MapChipField::kChipSize / 2;
-	float goalBottom = goalPosition.y - MapChipField::kChipSize / 2;
+	Vector3 goalPosition = mapChipField_->GetGoalPosition();
+	float goalLeft = goalPosition.x - MapChipField::kChipSize;
+	float goalRight = goalPosition.x + MapChipField::kChipSize;
+	float goalTop = goalPosition.y + MapChipField::kChipSize;
+	float goalBottom = goalPosition.y - MapChipField::kChipSize;
 
 	// 各角がゴール内にあるかを判定
 	for (const auto& corner : corners) {
 		if (corner.x >= goalLeft && corner.x <= goalRight && corner.y >= goalBottom && corner.y <= goalTop) {
+
+			isTouchGoal_ = true; // ゴールに触れている状態であることを知らせる
 
 			XINPUT_STATE joyState;
 			if (input_->GetJoystickState(0, joyState)) {
@@ -286,7 +289,8 @@ bool Player::IsGoalReached() {
 			if (input_->TriggerKey(DIK_SPACE) && collisionMapInfo_.hittingGround_) {
 				return true;
 			}
-			//return true; // 4つ角のどれかが触れていたらtrue
+		} else {
+			isTouchGoal_ = false; // ゴールに触れていないことを知らせる
 		}
 	}
 

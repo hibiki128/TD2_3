@@ -8,7 +8,7 @@
 // Application
 #include "application/Base/BaseObject.h"
 #include "application/Object/MapChip/Block/Block.h"
-#include "application/Object/Goal/Goal.h"
+//#include "application/Object/Goal/Goal.h"
 #include "application/Object/Coin/Coin.h"
 #include <ParticleEmitter.h>
 
@@ -57,7 +57,7 @@ public:
 	// 全てのブロックのBaseObjectポインタを取得
 	std::vector<Block*> GetBlocks() const;
 	// ゴールオブジェクトの取得
-	Goal* GetGoal() const { return goal_.get(); }
+	Vector3 GetGoalPosition() const { return goalPosition_; }
 	// コインオブジェクトの取得
 	std::vector<std::unique_ptr<Coin>>& GetCoins() { return coins_; }
 	// プレイヤー初期位置を返す
@@ -101,7 +101,9 @@ private:
 	std::string csvFilePath_; // ファイルパス保存用
 
 	// ゴールオブジェクト
-	std::unique_ptr<Goal> goal_;
+	/*std::unique_ptr<Goal> goal_;*/
+	// ゴール位置を格納
+	Vector3 goalPosition_;
 	// プレイヤー初期位置を格納
 	Vector3 playerInitialPosition_;
 

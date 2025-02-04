@@ -30,8 +30,8 @@ void Pause::Init() {
     pointerPos_ = {0.0f, 0.0f};
     spritePosition_ = {0.0f, 0.0f};
 
-    pointer_E.start_ = {-360.0f, 420.0f};
-    pointer_E.end_ = {-360.0f, 420.0f};
+   /* pointer_E.start_ = {-360.0f, 420.0f};
+    pointer_E.end_ = {-360.0f, 420.0f};*/
     pointer_E.T_ = 0.0f;
     stage_E.start_.x = -360.0f;
     stage_E.end_.x = -360.0f;
@@ -118,7 +118,7 @@ void Pause::InitText() {
     backGamePos_ = {-360.0f, 420.0f};
     backSelectPos_ = {-360.0f, 600.0f};
     restartPos_ = {-360.0f, 510.0f};
-    pointerPos_ = {-360.0f, 420.0f};
+   /* pointerPos_ = {-360.0f, 420.0f};*/
 
     stageSize_ = Stage_->GetSize();
     singleSize_ = singleDigit_->GetSize();
@@ -186,6 +186,7 @@ void Pause::UpdateText() {
         restart_E.start_.x = -360.0f;
         restart_E.end_.x = 640.0f;
         restart_E.T_ = 0.0f;
+        currentItem_ = 0;
     }
 
     // イージングによるアニメーション更新
@@ -293,7 +294,7 @@ void Pause::OpenMenu() {
     // メニューを開く処理（EscまたはゲームパッドのSTARTボタン）
     if (!isPause_ && CanEscape_) {
         // キーボードEsc
-        if (input_->TriggerKey(DIK_ESCAPE) && !prevEscapeState_) {
+        if (input_->TriggerKey(DIK_ESCAPE) && !prevEscapeState_&&player_->GetFinishTransition()) {
             alpha_E.start_.x = 0.0f;
             alpha_E.end_.x = 0.90f;
             alpha_E.T_ = 0.0f;
@@ -302,7 +303,7 @@ void Pause::OpenMenu() {
             prevEscapeState_ = true; // 前回押した状態を記録
         }
         // ゲームパッドのSTARTボタン
-        else if ((joyState.Gamepad.wButtons & XINPUT_GAMEPAD_START) && !(prejoyState.Gamepad.wButtons & XINPUT_GAMEPAD_START)) {
+        else if ((joyState.Gamepad.wButtons & XINPUT_GAMEPAD_START) && !(prejoyState.Gamepad.wButtons & XINPUT_GAMEPAD_START) && player_->GetFinishTransition()) {
             alpha_E.start_.x = 0.0f;
             alpha_E.end_.x = 0.90f;
             alpha_E.T_ = 0.0f;
@@ -322,13 +323,13 @@ void Pause::OpenMenu() {
     // メニューを閉じる処理（EscキーまたはゲームパッドのSTARTボタン）
     if (isPause_ && CanEscape_) {
         // キーボードEsc
-        if (input_->TriggerKey(DIK_ESCAPE) && prevEscapeState_) {
+        if (input_->TriggerKey(DIK_ESCAPE) && prevEscapeState_ && player_->GetFinishTransition()) {
             isPause_ = false;
             EscapeCoolTime_ = 0.7f;   // クールダウンタイム再開
             prevEscapeState_ = false; // 前回押した状態をリセット
         }
         // ゲームパッドのSTARTボタン
-        else if ((joyState.Gamepad.wButtons & XINPUT_GAMEPAD_START) && (prejoyState.Gamepad.wButtons & XINPUT_GAMEPAD_START)) {
+        else if ((joyState.Gamepad.wButtons & XINPUT_GAMEPAD_START) && (prejoyState.Gamepad.wButtons & XINPUT_GAMEPAD_START) && player_->GetFinishTransition()) {
             isPause_ = false;
             EscapeCoolTime_ = 0.7f; // クールダウンタイム再開
         }
@@ -421,9 +422,7 @@ void Pause::MenuOperation() {
             pointer_E.start_.y = pointerPos_.y;
             pointerYT_ = 0.0f;
         }
-    } else {
-        currentItem_ = 0;
-    }
+    } 
 
     // currentItem_ に応じたポインタ位置の設定
     if (currentItem_ == 0) {
@@ -446,19 +445,23 @@ void Pause::MenuOperation() {
         if (currentItem_ == 0 && (input_->TriggerKey(DIK_SPACE))) {
             isPause_ = false;
             prevEscapeState_ = false;
+            EscapeCoolTime_ = 0.7f; // クールダウンタイム開始
         }
         if (currentItem_ == -1 && (input_->TriggerKey(DIK_SPACE))) {
             player_->SetTransitionStart();
             prevEscapeState_ = false;
+            EscapeCoolTime_ = 0.7f; // クールダウンタイム開始
         }
         if (input_->GetJoystickState(0, joyState)) {
             if (currentItem_ == 0 && (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A)) {
                 isPause_ = false;
                 prevEscapeState_ = false;
+                EscapeCoolTime_ = 0.7f; // クールダウンタイム開始
             }
             if (currentItem_ == -1 && (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A)) {
                 player_->SetTransitionStart();
                 prevEscapeState_ = false;
+                EscapeCoolTime_ = 0.7f; // クールダウンタイム開始
             }
         }
     }

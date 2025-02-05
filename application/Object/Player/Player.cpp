@@ -61,7 +61,7 @@ void Player::Init(const std::string className) {
     inversionSE_ = Audio::GetInstance()->LoadWave("action/inversion.wav");
 }
 
-void Player::Update(MapChipField *mapChipField) {
+void Player::Update(MapChipField *mapChipField,bool title) {
     // 各種瞬間判定フラグをリセット
     isCollectCoinOccurred_ = false; // なぜか下に記述するとずっとfalseになってしまうのでここに記述
 
@@ -141,7 +141,7 @@ void Player::Update(MapChipField *mapChipField) {
     ///	全てのブロックとの衝突判定とプレイヤーの押し戻し
     ///
 
-    CheckCollisionAndResolve();
+    CheckCollisionAndResolve(title);
 
     ///
     ///	反転操作無効時には反転範囲のスプライトを揺らす
@@ -924,12 +924,12 @@ void Player::AnimaUpdate() {
     }
 }
 
-void Player::CheckCollisionAndResolve() {
+void Player::CheckCollisionAndResolve(bool title) {
     /// X移動
     BaseObject::transform_.translation_.x += velocity_.x;
 
     /// 衝突判定
-    CollisionMapInfo collisionMapInfoX = GetMapCollisionInfo();
+    CollisionMapInfo collisionMapInfoX = GetMapCollisionInfo(title);
 
     /// 押し戻し
     if (collisionMapInfoX.hittingLeft_) {
@@ -948,7 +948,7 @@ void Player::CheckCollisionAndResolve() {
     }
 
     /// 衝突判定
-    CollisionMapInfo collisionMapInfoY = GetMapCollisionInfo();
+    CollisionMapInfo collisionMapInfoY = GetMapCollisionInfo(title);
 
     const float colliderYOffset = (kHeight - 1.8f) / 2.0f; // 0.9f
 
@@ -1060,7 +1060,7 @@ void Player::InvertAreaSpriteAdjust() {
     spritePlayerArea_->SetSize(spriteSize);
 }
 
-Player::CollisionMapInfo Player::GetMapCollisionInfo() {
+Player::CollisionMapInfo Player::GetMapCollisionInfo(bool title) {
     CollisionMapInfo info;
 
     // ずらす分（新しい高さと元の高さの差の半分）
@@ -1106,6 +1106,11 @@ Player::CollisionMapInfo Player::GetMapCollisionInfo() {
         float blockRight = blockPosition.x + blockSize / 2;
         float blockTop = blockPosition.y + blockSize / 2;
         float blockBottom = blockPosition.y - blockSize / 2;
+
+        // titleフラグがtrueで、Goalの場合の上方向判定の増加
+        if (title && block->type_ == Block::ChipType::Goal) {
+            blockTop += blockSize; // 上方向に1ブロック分増やす
+        }
 
         // 重なり判定（プレイヤーの中心+-オフセットがブロックに接触しているか）
         for (int i = 0; i < 6; ++i) {

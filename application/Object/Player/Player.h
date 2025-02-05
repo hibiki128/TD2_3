@@ -26,7 +26,7 @@ public:
 	};
 
     void Init(const std::string className) override;
-    void Update(MapChipField *mapChipField);
+    void Update(MapChipField *mapChipField,bool title = false);
     void Draw(const ViewProjection &viewProjection) override;
     void DrawSprite(const ViewProjection &viewProjection,bool title=false);
     void DebugImGui() override;
@@ -154,7 +154,7 @@ private:
 	// 入力操作
 	void HandleInput();
 	// 全ての衝突判定とプレイヤーの押し戻し
-	void CheckCollisionAndResolve();
+	void CheckCollisionAndResolve(bool title = false);
 
 	void AnimaUpdate();
 
@@ -164,7 +164,7 @@ private:
 	// マップチップフィールドを保持
 	MapChipField* mapChipField_ = nullptr;
 	// マップとの当たり判定情報を返す
-	CollisionMapInfo GetMapCollisionInfo();
+	CollisionMapInfo GetMapCollisionInfo(bool title);
 
 	// 反転可能範囲のAABBを描画
 	void DrawInvertArea();

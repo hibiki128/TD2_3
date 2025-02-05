@@ -55,6 +55,12 @@ void UIObject::Init(int currentStageNum) {
     currentStageNum_ = currentStageNum;
 	// 現在のステージによってUIの位置を調整する
     AdjustUIPositionForStageNum();
+
+    // 位置調整
+    objectL_->SetRotation({degreesToRadians(-5.2f), 0.0f, 0.0f});
+
+    objectR_->SetRotation({degreesToRadians(7.2f), 0.0f, 0.0f});
+    objectR_->SetWorldPosition({0.0f, -0.2f, -0.1f});
 }
 
 void UIObject::Update() {
@@ -82,9 +88,9 @@ void UIObject::DebugImGui()
 {
 	objectBook_->DebugImGui();
 	objectUI_->DebugImGui();
-	/*objectL_->DebugImGui();
+	objectL_->DebugImGui();
 	objectA_->DebugImGui();
-	objectR_->DebugImGui();*/
+	objectR_->DebugImGui();
 
 	ImGui::Begin("UIObject.param");
     ImGui::Text("現在のステージ番号 : %d", currentStageNum_);
@@ -213,7 +219,7 @@ void UIObject::AdjustUIPositionForStageNum() {
         /// 栞オブジェクトのトランスフォーム
         /// 
         objectUI_->SetWorldPosition({-9.0f, -10.0f, 0.0f});
-        objectUI_->SetRotation({-1.57f, 0.0f, 0.314f});
+        objectUI_->SetRotation({degreesToRadians(-86.699f), degreesToRadians(-27.5f), 0.314f});
         objectUI_->SetScale({2.5f, 2.5f, 2.5f});
 
         ///
@@ -229,7 +235,7 @@ void UIObject::AdjustUIPositionForStageNum() {
         /// 栞オブジェクトのトランスフォーム
         ///
         objectUI_->SetWorldPosition({-9.0f, -10.0f, 0.0f});
-        objectUI_->SetRotation({-1.57f, 0.0f, 0.314f});
+        objectUI_->SetRotation({degreesToRadians(-86.699f), degreesToRadians(-27.5f), 0.314f});
         objectUI_->SetScale({2.5f, 2.5f, 2.5f});
 
         ///
@@ -244,7 +250,7 @@ void UIObject::AdjustUIPositionForStageNum() {
         /// 栞オブジェクトのトランスフォーム
         ///
         objectUI_->SetWorldPosition({-9.0f, -10.0f, 0.0f});
-        objectUI_->SetRotation({-1.57f, 0.0f, 0.314f});
+        objectUI_->SetRotation({degreesToRadians(-86.699f), degreesToRadians(-27.5f), 0.314f});
         objectUI_->SetScale({2.5f, 2.5f, 2.5f});
 
         ///
@@ -259,7 +265,7 @@ void UIObject::AdjustUIPositionForStageNum() {
         /// 栞オブジェクトのトランスフォーム
         ///
         objectUI_->SetWorldPosition({-9.0f, -10.0f, 0.0f});
-        objectUI_->SetRotation({-1.57f, 0.0f, 0.314f});
+        objectUI_->SetRotation({degreesToRadians(-86.699f), degreesToRadians(-27.5f), 0.314f});
         objectUI_->SetScale({2.5f, 2.5f, 2.5f});
 
         ///
@@ -274,7 +280,7 @@ void UIObject::AdjustUIPositionForStageNum() {
         /// 栞オブジェクトのトランスフォーム
         ///
         objectUI_->SetWorldPosition({-9.0f, -10.0f, 0.0f});
-        objectUI_->SetRotation({-1.57f, 0.0f, 0.314f});
+        objectUI_->SetRotation({degreesToRadians(-86.699f), degreesToRadians(-27.5f), 0.314f});
         objectUI_->SetScale({2.5f, 2.5f, 2.5f});
 
         ///
@@ -289,7 +295,7 @@ void UIObject::AdjustUIPositionForStageNum() {
         /// 栞オブジェクトのトランスフォーム
         ///
         objectUI_->SetWorldPosition({-9.0f, -10.0f, 0.0f});
-        objectUI_->SetRotation({-1.57f, 0.0f, 0.314f});
+        objectUI_->SetRotation({degreesToRadians(-86.699f), degreesToRadians(-27.5f), 0.314f});
         objectUI_->SetScale({2.5f, 2.5f, 2.5f});
 
         ///
@@ -304,7 +310,7 @@ void UIObject::AdjustUIPositionForStageNum() {
         /// 栞オブジェクトのトランスフォーム
         ///
         objectUI_->SetWorldPosition({-9.0f, -10.0f, 0.0f});
-        objectUI_->SetRotation({-1.57f, 0.0f, 0.314f});
+        objectUI_->SetRotation({degreesToRadians(-86.699f), degreesToRadians(-27.5f), 0.314f});
         objectUI_->SetScale({2.5f, 2.5f, 2.5f});
 
         ///
@@ -319,7 +325,7 @@ void UIObject::AdjustUIPositionForStageNum() {
         /// 栞オブジェクトのトランスフォーム
         ///
         objectUI_->SetWorldPosition({-9.0f, -10.0f, 0.0f});
-        objectUI_->SetRotation({-1.57f, 0.0f, 0.314f});
+        objectUI_->SetRotation({degreesToRadians(-86.699f), degreesToRadians(-27.5f), 0.314f});
         objectUI_->SetScale({2.5f, 2.5f, 2.5f});
 
         ///
@@ -334,7 +340,7 @@ void UIObject::AdjustUIPositionForStageNum() {
         /// 栞オブジェクトのトランスフォーム
         ///
         objectUI_->SetWorldPosition({-9.0f, -10.0f, 0.0f});
-        objectUI_->SetRotation({-1.57f, 0.0f, 0.314f});
+        objectUI_->SetRotation({degreesToRadians(-86.699f), degreesToRadians(-27.5f), 0.314f});
         objectUI_->SetScale({2.5f, 2.5f, 2.5f});
 
         ///
@@ -349,7 +355,7 @@ void UIObject::AdjustUIPositionForStageNum() {
         /// 栞オブジェクトのトランスフォーム
         ///
         objectUI_->SetWorldPosition({-9.0f, -10.0f, 0.0f});
-        objectUI_->SetRotation({-1.57f, 0.0f, 0.314f});
+        objectUI_->SetRotation({degreesToRadians(-86.699f), degreesToRadians(-27.5f), 0.314f});
         objectUI_->SetScale({2.5f, 2.5f, 2.5f});
 
         ///
@@ -364,7 +370,7 @@ void UIObject::AdjustUIPositionForStageNum() {
         /// 栞オブジェクトのトランスフォーム
         ///
         objectUI_->SetWorldPosition({-9.0f, -10.0f, 0.0f});
-        objectUI_->SetRotation({-1.57f, 0.0f, 0.314f});
+        objectUI_->SetRotation({degreesToRadians(-86.699f), degreesToRadians(-27.5f), 0.314f});
         objectUI_->SetScale({2.5f, 2.5f, 2.5f});
 
         ///
@@ -379,7 +385,7 @@ void UIObject::AdjustUIPositionForStageNum() {
         /// 栞オブジェクトのトランスフォーム
         ///
         objectUI_->SetWorldPosition({-9.0f, -10.0f, 0.0f});
-        objectUI_->SetRotation({-1.57f, 0.0f, 0.314f});
+        objectUI_->SetRotation({degreesToRadians(-86.699f), degreesToRadians(-27.5f), 0.314f});
         objectUI_->SetScale({2.5f, 2.5f, 2.5f});
 
         ///
@@ -394,7 +400,7 @@ void UIObject::AdjustUIPositionForStageNum() {
         /// 栞オブジェクトのトランスフォーム
         ///
         objectUI_->SetWorldPosition({-9.0f, -10.0f, 0.0f});
-        objectUI_->SetRotation({-1.57f, 0.0f, 0.314f});
+        objectUI_->SetRotation({degreesToRadians(-86.699f), degreesToRadians(-27.5f), 0.314f});
         objectUI_->SetScale({2.5f, 2.5f, 2.5f});
 
         ///
@@ -409,7 +415,7 @@ void UIObject::AdjustUIPositionForStageNum() {
         /// 栞オブジェクトのトランスフォーム
         ///
         objectUI_->SetWorldPosition({-9.0f, -10.0f, 0.0f});
-        objectUI_->SetRotation({-1.57f, 0.0f, 0.314f});
+        objectUI_->SetRotation({degreesToRadians(-86.699f), degreesToRadians(-27.5f), 0.314f});
         objectUI_->SetScale({2.5f, 2.5f, 2.5f});
 
         ///
@@ -424,7 +430,7 @@ void UIObject::AdjustUIPositionForStageNum() {
         /// 栞オブジェクトのトランスフォーム
         ///
         objectUI_->SetWorldPosition({-9.0f, -10.0f, 0.0f});
-        objectUI_->SetRotation({-1.57f, 0.0f, 0.314f});
+        objectUI_->SetRotation({degreesToRadians(-86.699f), degreesToRadians(-27.5f), 0.314f});
         objectUI_->SetScale({2.5f, 2.5f, 2.5f});
 
         ///
@@ -439,7 +445,7 @@ void UIObject::AdjustUIPositionForStageNum() {
         /// 栞オブジェクトのトランスフォーム
         ///
         objectUI_->SetWorldPosition({-9.0f, -10.0f, 0.0f});
-        objectUI_->SetRotation({-1.57f, 0.0f, 0.314f});
+        objectUI_->SetRotation({degreesToRadians(-86.699f), degreesToRadians(-27.5f), 0.314f});
         objectUI_->SetScale({2.5f, 2.5f, 2.5f});
 
         ///

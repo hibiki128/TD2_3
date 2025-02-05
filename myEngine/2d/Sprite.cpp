@@ -114,7 +114,8 @@ void Sprite::Draw(bool isBackMost)
 
 void Sprite::SetTexturePath(std::string textureFilePath)
 {
-	fullpath =  textureFilePath;
+    fullpath = textureFilePath;
+    TextureManager::GetInstance()->LoadTexture(textureFilePath);
 	TextureManager::GetInstance()->GetTextureIndexByFilePath(fullpath);
 
 }

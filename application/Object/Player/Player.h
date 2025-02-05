@@ -27,11 +27,11 @@ class Player : public BaseObject {
     void Init(const std::string className) override;
     void Update(MapChipField *mapChipField);
     void Draw(const ViewProjection &viewProjection) override;
-    void DrawSprite(const ViewProjection &viewProjection);
+    void DrawSprite(const ViewProjection &viewProjection,bool title=false);
     void DebugImGui() override;
     void Reset(bool title = false);
     void PlaySE();
-    void AnimaUpdate();
+    void BaseUpdate();
 
     // プレイヤーがゴールに到達しているか判定
     bool IsGoalReached();
@@ -126,6 +126,7 @@ class Player : public BaseObject {
     std::unique_ptr<Sprite> spritePlayerArea_;
     // ゴール接触時スプライト
     std::unique_ptr<Sprite> spriteGoalGuide_;
+    std::unique_ptr<Sprite> spriteGoalGuideTitle_;
 
     // プレイヤー反転範囲スプライトのサイズ
     float xSpritePlayerAreaSize_ = 0.0f;

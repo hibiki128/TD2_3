@@ -66,7 +66,7 @@ void TitleScene::Update() {
 
     // プレイヤー更新
     player_->Update(mapChipField_.get());
-    player_->AnimaUpdate();
+    player_->BaseUpdate();
     // マップチップフィールド更新
     mapChipField_->Update(player_->GetCenterPosition(), player_->GetInvertRangeX(), player_->GetInvertRangeY());
 
@@ -123,7 +123,7 @@ void TitleScene::Draw() {
     /// Spriteの描画準備
     spCommon_->DrawCommonSetting();
     //-----Spriteの描画開始-----
-    player_->DrawSprite(vp_);
+    player_->DrawSprite(vp_,true);
 
     //------------------------------
 

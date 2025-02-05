@@ -156,6 +156,7 @@ private:
 	// 全ての衝突判定とプレイヤーの押し戻し
 	void CheckCollisionAndResolve();
 
+	void AnimaUpdate();
 
 	// 衝突判定
 	/*void OnCollision([[maybe_unused]] Collider* other)override;*/

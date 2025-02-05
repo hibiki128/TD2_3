@@ -515,17 +515,17 @@ void UIObject::AdjustUIPositionForStageNum() {
         ///
         /// 本オブジェクトのトランスフォーム
         ///
-        objectBook_->SetWorldPosition({12.69f, -5.33f, 7.87f});
+        objectBook_->SetWorldPosition({17.19f, -9.43f, 7.87f});
         objectBook_->SetRotation({-1.57f, 0.0f, 0.0f});
-        objectBook_->SetScale({4.5f, 4.5f, 4.5f});
+        objectBook_->SetScale({5.0f, 4.5f, 4.5f});
 
         ///
         /// フィルターのトランスフォーム
         ///
 
-        filter_->SetWorldPosition({11.8f, -5.4f, -2.2f});
+        filter_->SetWorldPosition({16.3f, -9.6f, -2.2f});
         filter_->SetRotation({0.0f, 0.0f, 0.0f});
-        filter_->SetScale({15.8f, 11.2f, 1.0f});
+        filter_->SetScale({17.9f, 11.2f, 1.0f});
         break;
     case 13:
         ///

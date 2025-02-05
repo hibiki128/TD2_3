@@ -1,10 +1,10 @@
-#include <vector>
 #include "SceneTransition.h"
+#include "Easing.h"
+#include "SpriteCommon.h"
 #include "TextureManager.h"
 #include "algorithm"
-#include "SpriteCommon.h"
 #include "myEngine/Frame/Frame.h"
-#include"Easing.h"
+#include <vector>
 
 SceneTransition::SceneTransition() {}
 
@@ -12,11 +12,11 @@ SceneTransition::~SceneTransition() {}
 
 void SceneTransition::Initialize() {
     sprite_ = std::make_unique<Sprite>();
-    sprite_->Initialize("debug/white1x1.png", { 0, 0 }, { 0.0f, 0.0f, 0.0f, 1.0f });
+    sprite_->Initialize("debug/transition1x1.png", {0, 0}, {1.0f, 1.0f, 1.0f, 1.0f});
     sprite_->SetSize(Vector2(1280, 720)); // 画面全体を覆うサイズ
-    sprite_->SetAlpha(0.0f); // 最初は完全に透明
-    duration_ = 1.0f; // フェードの持続時間（例: 1秒）
-    counter_ = 0.0f; // 経過時間カウンターを初期化
+    sprite_->SetAlpha(0.0f);              // 最初は完全に透明
+    duration_ = 1.0f;                     // フェードの持続時間（例: 1秒）
+    counter_ = 0.0f;                      // 経過時間カウンターを初期化
     fadeInFinish = false;
     fadeOutFinish = false;
     fadeInStart = false;
@@ -24,10 +24,10 @@ void SceneTransition::Initialize() {
     isEnd = false;
 
     // transition_ 配列の初期化
-    int rows = 10;  // 縦方向のスプライト数
-    int cols = 17; // 横方向のスプライト数
-    float size = 0.0f; // 初期サイズを 0.0f に設定
-    Vector4 defaultColor = { 1.0f, 1.0f, 1.0f, 1.0f }; // スプライトの初期色
+    int rows = 10;                                   // 縦方向のスプライト数
+    int cols = 17;                                   // 横方向のスプライト数
+    float size = 0.0f;                               // 初期サイズを 0.0f に設定
+    Vector4 defaultColor = {1.0f, 1.0f, 1.0f, 1.0f}; // スプライトの初期色
 
     // 配列のサイズを設定
     transition_.resize(rows);
@@ -36,10 +36,10 @@ void SceneTransition::Initialize() {
     for (int row = 0; row < rows; ++row) {
         for (int col = 0; col < cols; ++col) {
             auto sprite = std::make_unique<Sprite>();
-            sprite->Initialize("debug/black1x1.png",
-                { col * 80.0f, row * 80.0f }, // 位置を設定
-                defaultColor,
-                { 0.5f, 0.5f }); // 中心をアンカーポイントに
+            sprite->Initialize("debug/transition1x1.png",
+                               {col * 80.0f, row * 80.0f}, // 位置を設定
+                               defaultColor,
+                               {0.5f, 0.5f});     // 中心をアンカーポイントに
             sprite->SetSize(Vector2(size, size)); // 初期サイズを 0 に設定
             transition_[row].emplace_back(std::move(sprite));
         }
@@ -52,11 +52,11 @@ void SceneTransition::Update() {
 
 void SceneTransition::Draw() {
     SpriteCommon::GetInstance()->DrawCommonSetting();
-   // sprite_->Draw();
+    // sprite_->Draw();
 
     // 各スプライトを描画
-    for (const auto& row : transition_) {
-        for (const auto& sprite : row) {
+    for (const auto &row : transition_) {
+        for (const auto &sprite : row) {
             sprite->Draw();
         }
     }
@@ -93,22 +93,22 @@ void SceneTransition::FadeUpdate() {
 void SceneTransition::FadeIn() {
     // DefaultFadeIn();
     ReverseFadeIn();
- 
+
     counter_ += 1.0f / 60.0f; // フレームレートを基にカウント（1フレームごとに0.0167秒進む）
     if (counter_ >= duration_) {
         counter_ = duration_; // 終了時間を超えないように制限
-        fadeInFinish = true; // フェードイン終了フラグを立てる
+        fadeInFinish = true;  // フェードイン終了フラグを立てる
     }
 }
 
 void SceneTransition::FadeOut() {
     // DefaultFadeOut();
     ReverseFadeOut();
- 
+
     // カウンターを減少（フレームレートに基づく）
     counter_ -= 1.0f / 60.0f;
     if (counter_ <= 0.0f) {
-        counter_ = 0.0f; // カウンターが負になるのを防ぐ
+        counter_ = 0.0f;      // カウンターが負になるのを防ぐ
         fadeOutFinish = true; // フェードアウト完了フラグを立てる
     }
 }
@@ -122,7 +122,7 @@ void SceneTransition::DefaultFadeIn() {
 void SceneTransition::DefaultFadeOut() {
     // アルファ値の計算（1.0fから0.0fに減少）
     float alpha = counter_ / duration_; // カウンターが減るほどアルファも減る
-    sprite_->SetAlpha(alpha); // アルファ値を設定
+    sprite_->SetAlpha(alpha);           // アルファ値を設定
 }
 
 void SceneTransition::ReverseFadeIn() {
@@ -141,12 +141,10 @@ void SceneTransition::ReverseFadeIn() {
                 float progress = localTime / duration_;
                 float newSize = EaseInSine<float>(0.0f, 80.0f, progress, 0.4f);
                 transition_[row][col]->SetSize(Vector2(newSize, newSize));
-            }
-            else if (localTime > duration_) {
+            } else if (localTime > duration_) {
                 // 最大サイズに到達したら固定
                 transition_[row][col]->SetSize(Vector2(80.0f, 80.0f));
-            }
-            else if (localTime < 0.0f) {
+            } else if (localTime < 0.0f) {
                 // 遅延待ち中は初期サイズを維持
                 transition_[row][col]->SetSize(Vector2(0.0f, 0.0f));
             }
@@ -172,12 +170,10 @@ void SceneTransition::ReverseFadeOut() {
                 float progress = localTime / duration_;
                 float newSize = EaseInSine<float>(0.0f, 80.0f, progress, 0.4f);
                 transition_[row][col]->SetSize(Vector2(newSize, newSize));
-            }
-            else if (localTime > duration_) {
+            } else if (localTime > duration_) {
                 // サイズが 0 に到達したら固定
                 transition_[row][col]->SetSize(Vector2(0.0f, 0.0f));
-            }
-            else if (localTime < 0.0f) {
+            } else if (localTime < 0.0f) {
                 // 遅延待ち中も0サイズを維持
                 transition_[row][col]->SetSize(Vector2(0.0f, 0.0f));
             }

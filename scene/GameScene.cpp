@@ -16,7 +16,9 @@ void GameScene::Initialize() {
     ptCommon_ = ParticleCommon::GetInstance();
     input_ = Input::GetInstance();
     vp_.Initialize();
-    vp_.translation_ = {12.0f, -6.5f, -30.0f};
+    
+    currentStageNum_ = GetStageNum(); // 選択ステージの格納
+    AdjustCameraPositionForStageNum(); // 選択したステージによってカメラの初期位置を変更
 
     debugCamera_ = std::make_unique<DebugCamera>();
     debugCamera_->Initialize(&vp_);
@@ -300,6 +302,78 @@ void GameScene::LoadFromJson() {
     if (j.contains("gravityAcceleration") && j["gravityAcceleration"].is_array()) {
         vp_.translation_ = {
             j["gravityAcceleration"][0], j["gravityAcceleration"][1], j["gravityAcceleration"][2]};
+    }
+}
+
+void GameScene::AdjustCameraPositionForStageNum() {
+    switch (currentStageNum_) {
+    case -1:
+        /*これがデフォルト値*/
+        vp_.translation_ = {8.0f, -5.5f, -33.0f};
+
+        break;
+    case 1:
+        vp_.translation_ = {8.0f, -5.5f, -33.0f};
+
+        break;
+    case 2:
+        vp_.translation_ = {8.0f, -5.5f, -33.0f};
+
+        break;
+    case 3:
+        vp_.translation_ = {8.0f, -5.5f, -33.0f};
+
+        break;
+    case 4:
+        vp_.translation_ = {8.0f, -5.5f, -33.0f};
+
+        break;
+    case 5:
+        vp_.translation_ = {8.0f, -5.5f, -33.0f};
+
+        break;
+    case 6:
+        vp_.translation_ = {8.0f, -5.5f, -33.0f};
+
+        break;
+    case 7:
+        vp_.translation_ = {8.0f, -5.5f, -33.0f};
+
+        break;
+    case 8:
+        vp_.translation_ = {8.0f, -5.5f, -33.0f};
+
+        break;
+    case 9:
+        vp_.translation_ = {8.0f, -5.5f, -33.0f};
+
+        break;
+    case 10:
+        vp_.translation_ = {8.0f, -5.5f, -33.0f};
+
+        break;
+    case 11:
+        vp_.translation_ = {8.0f, -5.5f, -33.0f};
+
+        break;
+    case 12:
+        vp_.translation_ = {8.0f, -5.5f, -33.0f};
+
+        break;
+    case 13:
+        vp_.translation_ = {8.0f, -5.5f, -33.0f};
+
+        break;
+    case 14:
+        vp_.translation_ = {8.0f, -5.5f, -33.0f};
+
+        break;
+    case 15:
+        vp_.translation_ = {8.0f, -5.5f, -33.0f};
+
+        break;
+    default:
+        break;
     }
 }
 

@@ -38,6 +38,7 @@ void GameScene::Initialize() {
     player_ = std::make_unique<Player>();
     player_->Init("player");
     player_->SetInitialPosition(mapChipField_->GetPlayerInitialPosition()); // csvから読み込んだ初期位置を設定
+    player_->SetCurrentStageNum(GetStageNum()); // プレイヤーに対して選択したステージ番号をセット
     // UIオブジェクト
     uiObject_ = std::make_unique<UIObject>();
     uiObject_->Init();

@@ -30,8 +30,8 @@ void Player::Init(const std::string className) {
     gravityAcceleration_ = -0.01f; // 重力
     jumpAcceleration_ = 0.3f;      // ジャンプ初速
 
-    xInvertRange_ = 3;
-    yInvertRange_ = 3;
+    /*xInvertRange_ = 3;
+    yInvertRange_ = 3;*/
 
     goalGuideAlpha_ = 0.0f;
 
@@ -56,9 +56,15 @@ void Player::Init(const std::string className) {
     walkSE_ = Audio::GetInstance()->LoadWave("player/playerWalk.wav");
     gravitySE_ = Audio::GetInstance()->LoadWave("action/inversionGravity.wav");
     inversionSE_ = Audio::GetInstance()->LoadWave("action/inversion.wav");
+
+    // 選択されたステージによって反転枠の大きさを変更する
+    /*ChangeInvertRangeSizeForStageNum();*/
 }
 
 void Player::Update(MapChipField *mapChipField) {
+    // 現在のステージ数によって反転範囲のサイズを変更する
+    ChangeInvertRangeSizeForStageNum();
+
     // 各種瞬間判定フラグをリセット
     isCollectCoinOccurred_ = false; // なぜか下に記述するとずっとfalseになってしまうのでここに記述
 
@@ -213,6 +219,8 @@ void Player::Update(MapChipField *mapChipField) {
             ImGui::Text("現在の取得コイン数 : %d", currentCoinCount_);
 
             ImGui::DragFloat3("最後に取得したコインの座標", &lastCollectedCoinPosition_.x);
+
+            ImGui::Text("現在のステージ : %d", currentStageNum_);
 
             ImGui::EndTabItem();
         }
@@ -1051,6 +1059,77 @@ void Player::InvertAreaSpriteAdjust() {
     spritePlayerArea_->SetSize(spriteSize);
 }
 
+void Player::ChangeInvertRangeSizeForStageNum() {
+    switch (currentStageNum_) {
+    case -1:
+        xInvertRange_ = 3;
+        yInvertRange_ = 3;
+        break;
+    case 1:
+        xInvertRange_ = 3;
+        yInvertRange_ = 3;
+        break;
+    case 2:
+        xInvertRange_ = 3;
+        yInvertRange_ = 3;
+        break;
+    case 3:
+        xInvertRange_ = 3;
+        yInvertRange_ = 3;
+        break;
+    case 4:
+        xInvertRange_ = 3;
+        yInvertRange_ = 3;
+        break;
+    case 5:
+        xInvertRange_ = 3;
+        yInvertRange_ = 3;
+        break;
+    case 6:
+        xInvertRange_ = 3;
+        yInvertRange_ = 3;
+        break;
+    case 7:
+        xInvertRange_ = 3;
+        yInvertRange_ = 3;
+        break;
+    case 8:
+        xInvertRange_ = 3;
+        yInvertRange_ = 3;
+        break;
+    case 9:
+        xInvertRange_ = 3;
+        yInvertRange_ = 3;
+        break;
+    case 10:
+        xInvertRange_ = 3;
+        yInvertRange_ = 3;
+        break;
+    case 11:
+        xInvertRange_ = 3;
+        yInvertRange_ = 3;
+        break;
+    case 12:
+        xInvertRange_ = 3;
+        yInvertRange_ = 3;
+        break;
+    case 13:
+        xInvertRange_ = 3;
+        yInvertRange_ = 3;
+        break;
+    case 14:
+        xInvertRange_ = 3;
+        yInvertRange_ = 3;
+        break;
+    case 15:
+        xInvertRange_ = 3;
+        yInvertRange_ = 3;
+        break;
+    default:
+        break;
+    }
+}
+
 Player::CollisionMapInfo Player::GetMapCollisionInfo() {
     CollisionMapInfo info;
 
@@ -1166,8 +1245,8 @@ void Player::SaveToJson() {
     j["gravityAcceleration"] = {gravityAcceleration_};
     j["jumpAcceleration"] = {jumpAcceleration_};
 
-    j["xInvertRange"] = {xInvertRange_};
-    j["yInvertRange"] = {yInvertRange_};
+    /*j["xInvertRange"] = {xInvertRange_};
+    j["yInvertRange"] = {yInvertRange_};*/
 
     // ディレクトリを作成し、JSONファイルを保存
     std::filesystem::create_directories("resources/jsons/Parameters/");
@@ -1192,10 +1271,10 @@ void Player::LoadFromJson() {
         jumpAcceleration_ = j["jumpAcceleration"][0];
     }
 
-    if (j.contains("xInvertRange") && j["xInvertRange"].is_array()) {
+    /*if (j.contains("xInvertRange") && j["xInvertRange"].is_array()) {
         xInvertRange_ = j["xInvertRange"][0];
     }
     if (j.contains("yInvertRange") && j["yInvertRange"].is_array()) {
         yInvertRange_ = j["yInvertRange"][0];
-    }
+    }*/
 }

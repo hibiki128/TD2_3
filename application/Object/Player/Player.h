@@ -53,6 +53,9 @@ public:
 	int GetInvertRangeX() { return xInvertRange_; }
 	int GetInvertRangeY() { return yInvertRange_; }
 
+	// 現在のステージ数をセット
+    void SetCurrentStageNum(int stageNum) { currentStageNum_ = stageNum; }
+
 private:
 	const float kDeltaTime = 1.0f / 60.0f;
 
@@ -139,6 +142,10 @@ private:
     const float kScaleDuration = 0.5f; // アニメーションにかける時間
     bool isChangedColor_ = true;
     void UpdateScalingAnimation();
+
+	// 現在選択されたステージ
+    int currentStageNum_ = -1;
+    void ChangeInvertRangeSizeForStageNum(); // 選択されたステージによって反転枠の大きさを変更する
 
 	// 音関連
 	uint32_t jumpSE_;

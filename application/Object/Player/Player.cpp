@@ -149,10 +149,12 @@ void Player::Update(MapChipField *mapChipField, bool title) {
     ///
 
     if (!isInverting_) {                         // ブロック反転中には重力を加算しない
-        if (isGravityReversed_) {                // 重力反転中
-            velocity_.y -= gravityAcceleration_; // 上向きに重力をかける (逆)
-        } else {                                 // 通常重力
-            velocity_.y += gravityAcceleration_; // 下向きに重力をかける（順）
+        if (!mapChipField_->IsAnyChipAnimating()) { // アニメーション中のブロックが1つでもあれば重力を加算しない
+            if (isGravityReversed_) {                // 重力反転中
+                velocity_.y -= gravityAcceleration_; // 上向きに重力をかける (逆)
+            } else {                                 // 通常重力
+                velocity_.y += gravityAcceleration_; // 下向きに重力をかける（順）
+            }
         }
     }
 
@@ -235,6 +237,9 @@ void Player::Update(MapChipField *mapChipField, bool title) {
             ImGui::DragFloat3("最後に取得したコインの座標", &lastCollectedCoinPosition_.x);
 
             /*ImGui::Text("現在のステージ : %d", currentStageNum_);*/
+
+            bool aiueoFlag = mapChipField_->IsAnyChipAnimating();
+            ImGui::Checkbox("アニメーション中のブロックが1つでもあるかどうか", &aiueoFlag);
 
             ImGui::EndTabItem();
         }

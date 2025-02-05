@@ -132,6 +132,7 @@ void Object3d::DrawSkeleton(const WorldTransform &worldTransform, const ViewProj
 
 void Object3d::SetModel(const std::string &filePath) {
     // モデルを検索してセットする
+    ModelManager::GetInstance()->LoadModel(filePath);
     model = ModelManager::GetInstance()->FindModel(filePath);
 
     materialData->textureFilePath = model->GetModelData().material.textureFilePath;

@@ -29,7 +29,7 @@ class Player : public BaseObject {
     void Draw(const ViewProjection &viewProjection) override;
     void DrawSprite(const ViewProjection &viewProjection);
     void DebugImGui() override;
-    void Reset();
+    void Reset(bool title = false);
     void PlaySE();
     void AnimaUpdate();
 
@@ -148,6 +148,8 @@ class Player : public BaseObject {
     void HandleInput();
     // 全ての衝突判定とプレイヤーの押し戻し
     void CheckCollisionAndResolve();
+
+    void AnimaUpdate();
 
     // 衝突判定
     /*void OnCollision([[maybe_unused]] Collider* other)override;*/

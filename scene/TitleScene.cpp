@@ -42,6 +42,8 @@ void TitleScene::Initialize() {
 
     BGM_ = audio_->LoadWave("title/titleBgm.wav");
     audio_->PlayWave(BGM_, 0.2f, true);
+    
+    mapChipField_->SetGoalModel();
 
     ///
     ///	スプライト生成
@@ -68,7 +70,7 @@ void TitleScene::Update() {
     // マップチップフィールド更新
     mapChipField_->Update(player_->GetCenterPosition(), player_->GetInvertRangeX(), player_->GetInvertRangeY());
 
-    player_->Reset();
+    player_->Reset(true);
     player_->PlaySE();
     mapChipField_->PlaySE();
 

@@ -508,9 +508,9 @@ void UIObject::AdjustUIPositionForStageNum() {
         ///
         /// 栞オブジェクトのトランスフォーム
         ///
-        objectUI_->SetWorldPosition({-9.0f, -10.0f, 0.0f});
+        objectUI_->SetWorldPosition({-4.1f, -14.2f, -3.5f});
         objectUI_->SetRotation({degreesToRadians(-86.699f), degreesToRadians(-27.5f), 0.314f});
-        objectUI_->SetScale({2.5f, 2.5f, 2.5f});
+        objectUI_->SetScale({2.0f, 2.0f, 2.0f});
 
         ///
         /// 本オブジェクトのトランスフォーム

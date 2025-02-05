@@ -292,7 +292,7 @@ void GameScene::ChangeScene() {
         sceneManager_->NextSceneReservation("SELECT");
         sceneManager_->SetCoinNum(0);
     }
-    if (player_->GetGoalAnimaFinish()) {
+    if (clearCamera_->GetFinish() && player_->GetGoalAnimaFinish()) {
         if (!clearParticle_) {
             goalEmitter_->SetPosition({
                 player_->GetCenterPosition().x,
@@ -302,8 +302,6 @@ void GameScene::ChangeScene() {
             goalEmitter_->UpdateOnce();
         }
         clearParticle_ = true;
-    }
-    if (clearCamera_->GetFinish() && player_->GetGoalAnimaFinish()) {
         sceneManager_->SetCoinNum(player_->GetCurrentCoinCount());
         sceneManager_->NextSceneReservation("CLEAR");
     }

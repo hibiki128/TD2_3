@@ -247,12 +247,34 @@ void ClearScene::StageDataForJson() {
     std::string fileName = filePath.substr(found + 1);
     std::string stageNumber = fileName.substr(5, fileName.find_last_of(".") - 5);
 
+    // JSONファイルのパス
+    std::string stageDataFolderPath = "resources/jsons/StageData/";
+    std::string jsonFileName = stageDataFolderPath + "stage" + stageNumber + ".json";
+
+    // 既存のCoinNumを取得
+    int existingCoinNum = 0;
+    if (std::filesystem::exists(jsonFileName)) {
+        std::ifstream existingJsonFile(jsonFileName);
+        if (existingJsonFile.is_open()) {
+            nlohmann::json existingJson;
+            existingJsonFile >> existingJson;
+            existingJsonFile.close();
+
+            // 既存データに "CoinNum" が存在すれば取得
+            if (existingJson.contains("CoinNum")) {
+                existingCoinNum = existingJson["CoinNum"];
+            }
+        }
+    }
+
+    // 現在のcoinNum_が既存の値より少なければ保存しない
+    if (coinNum_ <= existingCoinNum) {
+        return;
+    }
+
     // JSONオブジェクトを作成
     nlohmann::json jsonData = {
         {"CoinNum", coinNum_}};
-
-    // StageDataフォルダのパス
-    std::string stageDataFolderPath = "resources/jsons/StageData/";
 
     // フォルダが存在しない場合は作成
     if (!std::filesystem::exists(stageDataFolderPath)) {
@@ -260,7 +282,6 @@ void ClearScene::StageDataForJson() {
     }
 
     // JSONファイルの保存
-    std::string jsonFileName = stageDataFolderPath + "stage" + stageNumber + ".json";
     std::ofstream jsonFile(jsonFileName);
     if (jsonFile.is_open()) {
         jsonFile << jsonData.dump(4); // 4はインデントのスペース数

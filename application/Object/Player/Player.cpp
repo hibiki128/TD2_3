@@ -141,7 +141,7 @@ void Player::Update(MapChipField *mapChipField, bool title) {
 
     HandleInput();
 
-    AnimaUpdate();
+    AnimaUpdate(title);
 
     RunParitcle();
 
@@ -704,7 +704,7 @@ void Player::HandleInput() {
     ///
     ///	左右移動入力
     ///
-    if (!isInverting_) { // ブロック反転中には移動できない
+    if (!isInverting_) {                            // ブロック反転中には移動できない
         if (!mapChipField_->IsAnyChipAnimating()) { // ブロックが1つでもアニメーションしていたら左右移動できないように
             if (input_->PushKey(DIK_A)) {
                 velocity_.x = -kMoveSpeed;
@@ -989,7 +989,7 @@ void Player::BaseUpdate() {
     BaseObject::Update();
 }
 
-void Player::AnimaUpdate() {
+void Player::AnimaUpdate(bool title) {
     if (!IsGoalReached()) {
         if (velocity_.y == 0) {
             if (velocity_.x == 0) {
@@ -1019,9 +1019,11 @@ void Player::AnimaUpdate() {
             }
         }
     } else {
-        BaseObject::SetLoop(false);
-        BaseObject::SetAnima("animation/playerGoal.gltf");
-        BaseObject::SetRotationY(degreesToRadians(90.0f));
+        if (!title) {
+            BaseObject::SetLoop(false);
+            BaseObject::SetAnima("animation/playerGoal.gltf");
+            BaseObject::SetRotationY(degreesToRadians(90.0f));
+        }
     }
 }
 
@@ -1099,8 +1101,8 @@ void Player::CheckCollisionAndResolve(bool title) {
     }
 
     /// Y移動
-    if (!isInverting_) { // ブロック反転中には移動しない
-        if (!mapChipField_->IsAnyChipAnimating()){ // ブロックがどれか1つでもアニメーションしていたら移動しない
+    if (!isInverting_) {                            // ブロック反転中には移動しない
+        if (!mapChipField_->IsAnyChipAnimating()) { // ブロックがどれか1つでもアニメーションしていたら移動しない
             BaseObject::transform_.translation_.y += velocity_.y;
         }
     }

@@ -1,90 +1,88 @@
 #pragma once
 #include "Audio.h"
-#include"BaseScene.h"
+#include "BaseScene.h"
+#include "DebugCamera.h"
 #include "Input.h"
-#include"Object3dCommon.h"
+#include "Object3dCommon.h"
+#include "ParticleCommon.h"
 #include "SpriteCommon.h"
-#include"ParticleCommon.h"
-#include"DebugCamera.h"
-#include"application/Scene/SelectScene/MapPrev.h"
-#include"application/Scene/SelectScene/SelectUI.h"
+#include "application/Scene/SelectScene/MapPrev.h"
+#include "application/Scene/SelectScene/SelectUI.h"
 
-class SelectScene :public BaseScene
-{
-public: // メンバ関数
+class SelectScene : public BaseScene {
+  public: // メンバ関数
+    /// <summary>
+    /// 初期化
+    /// </summary>
+    void Initialize() override;
 
-	/// <summary>
-	/// 初期化
-	/// </summary>
-	void Initialize()override;
+    /// <summary>
+    /// 終了
+    /// </summary>
+    void Finalize() override;
 
-	/// <summary>
-	/// 終了
-	/// </summary>
-	void Finalize()override;
+    /// <summary>
+    /// 更新
+    /// </summary>
+    void Update() override;
 
-	/// <summary>
-	/// 更新
-	/// </summary>
-	void Update()override;
+    /// <summary>
+    /// 描画
+    /// </summary>
+    void Draw() override;
 
-	/// <summary>
-	/// 描画
-	/// </summary>
-	void Draw()override;
+    /// <summary>
+    /// オフスクリーン上に描画
+    /// </summary>
+    void DrawForOffScreen() override;
 
-	/// <summary>
-	/// オフスクリーン上に描画
-	/// </summary>
-	void DrawForOffScreen()override;
+    ViewProjection *GetViewProjection() override { return &vp_; }
 
-	ViewProjection* GetViewProjection()override { return &vp_; }
+  private:
+    void Debug();
 
-private:
-	void Debug();
+    void CameraUpdate();
 
-	void CameraUpdate();
+    void ChangeScene();
 
-	void ChangeScene();
+    void MapLoad();
 
-	void MapLoad();
+    void MapSelect();
 
-	void MapSelect();
+    void CameraMove();
 
-	void CameraMove();
+    void SetStage();
 
-	void SetStage();
+  private:
+    Audio *audio_;
+    Input *input_;
+    Object3dCommon *objCommon_;
+    SpriteCommon *spCommon_;
+    ParticleCommon *ptCommon_;
 
-private:
-	Audio* audio_;
-	Input* input_;
-	Object3dCommon* objCommon_;
-	SpriteCommon* spCommon_;
-	ParticleCommon* ptCommon_;
+    ViewProjection vp_;
+    std::unique_ptr<DebugCamera> debugCamera_;
 
-	ViewProjection vp_;
-	std::unique_ptr<DebugCamera> debugCamera_;
+    // マップチップフィールド
+    std::vector<std::unique_ptr<MapPrev>> mapPrevs_;
+    std::unique_ptr<SelectUI> selectUI_;
 
-	// マップチップフィールド
-	std::vector<std::unique_ptr<MapPrev>> mapPrevs_;
-	std::unique_ptr<SelectUI> selectUI_;
+    int stageNum = 15;
+    int currentStage = 0;
+    float cameraT_ = 0.0f;
+    bool isMoveCamera_ = false;
+    float startPos = 0.0f;
+    float endPos = 0.0f;
 
-	int stageNum = 15;
-	int currentStage = 0;
-	float cameraT_ = 0.0f;
-	bool isMoveCamera_ = false;
-	float startPos = 0.0f;
-	float endPos = 0.0f;
+    // 音関連
+    uint32_t BGM_;
+    uint32_t selectSE_;
+    uint32_t desitionSE_;
 
-	// 音関連
-	uint32_t BGM_;
-	uint32_t selectSE_;
-	uint32_t desitionSE_;
+    std::string filePath;
+    bool BackGameScene_ = false;
+    bool anyDecisionMade = false;
 
-	std::string filePath;
-	bool BackGameScene_ = false;
-
-	// 背景
+    // 背景
     std::unique_ptr<Sprite> spriteBackGround_;
-
 };

@@ -178,7 +178,7 @@ class Player : public BaseObject {
     // 全ての衝突判定とプレイヤーの押し戻し
     void CheckCollisionAndResolve(bool title = false);
 
-    void AnimaUpdate();
+    void AnimaUpdate(bool title);
 
     void InversMove(); // 反転時の回転処理
 

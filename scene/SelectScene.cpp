@@ -174,12 +174,12 @@ void SelectScene::ChangeScene() {
             sceneManager_->NextSceneReservation("GAME");
         }
     }
-    if (input_->TriggerKey(DIK_ESCAPE)) {
+    if (input_->TriggerKey(DIK_ESCAPE) && !anyDecisionMade) {
         sceneManager_->NextSceneReservation("TITLE");
     }
     XINPUT_STATE joyState;
     if (input_->GetJoystickState(0, joyState)) {
-        if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_B) {
+        if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_B && !anyDecisionMade) {
             sceneManager_->NextSceneReservation("TITLE");
         }
     }
@@ -220,7 +220,7 @@ void SelectScene::MapLoad() {
 
 void SelectScene::MapSelect() {
     // いずれかの mapPrevs_ の GetDecision() が true かを確認
-    bool anyDecisionMade = false;
+    anyDecisionMade = false;
     for (const auto &mapPrev : mapPrevs_) {
         if (mapPrev->GetDecision()) {
             anyDecisionMade = true;
@@ -248,7 +248,7 @@ void SelectScene::MapSelect() {
             audio_->PlayWave(selectSE_, 0.2f);
         }
 
-   // ゲームパッドの左スティック入力、十字ボタン、RB/LBによるステージ変更
+        // ゲームパッドの左スティック入力、十字ボタン、RB/LBによるステージ変更
         XINPUT_STATE joyState;
         if (input_->GetJoystickState(0, joyState)) {
             float stickX = joyState.Gamepad.sThumbLX;

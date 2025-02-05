@@ -110,6 +110,9 @@ class MapChipField {
     // プレイヤーの色状態を確認してセットする
     void SetIsPlayerWhite(bool flag) { isPlayerWhite_ = flag; }
 
+    // 1つでもアニメーション中のブロックがあるかどうかを探索
+    bool IsAnyChipAnimating() const;
+
   private:
     // マップチップの二次元配列
     std::vector<std::vector<MapChip>> mapChips_;

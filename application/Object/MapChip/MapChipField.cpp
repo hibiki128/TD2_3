@@ -823,3 +823,14 @@ bool MapChipField::HasColorChangeBlockInArea(const Vector3& center, int xRange, 
 
 	return false;
 }
+
+bool MapChipField::IsAnyChipAnimating() const {
+    for (const auto& row : mapChips_) {
+        for (const auto &chip : row) {
+            if (chip.isAnimating) {
+                return true;
+			}
+		}
+	}
+    return false;
+}

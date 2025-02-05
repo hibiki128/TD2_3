@@ -22,8 +22,9 @@ void DemoScene::Initialize() {
     debugCamera_->Initialize(&vp_);
 
     emitter_ = std::make_unique<ParticleEmitter>();
-    emitter_->Initialize("ChangePlayer", "debug/plane.obj");
-    emitter_->SetTexture("game/ChangeBlack.png");
+    emitter_->Initialize("goalplayer", "debug/cube.obj");
+    emitter_->SetTexture("debug/white1x1.png");
+    emitter_->SetColor({1.0f, 1.0f, 0.0f, 1.0f});
 }
 
 void DemoScene::Finalize() {

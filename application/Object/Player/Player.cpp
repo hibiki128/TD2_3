@@ -59,6 +59,7 @@ void Player::Init(const std::string className, int currentStageNum) {
     walkSE_ = Audio::GetInstance()->LoadWave("player/playerWalk.wav");
     gravitySE_ = Audio::GetInstance()->LoadWave("action/inversionGravity.wav");
     inversionSE_ = Audio::GetInstance()->LoadWave("action/inversion.wav");
+    invertDisabledSE_ = Audio::GetInstance()->LoadWave("action/noInversion.wav");
 
     // 現在のステージ数をセット
     currentStageNum_ = currentStageNum;
@@ -487,12 +488,12 @@ void Player::UpdateScalingAnimation() {
             scaleTimer_ = kScaleDuration;
             if (colorState_ == ColorState::Black) {
                 changeEmitter_->SetTexture("game/changeBlack.png");
-                changeEmitter_->SetPosition({GetCenterPosition().x, GetCenterPosition().y, GetCenterPosition().z - 2.3f});
+                changeEmitter_->SetPosition({GetCenterPosition().x, GetCenterPosition().y, GetCenterPosition().z});
                 changeEmitter_->UpdateOnce();
             }
             if (colorState_ == ColorState::White) {
                 changeEmitter_->SetTexture("game/changeWhite.png");
-                changeEmitter_->SetPosition({GetCenterPosition().x, GetCenterPosition().y, GetCenterPosition().z - 2.3f});
+                changeEmitter_->SetPosition({GetCenterPosition().x, GetCenterPosition().y, GetCenterPosition().z});
                 changeEmitter_->UpdateOnce();
             }
             isScaling_ = false;
@@ -974,6 +975,9 @@ void Player::PlaySE() {
     if (IsGravityReversedOccurred()) {
         audio->PlayWave(gravitySE_, 0.1f);
     }
+    if (IsInvertDisabled()) {
+        audio->PlayWave(invertDisabledSE_, 0.1f);
+    }
 }
 
 void Player::BaseUpdate() {
@@ -1053,7 +1057,7 @@ void Player::InversMove() {
 void Player::CoinParticle() {
 
     if (IsCollectCoinOccurred()) {
-        coinEmitter_->SetPosition({GetLastCollectedCoinPosition().x, GetLastCollectedCoinPosition().y, GetLastCollectedCoinPosition().z - 3.0f});
+        coinEmitter_->SetPosition({GetLastCollectedCoinPosition().x, GetLastCollectedCoinPosition().y, GetLastCollectedCoinPosition().z});
         coinEmitter_->UpdateOnce();
         Audio::GetInstance()->PlayWave(coinGetSE_, 0.1f);
     }
@@ -1061,7 +1065,7 @@ void Player::CoinParticle() {
 
 void Player::RunParitcle() {
     if (isWalking_ && collisionMapInfo_.hittingGround_) {
-        runEmitter_->SetPosition({GetCenterPosition().x, GetCenterPosition().y - 0.3f, GetCenterPosition().z - 2.3f});
+        runEmitter_->SetPosition({GetCenterPosition().x, GetCenterPosition().y - 0.3f, GetCenterPosition().z});
         // runEmitter_->SetPositionY(GetCenterPosition().y - 0.8f);
         if (velocity_.x > 0) {
             runEmitter_->SetRotateY(degreesToRadians(0.0f));

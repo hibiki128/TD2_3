@@ -12,6 +12,7 @@ public:
 	void Init(int currentStageNum);
 	void Update();
 	void Draw(const ViewProjection& viewProjection);
+	void DrawFilter(const ViewProjection& viewProjection);
 	void DrawSprite();
 	void DebugImGui();
 

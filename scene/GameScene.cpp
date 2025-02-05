@@ -16,17 +16,17 @@ void GameScene::Initialize() {
     ptCommon_ = ParticleCommon::GetInstance();
     input_ = Input::GetInstance();
     vp_.Initialize();
-    
-    currentStageNum_ = GetStageNum(); // 選択ステージの格納
+
+    currentStageNum_ = GetStageNum();  // 選択ステージの格納
     AdjustCameraPositionForStageNum(); // 選択したステージによってカメラの初期位置を変更
 
     debugCamera_ = std::make_unique<DebugCamera>();
     debugCamera_->Initialize(&vp_);
 
     filePath_ = sceneManager_->GetFilePath();
-//#ifdef _DEBUG
-//    filePath_ = "resources/Maps/stage1.csv";
-//#endif // DEBUG
+    // #ifdef _DEBUG
+    //     filePath_ = "resources/Maps/stage1.csv";
+    // #endif // DEBUG
 
     ///
     ///	各オブジェクト初期化
@@ -38,7 +38,7 @@ void GameScene::Initialize() {
 
     // プレイヤー（マップチップフィールドから初期位置を取得するので後）
     player_ = std::make_unique<Player>();
-    player_->Init("player", GetStageNum()); // 初期化時に現在のステージ数をセット
+    player_->Init("player", GetStageNum());                                 // 初期化時に現在のステージ数をセット
     player_->SetInitialPosition(mapChipField_->GetPlayerInitialPosition()); // csvから読み込んだ初期位置を設定
     // UIオブジェクト
     uiObject_ = std::make_unique<UIObject>();
@@ -69,10 +69,13 @@ void GameScene::Initialize() {
     pause_->Init();
     pause_->SetPlayer(player_.get());
 
-    
     leaf_ = std::make_unique<ParticleEmitter>();
     leaf_->Initialize("leaf", "game/leaf.obj");
 
+    goalEmitter_ = std::make_unique<ParticleEmitter>();
+    goalEmitter_->Initialize("goalplayer", "debug/cube.obj");
+    goalEmitter_->SetTexture("debug/white1x1.png");
+    goalEmitter_->SetColor({1.0f, 1.0f, 0.0f, 1.0f});
 }
 
 void GameScene::Update() {
@@ -170,7 +173,11 @@ void GameScene::Draw() {
     leaf_->Draw(vp_);
     player_->DrawParticle(vp_);
     ptCommon_->SetBlendMode(BlendMode::kAdd);
+    goalEmitter_->Draw(vp_);
     //-----------------------------
+
+    objCommon_->DrawCommonSetting();
+    uiObject_->DrawFilter(vp_);
 
     /// Spriteの描画準備
     spCommon_->DrawCommonSetting();
@@ -284,7 +291,18 @@ void GameScene::ChangeScene() {
         sceneManager_->NextSceneReservation("SELECT");
         sceneManager_->SetCoinNum(0);
     }
-    if (clearCamera_->GetFinish()&&player_->GetGoalAnimaFinish()) {
+    if (player_->GetGoalAnimaFinish()) {
+        if (!clearParticle_) {
+            goalEmitter_->SetPosition({
+                player_->GetCenterPosition().x,
+                player_->GetCenterPosition().y + 1.0f,
+                player_->GetCenterPosition().z,
+            });
+            goalEmitter_->UpdateOnce();
+        }
+        clearParticle_ = true;
+    }
+    if (clearCamera_->GetFinish() && player_->GetGoalAnimaFinish()) {
         sceneManager_->SetCoinNum(player_->GetCurrentCoinCount());
         sceneManager_->NextSceneReservation("CLEAR");
     }
@@ -361,7 +379,7 @@ void GameScene::AdjustCameraPositionForStageNum() {
         vp_.translation_ = {11.7f, -10.5f, -33.0f};
 
         break;
-    case 10:// ここから
+    case 10: // ここから
         vp_.translation_ = {8.0f, -5.5f, -33.0f};
 
         break;
@@ -405,9 +423,9 @@ int GameScene::GetStageNum() {
         }
     }
 
-//#ifdef _DEBUG
-//    stageNumber = 1;
-//#endif // _DEBUG
+    // #ifdef _DEBUG
+    //     stageNumber = 1;
+    // #endif // _DEBUG
 
     return stageNumber;
 }

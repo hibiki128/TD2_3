@@ -89,6 +89,10 @@ void UIObject::Draw(const ViewProjection &viewProjection) {
     objectL_->Draw(viewProjection);
     objectA_->Draw(viewProjection);
     objectR_->Draw(viewProjection);
+}
+
+void UIObject::DrawFilter(const ViewProjection &viewProjection) {
+
     filter_->Draw(viewProjection);
 }
 
@@ -245,7 +249,6 @@ void UIObject::AdjustUIPositionForStageNum() {
         filter_->SetWorldPosition({11.8f, -5.4f, -2.2f});
         filter_->SetRotation({0.0f, 0.0f, 0.0f});
         filter_->SetScale({15.8f, 11.2f, 1.0f});
-
 
         break;
     case 1:

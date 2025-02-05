@@ -8,7 +8,7 @@
 #include "myEngine/3d/line/DrawLine3D.h"
 #include <myEngine/Frame/Frame.h>
 
-void Player::Init(const std::string className) {
+void Player::Init(const std::string className, int currentStageNum) {
     // ゴールガイドスプライト生成
     spriteGoalGuide_ = std::make_unique<Sprite>();
     spriteGoalGuide_->Initialize("game/goalGuide.png", {0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.5f, 0.5f});
@@ -1242,7 +1242,7 @@ void Player::ChangeInvertRangeSizeForStageNum() {
     }
 }
 
-Player::CollisionMapInfo Player::GetMapCollisionInfo() {
+Player::CollisionMapInfo Player::GetMapCollisionInfo(bool title) {
     CollisionMapInfo info;
 
     // ずらす分（新しい高さと元の高さの差の半分）

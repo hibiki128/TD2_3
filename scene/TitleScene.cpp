@@ -117,7 +117,9 @@ void TitleScene::Draw() {
     ptCommon_->DrawCommonSetting();
     //------Particleの描画開始-------
     mapChipField_->DrawParticle(vp_);
-
+    ptCommon_->SetBlendMode(BlendMode::kNormal);
+    player_->DrawParticle(vp_);
+    ptCommon_->SetBlendMode(BlendMode::kAdd);
     //-----------------------------
 
     /// Spriteの描画準備

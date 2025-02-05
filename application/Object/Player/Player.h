@@ -27,6 +27,7 @@ class Player : public BaseObject {
     void Init(const std::string className) override;
     void Update(MapChipField *mapChipField, bool title = false);
     void Draw(const ViewProjection &viewProjection, Vector3 offSet = {0.0f, 0.0f, 0.0f}) override;
+    void DrawParticle(const ViewProjection &viewProjection);
     void DrawSprite(const ViewProjection &viewProjection, bool title = false);
     void DebugImGui() override;
     void Reset(bool title = false);
@@ -133,7 +134,7 @@ class Player : public BaseObject {
     std::unique_ptr<Sprite> spriteGoalGuide_;
     std::unique_ptr<Sprite> spriteGoalGuideTitle_;
     // パーティクル
-
+    std::unique_ptr<ParticleEmitter> coinEmitter_;
     
 
     // プレイヤー反転範囲スプライトのサイズ

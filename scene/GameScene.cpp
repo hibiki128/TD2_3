@@ -166,6 +166,7 @@ void GameScene::Draw() {
     mapChipField_->DrawParticle(vp_);
     ptCommon_->SetBlendMode(BlendMode::kNormal);
     leaf_->Draw(vp_);
+    player_->DrawParticle(vp_);
     ptCommon_->SetBlendMode(BlendMode::kAdd);
     //-----------------------------
 

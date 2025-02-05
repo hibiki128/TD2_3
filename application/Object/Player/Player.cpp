@@ -59,6 +59,10 @@ void Player::Init(const std::string className) {
     walkSE_ = Audio::GetInstance()->LoadWave("player/playerWalk.wav");
     gravitySE_ = Audio::GetInstance()->LoadWave("action/inversionGravity.wav");
     inversionSE_ = Audio::GetInstance()->LoadWave("action/inversion.wav");
+
+    coinEmitter_ = std::make_unique<ParticleEmitter>();
+    coinEmitter_->Initialize("coin", "debug/plane.obj");
+    coinEmitter_->SetTexture("game/coinGet.png");
 }
 
 void Player::Update(MapChipField *mapChipField, bool title) {
@@ -230,6 +234,11 @@ void Player::Draw(const ViewProjection &viewProjection, Vector3 offSet) {
 
     // 反転可能範囲を描画
     /*DrawInvertArea();*/
+}
+
+void Player::DrawParticle(const ViewProjection &viewProjection) {
+    CoinParticle();
+    coinEmitter_->Draw(viewProjection);
 }
 
 void Player::DrawSprite(const ViewProjection &viewProjection, bool title) {
@@ -990,9 +999,9 @@ void Player::InversMove() {
 void Player::CoinParticle() {
 
     if (IsCollectCoinOccurred()) {
-    
+        coinEmitter_->SetPosition({GetLastCollectedCoinPosition().x, GetLastCollectedCoinPosition().y, GetLastCollectedCoinPosition().z - 3.0f});
+        coinEmitter_->UpdateOnce();
     }
-
 }
 
 void Player::CheckCollisionAndResolve(bool title) {

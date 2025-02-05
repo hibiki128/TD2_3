@@ -136,6 +136,7 @@ class Player : public BaseObject {
     // パーティクル
     std::unique_ptr<ParticleEmitter> coinEmitter_;
     std::unique_ptr<ParticleEmitter> runEmitter_;
+    std::unique_ptr<ParticleEmitter> changeEmitter_;
 
     // プレイヤー反転範囲スプライトのサイズ
     float xSpritePlayerAreaSize_ = 0.0f;

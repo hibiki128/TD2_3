@@ -72,6 +72,8 @@ void Player::Init(const std::string className, int currentStageNum) {
     runEmitter_ = std::make_unique<ParticleEmitter>();
     runEmitter_->Initialize("smokerun", "debug/plane.obj");
     runEmitter_->SetTexture("game/smoke.png");
+    changeEmitter_ = std::make_unique<ParticleEmitter>();
+    changeEmitter_->Initialize("ChangePlayer", "debug/plane.obj");
 }
 
 void Player::Update(MapChipField *mapChipField, bool title) {
@@ -253,6 +255,7 @@ void Player::DrawParticle(const ViewProjection &viewProjection) {
     CoinParticle();
     runEmitter_->Draw(viewProjection);
     coinEmitter_->Draw(viewProjection);
+    changeEmitter_->Draw(viewProjection);
 }
 
 void Player::DrawSprite(const ViewProjection &viewProjection, bool title) {
@@ -477,6 +480,16 @@ void Player::UpdateScalingAnimation() {
         // 指定秒を超えたら終了
         if (scaleTimer_ >= kScaleDuration) {
             scaleTimer_ = kScaleDuration;
+            if (colorState_ == ColorState::Black) {
+                changeEmitter_->SetTexture("game/changeBlack.png");
+                changeEmitter_->SetPosition({GetCenterPosition().x, GetCenterPosition().y, GetCenterPosition().z - 2.3f});
+                changeEmitter_->UpdateOnce();
+            }
+            if (colorState_ == ColorState::White) {
+                changeEmitter_->SetTexture("game/changeWhite.png");
+                changeEmitter_->SetPosition({GetCenterPosition().x, GetCenterPosition().y, GetCenterPosition().z - 2.3f});
+                changeEmitter_->UpdateOnce();
+            }
             isScaling_ = false;
         }
 
@@ -629,7 +642,7 @@ void Player::HandleInput() {
 
                                 // 現在が黒の場合、テクスチャと色状態を白に変更
                             } else if (colorState_ == ColorState::Black) {
-                                this->SetTexture("game/playerWhite.png");
+                               this->SetTexture("game/playerWhite.png");
                                 colorState_ = ColorState::White;
                             }
                         }
@@ -758,11 +771,11 @@ void Player::HandleInput() {
 
                         // 現在が白の場合、テクスチャと色状態を黒に変更
                         if (colorState_ == ColorState::White) {
-                            this->SetTexture("game/player.png");
+                           this->SetTexture("game/player.png");
                             colorState_ = ColorState::Black;
                             // 現在が黒の場合、テクスチャと色状態を白に変更
                         } else if (colorState_ == ColorState::Black) {
-                            this->SetTexture("game/playerWhite.png");
+                           this->SetTexture("game/playerWhite.png");
                             colorState_ = ColorState::White;
                         }
                     }
@@ -1044,7 +1057,7 @@ void Player::CoinParticle() {
 void Player::RunParitcle() {
     if (isWalking_ && collisionMapInfo_.hittingGround_) {
         runEmitter_->SetPosition({GetCenterPosition().x, GetCenterPosition().y - 0.3f, GetCenterPosition().z - 2.3f});
-        //runEmitter_->SetPositionY(GetCenterPosition().y - 0.8f);
+        // runEmitter_->SetPositionY(GetCenterPosition().y - 0.8f);
         if (velocity_.x > 0) {
             runEmitter_->SetRotateY(degreesToRadians(0.0f));
         }

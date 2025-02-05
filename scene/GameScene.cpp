@@ -66,6 +66,11 @@ void GameScene::Initialize() {
     pause_->SetStageNum(GetStageNum());
     pause_->Init();
     pause_->SetPlayer(player_.get());
+
+    
+    leaf_ = std::make_unique<ParticleEmitter>();
+    leaf_->Initialize("leaf", "game/leaf.obj");
+
 }
 
 void GameScene::Update() {
@@ -107,6 +112,8 @@ void GameScene::Update() {
 
     // UIObject更新
     uiObject_->Update();
+
+    leaf_->Update();
 
     // カメラ更新
     CameraUpdate();
@@ -157,6 +164,9 @@ void GameScene::Draw() {
     ptCommon_->DrawCommonSetting();
     //------Particleの描画開始-------
     mapChipField_->DrawParticle(vp_);
+    ptCommon_->SetBlendMode(BlendMode::kNormal);
+    leaf_->Draw(vp_);
+    ptCommon_->SetBlendMode(BlendMode::kAdd);
     //-----------------------------
 
     /// Spriteの描画準備
@@ -238,6 +248,7 @@ void GameScene::Debug() {
     mapChipField_->DebugImGui();
     // UIObjectデバッグ情報
     uiObject_->DebugImGui();
+    leaf_->imgui();
 }
 
 void GameScene::CameraUpdate() {

@@ -90,6 +90,8 @@ private:
 	// 背景
 	std::unique_ptr<Sprite> spriteBackGround_;
 
+	std::unique_ptr<ParticleEmitter> leaf_;
+
 // JSON
 private:
 	using json = nlohmann::json;

@@ -54,7 +54,7 @@
     "isRandomRotate": false,
     "isRandomScale": true,
     "isSinMove": false,
-    "isVisible": true,
+    "isVisible": false,
     "lifeTimeMax": 0.5,
     "lifeTimeMin": 0.30000001192092896,
     "rotateVelocityMax": [

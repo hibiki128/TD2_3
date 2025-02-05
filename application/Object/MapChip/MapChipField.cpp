@@ -50,6 +50,8 @@ void MapChipField::Update(const Vector3& center, int xRange, int yRange) {
 	// 挟み込みが起こった場合に挟まれたブロックの色反転を行う
 	InvertBlocksWithCapture();
 
+	GravityParticleUpdate();
+
 	/*if (hasPlayerInverted_) {
 		InvertBlocksWithCapture();
 	}*/

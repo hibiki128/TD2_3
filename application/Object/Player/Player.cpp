@@ -257,12 +257,12 @@ void Player::DrawSprite(const ViewProjection &viewProjection, bool title) {
     UpdateGoalGuideSpriteAlpha();
 
     // ゴールガイドの描画（alphaが0.0fよりも大きければ描画）
-    if (goalGuideAlpha_ > 0.0f) {
-        if (title) {
-            spriteGoalGuideTitle_->SetPosition({935.0f, 430.0f});
-            spriteGoalGuideTitle_->SetAlpha(goalGuideAlpha_);
-            spriteGoalGuideTitle_->Draw();
-        } else {
+    if (title) {
+        spriteGoalGuideTitle_->SetPosition({935.0f, 430.0f});
+        spriteGoalGuideTitle_->SetAlpha(1.0f);
+        spriteGoalGuideTitle_->Draw();
+    } else {
+        if (goalGuideAlpha_ > 0.0f) {
             spriteGoalGuide_->SetAlpha(goalGuideAlpha_);
             spriteGoalGuide_->Draw();
         }
@@ -912,7 +912,7 @@ void Player::PlaySE() {
 }
 
 void Player::BaseUpdate() {
- 
+
     isGoalAnimaFinish_ = BaseObject::AnimaIsFinish();
     BaseObject::Update();
 }

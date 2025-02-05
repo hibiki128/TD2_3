@@ -74,14 +74,14 @@ void ClearUI::Update() {
     if (!isDecision_) {
         MenuOperation();
     }
-    if (input_->TriggerKey(DIK_SPACE) && !isDecision_) {
+    if (input_->TriggerKey(DIK_SPACE) && !isDecision_ && timer_ < 0) {
         decisionEmitter_->UpdateOnce();
         Audio::GetInstance()->PlayWave(desitionSE_, 0.2f);
     }
     XINPUT_STATE joyState;
     XINPUT_STATE prejoyState;
     if (input_->GetJoystickState(0, joyState) && input_->GetJoystickStatePrevious(0, prejoyState)) {
-        if ((joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A) && (!prejoyState.Gamepad.wButtons) && !isDecision_) {
+        if ((joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A) && (!prejoyState.Gamepad.wButtons) && !isDecision_ && timer_ < 0) {
             decisionEmitter_->UpdateOnce();
             Audio::GetInstance()->PlayWave(desitionSE_, 0.2f);
         }
@@ -154,6 +154,11 @@ void ClearUI::Debug() {
 }
 
 void ClearUI::MenuOperation() {
+    if (timer_ > 0) {
+        timer_ -= 1.0f / 60.0f;
+        return;
+    }
+
     if (input_->PushKey(DIK_W) && coolTime_ == 0.0f) {
         --currentItem_;
         coolTime_ = 0.2f;

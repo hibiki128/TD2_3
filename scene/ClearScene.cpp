@@ -49,6 +49,8 @@ void ClearScene::Initialize() {
 
     spriteBackGround_ = std::make_unique<Sprite>();
     spriteBackGround_->Initialize("title/backGround.png", {0.0f, 0.0f});
+
+    timer_ = 1.0f;
 }
 
 void ClearScene::Update() {
@@ -165,9 +167,22 @@ void ClearScene::CameraUpdate() {
 }
 
 void ClearScene::ChangeScene() {
-    XINPUT_STATE joyState;
-    if (input_->GetJoystickState(0, joyState)) {
-        if ((joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A)) {
+    if (timer_ > 0) {
+        timer_ -= 1.0f / 60.0f;
+    } else {
+        XINPUT_STATE joyState;
+        if (input_->GetJoystickState(0, joyState)) {
+            if ((joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A)) {
+                clearUI_->SetDecision(true);
+                if (clearUI_->GetItemNum() == 0 || clearUI_->GetItemNum() == 1) {
+                    sceneManager_->NextSceneReservation("GAME");
+                }
+                if (clearUI_->GetItemNum() == 2) {
+                    sceneManager_->NextSceneReservation("SELECT");
+                }
+            }
+        }
+        if (input_->TriggerKey(DIK_SPACE)) {
             clearUI_->SetDecision(true);
             if (clearUI_->GetItemNum() == 0 || clearUI_->GetItemNum() == 1) {
                 sceneManager_->NextSceneReservation("GAME");
@@ -175,15 +190,6 @@ void ClearScene::ChangeScene() {
             if (clearUI_->GetItemNum() == 2) {
                 sceneManager_->NextSceneReservation("SELECT");
             }
-        }
-    }
-    if (input_->TriggerKey(DIK_SPACE)) {
-        clearUI_->SetDecision(true);
-        if (clearUI_->GetItemNum() == 0 || clearUI_->GetItemNum() == 1) {
-            sceneManager_->NextSceneReservation("GAME");
-        }
-        if (clearUI_->GetItemNum() == 2) {
-            sceneManager_->NextSceneReservation("SELECT");
         }
     }
 }

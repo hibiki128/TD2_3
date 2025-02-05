@@ -161,6 +161,7 @@ class Player : public BaseObject {
     uint32_t walkSE_;
     uint32_t gravitySE_;
     uint32_t inversionSE_;
+    uint32_t coinGetSE_;
     float walkSEcoolTime_ = 0.0f;
 
   private:

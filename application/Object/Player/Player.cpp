@@ -59,6 +59,7 @@ void Player::Init(const std::string className) {
     walkSE_ = Audio::GetInstance()->LoadWave("player/playerWalk.wav");
     gravitySE_ = Audio::GetInstance()->LoadWave("action/inversionGravity.wav");
     inversionSE_ = Audio::GetInstance()->LoadWave("action/inversion.wav");
+    coinGetSE_ = Audio::GetInstance()->LoadWave("action/getCoin.wav");
 
     coinEmitter_ = std::make_unique<ParticleEmitter>();
     coinEmitter_->Initialize("coin", "debug/plane.obj");
@@ -1001,6 +1002,7 @@ void Player::CoinParticle() {
     if (IsCollectCoinOccurred()) {
         coinEmitter_->SetPosition({GetLastCollectedCoinPosition().x, GetLastCollectedCoinPosition().y, GetLastCollectedCoinPosition().z - 3.0f});
         coinEmitter_->UpdateOnce();
+        Audio::GetInstance()->PlayWave(coinGetSE_, 0.1f);
     }
 }
 

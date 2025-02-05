@@ -23,7 +23,7 @@ class UIObject {
     ///
     std::unique_ptr<BaseObject> objectBook_; // 本
     std::unique_ptr<BaseObject> objectUI_;   // 栞
-    //std::unique_ptr<BaseObject> filter_;
+    std::unique_ptr<BaseObject> filter_;
 
     std::unique_ptr<BaseObject> objectL_; // Lスティック
     std::unique_ptr<BaseObject> objectA_; // Aボタン

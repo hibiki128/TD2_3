@@ -165,7 +165,6 @@ void MapPrev::LoadFromCSV(const std::string &filePath) {
                 chip.object->Init("Block");
                 chip.object->SetScale({1.0f, 1.0f, 1.0f});
                 chip.object->SetWorldPosition({x * kChipSize, -y * kChipSize, 0.0f});
-                chip.object->CreateCollider();
 
                 // モデルと色を設定
                 switch (chip.object->type_) {

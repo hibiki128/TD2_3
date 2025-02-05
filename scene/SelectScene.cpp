@@ -39,7 +39,12 @@ void SelectScene::Initialize()
 	selectUI_ = std::make_unique<SelectUI>();
 	selectUI_->Init();
 
+	///
+    ///	スプライト生成
+    ///
 
+    spriteBackGround_ = std::make_unique<Sprite>();
+    spriteBackGround_->Initialize("title/backGround.png", {0.0f, 0.0f});
 }
 
 void SelectScene::Finalize()
@@ -76,6 +81,13 @@ void SelectScene::Update()
 void SelectScene::Draw()
 {
 	/// -------描画処理開始-------
+
+	/// Spriteの描画準備
+    spCommon_->DrawCommonSetting();
+    //-----Spriteの描画開始-----
+
+    // 背景
+    spriteBackGround_->Draw(true);
 
 	objCommon_->DrawCommonSetting();
 	//-----3DObjectの描画開始-----

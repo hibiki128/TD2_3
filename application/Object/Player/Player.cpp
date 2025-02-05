@@ -12,7 +12,7 @@ void Player::Init(const std::string className) {
     // ゴールガイドスプライト生成
     spriteGoalGuide_ = std::make_unique<Sprite>();
     spriteGoalGuide_->Initialize("game/goalGuide.png", {0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.5f, 0.5f});
-    spriteGoalGuide_->SetSize({128.0f, 64.0f});
+    spriteGoalGuide_->SetSize({ 160.0f, 90.0f });
     spriteGoalGuideTitle_ = std::make_unique<Sprite>();
     spriteGoalGuideTitle_->Initialize("game/startUi.png", {0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.5f, 0.5f});
     spriteGoalGuideTitle_->SetSize({128.0f, 148.0f});
@@ -33,8 +33,8 @@ void Player::Init(const std::string className) {
     gravityAcceleration_ = -0.01f; // 重力
     jumpAcceleration_ = 0.3f;      // ジャンプ初速
 
-    xInvertRange_ = 3;
-    yInvertRange_ = 3;
+    /*xInvertRange_ = 3;
+    yInvertRange_ = 3;*/
 
     goalGuideAlpha_ = 0.0f;
 
@@ -59,6 +59,11 @@ void Player::Init(const std::string className) {
     walkSE_ = Audio::GetInstance()->LoadWave("player/playerWalk.wav");
     gravitySE_ = Audio::GetInstance()->LoadWave("action/inversionGravity.wav");
     inversionSE_ = Audio::GetInstance()->LoadWave("action/inversion.wav");
+
+    // 現在のステージ数をセット
+    currentStageNum_ = currentStageNum;
+    // 選択されたステージによって反転枠の大きさを変更する
+    ChangeInvertRangeSizeForStageNum();
     coinGetSE_ = Audio::GetInstance()->LoadWave("action/getCoin.wav");
 
     coinEmitter_ = std::make_unique<ParticleEmitter>();
@@ -222,6 +227,8 @@ void Player::Update(MapChipField *mapChipField, bool title) {
 
             ImGui::DragFloat3("最後に取得したコインの座標", &lastCollectedCoinPosition_.x);
 
+            /*ImGui::Text("現在のステージ : %d", currentStageNum_);*/
+
             ImGui::EndTabItem();
         }
         ImGui::EndTabBar();
@@ -313,6 +320,11 @@ void Player::DebugImGui() {
 }
 
 bool Player::IsGoalReached() {
+    // デバッグ用にO押したらクリアにする（あとで絶対消す）
+    if (input_->TriggerKey(DIK_O)) {
+        return true;
+    }
+
     const float colliderYOffset = (kHeight - 1.8f) / 2.0f;
 
     // 現在位置の取得
@@ -451,7 +463,7 @@ void Player::UpdateGoalGuideSpriteAlpha() {
     spriteGoalGuide_->SetAlpha(goalGuideAlpha_);
 }
 
-void Player::UpdateScalingAnimation() {
+void Player::UpdateScalingAnimation() { 
     if (isScaling_) {
         // 経過時間の更新
         scaleTimer_ += kDeltaTime;
@@ -465,6 +477,16 @@ void Player::UpdateScalingAnimation() {
         float halfTime = kScaleDuration / 2.0f;
         float newScaleValue = initialScale_;
 
+        float targetRotY;
+        if (prevRotY_ > 0.0f) {
+            targetRotY = 720.0f + 90.0f; // 右向き
+        } else {
+            targetRotY = -720.0f - 90.0f; // 左向き
+        }
+
+        // 回転の補間
+        float newRotationValue = EaseOutQuad(0.0f, targetRotY, scaleTimer_, kScaleDuration);
+
         if (scaleTimer_ <= halfTime) {
             newScaleValue = EaseInQuad(initialScale_, targetScale_, scaleTimer_, halfTime);
         } else {
@@ -477,6 +499,9 @@ void Player::UpdateScalingAnimation() {
             newScaleValue = EaseInQuad(targetScale_, initialScale_, t, halfTime);
         }
         this->SetScale({newScaleValue, newScaleValue, newScaleValue});
+
+        // 回転の適用
+        this->SetRotation({0.0f, degreesToRadians(newRotationValue), 0.0f});
     }
 }
 
@@ -589,10 +614,12 @@ void Player::HandleInput() {
                             isScaling_ = true;
                             scaleTimer_ = 0.0f;
 
-                            // 現在が白の場合、テクスチャと色状態を黒に変更
-                            if (colorState_ == ColorState::White) {
-                                this->SetTexture("game/player.png");
-                                colorState_ = ColorState::Black;
+                            prevRotY_ = this->GetCenterRotation().y;
+
+							// 現在が白の場合、テクスチャと色状態を黒に変更
+							if (colorState_ == ColorState::White) {
+								this->SetTexture("game/player.png");
+								colorState_ = ColorState::Black;
 
                                 // 現在が黒の場合、テクスチャと色状態を白に変更
                             } else if (colorState_ == ColorState::Black) {
@@ -720,6 +747,8 @@ void Player::HandleInput() {
                     if (mapChipField_->HasColorChangeBlockInArea(position, xInvertRange_, yInvertRange_)) {
                         isScaling_ = true;
                         scaleTimer_ = 0.0f;
+
+                        prevRotY_ = this->GetCenterRotation().y;
 
                         // 現在が白の場合、テクスチャと色状態を黒に変更
                         if (colorState_ == ColorState::White) {
@@ -1142,7 +1171,78 @@ void Player::InvertAreaSpriteAdjust() {
     spritePlayerArea_->SetSize(spriteSize);
 }
 
-Player::CollisionMapInfo Player::GetMapCollisionInfo(bool title) {
+void Player::ChangeInvertRangeSizeForStageNum() {
+    switch (currentStageNum_) {
+    case -1:
+        xInvertRange_ = 3;
+        yInvertRange_ = 3;
+        break;
+    case 1:
+        xInvertRange_ = 3;
+        yInvertRange_ = 3;
+        break;
+    case 2:
+        xInvertRange_ = 3;
+        yInvertRange_ = 3;
+        break;
+    case 3:
+        xInvertRange_ = 3;
+        yInvertRange_ = 3;
+        break;
+    case 4:
+        xInvertRange_ = 3;
+        yInvertRange_ = 3;
+        break;
+    case 5:
+        xInvertRange_ = 3;
+        yInvertRange_ = 3;
+        break;
+    case 6:
+        xInvertRange_ = 3;
+        yInvertRange_ = 3;
+        break;
+    case 7:
+        xInvertRange_ = 3;
+        yInvertRange_ = 3;
+        break;
+    case 8:
+        xInvertRange_ = 3;
+        yInvertRange_ = 3;
+        break;
+    case 9:
+        xInvertRange_ = 3;
+        yInvertRange_ = 3;
+        break;
+    case 10:
+        xInvertRange_ = 3;
+        yInvertRange_ = 3;
+        break;
+    case 11:
+        xInvertRange_ = 3;
+        yInvertRange_ = 3;
+        break;
+    case 12:
+        xInvertRange_ = 3;
+        yInvertRange_ = 3;
+        break;
+    case 13:
+        xInvertRange_ = 3;
+        yInvertRange_ = 3;
+        break;
+    case 14:
+        xInvertRange_ = 3;
+        yInvertRange_ = 3;
+        break;
+    case 15:
+        xInvertRange_ = 3;
+        yInvertRange_ = 3;
+        break;
+    default:
+        break;
+    }
+}
+
+Player::CollisionMapInfo Player::GetMapCollisionInfo() {
     CollisionMapInfo info;
 
     // ずらす分（新しい高さと元の高さの差の半分）
@@ -1262,8 +1362,8 @@ void Player::SaveToJson() {
     j["gravityAcceleration"] = {gravityAcceleration_};
     j["jumpAcceleration"] = {jumpAcceleration_};
 
-    j["xInvertRange"] = {xInvertRange_};
-    j["yInvertRange"] = {yInvertRange_};
+    /*j["xInvertRange"] = {xInvertRange_};
+    j["yInvertRange"] = {yInvertRange_};*/
 
     // ディレクトリを作成し、JSONファイルを保存
     std::filesystem::create_directories("resources/jsons/Parameters/");
@@ -1288,10 +1388,10 @@ void Player::LoadFromJson() {
         jumpAcceleration_ = j["jumpAcceleration"][0];
     }
 
-    if (j.contains("xInvertRange") && j["xInvertRange"].is_array()) {
+    /*if (j.contains("xInvertRange") && j["xInvertRange"].is_array()) {
         xInvertRange_ = j["xInvertRange"][0];
     }
     if (j.contains("yInvertRange") && j["yInvertRange"].is_array()) {
         yInvertRange_ = j["yInvertRange"][0];
-    }
+    }*/
 }

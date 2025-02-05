@@ -6,13 +6,14 @@
 // Engine
 #include "Input.h"
 
-class UIObject {
-  public:
-    void Init();
-    void Update();
-    void Draw(const ViewProjection &viewProjection);
-    void DrawSprite();
-    void DebugImGui();
+class UIObject 
+{
+public:
+	void Init(int currentStageNum);
+	void Update();
+	void Draw(const ViewProjection& viewProjection);
+	void DrawSprite();
+	void DebugImGui();
 
   private:
     // 入力
@@ -38,8 +39,13 @@ class UIObject {
     // Lスティックオブジェクトの初期位置
     Vector3 initLstickPos_;
 
-    // パッド入力による反応
-    void InputReaction();
+	// パッド入力による反応
+	void InputReaction();
 
+private:
+	// 現在の選択ステージ
+	int currentStageNum_ = -1;
+	// 選択されたステージによってUIの位置を調整する
+	void AdjustUIPositionForStageNum();
     Vector4 filterColor_;
 };

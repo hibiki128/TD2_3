@@ -155,7 +155,13 @@ class Player : public BaseObject {
     bool isChangedColor_ = true;
     void UpdateScalingAnimation();
 
-    // 音関連
+	float prevRotY_; // プレイヤーの色反転ブロックを発動した際に現在の回転角を保存しておく
+
+	// 現在選択されたステージ
+    int currentStageNum_ = -1;
+    void ChangeInvertRangeSizeForStageNum(); // 選択されたステージによって反転枠の大きさを変更する
+
+	// 音関連
     uint32_t jumpSE_;
     uint32_t landingSE_;
     uint32_t walkSE_;

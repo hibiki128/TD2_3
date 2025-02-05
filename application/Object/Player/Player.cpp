@@ -437,11 +437,20 @@ void Player::UpdateScalingAnimation() {
         float halfTime = kScaleDuration / 2.0f;
         float newScaleValue = initialScale_;
 
+        float targetRotY;
+        if (prevRotY_ > 0.0f) {
+            targetRotY = 720.0f + 90.0f; // 右向き
+        } else {
+            targetRotY = -720.0f - 90.0f; // 左向き
+        }
+
+        // 回転の補間
+        float newRotationValue = EaseOutQuad(0.0f, targetRotY, scaleTimer_, kScaleDuration);
+
         if (scaleTimer_ <= halfTime) {
             newScaleValue = EaseInQuad(initialScale_, targetScale_, scaleTimer_, halfTime);
         } else {
             if (!isChangedColor_) {
-
 
                 isChangedColor_ = true;
             }
@@ -450,6 +459,9 @@ void Player::UpdateScalingAnimation() {
             newScaleValue = EaseInQuad(targetScale_, initialScale_, t, halfTime);
         }
         this->SetScale({newScaleValue, newScaleValue, newScaleValue});
+
+        // 回転の適用
+        this->SetRotation({0.0f, degreesToRadians(newRotationValue), 0.0f});
     }
 }
 
@@ -561,6 +573,8 @@ void Player::HandleInput() {
 						if (mapChipField_->HasColorChangeBlockInArea(position, xInvertRange_, yInvertRange_)) {
                             isScaling_ = true;
                             scaleTimer_ = 0.0f;
+
+                            prevRotY_ = this->GetCenterRotation().y;
 
 							// 現在が白の場合、テクスチャと色状態を黒に変更
 							if (colorState_ == ColorState::White) {
@@ -695,6 +709,8 @@ void Player::HandleInput() {
                     if (mapChipField_->HasColorChangeBlockInArea(position, xInvertRange_, yInvertRange_)) {
                         isScaling_ = true;
                         scaleTimer_ = 0.0f;
+
+                        prevRotY_ = this->GetCenterRotation().y;
 
                         // 現在が白の場合、テクスチャと色状態を黒に変更
                         if (colorState_ == ColorState::White) {

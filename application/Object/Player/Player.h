@@ -140,6 +140,8 @@ private:
     bool isChangedColor_ = true;
     void UpdateScalingAnimation();
 
+	float prevRotY_; // プレイヤーの色反転ブロックを発動した際に現在の回転角を保存しておく
+
 	// 現在選択されたステージ
     int currentStageNum_ = -1;
     void ChangeInvertRangeSizeForStageNum(); // 選択されたステージによって反転枠の大きさを変更する

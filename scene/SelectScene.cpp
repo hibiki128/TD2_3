@@ -117,7 +117,9 @@ void SelectScene::Draw()
 	//------------------------------
 
 	//-----線描画-----
-	DrawLine3D::GetInstance()->Draw(vp_);
+#ifdef _DEBUG
+    DrawLine3D::GetInstance()->Draw(vp_);
+#endif // _DEBUG
 	//---------------
 
 	/// ----------------------------------

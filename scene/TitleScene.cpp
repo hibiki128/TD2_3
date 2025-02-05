@@ -33,7 +33,7 @@ void TitleScene::Initialize() {
 
     // プレイヤー（マップチップフィールドから初期位置を取得するので後）
     player_ = std::make_unique<Player>();
-    player_->Init("player", -1); // -1にデフォルト値が格納されているのでセット
+    player_->Init("player", -1);                                            // -1にデフォルト値が格納されているのでセット
     player_->SetInitialPosition(mapChipField_->GetPlayerInitialPosition()); // csvから読み込んだ初期位置を設定
 
     // タイトルUIオブジェクト生成
@@ -42,7 +42,7 @@ void TitleScene::Initialize() {
 
     BGM_ = audio_->LoadWave("title/titleBgm.wav");
     audio_->PlayWave(BGM_, 0.2f, true);
-    
+
     mapChipField_->SetGoalModel();
 
     ///
@@ -65,7 +65,7 @@ void TitleScene::Update() {
     objectTitleUI_->Update();
 
     // プレイヤー更新
-    player_->Update(mapChipField_.get(),true);
+    player_->Update(mapChipField_.get(), true);
     player_->BaseUpdate();
     // マップチップフィールド更新
     mapChipField_->Update(player_->GetCenterPosition(), player_->GetInvertRangeX(), player_->GetInvertRangeY());
@@ -97,8 +97,8 @@ void TitleScene::Draw() {
     spCommon_->DrawCommonSetting();
     //-----Spriteの描画開始-----
 
-	// 背景
-	spriteBackGround_->Draw(true);
+    // 背景
+    spriteBackGround_->Draw(true);
 
     objCommon_->DrawCommonSetting();
     //-----3DObjectの描画開始-----
@@ -125,12 +125,14 @@ void TitleScene::Draw() {
     /// Spriteの描画準備
     spCommon_->DrawCommonSetting();
     //-----Spriteの描画開始-----
-    player_->DrawSprite(vp_,true);
+    player_->DrawSprite(vp_, true);
 
     //------------------------------
 
     //-----線描画-----
+#ifdef _DEBUG
     DrawLine3D::GetInstance()->Draw(vp_);
+#endif // _DEBUG
     //---------------
 
     /// ----------------------------------

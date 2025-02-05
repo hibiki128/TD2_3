@@ -43,7 +43,7 @@ void UIObject::Init(int currentStageNum) {
     filter_->CreateModel("debug/plane.obj");
     filter_->SetTexture("debug/filter2.png");
 
-    filterColor_ = {1.0f, 1.0f, 1.0f, 0.4f};
+    filterColor_ = {1.0f, 1.0f, 1.0f, 0.2f};
 
     // 各ボタンオブジェクトを、栞オブジェクトと親子付け
     objectL_->SetParent(&objectUI_->GetWorldTransform());

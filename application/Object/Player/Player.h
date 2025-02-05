@@ -9,113 +9,117 @@
 #include "application/Object/MapChip/MapChipField.h"
 #include "application/Transition/SquareTransition.h"
 
-class Player : public BaseObject
-{
-public:
-	// マップとの当たり判定情報
-	struct CollisionMapInfo {
-		bool hittingGround_ = false;
-		bool hittingCeiling_ = false;
-		bool hittingLeft_ = false;
-		bool hittingRight_ = false;
+class Player : public BaseObject {
+  public:
+    // マップとの当たり判定情報
+    struct CollisionMapInfo {
+        bool hittingGround_ = false;
+        bool hittingCeiling_ = false;
+        bool hittingLeft_ = false;
+        bool hittingRight_ = false;
 
-		bool isOverlapping_ = false; // ブロックとの重なり状態
+        bool isOverlapping_ = false; // ブロックとの重なり状態
 
-		Block* blockX = nullptr; // X方向で衝突したブロック
-		Block* blockY = nullptr; // Y方向で衝突したブロック
-	};
+        Block *blockX = nullptr; // X方向で衝突したブロック
+        Block *blockY = nullptr; // Y方向で衝突したブロック
+    };
 
     void Init(const std::string className) override;
-    void Update(MapChipField *mapChipField,bool title = false);
+    void Update(MapChipField *mapChipField, bool title = false);
     void Draw(const ViewProjection &viewProjection) override;
-    void DrawSprite(const ViewProjection &viewProjection,bool title=false);
+    void DrawSprite(const ViewProjection &viewProjection, bool title = false);
     void DebugImGui() override;
     void Reset(bool title = false);
     void PlaySE();
     void BaseUpdate();
 
-	// プレイヤーがゴールに到達しているか判定
-	bool IsGoalReached();
-	bool GetSquareTransition() {
-		if (squareTransition_->GetCurrentStatus() == SquareTransition::Status::SquareIn) {
-			return true;
-		}
-		return false;
-	}
-	// 現在の取得コイン数
-	uint32_t GetCurrentCoinCount() { return currentCoinCount_; }
+    // プレイヤーがゴールに到達しているか判定
+    bool IsGoalReached();
+    bool GetSquareTransition() {
+        if (squareTransition_->GetCurrentStatus() == SquareTransition::Status::SquareIn) {
+            return true;
+        }
+        return false;
+    }
+    // 現在の取得コイン数
+    uint32_t GetCurrentCoinCount() { return currentCoinCount_; }
     bool GetFinishTransition() { return squareTransition_->IsFinished(); }
-	
-	// プレイヤーの位置を設定
-	void SetInitialPosition(Vector3 playerInitialPosition) { this->transform_.translation_ = playerInitialPosition; }
-	void SetTransitionStart() { if (squareTransition_->IsFinished()) { squareTransition_->Start(SquareTransition::Status::SquareIn, kResetTransitionTime); } }
 
-	// プレイヤーの反転範囲の取得
-	int GetInvertRangeX() { return xInvertRange_; }
-	int GetInvertRangeY() { return yInvertRange_; }
+    // プレイヤーの位置を設定
+    void SetInitialPosition(Vector3 playerInitialPosition) { this->transform_.translation_ = playerInitialPosition; }
+    void SetTransitionStart() {
+        if (squareTransition_->IsFinished()) {
+            squareTransition_->Start(SquareTransition::Status::SquareIn, kResetTransitionTime);
+        }
+    }
 
-private:
-	const float kDeltaTime = 1.0f / 60.0f;
+    // プレイヤーの反転範囲の取得
+    int GetInvertRangeX() { return xInvertRange_; }
+    int GetInvertRangeY() { return yInvertRange_; }
+    bool GetGoalAnimaFinish();
 
-	// 入力
-	Input* input_;
+  private:
+    const float kDeltaTime = 1.0f / 60.0f;
 
-	///
-	/// 基本的なパラメータ
-	/// 
+    // 入力
+    Input *input_;
 
-	// マップとの当たり判定情報
-	CollisionMapInfo collisionMapInfo_;
-	// 微小な値
-	const float kBlank = 0.0001f;
+    ///
+    /// 基本的なパラメータ
+    ///
 
-	// サイズ
-	const float kWidth = 1.8f;
-	const float kHeight = 3.6f; // 縦長になるよう変更
+    // マップとの当たり判定情報
+    CollisionMapInfo collisionMapInfo_;
+    // 微小な値
+    const float kBlank = 0.0001f;
 
-	// リセット時のトランジションにかける時間
-	const float kResetTransitionTime = 0.3f;
+    // サイズ
+    const float kWidth = 1.8f;
+    const float kHeight = 3.6f; // 縦長になるよう変更
 
-	/*ブロック反転中、プレイヤーが動かないようにするために使用*/
-	bool isInverting_ = false;          // ブロック反転中かどうか
-	float invertTimer_ = 0.0f;          // タイマー
-	const float invertDuration_ = 0.4f; // 反転アニメーションの合計時間
+    // リセット時のトランジションにかける時間
+    const float kResetTransitionTime = 0.3f;
 
-	// 重力反転状態かどうか
-	bool isGravityReversed_ = false; // 初期状態は通常
+    /*ブロック反転中、プレイヤーが動かないようにするために使用*/
+    bool isInverting_ = false;          // ブロック反転中かどうか
+    float invertTimer_ = 0.0f;          // タイマー
+    const float invertDuration_ = 0.4f; // 反転アニメーションの合計時間
 
-	/*プレイヤーの現在の色*/
-	enum class ColorState {
-		White,
-		Black,
-	};
-	// プレイヤーの色の状態
-	ColorState colorState_ = ColorState::White;
+    // 重力反転状態かどうか
+    bool isGravityReversed_ = false; // 初期状態は通常
 
-	// 現在取得したコインの枚数
-	uint32_t currentCoinCount_ = 0;
+    /*プレイヤーの現在の色*/
+    enum class ColorState {
+        White,
+        Black,
+    };
+    // プレイヤーの色の状態
+    ColorState colorState_ = ColorState::White;
 
-	//////////////////
-	/*調整パラメーター*/
-	/////////////////
+    // 現在取得したコインの枚数
+    uint32_t currentCoinCount_ = 0;
 
-	// 移動関連
-	Vector3 velocity_; // 速度
-	const float kMoveSpeed = 0.15f; // 移動速度
+    //////////////////
+    /*調整パラメーター*/
+    /////////////////
 
-	// ジャンプ関連
-	float gravityAcceleration_; // 重力加速度
-	float jumpAcceleration_; // ジャンプ初速
+    // 移動関連
+    Vector3 velocity_;              // 速度
+    const float kMoveSpeed = 0.15f; // 移動速度
 
-	// 反転可能範囲
-	int xInvertRange_;
-	int yInvertRange_;
+    // ジャンプ関連
+    float gravityAcceleration_; // 重力加速度
+    float jumpAcceleration_;    // ジャンプ初速
 
-	int prevDirection_ = 1; // 1: 右向き, -1: 左向き
+    // 反転可能範囲
+    int xInvertRange_;
+    int yInvertRange_;
 
-	///
-	///	その他
-	///	
+    int prevDirection_ = 1; // 1: 右向き, -1: 左向き
+
+    ///
+    ///	その他
+    ///
 
     // リセット時のトランジション
     std::unique_ptr<SquareTransition> squareTransition_;
@@ -125,16 +129,17 @@ private:
     std::unique_ptr<Sprite> spriteGoalGuide_;
     std::unique_ptr<Sprite> spriteGoalGuideTitle_;
 
-	// プレイヤー反転範囲スプライトのサイズ
-	float xSpritePlayerAreaSize_ = 0.0f;
-	float ySpritePlayerAreaSize_ = 0.0f;
+    // プレイヤー反転範囲スプライトのサイズ
+    float xSpritePlayerAreaSize_ = 0.0f;
+    float ySpritePlayerAreaSize_ = 0.0f;
 
-	// ブロック反転のクールタイム
-	float blockInvertCooldown_ = 0.0f;
-	const float kBlockInvertCooldownTime = 0.7f; // 再使用までの時間
+    // ブロック反転のクールタイム
+    float blockInvertCooldown_ = 0.0f;
+    const float kBlockInvertCooldownTime = 0.7f; // 再使用までの時間
 
-	// プレイヤー本体の色反転時の拡縮アニメーション
-    bool isScaling_ = false;           // スケーリング中かどうか
+    // プレイヤー本体の色反転時の拡縮アニメーション
+    bool isScaling_ = false; // スケーリング中かどうか
+    bool isGoalAnimaFinish_ = false;
     float scaleTimer_;                 // アニメーションの進行度を管理
     float initialScale_ = 0.9f;        // アニメーション開始時スケール
     float targetScale_ = 0.45f;        // 最小時スケール
@@ -142,113 +147,112 @@ private:
     bool isChangedColor_ = true;
     void UpdateScalingAnimation();
 
-	// 音関連
-	uint32_t jumpSE_;
-	uint32_t landingSE_;
-	uint32_t walkSE_;
-	uint32_t gravitySE_;
-	uint32_t inversionSE_;
-	float walkSEcoolTime_ = 0.0f;
+    // 音関連
+    uint32_t jumpSE_;
+    uint32_t landingSE_;
+    uint32_t walkSE_;
+    uint32_t gravitySE_;
+    uint32_t inversionSE_;
+    float walkSEcoolTime_ = 0.0f;
 
-private:
-	// 入力操作
-	void HandleInput();
-	// 全ての衝突判定とプレイヤーの押し戻し
-	void CheckCollisionAndResolve(bool title = false);
+  private:
+    // 入力操作
+    void HandleInput();
+    // 全ての衝突判定とプレイヤーの押し戻し
+    void CheckCollisionAndResolve(bool title = false);
 
-	void AnimaUpdate();
+    void AnimaUpdate();
 
-	// 衝突判定
-	/*void OnCollision([[maybe_unused]] Collider* other)override;*/
+    // 衝突判定
+    /*void OnCollision([[maybe_unused]] Collider* other)override;*/
 
-	// マップチップフィールドを保持
-	MapChipField* mapChipField_ = nullptr;
-	// マップとの当たり判定情報を返す
-	CollisionMapInfo GetMapCollisionInfo(bool title);
+    // マップチップフィールドを保持
+    MapChipField *mapChipField_ = nullptr;
+    // マップとの当たり判定情報を返す
+    CollisionMapInfo GetMapCollisionInfo(bool title);
 
-	// 反転可能範囲のAABBを描画
-	void DrawInvertArea();
-	// 反転可能範囲画像をプレイヤーの座標にセット
-	void InvertAreaSpriteToPlayerPosition(const ViewProjection& viewProjection);
-	// 反転可能範囲画像サイズを現在の範囲によって変更（ごり押しで）
-	void InvertAreaSpriteAdjust();
+    // 反転可能範囲のAABBを描画
+    void DrawInvertArea();
+    // 反転可能範囲画像をプレイヤーの座標にセット
+    void InvertAreaSpriteToPlayerPosition(const ViewProjection &viewProjection);
+    // 反転可能範囲画像サイズを現在の範囲によって変更（ごり押しで）
+    void InvertAreaSpriteAdjust();
 
-	// ゴールガイド画像をプレイヤーの座標にセット
-	void GoalGuideSpriteToPlayerPosition(const ViewProjection& viewProjection);
-	void UpdateGoalGuideSpriteAlpha();
-	float goalGuideAlpha_ = 0.0f;
-	const float alphaIncreaseSpeed = 0.05f; // 徐々に透明度を上げるスピード
-	const float alphaDecreaseSpeed = 0.05f; // 徐々に透明度を下げるスピード
+    // ゴールガイド画像をプレイヤーの座標にセット
+    void GoalGuideSpriteToPlayerPosition(const ViewProjection &viewProjection);
+    void UpdateGoalGuideSpriteAlpha();
+    float goalGuideAlpha_ = 0.0f;
+    const float alphaIncreaseSpeed = 0.05f; // 徐々に透明度を上げるスピード
+    const float alphaDecreaseSpeed = 0.05f; // 徐々に透明度を下げるスピード
 
-	// プレイヤーがコインオブジェクトに触れたかを判定
-	bool IsCollidingCoin(const Coin& coin);
-	// 取得したコインの座標を保存しておく
-	Vector3 lastCollectedCoinPosition_ = {0.0f, 0.0f, 0.0f};
+    // プレイヤーがコインオブジェクトに触れたかを判定
+    bool IsCollidingCoin(const Coin &coin);
+    // 取得したコインの座標を保存しておく
+    Vector3 lastCollectedCoinPosition_ = {0.0f, 0.0f, 0.0f};
 
-	// 反転操作が無効の際、反転枠を揺らす用
-	const float kShakeDuration = 0.5f; // シェイクの継続時間（秒）
-	float spriteShakeTimer_; // シェイクの管理時間
-	float spriteShakeOffset_; // シェイクによる位置のずれ
+    // 反転操作が無効の際、反転枠を揺らす用
+    const float kShakeDuration = 0.5f; // シェイクの継続時間（秒）
+    float spriteShakeTimer_;           // シェイクの管理時間
+    float spriteShakeOffset_;          // シェイクによる位置のずれ
 
-	// 反転成立時、反転枠の拡縮アニメーションを行う用
-	const float kSpriteScaleDuration = 0.4f; // 拡縮時間（秒）
-	float spriteScaleTimer_; // 拡縮の管理時間
+    // 反転成立時、反転枠の拡縮アニメーションを行う用
+    const float kSpriteScaleDuration = 0.4f; // 拡縮時間（秒）
+    float spriteScaleTimer_;                 // 拡縮の管理時間
 
-	void SpritePlayerAreaAnimation();
+    void SpritePlayerAreaAnimation();
 
-private:
-	using json = nlohmann::json;
+  private:
+    using json = nlohmann::json;
 
-	void SaveToJson();
-	void LoadFromJson();
+    void SaveToJson();
+    void LoadFromJson();
 
-	///
-	/// SE・エフェクト用のフラグ
-	/// 
-private:
-	// ジャンプした瞬間を判定
-	bool IsJumpOccurred() { return isJumpOccurred_; }
-	// ブロック反転した瞬間を判定
-	bool IsBlockInversionOccurred() { return isBlockInversionOccurred_; }
-	// リセットした瞬間を判定
-	bool IsResetOccurred() { return isResetOccurred_; }
-	// 重力反転した瞬間を判定
-	bool IsGravityReversedOccurred() { return isGravityReversedOccurred_; }
-	// 着地した瞬間を判定
-	bool IsLandedOccurred();
-	// 歩いているかどうかの判定
-	bool IsWalking();
-	// コインを取得した瞬間を判定
-	bool IsCollectCoinOccurred() { return isCollectCoinOccurred_; }
-	// 最後に取得したコインの座標を返す
-	Vector3 GetLastCollectedCoinPosition() { return lastCollectedCoinPosition_; }
-	// 反転操作が無効の瞬間を判定
-	bool IsInvertDisabled() { return isInvertDisabled_; }
-	// ゴールに触れていて、地面にいる間ずっと（ゴールボタンの表示とかに使用）
-	bool IsTouchGoalAndOnGround() { return isTouchGoal_ && collisionMapInfo_.hittingGround_; }
+    ///
+    /// SE・エフェクト用のフラグ
+    ///
+  private:
+    // ジャンプした瞬間を判定
+    bool IsJumpOccurred() { return isJumpOccurred_; }
+    // ブロック反転した瞬間を判定
+    bool IsBlockInversionOccurred() { return isBlockInversionOccurred_; }
+    // リセットした瞬間を判定
+    bool IsResetOccurred() { return isResetOccurred_; }
+    // 重力反転した瞬間を判定
+    bool IsGravityReversedOccurred() { return isGravityReversedOccurred_; }
+    // 着地した瞬間を判定
+    bool IsLandedOccurred();
+    // 歩いているかどうかの判定
+    bool IsWalking();
+    // コインを取得した瞬間を判定
+    bool IsCollectCoinOccurred() { return isCollectCoinOccurred_; }
+    // 最後に取得したコインの座標を返す
+    Vector3 GetLastCollectedCoinPosition() { return lastCollectedCoinPosition_; }
+    // 反転操作が無効の瞬間を判定
+    bool IsInvertDisabled() { return isInvertDisabled_; }
+    // ゴールに触れていて、地面にいる間ずっと（ゴールボタンの表示とかに使用）
+    bool IsTouchGoalAndOnGround() { return isTouchGoal_ && collisionMapInfo_.hittingGround_; }
 
-private:
-	// ジャンプした瞬間を判定
-	bool isJumpOccurred_ = false;
-	// ブロック反転した瞬間を判定
-	bool isBlockInversionOccurred_ = false;
-	// リセットした瞬間を判定
-	bool isResetOccurred_ = false;
-	// 重力反転した瞬間を判定
-	bool isGravityReversedOccurred_ = false;
+  private:
+    // ジャンプした瞬間を判定
+    bool isJumpOccurred_ = false;
+    // ブロック反転した瞬間を判定
+    bool isBlockInversionOccurred_ = false;
+    // リセットした瞬間を判定
+    bool isResetOccurred_ = false;
+    // 重力反転した瞬間を判定
+    bool isGravityReversedOccurred_ = false;
 
-	// 前フレームの接地状態を記録
-	bool prevHittingGround_ = false;
-	
-	bool isWalking_ = false;
+    // 前フレームの接地状態を記録
+    bool prevHittingGround_ = false;
 
-	bool isLanded_ = false;
+    bool isWalking_ = false;
 
+    bool isLanded_ = false;
 
-	// コインを取得した瞬間を判定
-	bool isCollectCoinOccurred_ = false;
-	// 反転操作が無効の場合を判定
-	bool isInvertDisabled_ = false;
-	// ゴールに触れている間を判定
-	bool isTouchGoal_ = false;
+    // コインを取得した瞬間を判定
+    bool isCollectCoinOccurred_ = false;
+    // 反転操作が無効の場合を判定
+    bool isInvertDisabled_ = false;
+    // ゴールに触れている間を判定
+    bool isTouchGoal_ = false;
 };

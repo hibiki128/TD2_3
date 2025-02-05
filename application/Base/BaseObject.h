@@ -56,7 +56,7 @@ class BaseObject : public Collider {
     /// ===================================================
     const WorldTransform &GetTransform() { return transform_; }
     const Object3d *GetObject3d() { return obj3d_.get(); }
-    bool IsFinish() { return obj3d_->IsFinish(); }
+    bool AnimaIsFinish() { return obj3d_->IsFinish(); }
 
     /// ===================================================
     /// setter

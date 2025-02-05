@@ -80,11 +80,11 @@ void ClearUI::Update() {
     }
     MoveUI();
 
-    if (animaChara_->IsFinish()) {
+    if (animaChara_->AnimaIsFinish()) {
         animaChara_->SetAnima("animation/playerClearAfter2.gltf");
         animaChara_->SetLoop(true);
     }
-    if (animaGoal_->IsFinish()) {
+    if (animaGoal_->AnimaIsFinish()) {
         animaGoal_->SetAnima("animation/goalClearAfter2.gltf");
         animaGoal_->SetLoop(true);
     }

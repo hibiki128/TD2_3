@@ -270,7 +270,7 @@ void GameScene::ChangeScene() {
         sceneManager_->NextSceneReservation("SELECT");
         sceneManager_->SetCoinNum(0);
     }
-    if (clearCamera_->GetFinish()) {
+    if (clearCamera_->GetFinish()&&player_->GetGoalAnimaFinish()) {
         sceneManager_->SetCoinNum(player_->GetCurrentCoinCount());
         sceneManager_->NextSceneReservation("CLEAR");
     }

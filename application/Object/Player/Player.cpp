@@ -61,7 +61,7 @@ void Player::Init(const std::string className) {
     inversionSE_ = Audio::GetInstance()->LoadWave("action/inversion.wav");
 }
 
-void Player::Update(MapChipField *mapChipField,bool title) {
+void Player::Update(MapChipField *mapChipField, bool title) {
     // 各種瞬間判定フラグをリセット
     isCollectCoinOccurred_ = false; // なぜか下に記述するとずっとfalseになってしまうのでここに記述
 
@@ -173,12 +173,12 @@ void Player::Update(MapChipField *mapChipField,bool title) {
 
             /*ImGui::DragFloat3("velocity", &velocity_.x);*/
 
-			ImGui::Text("hittingGround : %d", collisionMapInfo_.hittingGround_);
-			ImGui::Text("hittingCeiling : %d", collisionMapInfo_.hittingCeiling_);
-			ImGui::Text("hittingLeft : %d", collisionMapInfo_.hittingLeft_);
-			ImGui::Text("hittingRight : %d", collisionMapInfo_.hittingRight_);
-			ImGui::Text("isOverlapping : %d", collisionMapInfo_.isOverlapping_);
-			ImGui::Text("isTouchGoal : %d", isTouchGoal_);
+            ImGui::Text("hittingGround : %d", collisionMapInfo_.hittingGround_);
+            ImGui::Text("hittingCeiling : %d", collisionMapInfo_.hittingCeiling_);
+            ImGui::Text("hittingLeft : %d", collisionMapInfo_.hittingLeft_);
+            ImGui::Text("hittingRight : %d", collisionMapInfo_.hittingRight_);
+            ImGui::Text("isOverlapping : %d", collisionMapInfo_.isOverlapping_);
+            ImGui::Text("isTouchGoal : %d", isTouchGoal_);
 
             /*ImGui::Checkbox("ブロック反転中", &isInverting_);
             ImGui::Checkbox("重力反転中", &isGravityReversed_);*/
@@ -327,10 +327,10 @@ bool Player::IsGoalReached() {
     for (const auto &corner : corners) {
         if (corner.x >= goalLeft && corner.x <= goalRight && corner.y >= goalBottom && corner.y <= goalTop) {
 
-			reached = true; // ゴール内の角が見つかったらフラグを立てる
+            reached = true; // ゴール内の角が見つかったらフラグを立てる
             break;          // 一つでも見つかれば、他の角のチェックは不要
-		}
-	}
+        }
+    }
 
     // ゴールに触れていて、なおかつ操作入力と接地状態があればゴール到達とする
     if (reached) {
@@ -347,6 +347,23 @@ bool Player::IsGoalReached() {
         }
     } else {
         isTouchGoal_ = false;
+    }
+
+    return false;
+}
+
+bool Player::GetGoalAnimaFinish() {
+    static float localTimer = 0.0f; // ローカルタイマー（関数内で保持）
+
+    if (isGoalAnimaFinish_) {
+        localTimer += 1.0f / 60.0f; // 経過時間を加算
+
+        // 1秒経過したらtrueを返す
+        if (localTimer >= 1.0f) {
+            return true;
+        }
+    } else {
+        localTimer = 0.0f; // アニメーションが完了していない場合はリセット
     }
 
     return false;
@@ -402,8 +419,7 @@ void Player::GoalGuideSpriteToPlayerPosition(const ViewProjection &viewProjectio
     // プレイヤーのワールド座標をスクリーン座標に変換
     Vector3 screenPosition = Transformation(playerWorldPosition, matViewProjecitonViewport);
 
-
-	const float offsetY = 118.0f;
+    const float offsetY = 118.0f;
 
     spriteGoalGuide_->SetPosition({screenPosition.x, screenPosition.y - offsetY}); // プレイヤーの頭上に表示されるように変更
 }
@@ -417,8 +433,8 @@ void Player::UpdateGoalGuideSpriteAlpha() {
         goalGuideAlpha_ -= alphaDecreaseSpeed;
     }
 
-	// 透明度を0.0f ~ 1.0fの範囲に制限
-	goalGuideAlpha_ = std::clamp(goalGuideAlpha_, 0.0f, 1.0f);
+    // 透明度を0.0f ~ 1.0fの範囲に制限
+    goalGuideAlpha_ = std::clamp(goalGuideAlpha_, 0.0f, 1.0f);
 
     spriteGoalGuide_->SetAlpha(goalGuideAlpha_);
 }
@@ -441,7 +457,6 @@ void Player::UpdateScalingAnimation() {
             newScaleValue = EaseInQuad(initialScale_, targetScale_, scaleTimer_, halfTime);
         } else {
             if (!isChangedColor_) {
-
 
                 isChangedColor_ = true;
             }
@@ -555,26 +570,24 @@ void Player::HandleInput() {
                             isGravityReversedOccurred_ = true;
                         }
 
-						///
-						///	プレイヤー色反転ブロックが範囲内に見つかった場合、プレイヤーの色を反転する
-						///
-						if (mapChipField_->HasColorChangeBlockInArea(position, xInvertRange_, yInvertRange_)) {
+                        ///
+                        ///	プレイヤー色反転ブロックが範囲内に見つかった場合、プレイヤーの色を反転する
+                        ///
+                        if (mapChipField_->HasColorChangeBlockInArea(position, xInvertRange_, yInvertRange_)) {
                             isScaling_ = true;
                             scaleTimer_ = 0.0f;
 
-							// 現在が白の場合、テクスチャと色状態を黒に変更
-							if (colorState_ == ColorState::White) {
-								this->SetTexture("game/player.png");
-								colorState_ = ColorState::Black;
+                            // 現在が白の場合、テクスチャと色状態を黒に変更
+                            if (colorState_ == ColorState::White) {
+                                this->SetTexture("game/player.png");
+                                colorState_ = ColorState::Black;
 
-						    // 現在が黒の場合、テクスチャと色状態を白に変更
-							}
-							else if (colorState_ == ColorState::Black) {
-								this->SetTexture("game/playerWhite.png");
-								colorState_ = ColorState::White;
-
-							}
-						}
+                                // 現在が黒の場合、テクスチャと色状態を白に変更
+                            } else if (colorState_ == ColorState::Black) {
+                                this->SetTexture("game/playerWhite.png");
+                                colorState_ = ColorState::White;
+                            }
+                        }
 
                         // ブロック反転したことを記録（SE・エフェクト用）
                         isBlockInversionOccurred_ = true;
@@ -899,28 +912,36 @@ void Player::PlaySE() {
 }
 
 void Player::BaseUpdate() {
+ 
+    isGoalAnimaFinish_ = BaseObject::AnimaIsFinish();
     BaseObject::Update();
 }
 
 void Player::AnimaUpdate() {
-    if (velocity_.y == 0) {
-        if (velocity_.x == 0) {
-            BaseObject::SetLoop(true);
-            BaseObject::SetAnima("animation/playerStandby.gltf");
+    if (!IsGoalReached()) {
+        if (velocity_.y == 0) {
+            if (velocity_.x == 0) {
+                BaseObject::SetLoop(true);
+                BaseObject::SetAnima("animation/playerStandby.gltf");
+            } else {
+                BaseObject::SetLoop(true);
+                BaseObject::SetAnima("animation/playerWalk.gltf");
+            }
         } else {
-            BaseObject::SetLoop(true);
-            BaseObject::SetAnima("animation/playerWalk.gltf");
+            BaseObject::SetLoop(false);
+            BaseObject::SetAnima("animation/playerJump.gltf");
+        }
+
+        if (velocity_.x > 0) {
+            BaseObject::SetRotationY(degreesToRadians(90.0f));
+        }
+        if (velocity_.x < 0) {
+            BaseObject::SetRotationY(degreesToRadians(-90.0f));
         }
     } else {
         BaseObject::SetLoop(false);
-        BaseObject::SetAnima("animation/playerJump.gltf");
-    }
-
-    if (velocity_.x > 0) {
+        BaseObject::SetAnima("animation/playerGoal.gltf");
         BaseObject::SetRotationY(degreesToRadians(90.0f));
-    }
-    if (velocity_.x < 0) {
-        BaseObject::SetRotationY(degreesToRadians(-90.0f));
     }
 }
 

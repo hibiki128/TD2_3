@@ -25,14 +25,14 @@ public:
 		Block* blockY = nullptr; // Y方向で衝突したブロック
 	};
 
-	void Init(const std::string className)override;
-	void Update(MapChipField* mapChipField);
-	void Draw(const ViewProjection& viewProjection)override;
-	void DrawSprite(const ViewProjection& viewProjection);
-	void DebugImGui()override;
+    void Init(const std::string className) override;
+    void Update(MapChipField *mapChipField);
+    void Draw(const ViewProjection &viewProjection) override;
+    void DrawSprite(const ViewProjection &viewProjection,bool title=false);
+    void DebugImGui() override;
     void Reset(bool title = false);
     void PlaySE();
-    void AnimaUpdate();
+    void BaseUpdate();
 
 	// プレイヤーがゴールに到達しているか判定
 	bool IsGoalReached();
@@ -117,12 +117,13 @@ private:
 	///	その他
 	///	
 
-	// リセット時のトランジション
-	std::unique_ptr<SquareTransition> squareTransition_;
-	// プレイヤー反転範囲スプライト
-	std::unique_ptr<Sprite> spritePlayerArea_;
-	// ゴール接触時スプライト
-	std::unique_ptr<Sprite> spriteGoalGuide_;
+    // リセット時のトランジション
+    std::unique_ptr<SquareTransition> squareTransition_;
+    // プレイヤー反転範囲スプライト
+    std::unique_ptr<Sprite> spritePlayerArea_;
+    // ゴール接触時スプライト
+    std::unique_ptr<Sprite> spriteGoalGuide_;
+    std::unique_ptr<Sprite> spriteGoalGuideTitle_;
 
 	// プレイヤー反転範囲スプライトのサイズ
 	float xSpritePlayerAreaSize_ = 0.0f;

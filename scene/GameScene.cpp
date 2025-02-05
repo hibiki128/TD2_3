@@ -361,12 +361,12 @@ void GameScene::AdjustCameraPositionForStageNum() {
         vp_.translation_ = {11.7f, -10.5f, -33.0f};
 
         break;
-    case 10:// ここから
+    case 10:
         vp_.translation_ = {8.0f, -5.5f, -33.0f};
 
         break;
     case 11:
-        vp_.translation_ = {8.0f, -5.5f, -33.0f};
+        vp_.translation_ = {9.2f, -9.8f, -33.0f};
 
         break;
     case 12:

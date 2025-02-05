@@ -43,7 +43,7 @@ void UIObject::Init(int currentStageNum) {
     filter_->CreateModel("debug/plane.obj");
     filter_->SetTexture("debug/filter2.png");
 
-    filterColor_ = {1.0f, 1.0f, 1.0f, 0.4f};
+    filterColor_ = {1.0f, 1.0f, 1.0f, 0.2f};
 
     // 各ボタンオブジェクトを、栞オブジェクトと親子付け
     objectL_->SetParent(&objectUI_->GetWorldTransform());
@@ -89,6 +89,10 @@ void UIObject::Draw(const ViewProjection &viewProjection) {
     objectL_->Draw(viewProjection);
     objectA_->Draw(viewProjection);
     objectR_->Draw(viewProjection);
+}
+
+void UIObject::DrawFilter(const ViewProjection &viewProjection) {
+
     filter_->Draw(viewProjection);
 }
 
@@ -224,7 +228,7 @@ void UIObject::AdjustUIPositionForStageNum() {
     case -1:
         /*これがデフォルト値になる*/
 
-      ///
+        ///
         /// 栞オブジェクトのトランスフォーム
         ///
         objectUI_->SetWorldPosition({-9.0f, -10.0f, 0.0f});
@@ -245,7 +249,6 @@ void UIObject::AdjustUIPositionForStageNum() {
         filter_->SetWorldPosition({11.8f, -5.4f, -2.2f});
         filter_->SetRotation({0.0f, 0.0f, 0.0f});
         filter_->SetScale({15.8f, 11.2f, 1.0f});
-
 
         break;
     case 1:

@@ -90,6 +90,7 @@ class GameScene : public BaseScene {
     std::unique_ptr<Sprite> spriteBackGround_;
 
 	std::unique_ptr<ParticleEmitter> leaf_;
+	std::unique_ptr<ParticleEmitter> goalEmitter_;
 
 // JSON
 private:
@@ -102,6 +103,7 @@ private:
 
     // その他
   private:
+    bool clearParticle_ = false;
     int currentStageNum_ = -1;
     // 選択ステージによってカメラの初期位置を調整
     void AdjustCameraPositionForStageNum();

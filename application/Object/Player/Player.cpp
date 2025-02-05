@@ -149,8 +149,8 @@ void Player::Update(MapChipField *mapChipField, bool title) {
     ///	重力を常に受ける
     ///
 
-    if (!isInverting_) {                         // ブロック反転中には重力を加算しない
-        if (!mapChipField_->IsAnyChipAnimating()) { // アニメーション中のブロックが1つでもあれば重力を加算しない
+    if (!isInverting_) {                             // ブロック反転中には重力を加算しない
+        if (!mapChipField_->IsAnyChipAnimating()) {  // アニメーション中のブロックが1つでもあれば重力を加算しない
             if (isGravityReversed_) {                // 重力反転中
                 velocity_.y -= gravityAcceleration_; // 上向きに重力をかける (逆)
             } else {                                 // 通常重力
@@ -526,7 +526,7 @@ void Player::UpdateScalingAnimation() {
         this->SetScale({newScaleValue, newScaleValue, newScaleValue});
 
         // 回転の適用
-        this->SetRotation({0.0f, degreesToRadians(newRotationValue), 0.0f});
+        this->SetRotation({GetCenterRotation().x, degreesToRadians(newRotationValue), 0.0f});
     }
 }
 
@@ -648,7 +648,7 @@ void Player::HandleInput() {
 
                                 // 現在が黒の場合、テクスチャと色状態を白に変更
                             } else if (colorState_ == ColorState::Black) {
-                               this->SetTexture("game/playerWhite.png");
+                                this->SetTexture("game/playerWhite.png");
                                 colorState_ = ColorState::White;
                             }
                         }
@@ -777,11 +777,11 @@ void Player::HandleInput() {
 
                         // 現在が白の場合、テクスチャと色状態を黒に変更
                         if (colorState_ == ColorState::White) {
-                           this->SetTexture("game/player.png");
+                            this->SetTexture("game/player.png");
                             colorState_ = ColorState::Black;
                             // 現在が黒の場合、テクスチャと色状態を白に変更
                         } else if (colorState_ == ColorState::Black) {
-                           this->SetTexture("game/playerWhite.png");
+                            this->SetTexture("game/playerWhite.png");
                             colorState_ = ColorState::White;
                         }
                     }

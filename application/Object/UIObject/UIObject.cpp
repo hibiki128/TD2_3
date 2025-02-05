@@ -62,7 +62,7 @@ void UIObject::Init() {
 void UIObject::Update() {
     // パッド入力による反応
     InputReaction();
-
+    // オブジェクト更新
     objectBook_->Update();
     objectUI_->Update();
     objectL_->Update();

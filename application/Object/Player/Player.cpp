@@ -423,7 +423,7 @@ void Player::UpdateGoalGuideSpriteAlpha() {
     spriteGoalGuide_->SetAlpha(goalGuideAlpha_);
 }
 
-void Player::UpdateScalingAnimation() {
+void Player::UpdateScalingAnimation() { 
     if (isScaling_) {
         // 経過時間の更新
         scaleTimer_ += kDeltaTime;

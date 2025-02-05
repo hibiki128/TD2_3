@@ -194,43 +194,39 @@ void SelectScene::ChangeScene()
 	}
 }
 
-void SelectScene::MapLoad()
-{
-	const Vector3 Space = { 50.0f, 0.0f, 0.0f }; // ステージ間の間隔
-	for (int i = 0; i < stageNum; i++) {
-		std::unique_ptr<MapPrev> mapPrev = std::make_unique<MapPrev>();
+void SelectScene::MapLoad() {
+    const Vector3 Space = {50.0f, 0.0f, 0.0f}; // ステージ間の間隔
+    for (int i = 0; i < stageNum; i++) {
+        std::unique_ptr<MapPrev> mapPrev = std::make_unique<MapPrev>();
 
-		// ステージ番号を取得（1-based index）
-		int stageIndex = i + 1;
-		std::string stageStr = std::to_string(stageIndex);
+        // ステージ番号を取得（1-based index）
+        int stageIndex = i + 1;
 
-		// ステージ番号の一桁目と二桁目を取得
-		std::string firstDigit = stageStr.substr(0, 1); // 先頭の桁
-		std::string secondDigit = "0"; // デフォルトで "0" を設定
-		if (stageStr.length() > 1) {
-			secondDigit = stageStr.substr(1, 1); // 2桁目がある場合のみ上書き
-		}
+        // ステージ番号の一桁目と二桁目を取得（10の位と1の位を逆にする）
+        std::string firstDigit = std::to_string(stageIndex % 10);         // 一の位
+        std::string secondDigit = std::to_string((stageIndex / 10) % 10); // 十の位
 
-		// ステージデータのファイルパスを生成
-		filePath = "resources/Maps/stage" + stageStr + ".csv";
+        // ステージデータのファイルパスを生成
+        filePath = "resources/Maps/stage" + std::to_string(stageIndex) + ".csv";
 
-		// 一桁目と二桁目のモデルパスを作成
-		std::string singlePath = "clear/" + firstDigit + ".obj";
-		std::string twoPath = "clear/" + secondDigit + ".obj"; // 必ず "0" 以上の値になる
+        // 一桁目と二桁目のモデルパスを作成
+        std::string singlePath = "clear/" + firstDigit + ".obj";
+        std::string twoPath = "clear/" + secondDigit + ".obj"; // 必ず "0" 以上の値になる
 
-		// マップ初期化
-		mapPrev->Init(filePath);
-		mapPrev->SetSingleModel(singlePath);
-		mapPrev->SetTwoDigitModel(twoPath); // 必ず適用
+        // マップ初期化
+        mapPrev->Init(filePath);
+        mapPrev->SetSingleModel(singlePath);
+        mapPrev->SetTwoDigitModel(twoPath);
 
-		// 配置位置を設定
-		mapPrev->SetPosition(Space * i);
-		mapPrev->SetPositionX(Space.x * 2.0f * i);
+        // 配置位置を設定
+        mapPrev->SetPosition(Space * i);
+        mapPrev->SetPositionX(Space.x * 2.0f * i);
 
-		// 配列に追加
-		mapPrevs_.push_back(std::move(mapPrev));
-	}
+        // 配列に追加
+        mapPrevs_.push_back(std::move(mapPrev));
+    }
 }
+
 
 
 void SelectScene::MapSelect()

@@ -132,6 +132,9 @@ class Player : public BaseObject {
     // ゴール接触時スプライト
     std::unique_ptr<Sprite> spriteGoalGuide_;
     std::unique_ptr<Sprite> spriteGoalGuideTitle_;
+    // パーティクル
+
+    
 
     // プレイヤー反転範囲スプライトのサイズ
     float xSpritePlayerAreaSize_ = 0.0f;
@@ -168,6 +171,8 @@ class Player : public BaseObject {
     void AnimaUpdate();
 
     void InversMove(); // 反転時の回転処理
+
+    void CoinParticle(); // コイン取得時のパーティクル
 
     // 衝突判定
     /*void OnCollision([[maybe_unused]] Collider* other)override;*/

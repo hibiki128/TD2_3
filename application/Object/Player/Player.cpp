@@ -987,6 +987,14 @@ void Player::InversMove() {
     BaseObject::SetRotationX(EaseInSine<float>(startRote_, endRote, inversT_, EaseTMax));
 }
 
+void Player::CoinParticle() {
+
+    if (IsCollectCoinOccurred()) {
+    
+    }
+
+}
+
 void Player::CheckCollisionAndResolve(bool title) {
     /// X移動
     BaseObject::transform_.translation_.x += velocity_.x;

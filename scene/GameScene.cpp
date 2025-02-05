@@ -36,13 +36,11 @@ void GameScene::Initialize() {
 
     // プレイヤー（マップチップフィールドから初期位置を取得するので後）
     player_ = std::make_unique<Player>();
-    player_->Init("player");
+    player_->Init("player", GetStageNum()); // 初期化時に現在のステージ数をセット
     player_->SetInitialPosition(mapChipField_->GetPlayerInitialPosition()); // csvから読み込んだ初期位置を設定
-    player_->SetCurrentStageNum(GetStageNum()); // プレイヤーに対して選択したステージ番号をセット
     // UIオブジェクト
     uiObject_ = std::make_unique<UIObject>();
-    uiObject_->Init();
-    uiObject_->SetCurrentStageNum(GetStageNum()); // UIObjectに対して選択したステージ番号をセット
+    uiObject_->Init(GetStageNum()); // 初期化時に現在のステージ数をセット
 
     // クリアカメラ
     clearCamera_ = std::make_unique<ClearCamera>();

@@ -8,7 +8,7 @@
 #include "math/Easing.h"
 #include <myEngine/Frame/Frame.h>
 
-void Player::Init(const std::string className) {
+void Player::Init(const std::string className, int currentStageNum) {
 	// ゴールガイドスプライト生成
 	spriteGoalGuide_ = std::make_unique<Sprite>();
 	spriteGoalGuide_->Initialize("game/goalGuide.png", {0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.5f, 0.5f});
@@ -57,14 +57,13 @@ void Player::Init(const std::string className) {
     gravitySE_ = Audio::GetInstance()->LoadWave("action/inversionGravity.wav");
     inversionSE_ = Audio::GetInstance()->LoadWave("action/inversion.wav");
 
+    // 現在のステージ数をセット
+    currentStageNum_ = currentStageNum;
     // 選択されたステージによって反転枠の大きさを変更する
-    /*ChangeInvertRangeSizeForStageNum();*/
+    ChangeInvertRangeSizeForStageNum();
 }
 
 void Player::Update(MapChipField *mapChipField) {
-    // 現在のステージ数によって反転範囲のサイズを変更する
-    ChangeInvertRangeSizeForStageNum();
-
     // 各種瞬間判定フラグをリセット
     isCollectCoinOccurred_ = false; // なぜか下に記述するとずっとfalseになってしまうのでここに記述
 

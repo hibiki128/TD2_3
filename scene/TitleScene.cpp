@@ -33,7 +33,7 @@ void TitleScene::Initialize() {
 
     // プレイヤー（マップチップフィールドから初期位置を取得するので後）
     player_ = std::make_unique<Player>();
-    player_->Init("player");
+    player_->Init("player", -1); // -1にデフォルト値が格納されているのでセット
     player_->SetInitialPosition(mapChipField_->GetPlayerInitialPosition()); // csvから読み込んだ初期位置を設定
 
     // タイトルUIオブジェクト生成

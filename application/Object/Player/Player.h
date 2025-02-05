@@ -25,7 +25,7 @@ public:
 		Block* blockY = nullptr; // Y方向で衝突したブロック
 	};
 
-	void Init(const std::string className)override;
+	void Init(const std::string className, int currentStageNum);
 	void Update(MapChipField* mapChipField);
 	void Draw(const ViewProjection& viewProjection)override;
 	void DrawSprite(const ViewProjection& viewProjection);
@@ -52,9 +52,6 @@ public:
 	// プレイヤーの反転範囲の取得
 	int GetInvertRangeX() { return xInvertRange_; }
 	int GetInvertRangeY() { return yInvertRange_; }
-
-	// 現在のステージ数をセット
-    void SetCurrentStageNum(int stageNum) { currentStageNum_ = stageNum; }
 
 private:
 	const float kDeltaTime = 1.0f / 60.0f;

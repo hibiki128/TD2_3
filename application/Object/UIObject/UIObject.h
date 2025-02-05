@@ -9,14 +9,11 @@
 class UIObject 
 {
 public:
-	void Init();
+	void Init(int currentStageNum);
 	void Update();
 	void Draw(const ViewProjection& viewProjection);
 	void DrawSprite();
 	void DebugImGui();
-
-	// 現在のステージをUIObjectクラスにセット
-    void SetCurrentStageNum(int stageNum) { currentStageNum_ = stageNum; }
 
 private:
 	// 入力

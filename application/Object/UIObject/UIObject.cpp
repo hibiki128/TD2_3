@@ -3,7 +3,7 @@
 // C++
 #include <cmath>
 
-void UIObject::Init() {
+void UIObject::Init(int currentStageNum) {
 	input_ = Input::GetInstance();
 
 	// 本オブジェクト
@@ -51,6 +51,8 @@ void UIObject::Init() {
 	spritePause_->Initialize("game/pause.png", {64.0f, 64.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.5f, 0.5f});
 	spritePause_->SetSize({96.0f, 96.0f});
 
+    // 現在のステージ数を格納
+    currentStageNum_ = currentStageNum;
 	// 現在のステージによってUIの位置を調整する
     AdjustUIPositionForStageNum();
 }
@@ -80,9 +82,9 @@ void UIObject::DebugImGui()
 {
 	objectBook_->DebugImGui();
 	objectUI_->DebugImGui();
-	objectL_->DebugImGui();
+	/*objectL_->DebugImGui();
 	objectA_->DebugImGui();
-	objectR_->DebugImGui();
+	objectR_->DebugImGui();*/
 
 	ImGui::Begin("UIObject.param");
     ImGui::Text("現在のステージ番号 : %d", currentStageNum_);
@@ -204,52 +206,248 @@ void UIObject::InputReaction()
 
 void UIObject::AdjustUIPositionForStageNum() {
     switch (currentStageNum_) {
-    case 1:
-		/// 栞オブジェクトの位置
-        /*objectUI_->SetWorldPosition({});*/
+    case -1:
+        /*これがデフォルト値になる*/
 
+        ///
+        /// 栞オブジェクトのトランスフォーム
+        /// 
+        objectUI_->SetWorldPosition({-9.0f, -10.0f, 0.0f});
+        objectUI_->SetRotation({-1.57f, 0.0f, 0.314f});
+        objectUI_->SetScale({2.5f, 2.5f, 2.5f});
+
+        ///
+		/// 本オブジェクトのトランスフォーム
+        /// 
+        objectBook_->SetWorldPosition({12.69f, -5.33f, 7.87f});
+        objectBook_->SetRotation({-1.57f, 0.0f, 0.0f});
+        objectBook_->SetScale({4.5f, 4.5f, 4.5f});
+
+		break;
+    case 1:
+        ///
+        /// 栞オブジェクトのトランスフォーム
+        ///
+        objectUI_->SetWorldPosition({-9.0f, -10.0f, 0.0f});
+        objectUI_->SetRotation({-1.57f, 0.0f, 0.314f});
+        objectUI_->SetScale({2.5f, 2.5f, 2.5f});
+
+        ///
+        /// 本オブジェクトのトランスフォーム
+        ///
+        objectBook_->SetWorldPosition({12.69f, -5.33f, 7.87f});
+        objectBook_->SetRotation({-1.57f, 0.0f, 0.0f});
+        objectBook_->SetScale({4.5f, 4.5f, 4.5f});
         break;
     case 2:
+        ///
+        /// 栞オブジェクトのトランスフォーム
+        ///
+        objectUI_->SetWorldPosition({-9.0f, -10.0f, 0.0f});
+        objectUI_->SetRotation({-1.57f, 0.0f, 0.314f});
+        objectUI_->SetScale({2.5f, 2.5f, 2.5f});
 
+        ///
+        /// 本オブジェクトのトランスフォーム
+        ///
+        objectBook_->SetWorldPosition({12.69f, -5.33f, 7.87f});
+        objectBook_->SetRotation({-1.57f, 0.0f, 0.0f});
+        objectBook_->SetScale({4.5f, 4.5f, 4.5f});
         break;
     case 3:
+        ///
+        /// 栞オブジェクトのトランスフォーム
+        ///
+        objectUI_->SetWorldPosition({-9.0f, -10.0f, 0.0f});
+        objectUI_->SetRotation({-1.57f, 0.0f, 0.314f});
+        objectUI_->SetScale({2.5f, 2.5f, 2.5f});
 
+        ///
+        /// 本オブジェクトのトランスフォーム
+        ///
+        objectBook_->SetWorldPosition({12.69f, -5.33f, 7.87f});
+        objectBook_->SetRotation({-1.57f, 0.0f, 0.0f});
+        objectBook_->SetScale({4.5f, 4.5f, 4.5f});
         break;
     case 4:
+        ///
+        /// 栞オブジェクトのトランスフォーム
+        ///
+        objectUI_->SetWorldPosition({-9.0f, -10.0f, 0.0f});
+        objectUI_->SetRotation({-1.57f, 0.0f, 0.314f});
+        objectUI_->SetScale({2.5f, 2.5f, 2.5f});
 
+        ///
+        /// 本オブジェクトのトランスフォーム
+        ///
+        objectBook_->SetWorldPosition({12.69f, -5.33f, 7.87f});
+        objectBook_->SetRotation({-1.57f, 0.0f, 0.0f});
+        objectBook_->SetScale({4.5f, 4.5f, 4.5f});
         break;
     case 5:
+        ///
+        /// 栞オブジェクトのトランスフォーム
+        ///
+        objectUI_->SetWorldPosition({-9.0f, -10.0f, 0.0f});
+        objectUI_->SetRotation({-1.57f, 0.0f, 0.314f});
+        objectUI_->SetScale({2.5f, 2.5f, 2.5f});
 
+        ///
+        /// 本オブジェクトのトランスフォーム
+        ///
+        objectBook_->SetWorldPosition({12.69f, -5.33f, 7.87f});
+        objectBook_->SetRotation({-1.57f, 0.0f, 0.0f});
+        objectBook_->SetScale({4.5f, 4.5f, 4.5f});
         break;
     case 6:
+        ///
+        /// 栞オブジェクトのトランスフォーム
+        ///
+        objectUI_->SetWorldPosition({-9.0f, -10.0f, 0.0f});
+        objectUI_->SetRotation({-1.57f, 0.0f, 0.314f});
+        objectUI_->SetScale({2.5f, 2.5f, 2.5f});
 
+        ///
+        /// 本オブジェクトのトランスフォーム
+        ///
+        objectBook_->SetWorldPosition({12.69f, -5.33f, 7.87f});
+        objectBook_->SetRotation({-1.57f, 0.0f, 0.0f});
+        objectBook_->SetScale({4.5f, 4.5f, 4.5f});
         break;
     case 7:
+        ///
+        /// 栞オブジェクトのトランスフォーム
+        ///
+        objectUI_->SetWorldPosition({-9.0f, -10.0f, 0.0f});
+        objectUI_->SetRotation({-1.57f, 0.0f, 0.314f});
+        objectUI_->SetScale({2.5f, 2.5f, 2.5f});
 
+        ///
+        /// 本オブジェクトのトランスフォーム
+        ///
+        objectBook_->SetWorldPosition({12.69f, -5.33f, 7.87f});
+        objectBook_->SetRotation({-1.57f, 0.0f, 0.0f});
+        objectBook_->SetScale({4.5f, 4.5f, 4.5f});
         break;
     case 8:
+        ///
+        /// 栞オブジェクトのトランスフォーム
+        ///
+        objectUI_->SetWorldPosition({-9.0f, -10.0f, 0.0f});
+        objectUI_->SetRotation({-1.57f, 0.0f, 0.314f});
+        objectUI_->SetScale({2.5f, 2.5f, 2.5f});
 
+        ///
+        /// 本オブジェクトのトランスフォーム
+        ///
+        objectBook_->SetWorldPosition({12.69f, -5.33f, 7.87f});
+        objectBook_->SetRotation({-1.57f, 0.0f, 0.0f});
+        objectBook_->SetScale({4.5f, 4.5f, 4.5f});
         break;
     case 9:
+        ///
+        /// 栞オブジェクトのトランスフォーム
+        ///
+        objectUI_->SetWorldPosition({-9.0f, -10.0f, 0.0f});
+        objectUI_->SetRotation({-1.57f, 0.0f, 0.314f});
+        objectUI_->SetScale({2.5f, 2.5f, 2.5f});
 
+        ///
+        /// 本オブジェクトのトランスフォーム
+        ///
+        objectBook_->SetWorldPosition({12.69f, -5.33f, 7.87f});
+        objectBook_->SetRotation({-1.57f, 0.0f, 0.0f});
+        objectBook_->SetScale({4.5f, 4.5f, 4.5f});
         break;
     case 10:
+        ///
+        /// 栞オブジェクトのトランスフォーム
+        ///
+        objectUI_->SetWorldPosition({-9.0f, -10.0f, 0.0f});
+        objectUI_->SetRotation({-1.57f, 0.0f, 0.314f});
+        objectUI_->SetScale({2.5f, 2.5f, 2.5f});
 
+        ///
+        /// 本オブジェクトのトランスフォーム
+        ///
+        objectBook_->SetWorldPosition({12.69f, -5.33f, 7.87f});
+        objectBook_->SetRotation({-1.57f, 0.0f, 0.0f});
+        objectBook_->SetScale({4.5f, 4.5f, 4.5f});
         break;
     case 11:
+        ///
+        /// 栞オブジェクトのトランスフォーム
+        ///
+        objectUI_->SetWorldPosition({-9.0f, -10.0f, 0.0f});
+        objectUI_->SetRotation({-1.57f, 0.0f, 0.314f});
+        objectUI_->SetScale({2.5f, 2.5f, 2.5f});
 
+        ///
+        /// 本オブジェクトのトランスフォーム
+        ///
+        objectBook_->SetWorldPosition({12.69f, -5.33f, 7.87f});
+        objectBook_->SetRotation({-1.57f, 0.0f, 0.0f});
+        objectBook_->SetScale({4.5f, 4.5f, 4.5f});
         break;
     case 12:
+        ///
+        /// 栞オブジェクトのトランスフォーム
+        ///
+        objectUI_->SetWorldPosition({-9.0f, -10.0f, 0.0f});
+        objectUI_->SetRotation({-1.57f, 0.0f, 0.314f});
+        objectUI_->SetScale({2.5f, 2.5f, 2.5f});
 
+        ///
+        /// 本オブジェクトのトランスフォーム
+        ///
+        objectBook_->SetWorldPosition({12.69f, -5.33f, 7.87f});
+        objectBook_->SetRotation({-1.57f, 0.0f, 0.0f});
+        objectBook_->SetScale({4.5f, 4.5f, 4.5f});
         break;
     case 13:
+        ///
+        /// 栞オブジェクトのトランスフォーム
+        ///
+        objectUI_->SetWorldPosition({-9.0f, -10.0f, 0.0f});
+        objectUI_->SetRotation({-1.57f, 0.0f, 0.314f});
+        objectUI_->SetScale({2.5f, 2.5f, 2.5f});
 
+        ///
+        /// 本オブジェクトのトランスフォーム
+        ///
+        objectBook_->SetWorldPosition({12.69f, -5.33f, 7.87f});
+        objectBook_->SetRotation({-1.57f, 0.0f, 0.0f});
+        objectBook_->SetScale({4.5f, 4.5f, 4.5f});
         break;
     case 14:
+        ///
+        /// 栞オブジェクトのトランスフォーム
+        ///
+        objectUI_->SetWorldPosition({-9.0f, -10.0f, 0.0f});
+        objectUI_->SetRotation({-1.57f, 0.0f, 0.314f});
+        objectUI_->SetScale({2.5f, 2.5f, 2.5f});
 
+        ///
+        /// 本オブジェクトのトランスフォーム
+        ///
+        objectBook_->SetWorldPosition({12.69f, -5.33f, 7.87f});
+        objectBook_->SetRotation({-1.57f, 0.0f, 0.0f});
+        objectBook_->SetScale({4.5f, 4.5f, 4.5f});
         break;
     case 15:
+        ///
+        /// 栞オブジェクトのトランスフォーム
+        ///
+        objectUI_->SetWorldPosition({-9.0f, -10.0f, 0.0f});
+        objectUI_->SetRotation({-1.57f, 0.0f, 0.314f});
+        objectUI_->SetScale({2.5f, 2.5f, 2.5f});
 
+        ///
+        /// 本オブジェクトのトランスフォーム
+        ///
+        objectBook_->SetWorldPosition({12.69f, -5.33f, 7.87f});
+        objectBook_->SetRotation({-1.57f, 0.0f, 0.0f});
+        objectBook_->SetScale({4.5f, 4.5f, 4.5f});
         break;
 
     default:

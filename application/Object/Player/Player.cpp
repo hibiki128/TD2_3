@@ -1053,12 +1053,14 @@ Player::CollisionMapInfo Player::GetMapCollisionInfo() {
     const float overlapOffsetX = (kWidth / 2) - 0.02f;
     const float overlapOffsetY = (kHeight / 2) - 0.02f;
 
-    // 重なり判定用の4点
-    Vector3 checkPoints[4] = {
+    // 重なり判定用の6点
+    Vector3 checkPoints[6] = {
         {position.x - overlapOffsetX, position.y + overlapOffsetY, position.z}, // 左上
         {position.x + overlapOffsetX, position.y + overlapOffsetY, position.z}, // 右上
         {position.x - overlapOffsetX, position.y - overlapOffsetY, position.z}, // 左下
         {position.x + overlapOffsetX, position.y - overlapOffsetY, position.z}, // 右下
+        {position.x - overlapOffsetX, position.y, position.z},                  // 中心左
+        {position.x + overlapOffsetX, position.y, position.z}                   // 中心右
     };
 
     // プレイヤーの4つの角を計算
@@ -1087,7 +1089,7 @@ Player::CollisionMapInfo Player::GetMapCollisionInfo() {
 		float blockBottom = blockPosition.y - blockSize / 2;
 
         // 重なり判定（プレイヤーの中心+-オフセットがブロックに接触しているか）
-        for (int i = 0; i < 4; ++i) {
+        for (int i = 0; i < 6; ++i) {
             if (checkPoints[i].x >= blockLeft && checkPoints[i].x <= blockRight && checkPoints[i].y >= blockBottom && checkPoints[i].y < blockTop) {
                 info.isOverlapping_ = true;
                 break;

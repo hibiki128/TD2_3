@@ -3,7 +3,7 @@
 #include "Easing.h"
 #include "Input.h"
 
-void ClearUI::Init() {
+void ClearUI::Init(bool isPlayerWhite) {
     book_ = std::make_unique<BaseObject>();
     book_->Init("book");
     book_->CreateModel("game/openBook.obj");
@@ -27,6 +27,11 @@ void ClearUI::Init() {
     animaChara_ = std::make_unique<BaseObject>();
     animaChara_->Init("animaChara");
     animaChara_->CreateModel("animation/playerClear.gltf");
+    if (isPlayerWhite) {
+        animaChara_->SetTexture("game/playerWhite.png");
+    } else {
+        animaChara_->SetTexture("game/player.png");
+    }
 
     animaGoal_ = std::make_unique<BaseObject>();
     animaGoal_->Init("animaGoal");

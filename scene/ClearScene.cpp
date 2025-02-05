@@ -36,7 +36,7 @@ void ClearScene::Initialize() {
 
     clearUI_ = std::make_unique<ClearUI>();
     clearUI_->SetStageNum(GetStageNum());
-    clearUI_->Init();
+    clearUI_->Init(sceneManager_->GetPlayerWhite());
 
     clearUI_->SetCoin(coinNum_);
 

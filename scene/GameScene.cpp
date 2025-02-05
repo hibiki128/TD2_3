@@ -5,6 +5,7 @@
 
 void GameScene::Finalize() {
     sceneManager_->SetFilePath(filePath_);
+    sceneManager_->SetPlayerWhite(mapChipField_->IsPlayerWhite());
     audio_->StopWave(BGM_);
 }
 

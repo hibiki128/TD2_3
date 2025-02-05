@@ -4,7 +4,7 @@
 class Input;
 class ClearUI {
   public:
-    void Init();
+    void Init(bool isPlayerWhite);
     void Update();
     void Draw(const ViewProjection &vp);
     void DrawParticle(const ViewProjection &vp);

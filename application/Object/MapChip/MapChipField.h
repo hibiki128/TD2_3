@@ -80,6 +80,8 @@ class MapChipField {
     // マップの状態を初期状態に戻す
     void ResetMapChip();
 
+    bool IsPlayerWhite() { return isPlayerWhite_; }
+
     ///
     ///	ブロックの反転処理（プレイヤー側で呼び出す）
     ///

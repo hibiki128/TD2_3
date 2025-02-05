@@ -38,12 +38,12 @@ void UIObject::Init() {
     objectR_->CreateModel("game/R.obj");
     objectR_->SetTexture("game/R.png");
 
-    filter_ = std::make_unique<BaseObject>();
-    filter_->Init("filter");
-    filter_->CreateModel("debug/plane.obj");
-    filter_->SetTexture("debug/filter2.png");
+    //filter_ = std::make_unique<BaseObject>();
+   // filter_->Init("filter");
+   // filter_->CreateModel("debug/plane.obj");
+   // filter_->SetTexture("debug/filter2.png");
 
-    filterColor_ = {1.0f, 1.0f, 1.0f, 0.4f};
+   // filterColor_ = {1.0f, 1.0f, 1.0f, 0.4f};
 
     // 各ボタンオブジェクトを、栞オブジェクトと親子付け
     objectL_->SetParent(&objectUI_->GetWorldTransform());
@@ -68,8 +68,8 @@ void UIObject::Update() {
     objectL_->Update();
     objectA_->Update();
     objectR_->Update();
-    filter_->SetObjColor(filterColor_);
-    filter_->Update();
+    //filter_->SetObjColor(filterColor_);
+   // filter_->Update();
 }
 
 void UIObject::Draw(const ViewProjection &viewProjection) {
@@ -78,7 +78,7 @@ void UIObject::Draw(const ViewProjection &viewProjection) {
     objectL_->Draw(viewProjection);
     objectA_->Draw(viewProjection);
     objectR_->Draw(viewProjection);
-    filter_->Draw(viewProjection);
+  //  filter_->Draw(viewProjection);
 }
 
 void UIObject::DrawSprite() { spritePause_->Draw(true); }
@@ -89,9 +89,9 @@ void UIObject::DebugImGui() {
     objectL_->DebugImGui();
     objectA_->DebugImGui();
     objectR_->DebugImGui();
-    filter_->DebugImGui();
+  //  filter_->DebugImGui();
     ImGui::Begin("filterColor");
-    ImGui::DragFloat4("色", &filterColor_.x, 0.1f);
+  //  ImGui::DragFloat4("色", &filterColor_.x, 0.1f);
     ImGui::End();
 }
 

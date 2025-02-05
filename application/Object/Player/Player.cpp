@@ -119,25 +119,7 @@ void Player::Update(MapChipField *mapChipField) {
 
     HandleInput();
 
-    if (velocity_.y == 0) {
-        if (velocity_.x == 0) {
-            BaseObject::SetLoop(true);
-            BaseObject::SetAnima("animation/playerStandby.gltf");
-        } else {
-            BaseObject::SetLoop(true);
-            BaseObject::SetAnima("animation/playerWalk.gltf");
-        }
-    } else {
-        BaseObject::SetLoop(false);
-        BaseObject::SetAnima("animation/playerJump.gltf");
-    }
-
-    if (velocity_.x > 0) {
-        BaseObject::SetRotationY(degreesToRadians(90.0f));
-    }
-    if (velocity_.x < 0) {
-        BaseObject::SetRotationY(degreesToRadians(-90.0f));
-    }
+    AnimaUpdate();
 
     BaseObject::Update();
     ///
@@ -787,7 +769,7 @@ bool Player::IsWalking() {
 	return false;
 }
 
-void Player::Reset() {
+void Player::Reset(bool title) {
     ///
     ///	メモ : SquareInが呼び出されたら終了次第、リセットとSquareOutが開始する
     ///
@@ -812,6 +794,9 @@ void Player::Reset() {
 
         // マップのリセット
         mapChipField_->ResetMapChip();
+        if (title) {
+            mapChipField_->SetGoalModel();
+        }
         // マップの所持する重力状態をリセット
         mapChipField_->SetIsGravityReversed(false);
         // マップの所持するプレイヤーの色状態をリセット
@@ -899,6 +884,29 @@ void Player::CheckCollisionAndResolve() {
     /// 速度リセット
     velocity_.x = 0.0f;
     /*velocity_.y = 0.0f;*/
+}
+
+void Player::AnimaUpdate() {
+
+    if (velocity_.y == 0) {
+        if (velocity_.x == 0) {
+            BaseObject::SetLoop(true);
+            BaseObject::SetAnima("animation/playerStandby.gltf");
+        } else {
+            BaseObject::SetLoop(true);
+            BaseObject::SetAnima("animation/playerWalk.gltf");
+        }
+    } else {
+        BaseObject::SetLoop(false);
+        BaseObject::SetAnima("animation/playerJump.gltf");
+    }
+
+    if (velocity_.x > 0) {
+        BaseObject::SetRotationY(degreesToRadians(90.0f));
+    }
+    if (velocity_.x < 0) {
+        BaseObject::SetRotationY(degreesToRadians(-90.0f));
+    }
 }
 
 void Player::DrawInvertArea() {

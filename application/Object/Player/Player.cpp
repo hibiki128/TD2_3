@@ -883,7 +883,7 @@ bool Player::IsWalking() {
     } else {
         isWalking_ = false;
     }
-    if (isWalking_&&collisionMapInfo_.hittingGround_) {
+    if (isWalking_ && collisionMapInfo_.hittingGround_) {
         if (walkSEcoolTime_ < 0) {
             walkSEcoolTime_ = 0.4f;
             return true;
@@ -1043,8 +1043,8 @@ void Player::CoinParticle() {
 
 void Player::RunParitcle() {
     if (isWalking_ && collisionMapInfo_.hittingGround_) {
-        runEmitter_->SetPosition(GetCenterPosition());
-        runEmitter_->SetPositionY(GetCenterPosition().y - 0.8f);
+        runEmitter_->SetPosition({GetCenterPosition().x, GetCenterPosition().y - 0.3f, GetCenterPosition().z - 2.3f});
+        //runEmitter_->SetPositionY(GetCenterPosition().y - 0.8f);
         if (velocity_.x > 0) {
             runEmitter_->SetRotateY(degreesToRadians(0.0f));
         }

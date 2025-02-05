@@ -24,7 +24,9 @@ void GameScene::Initialize() {
     debugCamera_->Initialize(&vp_);
 
     filePath_ = sceneManager_->GetFilePath();
-//#ifdef _DEBUG
+
+    filePath_ = "resources/Maps/stage14.csv";
+        //#ifdef _DEBUG
 //    filePath_ = "resources/Maps/stage1.csv";
 //#endif // DEBUG
 

@@ -15,6 +15,9 @@ public:
 	void DrawSprite();
 	void DebugImGui();
 
+	// 現在のステージをUIObjectクラスにセット
+    void SetCurrentStageNum(int stageNum) { currentStageNum_ = stageNum; }
+
 private:
 	// 入力
 	Input* input_;
@@ -40,4 +43,10 @@ private:
 
 	// パッド入力による反応
 	void InputReaction();
+
+private:
+	// 現在の選択ステージ
+	int currentStageNum_ = -1;
+	// 選択されたステージによってUIの位置を調整する
+	void AdjustUIPositionForStageNum();
 };

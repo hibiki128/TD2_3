@@ -220,7 +220,7 @@ void Player::Update(MapChipField *mapChipField) {
 
             ImGui::DragFloat3("最後に取得したコインの座標", &lastCollectedCoinPosition_.x);
 
-            ImGui::Text("現在のステージ : %d", currentStageNum_);
+            /*ImGui::Text("現在のステージ : %d", currentStageNum_);*/
 
             ImGui::EndTabItem();
         }

@@ -50,6 +50,9 @@ void UIObject::Init() {
 	spritePause_ = std::make_unique<Sprite>();
 	spritePause_->Initialize("game/pause.png", {64.0f, 64.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.5f, 0.5f});
 	spritePause_->SetSize({96.0f, 96.0f});
+
+	// 現在のステージによってUIの位置を調整する
+    AdjustUIPositionForStageNum();
 }
 
 void UIObject::Update() {
@@ -80,6 +83,10 @@ void UIObject::DebugImGui()
 	objectL_->DebugImGui();
 	objectA_->DebugImGui();
 	objectR_->DebugImGui();
+
+	ImGui::Begin("UIObject.param");
+    ImGui::Text("現在のステージ番号 : %d", currentStageNum_);
+	ImGui::End();
 }
 
 void UIObject::InputReaction()
@@ -193,4 +200,59 @@ void UIObject::InputReaction()
 		spritePause_->SetColor({currentColorPause.x, currentColorPause.y, currentColorPause.z});
 		spritePause_->SetAlpha(currentColorPause.w);
 	}
+}
+
+void UIObject::AdjustUIPositionForStageNum() {
+    switch (currentStageNum_) {
+    case 1:
+		/// 栞オブジェクトの位置
+        /*objectUI_->SetWorldPosition({});*/
+
+        break;
+    case 2:
+
+        break;
+    case 3:
+
+        break;
+    case 4:
+
+        break;
+    case 5:
+
+        break;
+    case 6:
+
+        break;
+    case 7:
+
+        break;
+    case 8:
+
+        break;
+    case 9:
+
+        break;
+    case 10:
+
+        break;
+    case 11:
+
+        break;
+    case 12:
+
+        break;
+    case 13:
+
+        break;
+    case 14:
+
+        break;
+    case 15:
+
+        break;
+
+    default:
+        break;
+    }
 }

@@ -42,6 +42,7 @@ void GameScene::Initialize() {
     // UIオブジェクト
     uiObject_ = std::make_unique<UIObject>();
     uiObject_->Init();
+    uiObject_->SetCurrentStageNum(GetStageNum()); // UIObjectに対して選択したステージ番号をセット
 
     // クリアカメラ
     clearCamera_ = std::make_unique<ClearCamera>();

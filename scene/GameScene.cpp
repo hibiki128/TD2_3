@@ -22,9 +22,9 @@ void GameScene::Initialize() {
     debugCamera_->Initialize(&vp_);
 
     filePath_ = sceneManager_->GetFilePath();
-#ifdef _DEBUG
-    filePath_ = "resources/Maps/stage1.csv";
-#endif // DEBUG
+//#ifdef _DEBUG
+//    filePath_ = "resources/Maps/stage1.csv";
+//#endif // DEBUG
 
     ///
     ///	各オブジェクト初期化
@@ -318,9 +318,9 @@ int GameScene::GetStageNum() {
         }
     }
 
-#ifdef _DEBUG
-    stageNumber = 1;
-#endif // _DEBUG
+//#ifdef _DEBUG
+//    stageNumber = 1;
+//#endif // _DEBUG
 
     return stageNumber;
 }

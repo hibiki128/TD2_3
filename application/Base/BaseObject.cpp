@@ -27,12 +27,28 @@ void BaseObject::Update() {
 	}
 }
 
-void BaseObject::Draw(const ViewProjection& viewProjection) {
-	obj3d_->Draw(transform_, viewProjection, &objColor_, isLighting_);
-	if (skeletonDraw_) {
-		obj3d_->DrawSkeleton(transform_, viewProjection);
-	}
+void BaseObject::Draw(const ViewProjection &viewProjection, Vector3 offSet) {
+    // オフセットを加える前の現在の位置を取得
+    Vector3 currentPosition = transform_.translation_;
+
+    // オフセットを加えて新しい位置を計算
+    Vector3 newPosition = currentPosition + offSet;
+
+    // 新しい位置を設定
+    transform_.translation_ = newPosition;
+
+    // オブジェクトの描画
+    obj3d_->Draw(transform_, viewProjection, &objColor_, isLighting_);
+
+    // スケルトンの描画が必要な場合
+    if (skeletonDraw_) {
+        obj3d_->DrawSkeleton(transform_, viewProjection);
+    }
+
+    // 描画後に元の位置に戻す場合は、以下の行を追加
+    transform_.translation_ = currentPosition;
 }
+
 
 Vector3 BaseObject::GetWorldPosition() const {
 	Vector3 worldPos;

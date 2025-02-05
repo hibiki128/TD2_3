@@ -11,7 +11,6 @@ void Goal::Update()
 	BaseObject::Update();
 }
 
-void Goal::Draw(const ViewProjection& viewProjection)
-{
+void Goal::Draw(const ViewProjection &viewProjection, Vector3 offSet ) {
 	BaseObject::Draw(viewProjection);
 }

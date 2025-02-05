@@ -84,6 +84,8 @@ void Player::Update(MapChipField *mapChipField, bool title) {
     ///	毎フレーム初期化処理
     ///
 
+    InversMove();
+
     mapChipField_ = mapChipField;
 
     // コインの取得処理
@@ -223,8 +225,8 @@ void Player::Update(MapChipField *mapChipField, bool title) {
 #endif
 }
 
-void Player::Draw(const ViewProjection &viewProjection) {
-    BaseObject::Draw(viewProjection);
+void Player::Draw(const ViewProjection &viewProjection, Vector3 offSet) {
+    BaseObject::Draw(viewProjection, {0.0f, offSetY_, 0.0f});
 
     // 反転可能範囲を描画
     /*DrawInvertArea();*/
@@ -931,18 +933,58 @@ void Player::AnimaUpdate() {
             BaseObject::SetLoop(false);
             BaseObject::SetAnima("animation/playerJump.gltf");
         }
-
-        if (velocity_.x > 0) {
-            BaseObject::SetRotationY(degreesToRadians(90.0f));
-        }
-        if (velocity_.x < 0) {
-            BaseObject::SetRotationY(degreesToRadians(-90.0f));
+        if (!isGravityReversed_) {
+            if (velocity_.x > 0) {
+                BaseObject::SetRotationY(degreesToRadians(90.0f));
+            }
+            if (velocity_.x < 0) {
+                BaseObject::SetRotationY(degreesToRadians(-90.0f));
+            }
+        } else {
+            if (velocity_.x > 0) {
+                BaseObject::SetRotationY(degreesToRadians(-90.0f));
+            }
+            if (velocity_.x < 0) {
+                BaseObject::SetRotationY(degreesToRadians(90.0f));
+            }
         }
     } else {
         BaseObject::SetLoop(false);
         BaseObject::SetAnima("animation/playerGoal.gltf");
         BaseObject::SetRotationY(degreesToRadians(90.0f));
     }
+}
+
+void Player::InversMove() {
+    float startPos = 0.0f;
+    float endPos = 0.0f;
+    float endRote = 0.0f;
+    const float EaseTMax = 0.5f;
+
+    if (!isGravityReversed_) {
+        startPos = 2.0f;
+        endPos = 0.0f;
+        endRote = degreesToRadians(0.0f);
+    } else {
+        startPos = 0.0f;
+        endPos = 2.0f;
+        endRote = degreesToRadians(180.0f);
+    }
+
+    // 重力反転が発生したら、開始位置と開始角度を保存する
+    if (IsGravityReversedOccurred()) {
+        inversT_ = 0.0f;
+        startRote_ = BaseObject::GetCenterRotation().x; // 現在の角度を記録
+    }
+
+    if (inversT_ < EaseTMax) {
+        inversT_ += 1.0f / 60.0f;
+    } else {
+        inversT_ = EaseTMax;
+    }
+
+    offSetY_ = EaseInSine<float>(startPos, endPos, inversT_, EaseTMax);
+    BaseObject::SetRotationX(EaseInSine<float>(startRote_, endRote, inversT_, EaseTMax));
 }
 
 void Player::CheckCollisionAndResolve(bool title) {

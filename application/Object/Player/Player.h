@@ -26,7 +26,7 @@ class Player : public BaseObject {
 
     void Init(const std::string className) override;
     void Update(MapChipField *mapChipField, bool title = false);
-    void Draw(const ViewProjection &viewProjection) override;
+    void Draw(const ViewProjection &viewProjection, Vector3 offSet = {0.0f, 0.0f, 0.0f}) override;
     void DrawSprite(const ViewProjection &viewProjection, bool title = false);
     void DebugImGui() override;
     void Reset(bool title = false);
@@ -111,6 +111,10 @@ class Player : public BaseObject {
     float gravityAcceleration_; // 重力加速度
     float jumpAcceleration_;    // ジャンプ初速
 
+    float offSetY_ = 0.0f; // 回転時の描画位置ずらすよう
+    float inversT_ = 1.0f; // 反転時イージング用
+    float startRote_ = 0.0f;
+
     // 反転可能範囲
     int xInvertRange_;
     int yInvertRange_;
@@ -162,6 +166,8 @@ class Player : public BaseObject {
     void CheckCollisionAndResolve(bool title = false);
 
     void AnimaUpdate();
+
+    void InversMove(); // 反転時の回転処理
 
     // 衝突判定
     /*void OnCollision([[maybe_unused]] Collider* other)override;*/

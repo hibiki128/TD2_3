@@ -3,25 +3,24 @@
 // Application
 #include "application/Base/BaseObject.h"
 
-class Block : public BaseObject 
-{
-public:
-	// マップチップの種類を定義
-	enum class ChipType {
-		Empty,       // 空白ブロック
-		Black,       // 黒ブロック
-		White,       // 白ブロック
-		Gray,        // 灰ブロック（動かないブロック）
-		Goal,        // ゴール
-		Player,      // プレイヤー初期位置
-		Gravity,     // 重力反転ブロック
-		ColorChange, // プレイヤー色反転ブロック
-		Coin,        // コイン
-	};
+class Block : public BaseObject {
+  public:
+    // マップチップの種類を定義
+    enum class ChipType {
+        Empty,       // 空白ブロック
+        Black,       // 黒ブロック
+        White,       // 白ブロック
+        Gray,        // 灰ブロック（動かないブロック）
+        Goal,        // ゴール
+        Player,      // プレイヤー初期位置
+        Gravity,     // 重力反転ブロック
+        ColorChange, // プレイヤー色反転ブロック
+        Coin,        // コイン
+    };
 
-	void Init(const std::string className) override;
-	void Update() override;
-	void Draw(const ViewProjection& viewProjection) override;
+    void Init(const std::string className) override;
+    void Update() override;
+    void Draw(const ViewProjection &viewProjection, Vector3 offSet = {0.0f, 0.0f, 0.0f}) override;
 
-	ChipType type_;
+    ChipType type_;
 };

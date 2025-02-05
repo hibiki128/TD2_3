@@ -8,4 +8,4 @@ void Block::Init(const std::string className) {
 
 void Block::Update() { BaseObject::Update(); }
 
-void Block::Draw(const ViewProjection& viewProjection) { BaseObject::Draw(viewProjection); }
+void Block::Draw(const ViewProjection &viewProjection, Vector3 offSet) { BaseObject::Draw(viewProjection); }

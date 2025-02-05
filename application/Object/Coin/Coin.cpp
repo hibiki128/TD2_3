@@ -30,7 +30,6 @@ void Coin::Update()
 	BaseObject::SetRotation({0.0f, angleRadians, 0.0f});
 }
 
-void Coin::Draw(const ViewProjection& viewProjection) 
-{ 
+void Coin::Draw(const ViewProjection &viewProjection, Vector3 offSet) { 
 	BaseObject::Draw(viewProjection); 
 }

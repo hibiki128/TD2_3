@@ -37,7 +37,7 @@ class BaseObject : public Collider {
     // 初期化、更新、描画
     virtual void Init(const std::string className);
     virtual void Update();
-    virtual void Draw(const ViewProjection &viewProjection);
+    virtual void Draw(const ViewProjection &viewProjection, Vector3 offSet = {0.0f,0.0f,0.0f});
 
     virtual void CreateModel(const std::string modelname);
     virtual void CreateCollider();
@@ -69,6 +69,7 @@ class BaseObject : public Collider {
     void AddPosition(Vector3 pos) { transform_.translation_ += pos; }
     void SetRotation(Vector3 rotate) { transform_.rotation_ = rotate; }
     void SetRotationY(float rotate) { transform_.rotation_.y = rotate; }
+    void SetRotationX(float rotate) { transform_.rotation_.x = rotate; }
     void SetScale(Vector3 scale) { transform_.scale_ = scale; }
     void SetLighting(bool isLighting) { isLighting_ = isLighting; }
     void SetTexture(const std::string &filePath) { obj3d_->SetTexture(filePath); }

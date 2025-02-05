@@ -22,8 +22,8 @@ void DemoScene::Initialize() {
     debugCamera_->Initialize(&vp_);
 
     emitter_ = std::make_unique<ParticleEmitter>();
-    emitter_->Initialize("coin", "debug/plane.obj");
-    emitter_->SetTexture("game/coinGet.png");
+    emitter_->Initialize("smokerun", "debug/plane.obj");
+    emitter_->SetTexture("game/smoke.png");
 }
 
 void DemoScene::Finalize() {

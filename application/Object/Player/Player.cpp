@@ -335,10 +335,10 @@ void Player::DebugImGui() {
 }
 
 bool Player::IsGoalReached() {
-    // デバッグ用にO押したらクリアにする（あとで絶対消す）
+  /*   デバッグ用にO押したらクリアにする（あとで絶対消す）
     if (input_->TriggerKey(DIK_O)) {
         return true;
-    }
+    }*/
 
     const float colliderYOffset = (kHeight - 1.8f) / 2.0f;
 

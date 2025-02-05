@@ -33,7 +33,11 @@ void ClearUI::Init() {
     animaGoal_->CreateModel("animation/goalClear.gltf");
 
     input_ = Input::GetInstance();
-    currentItem_ = 0;
+    if (stageNum_ < 15) {
+        currentItem_ = 0;
+    } else {
+        currentItem_ = 1;
+    }
     isDecision_ = false;
 
     decisionEmitter_ = std::make_unique<ParticleEmitter>();
@@ -62,7 +66,11 @@ void ClearUI::Update() {
     retry_->Update();
     singleDigit_->Update();
     twoDigit_->Update();
- 
+    if (stageNum_ > 14) {
+        backSelect_->SetWorldPositionY(-8.1f);
+        retry_->SetWorldPositionY(-7.4f);
+    }
+
     if (!isDecision_) {
         MenuOperation();
     }
@@ -118,7 +126,9 @@ void ClearUI::DrawParticle(const ViewProjection &vp) {
 }
 
 void ClearUI::DrawTexts(const ViewProjection &vp) {
-    nextStage_->Draw(vp);
+    if (stageNum_ < 15) {
+        nextStage_->Draw(vp);
+    }
     backSelect_->Draw(vp);
     retry_->Draw(vp);
 }
@@ -176,11 +186,20 @@ void ClearUI::MenuOperation() {
         coolTime_ = 0.0f;
     }
 
-    if (currentItem_ < 0) {
-        currentItem_ = 2;
-    }
-    if (currentItem_ > 2) {
-        currentItem_ = 0;
+    if (stageNum_ < 15) {
+        if (currentItem_ < 0) {
+            currentItem_ = 2;
+        }
+        if (currentItem_ > 2) {
+            currentItem_ = 0;
+        }
+    } else {
+        if (currentItem_ < 1) {
+            currentItem_ = 2;
+        }
+        if (currentItem_ > 2) {
+            currentItem_ = 1;
+        }
     }
 }
 

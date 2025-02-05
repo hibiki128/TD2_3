@@ -169,6 +169,7 @@ class Player : public BaseObject {
     uint32_t gravitySE_;
     uint32_t inversionSE_;
     uint32_t coinGetSE_;
+    uint32_t invertDisabledSE_;
     float walkSEcoolTime_ = 0.0f;
 
   private:

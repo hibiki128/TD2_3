@@ -59,6 +59,7 @@ void Player::Init(const std::string className, int currentStageNum) {
     walkSE_ = Audio::GetInstance()->LoadWave("player/playerWalk.wav");
     gravitySE_ = Audio::GetInstance()->LoadWave("action/inversionGravity.wav");
     inversionSE_ = Audio::GetInstance()->LoadWave("action/inversion.wav");
+    invertDisabledSE_ = Audio::GetInstance()->LoadWave("action/noInversion.wav");
 
     // 現在のステージ数をセット
     currentStageNum_ = currentStageNum;
@@ -968,6 +969,9 @@ void Player::PlaySE() {
     }
     if (IsGravityReversedOccurred()) {
         audio->PlayWave(gravitySE_, 0.1f);
+    }
+    if (IsInvertDisabled()) {
+        audio->PlayWave(invertDisabledSE_, 0.1f);
     }
 }
 

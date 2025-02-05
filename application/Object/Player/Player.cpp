@@ -193,7 +193,7 @@ void Player::Update(MapChipField *mapChipField, bool title) {
     if (ImGui::BeginTabBar(className_.c_str())) {
         if (ImGui::BeginTabItem("デバッグ")) {
 
-            /*ImGui::DragFloat3("velocity", &velocity_.x);*/
+            ImGui::DragFloat3("velocity", &velocity_.x);
 
             ImGui::Text("hittingGround : %d", collisionMapInfo_.hittingGround_);
             ImGui::Text("hittingCeiling : %d", collisionMapInfo_.hittingCeiling_);
@@ -1097,7 +1097,9 @@ void Player::CheckCollisionAndResolve(bool title) {
 
     /// Y移動
     if (!isInverting_) { // ブロック反転中には移動しない
-        BaseObject::transform_.translation_.y += velocity_.y;
+        if (!mapChipField_->IsAnyChipAnimating()){ // ブロックがどれか1つでもアニメーションしていたら移動しない
+            BaseObject::transform_.translation_.y += velocity_.y;
+        }
     }
 
     /// 衝突判定

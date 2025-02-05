@@ -195,10 +195,16 @@ void Framework::LoadResource() {
     modelManager_->LoadModel("clear/backSelect.obj");
     modelManager_->LoadModel("game/A.obj");
     modelManager_->LoadModel("game/blackBlock.obj");
+    modelManager_->LoadModel("game/block.obj");
+    modelManager_->LoadModel("game/coin.obj");
+    modelManager_->LoadModel("game/coinFlame.obj");
+    modelManager_->LoadModel("game/door.obj");
     modelManager_->LoadModel("game/goal.obj");
     modelManager_->LoadModel("game/gravityBlockDown.obj");
     modelManager_->LoadModel("game/gravityBlockUp.obj");
     modelManager_->LoadModel("game/L.obj");
+    modelManager_->LoadModel("game/playerSwitchBlockBlack.obj");
+    modelManager_->LoadModel("game/playerSwitchBlockWhite.obj");
     modelManager_->LoadModel("game/notouchBlackBlock.obj");
     modelManager_->LoadModel("game/notouchWhiteBlock.obj");
     modelManager_->LoadModel("game/openBook.obj");
@@ -206,15 +212,19 @@ void Framework::LoadResource() {
     modelManager_->LoadModel("game/R.obj");
     modelManager_->LoadModel("game/UI.obj");
     modelManager_->LoadModel("game/whiteBlock.obj");
-    modelManager_->LoadModel("game/whiteBlock.obj");
     modelManager_->LoadModel("select/book.obj");
     modelManager_->LoadModel("title/title.obj");
     modelManager_->LoadModel("title/titleStart.obj");
+
+    // アニメーション読み込み
     modelManager_->LoadModel("animation/playerWalk.gltf");
     modelManager_->LoadModel("animation/goalClearAfter2.gltf");
     modelManager_->LoadModel("animation/playerClearAfter2.gltf");
     modelManager_->LoadModel("animation/goalClear.gltf");
     modelManager_->LoadModel("animation/playerClear.gltf");
+    modelManager_->LoadModel("animation/playerJump.gltf");
+    modelManager_->LoadModel("animation/playerGoal.gltf");
+    modelManager_->LoadModel("animation/playerStandby.gltf");
 
     // テクスチャ読み込み
     textureManager_->LoadTexture("debug/uvChecker.png");
@@ -224,21 +234,36 @@ void Framework::LoadResource() {
     textureManager_->LoadTexture("clear/UI1x1.png");      // プレイヤー色反転ブロック
     textureManager_->LoadTexture("clear/UI2_1x1.png");
     textureManager_->LoadTexture("game/A.png");
+    textureManager_->LoadTexture("game/blackblock.png");
     textureManager_->LoadTexture("game/block.png");
     textureManager_->LoadTexture("game/book.png");
+    textureManager_->LoadTexture("game/ChangeBlack.png");
+    textureManager_->LoadTexture("game/ChangeWhite.png");
+    textureManager_->LoadTexture("game/coin.png");
+    textureManager_->LoadTexture("game/coinFlame.png");
+    textureManager_->LoadTexture("game/coinGet.png");
+    textureManager_->LoadTexture("game/door.png");
     textureManager_->LoadTexture("game/goal.png");
+    textureManager_->LoadTexture("game/goalGuide.png");
     textureManager_->LoadTexture("game/gravityBlockDown.png");
     textureManager_->LoadTexture("game/gravityBlockUp.png");
     textureManager_->LoadTexture("game/L.png");
+    textureManager_->LoadTexture("game/leaf.png");
     textureManager_->LoadTexture("game/noTouchBlackBlock.png");
     textureManager_->LoadTexture("game/noTouchWhiteBlock.png");
     textureManager_->LoadTexture("game/openBook.png");
+    textureManager_->LoadTexture("game/pause.png");
     textureManager_->LoadTexture("game/player.png");
     textureManager_->LoadTexture("game/playerFlame.png");
     textureManager_->LoadTexture("game/playerBlack.png");
     textureManager_->LoadTexture("game/playerWhite.png");
+    textureManager_->LoadTexture("game/playerSwitchBlockBlack.png");
+    textureManager_->LoadTexture("game/playerSwitchBlockWhite.png");
     textureManager_->LoadTexture("game/R.png");
+    textureManager_->LoadTexture("game/smoke.png");
+    textureManager_->LoadTexture("game/startUi.png");
     textureManager_->LoadTexture("game/ui.png");
+    textureManager_->LoadTexture("game/whiteBlock.png");
     textureManager_->LoadTexture("menu/0.png");
     textureManager_->LoadTexture("menu/1.png");
     textureManager_->LoadTexture("menu/2.png");
@@ -259,7 +284,10 @@ void Framework::LoadResource() {
     textureManager_->LoadTexture("particle/blackBlock1x1.png");
     textureManager_->LoadTexture("particle/whiteBlock1x1.png");
     textureManager_->LoadTexture("select/book.png");
+    textureManager_->LoadTexture("select/decision.png");
+    textureManager_->LoadTexture("select/backTitle.png");
     textureManager_->LoadTexture("title/title.png");
+    textureManager_->LoadTexture("title/backGround.png");
     textureManager_->LoadTexture("game/playerSwitchBlockBlack.png");
     textureManager_->LoadTexture("game/playerSwitchBlockWhite.png");
 }

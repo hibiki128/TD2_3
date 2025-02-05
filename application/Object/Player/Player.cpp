@@ -937,6 +937,8 @@ void Player::Reset(bool title) {
         colorState_ = ColorState::White;
         // 現在の取得コイン数をリセット
         currentCoinCount_ = 0;
+        // スケールをリセット
+        this->SetScale({0.9f, 0.9f, 0.9f});
 
         // マップのリセット
         mapChipField_->ResetMapChip();

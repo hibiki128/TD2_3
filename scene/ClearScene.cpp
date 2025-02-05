@@ -238,9 +238,9 @@ int ClearScene::GetStageNum()
 		}
 	}
 
-#ifdef _DEBUG
-	stageNumber = 1;
-#endif // _DEBUG
+//#ifdef _DEBUG
+//	stageNumber = 1;
+//#endif // _DEBUG
 
 	return stageNumber;
 }

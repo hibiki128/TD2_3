@@ -555,12 +555,14 @@ void Player::HandleInput() {
             // デッドゾーンの設定
             const float deadZone = 4000.0f;
 
-            if (abs(leftStickX) > deadZone) {
-                const float maxStickValue = 32767.0f;
-                float moveX = (abs(leftStickX) > deadZone) ? (leftStickX / maxStickValue) * kMoveSpeed : 0.0f;
+            if (!mapChipField_->IsAnyChipAnimating()) { // ブロックが1つでもアニメーションしていたら左右移動できないように
+                if (abs(leftStickX) > deadZone) {
+                    const float maxStickValue = 32767.0f;
+                    float moveX = (abs(leftStickX) > deadZone) ? (leftStickX / maxStickValue) * kMoveSpeed : 0.0f;
 
-                // 移動量を反映
-                velocity_.x = moveX;
+                    // 移動量を反映
+                    velocity_.x = moveX;
+                }
             }
         }
 
@@ -703,12 +705,13 @@ void Player::HandleInput() {
     ///	左右移動入力
     ///
     if (!isInverting_) { // ブロック反転中には移動できない
-
-        if (input_->PushKey(DIK_A)) {
-            velocity_.x = -kMoveSpeed;
-        }
-        if (input_->PushKey(DIK_D)) {
-            velocity_.x = kMoveSpeed;
+        if (!mapChipField_->IsAnyChipAnimating()) { // ブロックが1つでもアニメーションしていたら左右移動できないように
+            if (input_->PushKey(DIK_A)) {
+                velocity_.x = -kMoveSpeed;
+            }
+            if (input_->PushKey(DIK_D)) {
+                velocity_.x = kMoveSpeed;
+            }
         }
     }
 

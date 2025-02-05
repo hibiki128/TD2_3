@@ -30,7 +30,7 @@ public:
 	void Draw(const ViewProjection& viewProjection)override;
 	void DrawSprite(const ViewProjection& viewProjection);
 	void DebugImGui()override;
-	void Reset();
+    void Reset(bool title = false);
 	void PlaySE();
 
 	// プレイヤーがゴールに到達しているか判定
@@ -43,6 +43,7 @@ public:
 	}
 	// 現在の取得コイン数
 	uint32_t GetCurrentCoinCount() { return currentCoinCount_; }
+    bool GetFinishTransition() { return squareTransition_->IsFinished(); }
 	
 	// プレイヤーの位置を設定
 	void SetInitialPosition(Vector3 playerInitialPosition) { this->transform_.translation_ = playerInitialPosition; }
@@ -152,6 +153,8 @@ private:
 	void HandleInput();
 	// 全ての衝突判定とプレイヤーの押し戻し
 	void CheckCollisionAndResolve();
+
+	void AnimaUpdate();
 
 	// 衝突判定
 	/*void OnCollision([[maybe_unused]] Collider* other)override;*/

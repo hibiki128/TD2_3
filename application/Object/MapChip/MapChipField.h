@@ -19,6 +19,7 @@ class MapChipField {
         std::unique_ptr<Block> object;
         std::unique_ptr<ParticleEmitter> normal_;
         std::unique_ptr<ParticleEmitter> arrow_;
+        std::unique_ptr<ParticleEmitter> goal_;
 
         ///
         /// アニメーション関連
@@ -54,7 +55,7 @@ class MapChipField {
     MapChipField();
 
     void Init(const std::string &csvFilePath);
-    void Update(const Vector3 &center, int xRange, int yRange);
+    void Update(const Vector3 &center, int xRange, int yRange,bool title = false);
     void Draw(const ViewProjection &vp);
     void DebugImGui();
     void DrawParticle(const ViewProjection &vp);
@@ -156,6 +157,7 @@ class MapChipField {
 
     // 重力反転時のパーティクル用
     void GravityParticleUpdate();
+    void GoalParticleUpdate(bool title = false);
 
     ///
     ///	アニメーション関連

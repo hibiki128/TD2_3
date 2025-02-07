@@ -53,6 +53,11 @@ class Player : public BaseObject {
             squareTransition_->Start(SquareTransition::Status::SquareIn, kResetTransitionTime);
         }
     }
+    void SetClearAnima() {
+        BaseObject::SetLoop(false);
+        BaseObject::SetAnima("animation/playerGoal.gltf");
+        BaseObject::SetRotationY(degreesToRadians(90.0f));
+    };
 
     // プレイヤーの反転範囲の取得
     int GetInvertRangeX() { return xInvertRange_; }

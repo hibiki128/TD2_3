@@ -296,9 +296,11 @@ void Player::DrawSprite(const ViewProjection &viewProjection, bool title) {
         spriteGoalGuideTitle_->SetAlpha(1.0f);
         spriteGoalGuideTitle_->Draw();
     } else {
-        if (goalGuideAlpha_ > 0.0f) {
-            spriteGoalGuide_->SetAlpha(goalGuideAlpha_);
-            spriteGoalGuide_->Draw();
+        if (!isGravityReversed_) { // 重力反転時には描画されないようにする
+            if (goalGuideAlpha_ > 0.0f) {
+                spriteGoalGuide_->SetAlpha(goalGuideAlpha_);
+                spriteGoalGuide_->Draw();
+            }
         }
     }
 
@@ -377,12 +379,12 @@ bool Player::IsGoalReached() {
 
         XINPUT_STATE joyState;
         if (input_->GetJoystickState(0, joyState)) {
-            if ((joyState.Gamepad.wButtons & XINPUT_GAMEPAD_B) && collisionMapInfo_.hittingGround_) {
+            if ((joyState.Gamepad.wButtons & XINPUT_GAMEPAD_B) && collisionMapInfo_.hittingGround_ && !isGravityReversed_) { // 重力反転時はゴールできないようにする
                 SetClearAnima();
                 return true;
             }
         }
-        if (input_->TriggerKey(DIK_RETURN) && collisionMapInfo_.hittingGround_) {
+        if (input_->TriggerKey(DIK_RETURN) && collisionMapInfo_.hittingGround_ && !isGravityReversed_) { // 重力反転時はゴールできないようにする
             SetClearAnima();
             return true;
         }

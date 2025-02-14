@@ -427,10 +427,14 @@ bool Player::IsCollidingCoin(const Coin &coin) {
 
     // コインとの当たり判定
     Vector3 coinPosition = coin.GetWorldPosition();
-    float coinLeft = coinPosition.x - MapChipField::kChipSize / 2;
-    float coinRight = coinPosition.x + MapChipField::kChipSize / 2;
-    float coinTop = coinPosition.y + MapChipField::kChipSize / 2;
-    float coinBottom = coinPosition.y - MapChipField::kChipSize / 2;
+
+    float shrinkFactor = 0.6f; // コインの当たり判定のサイズを縮小（60％に）
+    float halfSize = (MapChipField::kChipSize * shrinkFactor) / 2.0f;
+
+    float coinLeft = coinPosition.x - halfSize;
+    float coinRight = coinPosition.x + halfSize;
+    float coinTop = coinPosition.y + halfSize;
+    float coinBottom = coinPosition.y - halfSize;
 
     // プレイヤーの角がコインの範囲内にあるかをチェック
     for (const auto &corner : corners) {

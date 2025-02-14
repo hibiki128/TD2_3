@@ -812,18 +812,37 @@ bool MapChipField::HasColorChangeBlockInArea(const Vector3 &center, int xRange, 
             // ブロックを取得してタイプを判定
             MapChip &chip = mapChips_[targetY][targetX];
             if (chip.object->type_ == Block::ChipType::ColorChange) { // プレイヤー色反転ブロックが見つかったら
+                //// 全てのブロックを探索
+                //for (auto &row : mapChips_) {
+                //    for (auto &chip : row) {
+                //        if (!chip.isAnimating) {
+                //            // 白ブロックまたは黒ブロックの場合のみ
+                //            if (chip.object->type_ == Block::ChipType::White || chip.object->type_ == Block::ChipType::Black) {
+                //                chip.isAnimating = true;
+                //                chip.animState = MapChip::AnimationState::Shrinking;
+                //                chip.animationTime = 0.0f;
+                //                // ここでは type は変更せず、後のアニメーション処理で見た目のみ切り替える
+                //                chip.isColorChangeAnimation = true;
+                //            }
+                //        }
+                //    }
+                //}
 
-                // 全てのブロックを探索
-                for (auto &row : mapChips_) {
-                    for (auto &chip : row) {
-                        if (!chip.isAnimating) {
+                for (int x = 0; x < static_cast<int>(mapWidth); ++x) {
+                    float delayTime = x * 0.1f; // x座標ごとに遅延を増やす
+                    for (int y = 0; y < static_cast<int>(mapHeight); ++y) {
+                        MapChip &currentChip = mapChips_[y][x];
+                        if (!currentChip.isAnimating) {
                             // 白ブロックまたは黒ブロックの場合のみ
-                            if (chip.object->type_ == Block::ChipType::White || chip.object->type_ == Block::ChipType::Black) {
-                                chip.isAnimating = true;
-                                chip.animState = MapChip::AnimationState::Shrinking;
-                                chip.animationTime = 0.0f;
+                            if (currentChip.object->type_ == Block::ChipType::White || currentChip.object->type_ == Block::ChipType::Black) {
+                                currentChip.isAnimating = true;
+                                currentChip.animState = MapChip::AnimationState::Shrinking;
+                                currentChip.animationTime = 0.0f;
                                 // ここでは type は変更せず、後のアニメーション処理で見た目のみ切り替える
-                                chip.isColorChangeAnimation = true;
+                                currentChip.isColorChangeAnimation = true;
+
+                                currentChip.isDelaying = true;
+                                currentChip.delayTime = (x + y) * 0.1f;
                             }
                         }
                     }

@@ -114,6 +114,8 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="application\Scene\SelectScene\MapPrev.cpp" />
     <ClCompile Include="application\Scene\ClearScene\ClearUI.cpp" />
     <ClCompile Include="application\Camera\ClearCamera.cpp" />
+    <ClCompile Include="myEngine\utility\Data\DataHandler.cpp" />
+    <ClCompile Include="myEngine\utility\loadFile\csv\CsvLoad.cpp" />
     <ClCompile Include="scene\DemoScene.cpp" />
     <ClCompile Include="scene\ClearScene.cpp" />
     <ClCompile Include="myEngine\3d\model\animation\ModelAnimation.cpp" />
@@ -217,6 +219,8 @@ copy "$(WindowsSdkDIr)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\Object\Coin\Coin.h" />
     <ClInclude Include="application\Scene\ClearScene\ClearUI.h" />
     <ClInclude Include="application\Camera\ClearCamera.h" />
+    <ClInclude Include="myEngine\utility\Data\DataHandler.h" />
+    <ClInclude Include="myEngine\utility\loadFile\csv\CsvLoad.h" />
     <ClInclude Include="scene\DemoScene.h" />
     <ClInclude Include="scene\ClearScene.h" />
     <ClInclude Include="myEngine\3d\model\animation\ModelAnimation.h" />

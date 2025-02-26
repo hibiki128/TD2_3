@@ -36,7 +36,7 @@ std::vector<std::vector<int>> CsvLoad::ReadCsvFile(const std::string &filePath) 
     std::ifstream file(filePath);
 
     // ファイルが開けなかった場合、assert で強制停止
-    assert(file && "Error: CSV file not found!");
+    assert(file && "ファイルがありません");
 
     std::string line;
     while (std::getline(file, line)) {

@@ -24,14 +24,15 @@ void Object3d::Initialize(const std::string &filePath) {
 
     materialData->textureFilePath = model->GetModelData().material.textureFilePath;
     materialData->textureIndex = model->GetModelData().material.textureIndex;
+    if (model->IsGltf()) {
+        modelAnimation_ = std::make_unique<ModelAnimation>();
+        modelAnimation_->SetModelData(model->GetModelData());
+        modelAnimation_->Initialize("resources/models/", filePath_);
 
-    modelAnimation_ = std::make_unique<ModelAnimation>();
-    modelAnimation_->SetModelData(model->GetModelData());
-    modelAnimation_->Initialize("resources/models/", filePath_);
-
-    model->SetAnimator(modelAnimation_->GetAnimator());
-    model->SetBone(modelAnimation_->GetBone());
-    model->SetSkin(modelAnimation_->GetSkin());
+        model->SetAnimator(modelAnimation_->GetAnimator());
+        model->SetBone(modelAnimation_->GetBone());
+        model->SetSkin(modelAnimation_->GetSkin());
+    }
 }
 
 void Object3d::Update(const WorldTransform &worldTransform, const ViewProjection &viewProjection) {
@@ -83,11 +84,13 @@ void Object3d::Draw(const WorldTransform &worldTransform, const ViewProjection &
     materialData->enableLighting = Lighting;
     Update(worldTransform, viewProjection);
 
-    if (modelAnimation_->GetAnimator()->HaveAnimation()) {
-        HaveAnimation = true;
-        Object3dCommon::GetInstance()->skinningDrawCommonSetting();
-    } else {
-        HaveAnimation = false;
+    if (model->IsGltf()) {
+        if (modelAnimation_->GetAnimator()->HaveAnimation()) {
+            HaveAnimation = true;
+            Object3dCommon::GetInstance()->skinningDrawCommonSetting();
+        } else {
+            HaveAnimation = false;
+        }
     }
 
     obj3dCommon->GetDxCommon()->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResource->GetGPUVirtualAddress());
@@ -137,13 +140,16 @@ void Object3d::SetModel(const std::string &filePath) {
 
     materialData->textureFilePath = model->GetModelData().material.textureFilePath;
     materialData->textureIndex = model->GetModelData().material.textureIndex;
-    modelAnimation_->SetModelData(model->GetModelData());
+    if (model->IsGltf()) {
 
-    modelAnimation_->Initialize("resources/models/", filePath);
+        modelAnimation_->SetModelData(model->GetModelData());
 
-    model->SetAnimator(modelAnimation_->GetAnimator());
-    model->SetBone(modelAnimation_->GetBone());
-    model->SetSkin(modelAnimation_->GetSkin());
+        modelAnimation_->Initialize("resources/models/", filePath);
+
+        model->SetAnimator(modelAnimation_->GetAnimator());
+        model->SetBone(modelAnimation_->GetBone());
+        model->SetSkin(modelAnimation_->GetSkin());
+    }
 }
 
 void Object3d::SetTexture(const std::string &filePath) {

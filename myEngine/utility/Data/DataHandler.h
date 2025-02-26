@@ -17,7 +17,11 @@ class DataHandler {
     std::string fileName = "data.json";       // インスタンスごとのファイル名
 
   public:
-    // コンストラクタ
+    /// <summary>
+    /// コンストラクタ
+    /// </summary>
+    /// <param name="folder">フォルダ名</param>
+    /// <param name="file">jsonファイル名</param>
     DataHandler(const std::string &folder, const std::string &file);
 
     // JSONデータを保存

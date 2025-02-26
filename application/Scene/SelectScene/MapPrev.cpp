@@ -9,6 +9,7 @@
 #include "externals/nlohmann/json.hpp"
 #include "math/Easing.h"
 #include <myEngine/Frame/Frame.h>
+#include <loadFile/csv/CsvLoad.h>
 
 // ブロックの大きさを定義
 const float MapPrev::kChipSize = 2.0f;
@@ -128,65 +129,49 @@ void MapPrev::Draw(const ViewProjection &vp) {
 }
 
 void MapPrev::LoadFromCSV(const std::string &filePath) {
-    std::ifstream file(filePath);
-    if (!file.is_open()) {
-        return;
-    }
+    // CSVファイルからデータを読み込む（キャッシュを使って効率化）
+    auto mapChipData = CsvLoad::GetInstance()->LoadCsv(filePath);
 
-    std::string line;
-    int y = 0;
-    int maxHeight = 0; // 最大の行数を記録する変数
+    // マップチップの二次元配列をサイズ調整
+    mapChips_.resize(mapChipData.size());
 
-    // 最初にファイルの行数を数える
-    while (std::getline(file, line)) {
-        ++maxHeight;
-    }
-    file.clear();
-    file.seekg(0);
+    for (int y = 0; y < mapChipData.size(); ++y) {
+        for (int x = 0; x < mapChipData[y].size(); ++x) {
+            int chipValue = mapChipData[y][x];                        // CSVから取得したマップチップ番号
+            Block::ChipType chipType = GetChipTypeFromInt(chipValue); // チップ番号からタイプを取得
 
-    // 二次元配列の要素数を設定
-    mapChips_.resize(maxHeight);
-    while (std::getline(file, line) && y < maxHeight) {
-        std::istringstream lineStream(line);
-        std::string cell;
-        int x = 0;
-
-        while (std::getline(lineStream, cell, ',')) {
-            int chipValue = std::stoi(cell);
-            Block::ChipType chipType = GetChipTypeFromInt(chipValue);
-
+            // MapChip オブジェクトを作成
             MapChip chip;
             chip.object = std::make_unique<Block>();
             chip.object->type_ = chipType;
-            /*BaseObjectの初期化*/
 
-            // 空白ブロックの場合にはスキップ
+            // チップタイプに応じた初期化
             if (chip.object->type_ != Block::ChipType::Empty) {
                 chip.object->Init("Block");
                 chip.object->SetScale({1.0f, 1.0f, 1.0f});
                 chip.object->SetWorldPosition({x * kChipSize, -y * kChipSize, 0.0f});
-
-                // モデルと色を設定
+              
+                // チップの種類に応じて処理を行う
                 switch (chip.object->type_) {
-                case Block::ChipType::Black: // 黒ブロック
+                case Block::ChipType::Black:
                     chip.object->CreateModel("game/blackBlock.obj");
-                    chip.object->SetTexture("game/blackBlock.png"); // 黒ブロックのテクスチャをセット
+                    chip.object->SetTexture("game/blackBlock.png");
                     break;
-                case Block::ChipType::White: // 白ブロック
-                    chip.object->CreateModel("game/whiteBlock.obj");
-                    chip.object->SetTexture("game/whiteBlock.png"); // 白ブロックのテクスチャをセット
+                case Block::ChipType::White:
+                    chip.object->CreateModel("game/noTouchWhiteBlock.obj");
+                    chip.object->SetTexture("game/noTouchWhiteBlock.png");
                     break;
-                case Block::ChipType::Gray: // 動かないブロック
+                case Block::ChipType::Gray:
                     chip.object->CreateModel("game/block.obj");
-                    chip.object->SetTexture("game/block.png"); // 動かないブロックのテクスチャをセット
+                    chip.object->SetTexture("game/block.png");
                     break;
-                case Block::ChipType::Gravity: // 重力反転ブロック
+                case Block::ChipType::Gravity:
                     chip.object->CreateModel("game/gravityBlockDown.obj");
-                    chip.object->SetTexture("game/gravityBlockDown.png"); // 重力通常状態のテクスチャをセット
+                    chip.object->SetTexture("game/gravityBlockDown.png");
                     break;
-                case Block::ChipType::ColorChange: // プレイヤー色変更ブロック
+                case Block::ChipType::ColorChange:
                     chip.object->CreateModel("game/playerSwitchBlockWhite.obj");
-                    chip.object->SetTexture("game/playerSwitchBlockWhite.png"); // プレイヤー色変更ブロックのテクスチャをセット
+                    chip.object->SetTexture("game/playerSwitchBlockWhite.png");
                     break;
                 default:
                     break;
@@ -194,14 +179,10 @@ void MapPrev::LoadFromCSV(const std::string &filePath) {
             }
             // マップチップの二次元配列に格納
             mapChips_[y].push_back(std::move(chip));
-            ++x;
         }
-        ++y;
     }
 
-    file.close();
-
-    // mapWidthとmapHeightを再設定
+    // マップの幅と高さを再設定
     mapWidth = mapChips_[0].size();
     mapHeight = mapChips_.size();
 }

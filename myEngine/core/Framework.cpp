@@ -2,6 +2,7 @@
 #include "ImGuiManager.h"
 #include "myEngine/Frame/Frame.h"
 #include <D3DResourceLeakChecker.h>
+#include"loadFile/csv/CsvLoad.h"
 
 void Framework::Run() {
     // ゲームの初期化
@@ -173,6 +174,24 @@ void Framework::Update() {
 }
 
 void Framework::LoadResource() {
+
+    // csvファイル読み込み
+    CsvLoad::GetInstance()->LoadCsv("resources/Maps/stage1.csv");
+    CsvLoad::GetInstance()->LoadCsv("resources/Maps/stage2.csv");
+    CsvLoad::GetInstance()->LoadCsv("resources/Maps/stage3.csv");
+    CsvLoad::GetInstance()->LoadCsv("resources/Maps/stage4.csv");
+    CsvLoad::GetInstance()->LoadCsv("resources/Maps/stage5.csv");
+    CsvLoad::GetInstance()->LoadCsv("resources/Maps/stage6.csv");
+    CsvLoad::GetInstance()->LoadCsv("resources/Maps/stage7.csv");
+    CsvLoad::GetInstance()->LoadCsv("resources/Maps/stage8.csv");
+    CsvLoad::GetInstance()->LoadCsv("resources/Maps/stage9.csv");
+    CsvLoad::GetInstance()->LoadCsv("resources/Maps/stage10.csv");
+    CsvLoad::GetInstance()->LoadCsv("resources/Maps/stage11.csv");
+    CsvLoad::GetInstance()->LoadCsv("resources/Maps/stage12.csv");
+    CsvLoad::GetInstance()->LoadCsv("resources/Maps/stage13.csv");
+    CsvLoad::GetInstance()->LoadCsv("resources/Maps/stage14.csv");
+    CsvLoad::GetInstance()->LoadCsv("resources/Maps/stage15.csv");
+
     // モデル読み込み
     modelManager_->LoadModel("debug/cube.obj");
 
@@ -234,7 +253,7 @@ void Framework::LoadResource() {
     textureManager_->LoadTexture("clear/UI1x1.png");      // プレイヤー色反転ブロック
     textureManager_->LoadTexture("clear/UI2_1x1.png");
     textureManager_->LoadTexture("game/A.png");
-    textureManager_->LoadTexture("game/blackblock.png");
+    textureManager_->LoadTexture("game/blackBlock.png");
     textureManager_->LoadTexture("game/block.png");
     textureManager_->LoadTexture("game/book.png");
     textureManager_->LoadTexture("game/ChangeBlack.png");

@@ -10,6 +10,7 @@
 #include "myEngine/utility/graphics/TextureManager.h"
 #include <ParticleCommon.h>
 #include <myEngine/Frame/Frame.h>
+#include <loadFile/csv/CsvLoad.h>
 
 // ブロックの大きさを定義
 const float MapChipField::kChipSize = 2.0f;
@@ -201,33 +202,18 @@ void MapChipField::InvertBlocksInArea(const Vector3 &center, int xRange, int yRa
 }
 
 void MapChipField::LoadFromCSV(const std::string &filePath) {
-    std::ifstream file(filePath);
-    if (!file.is_open()) {
-        return;
-    }
+    // CSVファイルからデータを読み込む（キャッシュを使って効率化）
+    auto mapChipData = CsvLoad::GetInstance()->LoadCsv(filePath);
 
-    std::string line;
-    int y = 0;
-    int maxHeight = 0; // 最大の行数を記録する変数
+    // マップチップの二次元配列をサイズ調整
+    mapChips_.resize(mapChipData.size());
 
-    // 最初にファイルの行数を数える
-    while (std::getline(file, line)) {
-        ++maxHeight;
-    }
-    file.clear();
-    file.seekg(0);
+    for (int y = 0; y < mapChipData.size(); ++y) {
+        for (int x = 0; x < mapChipData[y].size(); ++x) {
+            int chipValue = mapChipData[y][x];                        // CSVから取得したマップチップ番号
+            Block::ChipType chipType = GetChipTypeFromInt(chipValue); // チップ番号からタイプを取得
 
-    // 二次元配列の要素数を設定
-    mapChips_.resize(maxHeight);
-    while (std::getline(file, line) && y < maxHeight) {
-        std::istringstream lineStream(line);
-        std::string cell;
-        int x = 0;
-
-        while (std::getline(lineStream, cell, ',')) {
-            int chipValue = std::stoi(cell);
-            Block::ChipType chipType = GetChipTypeFromInt(chipValue);
-
+            // MapChip オブジェクトを作成
             MapChip chip;
             chip.object = std::make_unique<Block>();
             chip.object->type_ = chipType;
@@ -235,9 +221,7 @@ void MapChipField::LoadFromCSV(const std::string &filePath) {
             chip.arrow_ = std::make_unique<ParticleEmitter>();
             chip.goal_ = std::make_unique<ParticleEmitter>();
 
-            /*BaseObjectの初期化*/
-
-            // 空白ブロックの場合にはスキップ
+            // チップタイプに応じた初期化
             if (chip.object->type_ != Block::ChipType::Empty) {
                 chip.object->Init("Block");
                 chip.object->SetScale({1.0f, 1.0f, 1.0f});
@@ -249,55 +233,44 @@ void MapChipField::LoadFromCSV(const std::string &filePath) {
                 chip.goal_->Initialize("goal", "debug/plane.obj");
                 chip.goal_->SetTexture("particle/circle.png");
 
-                // モデルと色を設定
+                // チップの種類に応じて処理を行う
                 switch (chip.object->type_) {
-                case Block::ChipType::Black: // 黒ブロック
+                case Block::ChipType::Black:
                     chip.object->CreateModel("game/blackBlock.obj");
-                    chip.object->SetTexture("game/blackBlock.png"); // 黒ブロックのテクスチャをセット
+                    chip.object->SetTexture("game/blackBlock.png");
                     break;
-                case Block::ChipType::White: // 白ブロック
+                case Block::ChipType::White:
                     chip.object->CreateModel("game/noTouchWhiteBlock.obj");
-                    chip.object->SetTexture("game/noTouchWhiteBlock.png"); // 白ブロックのテクスチャをセット
+                    chip.object->SetTexture("game/noTouchWhiteBlock.png");
                     break;
-                case Block::ChipType::Gray: // 動かないブロック
+                case Block::ChipType::Gray:
                     chip.object->CreateModel("game/block.obj");
-                    chip.object->SetTexture("game/block.png"); // 動かないブロックのテクスチャをセット
+                    chip.object->SetTexture("game/block.png");
                     break;
-                case Block::ChipType::Goal: // ゴールブロック
+                case Block::ChipType::Goal:
                     chip.object->CreateModel("game/goal.obj");
-                    chip.object->SetTexture("game/goal.png");              // ゴールブロックのテクスチャをセット
-                    goalPosition_ = {x * kChipSize, -y * kChipSize, 0.0f}; // ゴールの生成位置を格納
+                    chip.object->SetTexture("game/goal.png");
+                    goalPosition_ = {x * kChipSize, -y * kChipSize, 0.0f};
                     break;
-                case Block::ChipType::Gravity: // 重力反転ブロック
+                case Block::ChipType::Gravity:
                     chip.object->CreateModel("game/gravityBlockDown.obj");
-                    chip.object->SetTexture("game/gravityBlockDown.png"); // 重力通常状態のテクスチャをセット
+                    chip.object->SetTexture("game/gravityBlockDown.png");
                     break;
-                case Block::ChipType::ColorChange: // プレイヤー色変更ブロック
+                case Block::ChipType::ColorChange:
                     chip.object->CreateModel("game/playerSwitchBlockWhite.obj");
-                    chip.object->SetTexture("game/playerSwitchBlockWhite.png"); // プレイヤー色変更ブロックのテクスチャをセット
+                    chip.object->SetTexture("game/playerSwitchBlockWhite.png");
                     break;
                 default:
                     break;
                 }
             }
 
-            /*ゴールオブジェクトの生成*/
-            // if (chipValue == 4) {
-            //	goal_ = std::make_unique<Goal>();
-            //	goal_->Init("Goal");
-            //	goal_->CreateModel("game/goal.obj");
-            //	goal_->SetTexture("game/goal.png");
-            //	goal_->SetWorldPosition({ x * kChipSize, -y * kChipSize, 0.0f });
-            //	goal_->CreateCollider();
-            //	goal_->SetObjColor({ 1.0f, 1.0f, 0.0f, 1.0f }); // 黄色にしておく
-            // }
-
-            /*プレイヤー初期位置の格納*/
+            // プレイヤー初期位置の格納
             if (chipValue == 5) {
                 playerInitialPosition_ = {x * kChipSize, -y * kChipSize, 0.0f};
-            };
+            }
 
-            /*コインオブジェクトの生成*/
+            // コインの生成
             if (chipValue == 8) {
                 auto coin = std::make_unique<Coin>();
                 coin->Init("Coin");
@@ -305,22 +278,19 @@ void MapChipField::LoadFromCSV(const std::string &filePath) {
                 coin->SetTexture("game/coin.png");
                 coin->SetWorldPosition({x * kChipSize, -y * kChipSize, 0.0f});
                 coin->CreateCollider();
-                coins_.push_back(std::move(coin)); // coinの配列に格納
+                coins_.push_back(std::move(coin));
             }
 
             // マップチップの二次元配列に格納
             mapChips_[y].push_back(std::move(chip));
-            ++x;
         }
-        ++y;
     }
 
-    file.close();
-
-    // mapWidthとmapHeightを再設定
+    // マップの幅と高さを再設定
     mapWidth = mapChips_[0].size();
     mapHeight = mapChips_.size();
 }
+
 
 Block::ChipType MapChipField::GetChipTypeFromInt(int value) {
     switch (value) {

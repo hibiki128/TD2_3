@@ -553,18 +553,31 @@ void MapChipField::UpdateChipAnimation(MapChip &chip) {
             chip.object->SetRotation({0.0f, chip.currentRotation, 0.0f});
             chip.object->SetScale({chip.currentScale, chip.currentScale, chip.currentScale});
 
-           /* chip.normal_->SetPosition(chip.object->GetCenterPosition());
+            /* chip.normal_->SetPosition(chip.object->GetCenterPosition());
 
-            if (chip.object->type_ == Block::ChipType::Black) {
-                chip.normal_->SetTexture("particle/blackBlock1x1.png");
-            }
-            if (chip.object->type_ == Block::ChipType::White) {
-                chip.normal_->SetTexture("particle/whiteBlock1x1.png");
-            }
+             if (chip.object->type_ == Block::ChipType::Black) {
+                 chip.normal_->SetTexture("particle/blackBlock1x1.png");
+             }
+             if (chip.object->type_ == Block::ChipType::White) {
+                 chip.normal_->SetTexture("particle/whiteBlock1x1.png");
+             }
 
-            if (chip.object->type_ == Block::ChipType::Black || chip.object->type_ == Block::ChipType::White) {
-                chip.normal_->UpdateOnce();
-            }*/
+             if (chip.object->type_ == Block::ChipType::Black || chip.object->type_ == Block::ChipType::White) {
+                 chip.normal_->UpdateOnce();
+             }*/
+
+            for (int i = 0; i < normal_.size();i++){
+                if (normal_[i]->GetFinish()) {
+                    if (chip.object->type_ == Block::ChipType::Black) {
+                        normal_[i]->SetTexture("particle/blackBlock1x1.png");
+                    }
+                    if (chip.object->type_ == Block::ChipType::White) {
+                        normal_[i]->SetTexture("particle/whiteBlock1x1.png");
+                    }
+                    normal_[i]->UpdateOnce();
+                    break;
+                }
+            }
 
         } else {
             // 回転角度を更新

@@ -45,10 +45,7 @@ class ParticleEmitter {
 
     bool GetActive() { return isActive_; }
     bool GetFinish() {
-        if (elapsedTime_ <= emitFrequency_) {
-            return true;
-        }
-        return false;
+       return Manager_->GetFinish();
     }
 
     void LoadFromJson(const std::string &name);

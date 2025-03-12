@@ -43,6 +43,14 @@ class ParticleEmitter {
     void SetTexture(const std::string &filePath);
     void SetColor(const Vector4 &color) { Manager_->SetColor(color); }
 
+    bool GetActive() { return isActive_; }
+    bool GetFinish() {
+        if (elapsedTime_ <= emitFrequency_) {
+            return true;
+        }
+        return false;
+    }
+
     void LoadFromJson(const std::string &name);
 
   private:

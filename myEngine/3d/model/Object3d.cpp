@@ -25,13 +25,13 @@ void Object3d::Initialize(const std::string &filePath) {
     materialData->textureFilePath = model->GetModelData().material.textureFilePath;
     materialData->textureIndex = model->GetModelData().material.textureIndex;
     if (model->IsGltf()) {
-        modelAnimation_ = std::make_unique<ModelAnimation>();
-        modelAnimation_->SetModelData(model->GetModelData());
-        modelAnimation_->Initialize("resources/models/", filePath_);
+        currentModelAnimation_ = std::make_unique<ModelAnimation>();
+        currentModelAnimation_->SetModelData(model->GetModelData());
+        currentModelAnimation_->Initialize("resources/models/", filePath_);
 
-        model->SetAnimator(modelAnimation_->GetAnimator());
-        model->SetBone(modelAnimation_->GetBone());
-        model->SetSkin(modelAnimation_->GetSkin());
+        model->SetAnimator(currentModelAnimation_->GetAnimator());
+        model->SetBone(currentModelAnimation_->GetBone());
+        model->SetSkin(currentModelAnimation_->GetSkin());
     }
 }
 
@@ -55,21 +55,44 @@ void Object3d::Update(const WorldTransform &worldTransform, const ViewProjection
 }
 
 void Object3d::AnimationUpdate(bool roop) {
-    if (modelAnimation_) {
-        modelAnimation_->Update(roop);
+    if (currentModelAnimation_) {
+        currentModelAnimation_->Update(roop);
     }
 }
 
 void Object3d::SetAnimation(const std::string &fileName) {
+    // すでにセット済みのアニメーションなら何もしない
     if (fileName == filePath_) {
         return;
     }
-    modelAnimation_->Initialize("resources/models/", fileName);
-    modelAnimation_->GetAnimator()->SetAnimationTime(0.0f);
-    model->SetAnimator(modelAnimation_->GetAnimator());
-    model->SetBone(modelAnimation_->GetBone());
-    model->SetSkin(modelAnimation_->GetSkin());
+
+    // modelAnimations_ 内に fileName に対応するアニメーションがあるか検索
+    auto it = modelAnimations_.find(fileName);
+
+    // アニメーションが見つからなかった場合、強制的にプログラムを停止
+    assert(it != modelAnimations_.end() && "Error: Animation file not found in modelAnimations_!");
+
+    // 見つかったアニメーションを shared_ptr に格納
+    currentModelAnimation_ = it->second;
+
+    // Animator などを model にセット
+    model->SetAnimator(currentModelAnimation_->GetAnimator());
+    model->SetBone(currentModelAnimation_->GetBone());
+    model->SetSkin(currentModelAnimation_->GetSkin());
+
+    // ファイルパスを更新
     filePath_ = fileName;
+}
+
+
+void Object3d::AddAnimation(const std::string &fileName) {
+    auto animation = std::make_unique<ModelAnimation>();
+
+    animation->SetModelData(model->GetModelData());
+    animation->Initialize("resources/models/", fileName);
+    animation->GetAnimator()->SetAnimationTime(0.0f);
+
+    modelAnimations_.emplace(fileName, std::move(animation));
 }
 
 void Object3d::Draw(const WorldTransform &worldTransform, const ViewProjection &viewProjection, ObjColor *color, bool Lighting) {
@@ -85,7 +108,7 @@ void Object3d::Draw(const WorldTransform &worldTransform, const ViewProjection &
     Update(worldTransform, viewProjection);
 
     if (model->IsGltf()) {
-        if (modelAnimation_->GetAnimator()->HaveAnimation()) {
+        if (currentModelAnimation_->GetAnimator()->HaveAnimation()) {
             HaveAnimation = true;
             Object3dCommon::GetInstance()->skinningDrawCommonSetting();
         } else {
@@ -109,7 +132,7 @@ void Object3d::Draw(const WorldTransform &worldTransform, const ViewProjection &
 void Object3d::DrawSkeleton(const WorldTransform &worldTransform, const ViewProjection &viewProjection) {
     Update(worldTransform, viewProjection);
     // スケルトンデータを取得
-    const Skeleton &skeleton = modelAnimation_->GetSkeletonData();
+    const Skeleton &skeleton = currentModelAnimation_->GetSkeletonData();
 
     // 各ジョイントを巡回して親子関係の線を生成
     for (const auto &joint : skeleton.joints) {
@@ -142,13 +165,13 @@ void Object3d::SetModel(const std::string &filePath) {
     materialData->textureIndex = model->GetModelData().material.textureIndex;
     if (model->IsGltf()) {
 
-        modelAnimation_->SetModelData(model->GetModelData());
+        currentModelAnimation_->SetModelData(model->GetModelData());
 
-        modelAnimation_->Initialize("resources/models/", filePath);
+        currentModelAnimation_->Initialize("resources/models/", filePath);
 
-        model->SetAnimator(modelAnimation_->GetAnimator());
-        model->SetBone(modelAnimation_->GetBone());
-        model->SetSkin(modelAnimation_->GetSkin());
+        model->SetAnimator(currentModelAnimation_->GetAnimator());
+        model->SetBone(currentModelAnimation_->GetBone());
+        model->SetSkin(currentModelAnimation_->GetSkin());
     }
 }
 

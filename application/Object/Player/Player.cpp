@@ -24,6 +24,10 @@ void Player::Init(const std::string className, int currentStageNum) {
     BaseObject::CreateModel("animation/playerStandby.gltf");
     BaseObject::SetTexture("game/playerWhite.png"); // 白状態のプレイヤーテクスチャを設定
     BaseObject::CreateCollider();
+    BaseObject::AddAnimation("animation/playerStandby.gltf");
+    BaseObject::AddAnimation("animation/playerWalk.gltf");
+    BaseObject::AddAnimation("animation/playerJump.gltf");
+    BaseObject::AddAnimation("animation/playerGoal.gltf");
     Collider::SetVisible(false);
 
     ///

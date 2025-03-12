@@ -57,7 +57,8 @@ class Object3d {
     Transform transform;
 
     Model *model = nullptr;
-    std::unique_ptr<ModelAnimation> modelAnimation_ = nullptr;
+    std::shared_ptr<ModelAnimation> currentModelAnimation_ = nullptr;
+    std::map<std::string, std::shared_ptr<ModelAnimation>> modelAnimations_;
     ModelCommon *modelCommon = nullptr;
     LightGroup *lightGroup = nullptr;
 
@@ -89,13 +90,19 @@ class Object3d {
     /// アニメーションの有無
     /// </summary>
     /// <param name="anime"></param>
-    void SetStopAnimation(bool anime) { modelAnimation_->SetIsAnimation(anime); }
+    void SetStopAnimation(bool anime) { currentModelAnimation_->SetIsAnimation(anime); }
 
     /// <summary>
     /// アニメーションのセット
     /// </summary>
     /// <param name="fileName"></param>
     void SetAnimation(const std::string &fileName);
+
+    /// <summary>
+    /// アニメーション追加
+    /// </summary>
+    /// <param name="fileName"></param>
+    void AddAnimation(const std::string &fileName);
 
     /// <summary>
     /// 描画
@@ -107,7 +114,7 @@ class Object3d {
     /// </summary>
     void DrawSkeleton(const WorldTransform &worldTransform, const ViewProjection &viewProjection);
 
-    void PlayAnimation() { modelAnimation_->PlayAnimation(); }
+    void PlayAnimation() { currentModelAnimation_->PlayAnimation(); }
 
     /// <summary>
     /// getter
@@ -117,7 +124,7 @@ class Object3d {
     const Vector3 &GetRotation() const { return rotation; }
     const Vector3 &GetSize() const { return size; }
     const bool &GetHaveAnimation() const { return HaveAnimation; }
-    bool IsFinish() { return modelAnimation_->IsFinish(); }
+    bool IsFinish() { return currentModelAnimation_->IsFinish(); }
 
     /// <summary>
     /// setter

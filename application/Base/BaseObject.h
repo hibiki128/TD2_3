@@ -82,6 +82,7 @@ class BaseObject : public Collider {
     void SetParent(const WorldTransform &wt) { transform_.parent_ = &wt; }
     void SetAnima(const std::string &filePath) { obj3d_->SetAnimation(filePath); }
     void SetLoop(bool flag) { isLoop_ = flag; }
+    void AddAnimation(std::string filePath) { obj3d_->AddAnimation(filePath); }
 
   private:
     void DebugTransform();

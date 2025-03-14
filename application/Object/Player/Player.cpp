@@ -300,9 +300,11 @@ void Player::DrawSprite(const ViewProjection &viewProjection, bool title) {
         spriteGoalGuideTitle_->SetAlpha(1.0f);
         spriteGoalGuideTitle_->Draw();
     } else {
-        if (goalGuideAlpha_ > 0.0f) {
-            spriteGoalGuide_->SetAlpha(goalGuideAlpha_);
-            spriteGoalGuide_->Draw();
+        if (!isGravityReversed_) { // 重力反転時には描画されないようにする
+            if (goalGuideAlpha_ > 0.0f) {
+                spriteGoalGuide_->SetAlpha(goalGuideAlpha_);
+                spriteGoalGuide_->Draw();
+            }
         }
     }
 
@@ -381,12 +383,12 @@ bool Player::IsGoalReached() {
 
         XINPUT_STATE joyState;
         if (input_->GetJoystickState(0, joyState)) {
-            if ((joyState.Gamepad.wButtons & XINPUT_GAMEPAD_B) && collisionMapInfo_.hittingGround_) {
+            if ((joyState.Gamepad.wButtons & XINPUT_GAMEPAD_B) && collisionMapInfo_.hittingGround_ && !isGravityReversed_) { // 重力反転時はゴールできないようにする
                 SetClearAnima();
                 return true;
             }
         }
-        if (input_->TriggerKey(DIK_RETURN) && collisionMapInfo_.hittingGround_) {
+        if (input_->TriggerKey(DIK_RETURN) && collisionMapInfo_.hittingGround_ && !isGravityReversed_) { // 重力反転時はゴールできないようにする
             SetClearAnima();
             return true;
         }
@@ -415,24 +417,30 @@ bool Player::GetGoalAnimaFinish() {
 }
 
 bool Player::IsCollidingCoin(const Coin &coin) {
-    const float colliderYOffset = (kHeight - 1.8f) / 2.0f;
+    const float colliderYOffset = 0.0f;
 
     // 現在位置の取得
     Vector3 position = this->transform_.translation_ + Vector3(0.0f, colliderYOffset, 0.0f);
-    // プレイヤーの4つの角を計算
-    Vector3 corners[4] = {
+    // プレイヤーの6つの点を計算
+    Vector3 corners[6] = {
         {position.x - kWidth / 2, position.y + kHeight / 2, position.z}, // 左上
         {position.x + kWidth / 2, position.y + kHeight / 2, position.z}, // 右上
         {position.x - kWidth / 2, position.y - kHeight / 2, position.z}, // 左下
-        {position.x + kWidth / 2, position.y - kHeight / 2, position.z}  // 右下
+        {position.x + kWidth / 2, position.y - kHeight / 2, position.z}, // 右下
+        {position.x - kWidth / 2, position.y, position.z}, // 中心左
+        {position.x + kWidth / 2, position.y, position.z}, // 中心右
     };
 
     // コインとの当たり判定
     Vector3 coinPosition = coin.GetWorldPosition();
-    float coinLeft = coinPosition.x - MapChipField::kChipSize / 2;
-    float coinRight = coinPosition.x + MapChipField::kChipSize / 2;
-    float coinTop = coinPosition.y + MapChipField::kChipSize / 2;
-    float coinBottom = coinPosition.y - MapChipField::kChipSize / 2;
+
+    float shrinkFactor = 0.7f; // コインの当たり判定のサイズを縮小（70％に）
+    float halfSize = (MapChipField::kChipSize * shrinkFactor) / 2.0f;
+
+    float coinLeft = coinPosition.x - halfSize;
+    float coinRight = coinPosition.x + halfSize;
+    float coinTop = coinPosition.y + halfSize;
+    float coinBottom = coinPosition.y - halfSize;
 
     // プレイヤーの角がコインの範囲内にあるかをチェック
     for (const auto &corner : corners) {
@@ -615,58 +623,60 @@ void Player::HandleInput() {
         // RBボタンが押された瞬間のみ
         if (isPressedRB && !wasPressedRB && blockInvertCooldown_ <= 0.0f) { // クールタイム中には反転できない
             if (!isInverting_ && !collisionMapInfo_.isOverlapping_) {       // ブロック反転中には反転できない && ブロックに埋まっていたら反転できない
-                if (mapChipField_) {
-                    // 現在の位置を取得
-                    Vector3 position = BaseObject::GetWorldPosition();
+                if (!mapChipField_->IsAnyChipAnimating()) { // ブロックが1つでもアニメーション中なら反転できないように
+                    if (mapChipField_) {
+                        // 現在の位置を取得
+                        Vector3 position = BaseObject::GetWorldPosition();
 
-                    // 範囲内にブロックが1つでも存在しているかを判定する
-                    if (mapChipField_->HasBlockInArea(position, xInvertRange_, yInvertRange_)) {
-                        // 範囲内のブロックの反転を行う
-                        mapChipField_->InvertBlocksInArea(position, xInvertRange_, yInvertRange_);
-                        // 反転中であることを記録する
-                        isInverting_ = true;
-                        // ブロック反転クールタイムを設定
-                        blockInvertCooldown_ = kBlockInvertCooldownTime;
-                        // 反転が成立したら強制的にシェイクを終わらせる
-                        spriteShakeTimer_ = 0.0f;
+                        // 範囲内にブロックが1つでも存在しているかを判定する
+                        if (mapChipField_->HasBlockInArea(position, xInvertRange_, yInvertRange_)) {
+                            // 範囲内のブロックの反転を行う
+                            mapChipField_->InvertBlocksInArea(position, xInvertRange_, yInvertRange_);
+                            // 反転中であることを記録する
+                            isInverting_ = true;
+                            // ブロック反転クールタイムを設定
+                            blockInvertCooldown_ = kBlockInvertCooldownTime;
+                            // 反転が成立したら強制的にシェイクを終わらせる
+                            spriteShakeTimer_ = 0.0f;
 
-                        ///
-                        /// 重力ブロックが範囲内に見つかった場合、プレイヤーの重力を反転する
-                        ///
-                        if (mapChipField_->HasGravityBlockInArea(position, xInvertRange_, yInvertRange_)) {
-                            isGravityReversed_ = !isGravityReversed_;
+                            ///
+                            /// 重力ブロックが範囲内に見つかった場合、プレイヤーの重力を反転する
+                            ///
+                            if (mapChipField_->HasGravityBlockInArea(position, xInvertRange_, yInvertRange_)) {
+                                isGravityReversed_ = !isGravityReversed_;
 
-                            // 重力反転したことを記録（SE・エフェクト用）
-                            isGravityReversedOccurred_ = true;
-                        }
-
-                        ///
-                        ///	プレイヤー色反転ブロックが範囲内に見つかった場合、プレイヤーの色を反転する
-                        ///
-                        if (mapChipField_->HasColorChangeBlockInArea(position, xInvertRange_, yInvertRange_)) {
-                            isScaling_ = true;
-                            scaleTimer_ = 0.0f;
-
-                            prevRotY_ = this->GetCenterRotation().y;
-
-                            // 現在が白の場合、テクスチャと色状態を黒に変更
-                            if (colorState_ == ColorState::White) {
-                                this->SetTexture("game/player.png");
-                                colorState_ = ColorState::Black;
-
-                                // 現在が黒の場合、テクスチャと色状態を白に変更
-                            } else if (colorState_ == ColorState::Black) {
-                                this->SetTexture("game/playerWhite.png");
-                                colorState_ = ColorState::White;
+                                // 重力反転したことを記録（SE・エフェクト用）
+                                isGravityReversedOccurred_ = true;
                             }
+
+                            ///
+                            ///	プレイヤー色反転ブロックが範囲内に見つかった場合、プレイヤーの色を反転する
+                            ///
+                            if (mapChipField_->HasColorChangeBlockInArea(position, xInvertRange_, yInvertRange_)) {
+                                isScaling_ = true;
+                                scaleTimer_ = 0.0f;
+
+                                prevRotY_ = this->GetCenterRotation().y;
+
+                                // 現在が白の場合、テクスチャと色状態を黒に変更
+                                if (colorState_ == ColorState::White) {
+                                    this->SetTexture("game/player.png");
+                                    colorState_ = ColorState::Black;
+
+                                    // 現在が黒の場合、テクスチャと色状態を白に変更
+                                } else if (colorState_ == ColorState::Black) {
+                                    this->SetTexture("game/playerWhite.png");
+                                    colorState_ = ColorState::White;
+                                }
+                            }
+
+                            // ブロック反転したことを記録（SE・エフェクト用）
+                            isBlockInversionOccurred_ = true;
+
+                            // 反転範囲内に反転可能ブロックが無かった場合
+                        } else {
+                            isInvertDisabled_ = true; // 反転無効であることを知らせる
                         }
-
-                        // ブロック反転したことを記録（SE・エフェクト用）
-                        isBlockInversionOccurred_ = true;
-
-                        // 反転範囲内に反転可能ブロックが無かった場合
-                    } else {
-                        isInvertDisabled_ = true; // 反転無効であることを知らせる
                     }
                 }
             }
@@ -750,57 +760,59 @@ void Player::HandleInput() {
 
     if (input_->TriggerKey(DIK_SPACE) && blockInvertCooldown_ <= 0.0f) { // クールタイム中には反転できない
         if (!isInverting_ && !collisionMapInfo_.isOverlapping_) {        // ブロック反転中には反転できない && ブロックに埋まっていたら反転できない
-            if (mapChipField_) {
-                // 現在の位置を取得
-                Vector3 position = BaseObject::GetWorldPosition();
+            if (!mapChipField_->IsAnyChipAnimating()) {                  // ブロックが1つでもアニメーション中なら反転できないように
+                if (mapChipField_) {
+                    // 現在の位置を取得
+                    Vector3 position = BaseObject::GetWorldPosition();
 
-                // 範囲内にブロックが1つでも存在しているかを判定する
-                if (mapChipField_->HasBlockInArea(position, xInvertRange_, yInvertRange_)) {
-                    // 範囲内のブロックの反転を行う
-                    mapChipField_->InvertBlocksInArea(position, xInvertRange_, yInvertRange_);
-                    // 反転中であることを記録する
-                    isInverting_ = true;
-                    // ブロック反転クールタイムを設定
-                    blockInvertCooldown_ = kBlockInvertCooldownTime;
-                    // 反転が成立したら強制的にシェイクを終わらせる
-                    spriteShakeTimer_ = 0.0f;
+                    // 範囲内にブロックが1つでも存在しているかを判定する
+                    if (mapChipField_->HasBlockInArea(position, xInvertRange_, yInvertRange_)) {
+                        // 範囲内のブロックの反転を行う
+                        mapChipField_->InvertBlocksInArea(position, xInvertRange_, yInvertRange_);
+                        // 反転中であることを記録する
+                        isInverting_ = true;
+                        // ブロック反転クールタイムを設定
+                        blockInvertCooldown_ = kBlockInvertCooldownTime;
+                        // 反転が成立したら強制的にシェイクを終わらせる
+                        spriteShakeTimer_ = 0.0f;
 
-                    ///
-                    /// 重力ブロックが範囲内に見つかった場合、プレイヤーの重力を反転する
-                    ///
-                    if (mapChipField_->HasGravityBlockInArea(position, xInvertRange_, yInvertRange_)) {
-                        isGravityReversed_ = !isGravityReversed_;
+                        ///
+                        /// 重力ブロックが範囲内に見つかった場合、プレイヤーの重力を反転する
+                        ///
+                        if (mapChipField_->HasGravityBlockInArea(position, xInvertRange_, yInvertRange_)) {
+                            isGravityReversed_ = !isGravityReversed_;
 
-                        // 重力反転したことを記録（SE・エフェクト用）
-                        isGravityReversedOccurred_ = true;
-                    }
-
-                    ///
-                    ///	プレイヤー色反転ブロックが範囲内に見つかった場合、プレイヤーの色を反転する
-                    ///
-                    if (mapChipField_->HasColorChangeBlockInArea(position, xInvertRange_, yInvertRange_)) {
-                        isScaling_ = true;
-                        scaleTimer_ = 0.0f;
-
-                        prevRotY_ = this->GetCenterRotation().y;
-
-                        // 現在が白の場合、テクスチャと色状態を黒に変更
-                        if (colorState_ == ColorState::White) {
-                            this->SetTexture("game/player.png");
-                            colorState_ = ColorState::Black;
-                            // 現在が黒の場合、テクスチャと色状態を白に変更
-                        } else if (colorState_ == ColorState::Black) {
-                            this->SetTexture("game/playerWhite.png");
-                            colorState_ = ColorState::White;
+                            // 重力反転したことを記録（SE・エフェクト用）
+                            isGravityReversedOccurred_ = true;
                         }
+
+                        ///
+                        ///	プレイヤー色反転ブロックが範囲内に見つかった場合、プレイヤーの色を反転する
+                        ///
+                        if (mapChipField_->HasColorChangeBlockInArea(position, xInvertRange_, yInvertRange_)) {
+                            isScaling_ = true;
+                            scaleTimer_ = 0.0f;
+
+                            prevRotY_ = this->GetCenterRotation().y;
+
+                            // 現在が白の場合、テクスチャと色状態を黒に変更
+                            if (colorState_ == ColorState::White) {
+                                this->SetTexture("game/player.png");
+                                colorState_ = ColorState::Black;
+                                // 現在が黒の場合、テクスチャと色状態を白に変更
+                            } else if (colorState_ == ColorState::Black) {
+                                this->SetTexture("game/playerWhite.png");
+                                colorState_ = ColorState::White;
+                            }
+                        }
+
+                        // ブロック反転したことを記録（SE・エフェクト用）
+                        isBlockInversionOccurred_ = true;
+
+                        // 反転範囲内に反転可能ブロックが無かった場合
+                    } else {
+                        isInvertDisabled_ = true; // 反転無効であることを知らせる
                     }
-
-                    // ブロック反転したことを記録（SE・エフェクト用）
-                    isBlockInversionOccurred_ = true;
-
-                    // 反転範囲内に反転可能ブロックが無かった場合
-                } else {
-                    isInvertDisabled_ = true; // 反転無効であることを知らせる
                 }
             }
         }

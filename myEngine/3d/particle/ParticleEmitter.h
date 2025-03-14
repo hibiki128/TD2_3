@@ -43,6 +43,7 @@ class ParticleEmitter {
     void SetTexture(const std::string &filePath);
     void SetColor(const Vector4 &color) { Manager_->SetColor(color); }
 
+    Vector3 GetPosition() { return transform_.translation_; }
     bool GetActive() { return isActive_; }
     bool GetFinish() {
        return Manager_->GetFinish();

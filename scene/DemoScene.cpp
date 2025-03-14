@@ -22,8 +22,8 @@ void DemoScene::Initialize() {
     debugCamera_->Initialize(&vp_);
 
     emitter_ = std::make_unique<ParticleEmitter>();
-    emitter_->Initialize("reverse", "debug/sphere.obj");
-    emitter_->SetTexture("particle/blackBlock1x1.png");
+    emitter_->Initialize("arrow_up", "debug/plane.obj");
+    emitter_->SetTexture("Particle/Arrow.png");
     emitter_->SetColor({1.0f, 1.0f, 0.0f, 1.0f});
 }
 

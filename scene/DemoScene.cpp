@@ -22,8 +22,8 @@ void DemoScene::Initialize() {
     debugCamera_->Initialize(&vp_);
 
     emitter_ = std::make_unique<ParticleEmitter>();
-    emitter_->Initialize("goal", "debug/plane.obj");
-    emitter_->SetTexture("particle/circle.png");
+    emitter_->Initialize("reverse", "debug/sphere.obj");
+    emitter_->SetTexture("particle/blackBlock1x1.png");
     emitter_->SetColor({1.0f, 1.0f, 0.0f, 1.0f});
 }
 
@@ -113,6 +113,7 @@ void DemoScene::Debug() {
         emitter_->UpdateOnce();
     }
     ImGui::Checkbox("自動生成", &isAuto_);
+    ImGui::Text("終わったか %d", emitter_->GetFinish());
     ImGui::End();
 }
 

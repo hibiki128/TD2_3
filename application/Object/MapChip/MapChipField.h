@@ -17,6 +17,9 @@ class MapChipField {
     // マップチップのデータ構造
     struct MapChip {
         std::unique_ptr<Block> object;
+        std::unique_ptr<ParticleEmitter> normal_;
+        std::unique_ptr<ParticleEmitter> arrow_;
+        std::unique_ptr<ParticleEmitter> goal_;
 
         ///
         /// アニメーション関連
@@ -29,22 +32,20 @@ class MapChipField {
         bool isDelaying = false;
         bool hasColorChanged = false;
 
-        enum class AnimationState {
-            None,
-            Shrinking,
-            ColorChange,
-            Expanding
-        } animState = AnimationState::None;
-
         // このアニメーションが「プレイヤー色変更ブロック由来」か否か
         bool isColorChangeAnimation = false;
 
+        enum class AnimationState { None,
+                                    Shrinking,
+                                    ColorChange,
+                                    Expanding } animState = AnimationState::None;
+
         float currentScale = 1.0f;
     };
-
-    std::vector<std::unique_ptr<ParticleEmitter>> normal_;
-    std::vector<std::unique_ptr<ParticleEmitter>> arrow_;
-    std::vector<std::unique_ptr<ParticleEmitter>> goal_;
+   
+     std::vector<std::unique_ptr<ParticleEmitter>> normalParticles_;
+    std::vector<std::unique_ptr<ParticleEmitter>> arrowParticles_;
+    std::vector<std::unique_ptr<ParticleEmitter>> goalParticles_;
 
   public:
     size_t mapWidth = 13;         // 横マス数

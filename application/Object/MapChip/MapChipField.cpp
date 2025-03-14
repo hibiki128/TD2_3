@@ -31,33 +31,33 @@ void MapChipField::Init(const std::string &csvFilePath) {
 }
 
 void MapChipField::InitParticle() {
-    // 既存のパーティクルをクリア（リセット処理）
-    normal_.clear();
-    arrow_.clear();
-    goal_.clear();
+    //// 既存のパーティクルをクリア（リセット処理）
+    // normal_.clear();
+    // arrow_.clear();
+    // goal_.clear();
 
-    for (auto &row : mapChips_) {
-        for (auto &chip : row) {
-            // 空白ブロックでない場合のみ処理
-            if (chip.object->type_ != Block::ChipType::Empty) {
-                std::unique_ptr<ParticleEmitter> particle = std::make_unique<ParticleEmitter>();
+    // for (auto &row : mapChips_) {
+    //     for (auto &chip : row) {
+    //         // 空白ブロックでない場合のみ処理
+    //         if (chip.object->type_ != Block::ChipType::Empty) {
+    //             std::unique_ptr<ParticleEmitter> particle = std::make_unique<ParticleEmitter>();
 
-                // 各タイプごとに異なる初期化を行い、対応するリストに追加
-                if (chip.object->type_ == Block::ChipType::Black || chip.object->type_ == Block::ChipType::White) {
-                    particle->Initialize("reverse", "debug/sphere.obj");
-                    normal_.push_back(std::move(particle));
-                } else if (chip.object->type_ == Block::ChipType::Gravity) {
-                    particle->Initialize("arrow_up", "debug/plane.obj");
-                    particle->SetTexture("Particle/Arrow.png");
-                    arrow_.push_back(std::move(particle));
-                } else if (chip.object->type_ == Block::ChipType::Goal) {
-                    particle->Initialize("goal", "debug/plane.obj");
-                    particle->SetTexture("particle/circle.png");
-                    goal_.push_back(std::move(particle));
-                }
-            }
-        }
-    }
+    //            // 各タイプごとに異なる初期化を行い、対応するリストに追加
+    //            if (chip.object->type_ == Block::ChipType::Black || chip.object->type_ == Block::ChipType::White) {
+    //                particle->Initialize("reverse", "debug/sphere.obj");
+    //                normal_.push_back(std::move(particle));
+    //            } else if (chip.object->type_ == Block::ChipType::Gravity) {
+    //                particle->Initialize("arrow_up", "debug/plane.obj");
+    //                particle->SetTexture("Particle/Arrow.png");
+    //                arrow_.push_back(std::move(particle));
+    //            } else if (chip.object->type_ == Block::ChipType::Goal) {
+    //                particle->Initialize("goal", "debug/plane.obj");
+    //                particle->SetTexture("particle/circle.png");
+    //                goal_.push_back(std::move(particle));
+    //            }
+    //        }
+    //    }
+    //}
 }
 
 void MapChipField::Update(const Vector3 &center, int xRange, int yRange, bool title) {
@@ -132,26 +132,21 @@ void MapChipField::DebugImGui() {
 }
 
 void MapChipField::DrawParticle(const ViewProjection &vp) {
+
     for (const auto &row : mapChips_) {
         for (const auto &chip : row) {
             // 空白ブロックではない場合のみ描画
             if (chip.object->type_ == Block::ChipType::Black || chip.object->type_ == Block::ChipType::White) {
                 ParticleCommon::GetInstance()->SetBlendMode(BlendMode::kNormal);
-                for (auto &normal : normal_) {
-                    normal->Draw(vp);
-                }
+                chip.normal_->Draw(vp);
             }
             if (chip.object->type_ == Block::ChipType::Gravity) {
                 ParticleCommon::GetInstance()->SetBlendMode(BlendMode::kAdd);
-                for (auto &arrow : arrow_) {
-                    arrow->Draw(vp);
-                }
+                chip.arrow_->Draw(vp);
             }
             if (chip.object->type_ == Block::ChipType::Goal) {
                 ParticleCommon::GetInstance()->SetBlendMode(BlendMode::kAdd);
-                for (auto &goal : goal_) {
-                    goal->Draw(vp);
-                }
+                chip.goal_->Draw(vp);
             }
         }
     }
@@ -255,6 +250,9 @@ void MapChipField::LoadFromCSV(const std::string &filePath) {
             MapChip chip;
             chip.object = std::make_unique<Block>();
             chip.object->type_ = chipType;
+            chip.normal_ = std::make_unique<ParticleEmitter>();
+            chip.arrow_ = std::make_unique<ParticleEmitter>();
+            chip.goal_ = std::make_unique<ParticleEmitter>();
 
             // チップタイプに応じた初期化
             if (chip.object->type_ != Block::ChipType::Empty) {
@@ -262,6 +260,15 @@ void MapChipField::LoadFromCSV(const std::string &filePath) {
                 chip.object->SetScale({1.0f, 1.0f, 1.0f});
                 chip.object->SetWorldPosition({x * kChipSize, -y * kChipSize, 0.0f});
                 chip.object->CreateCollider();
+                if (chip.object->type_ == Block::ChipType::White || chip.object->type_ == Block::ChipType::Black) {
+                    chip.normal_->Initialize("reverse", "debug/sphere.obj");
+                } else if (chip.object->type_ == Block::ChipType::Gravity) {
+                    chip.arrow_->Initialize("arrow_up", "debug/plane.obj");
+                    chip.arrow_->SetTexture("Particle/Arrow.png");
+                } else if (chip.object->type_ == Block::ChipType::Goal) {
+                    chip.goal_->Initialize("goal", "debug/plane.obj");
+                    chip.goal_->SetTexture("particle/circle.png");
+                }
 
                 // チップの種類に応じて処理を行う
                 switch (chip.object->type_) {
@@ -433,38 +440,20 @@ void MapChipField::GravityParticleUpdate() {
 
     if (arrowTime_ > 0.0f) {
         arrowTime_ -= Frame::DeltaTime();
-
-        // パーティクルの数と重力ブロックの数が一致することを確認
-        size_t gravityCount = 0;
-
-        for (const auto &chip : mapChips_) {
-            for (const auto &block : chip) {
-                if (block.object->type_ == Block::ChipType::Gravity) {
-                    // 対応するパーティクルを取得
-                    if (gravityCount < arrow_.size()) {
-                        auto &arrow = arrow_[gravityCount];
-
-                        // 重力方向が変化した場合、色とJSONデータを変更
-                        if (isGravityReversed_ && !prevGravityState) {
-                            arrow->SetColor({1.0f, 0.0f, 0.0f, 1.0f});
-                            arrow->LoadFromJson("arrow_up");
-                        }
-                        if (!isGravityReversed_ && prevGravityState) {
-                            arrow->SetColor({0.0f, 0.0f, 1.0f, 1.0f});
-                            arrow->LoadFromJson("arrow_down");
-                        }
-
-                        // 位置を設定
-                        arrow->SetPosition({block.object->GetCenterPosition().x,
-                                            block.object->GetCenterPosition().y,
-                                            -1.5f});
-
-                        // パーティクルを更新
-                        arrow->Update();
-
-                        // 次のパーティクルへ
-                        gravityCount++;
+        for (const auto &row : mapChips_) {
+            for (const auto &chip : row) {
+                if (chip.object->type_ == Block::ChipType::Gravity) {
+                    if (isGravityReversed_ && !prevGravityState) {
+                        chip.arrow_->SetColor({1.0f, 0.0f, 0.0f, 1.0f});
+                        chip.arrow_->LoadFromJson("arrow_up");
                     }
+                    if (!isGravityReversed_ && prevGravityState) {
+                        chip.arrow_->SetColor({0.0f, 0.0f, 1.0f, 1.0f});
+                        chip.arrow_->LoadFromJson("arrow_down");
+                    }
+                    chip.arrow_->SetPosition({chip.object->GetCenterPosition().x, chip.object->GetCenterPosition().y, -1.5f});
+                    // 重力ブロックのみ
+                    chip.arrow_->Update();
                 }
             }
         }
@@ -475,26 +464,14 @@ void MapChipField::GravityParticleUpdate() {
 }
 
 void MapChipField::GoalParticleUpdate(bool title) {
-    if (!title) {
-        size_t goalCount = 0;
 
+    if (!title) {
         for (const auto &row : mapChips_) {
             for (const auto &chip : row) {
                 if (chip.object->type_ == Block::ChipType::Goal) {
-                    // 対応するパーティクルを取得
-                    if (goalCount < goal_.size()) {
-                        auto &goal = goal_[goalCount];
-
-                        // パーティクルの位置と色を設定
-                        goal->SetPosition({chip.object->GetCenterPosition().x - 0.5f, chip.object->GetCenterPosition().y, -1.5f});
-                        goal->SetColor({1.0f, 1.0f, 0.0f, 1.0f});
-
-                        // パーティクルを更新
-                        goal->Update();
-
-                        // 次のパーティクルへ
-                        goalCount++;
-                    }
+                    chip.goal_->SetPosition({chip.object->GetCenterPosition().x - 0.5f, chip.object->GetCenterPosition().y, -1.5f});
+                    chip.goal_->SetColor({1.0f, 1.0f, 0.0f, 1.0f});
+                    chip.goal_->Update();
                 }
             }
         }
@@ -553,30 +530,17 @@ void MapChipField::UpdateChipAnimation(MapChip &chip) {
             chip.object->SetRotation({0.0f, chip.currentRotation, 0.0f});
             chip.object->SetScale({chip.currentScale, chip.currentScale, chip.currentScale});
 
-            /* chip.normal_->SetPosition(chip.object->GetCenterPosition());
+            chip.normal_->SetPosition(chip.object->GetCenterPosition());
 
-             if (chip.object->type_ == Block::ChipType::Black) {
-                 chip.normal_->SetTexture("particle/blackBlock1x1.png");
-             }
-             if (chip.object->type_ == Block::ChipType::White) {
-                 chip.normal_->SetTexture("particle/whiteBlock1x1.png");
-             }
+            if (chip.object->type_ == Block::ChipType::Black) {
+                chip.normal_->SetTexture("particle/blackBlock1x1.png");
+            }
+            if (chip.object->type_ == Block::ChipType::White) {
+                chip.normal_->SetTexture("particle/whiteBlock1x1.png");
+            }
 
-             if (chip.object->type_ == Block::ChipType::Black || chip.object->type_ == Block::ChipType::White) {
-                 chip.normal_->UpdateOnce();
-             }*/
-
-            for (int i = 0; i < normal_.size();i++){
-                if (normal_[i]->GetFinish()) {
-                    if (chip.object->type_ == Block::ChipType::Black) {
-                        normal_[i]->SetTexture("particle/blackBlock1x1.png");
-                    }
-                    if (chip.object->type_ == Block::ChipType::White) {
-                        normal_[i]->SetTexture("particle/whiteBlock1x1.png");
-                    }
-                    normal_[i]->UpdateOnce();
-                    break;
-                }
+            if (chip.object->type_ == Block::ChipType::Black || chip.object->type_ == Block::ChipType::White) {
+                chip.normal_->UpdateOnce();
             }
 
         } else {

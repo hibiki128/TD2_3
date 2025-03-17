@@ -7,6 +7,7 @@
 #include "math/myMath.h"
 #include "myEngine/3d/line/DrawLine3D.h"
 #include <myEngine/Frame/Frame.h>
+#include"ParticleEditor.h"
 
 void Player::Init(const std::string className, int currentStageNum) {
     // ゴールガイドスプライト生成
@@ -71,14 +72,11 @@ void Player::Init(const std::string className, int currentStageNum) {
     ChangeInvertRangeSizeForStageNum();
     coinGetSE_ = Audio::GetInstance()->LoadWave("action/getCoin.wav");
 
-    coinEmitter_ = std::make_unique<ParticleEmitter>();
-    coinEmitter_->Initialize("coin", "debug/plane.obj");
-    coinEmitter_->SetTexture("game/coinGet.png");
-    runEmitter_ = std::make_unique<ParticleEmitter>();
-    runEmitter_->Initialize("smokerun", "debug/plane.obj");
-    runEmitter_->SetTexture("game/smoke.png");
-    changeEmitter_ = std::make_unique<ParticleEmitter>();
-    changeEmitter_->Initialize("ChangePlayer", "debug/plane.obj");
+    coinEmitter_ = ParticleEditor::GetInstance()->GetEmitter("coin");
+
+    runEmitter_ = ParticleEditor::GetInstance()->GetEmitter("smokerun");
+
+    changeEmitter_ = ParticleEditor::GetInstance()->GetEmitter("ChangePlayer");
 }
 
 void Player::Update(MapChipField *mapChipField, bool title) {

@@ -16,15 +16,12 @@ void DemoScene::Initialize() {
     ptCommon_ = ParticleCommon::GetInstance();
     input_ = Input::GetInstance();
     vp_.Initialize();
-    vp_.translation_ = {12.0f, -6.0f, -30.0f};
+    vp_.translation_ = {0.0f, 0.0f, -30.0f};
 
     debugCamera_ = std::make_unique<DebugCamera>();
     debugCamera_->Initialize(&vp_);
 
-    emitter_ = std::make_unique<ParticleEmitter>();
-    emitter_->Initialize("arrow_up", "debug/plane.obj");
-    emitter_->SetTexture("Particle/Arrow.png");
-    emitter_->SetColor({1.0f, 1.0f, 0.0f, 1.0f});
+    ptEditor_ = ParticleEditor::GetInstance();
 }
 
 void DemoScene::Finalize() {
@@ -42,10 +39,6 @@ void DemoScene::Update() {
 
     // シーン切り替え
     ChangeScene();
-
-    if (isAuto_) {
-        emitter_->Update();
-    }
 }
 
 void DemoScene::Draw() {
@@ -65,12 +58,8 @@ void DemoScene::Draw() {
     /// Particleの描画準備
     ptCommon_->DrawCommonSetting();
     //------Particleの描画開始-------
-    emitter_->Draw(vp_);
+    ptEditor_->DrawAll(vp_);
     //-----------------------------
-
-    //-----線描画-----
-    DrawLine3D::GetInstance()->Draw(vp_);
-    //---------------
 
     /// ----------------------------------
 
@@ -107,14 +96,8 @@ void DemoScene::Debug() {
     debugCamera_->imgui();
     LightGroup::GetInstance()->imgui();
     ImGui::End();
-    emitter_->imgui();
-    ImGui::Begin("パーティクル");
-    if (ImGui::Button("生成")) {
-        emitter_->UpdateOnce();
-    }
-    ImGui::Checkbox("自動生成", &isAuto_);
-    ImGui::Text("終わったか %d", emitter_->GetFinish());
-    ImGui::End();
+    ptEditor_->EditorWindow();
+    ptEditor_->DebugAll();
 }
 
 void DemoScene::CameraUpdate() {

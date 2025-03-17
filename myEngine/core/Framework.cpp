@@ -1,8 +1,8 @@
 #include "Framework.h"
 #include "ImGuiManager.h"
+#include "loadFile/csv/CsvLoad.h"
 #include "myEngine/Frame/Frame.h"
 #include <D3DResourceLeakChecker.h>
-#include"loadFile/csv/CsvLoad.h"
 
 void Framework::Run() {
     // ゲームの初期化
@@ -116,6 +116,9 @@ void Framework::Initialize() {
 
     LightGroup::GetInstance()->Initialize();
 
+    particleEditor = ParticleEditor::GetInstance();
+    particleEditor->Initialize();
+
     /// 時間の初期化
     Frame::Init();
 }
@@ -141,6 +144,7 @@ void Framework::Finalize() {
     srvManager->Finalize();
     audio->Finalize();
     LightGroup::GetInstance()->Finalize();
+    particleEditor->Finalize();
     object3dCommon->Finalize();
     spriteCommon->Finalize();
     particleCommon->Finalize();
@@ -256,11 +260,8 @@ void Framework::LoadResource() {
     textureManager_->LoadTexture("game/blackBlock.png");
     textureManager_->LoadTexture("game/block.png");
     textureManager_->LoadTexture("game/book.png");
-    textureManager_->LoadTexture("game/ChangeBlack.png");
-    textureManager_->LoadTexture("game/ChangeWhite.png");
     textureManager_->LoadTexture("game/coin.png");
     textureManager_->LoadTexture("game/coinFlame.png");
-    textureManager_->LoadTexture("game/coinGet.png");
     textureManager_->LoadTexture("game/door.png");
     textureManager_->LoadTexture("game/goal.png");
     textureManager_->LoadTexture("game/goalGuide.png");
@@ -299,6 +300,9 @@ void Framework::LoadResource() {
     textureManager_->LoadTexture("menu/pointer.png");
     textureManager_->LoadTexture("menu/Restart.png");
     textureManager_->LoadTexture("menu/stage.png");
+    textureManager_->LoadTexture("particle/ChangeBlack.png");
+    textureManager_->LoadTexture("particle/ChangeWhite.png");
+    textureManager_->LoadTexture("particle/coinGet.png");
     textureManager_->LoadTexture("particle/Arrow.png");
     textureManager_->LoadTexture("particle/blackBlock1x1.png");
     textureManager_->LoadTexture("particle/whiteBlock1x1.png");
@@ -309,6 +313,23 @@ void Framework::LoadResource() {
     textureManager_->LoadTexture("title/backGround.png");
     textureManager_->LoadTexture("game/playerSwitchBlockBlack.png");
     textureManager_->LoadTexture("game/playerSwitchBlockWhite.png");
+
+    for (int i = 1; i <= 4; i++) {
+        particleEditor->AddParticleEmitter("arrow_up" + std::to_string(i), "arrow_up");
+    }
+    for (int i = 1; i <= 4; i++) {
+        particleEditor->AddParticleEmitter("arrow_down" + std::to_string(i), "arrow_down");
+    }
+    particleEditor->AddParticleEmitter("ChangePlayer", "ChangePlayer");
+    particleEditor->AddParticleEmitter("clearDesition", "clearDesition");
+    particleEditor->AddParticleEmitter("coin", "coin");
+    particleEditor->AddParticleEmitter("goal", "goal");
+    particleEditor->AddParticleEmitter("goalplayer", "goalplayer");
+    particleEditor->AddParticleEmitter("leaf", "leaf");
+    for (int i = 1; i <= 40; i++) {
+        particleEditor->AddParticleEmitter("reverse" + std::to_string(i), "reverse");
+    }
+    particleEditor->AddParticleEmitter("smokerun", "smokerun");
 }
 
 void Framework::PlaySounds() {

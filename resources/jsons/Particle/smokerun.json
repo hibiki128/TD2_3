@@ -1,52 +1,51 @@
 {
-    "allScaleMax": [
-        1.0,
-        1.0,
-        1.0
-    ],
-    "allScaleMin": [
-        1.0,
-        1.0,
-        1.0
-    ],
+    "allScaleMax": {
+        "x": 1.0,
+        "y": 1.0,
+        "z": 1.0
+    },
+    "allScaleMin": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+    },
     "alphaMax": 1.0,
     "alphaMin": 1.0,
     "count": 2,
-    "emitFrequency": 0.1809999942779541,
-    "emitter": {
-        "rotation": [
-            0.017453286796808243,
-            0.0,
-            0.0
-        ],
-        "scale": [
-            0.25,
-            0.25,
-            0.0
-        ],
-        "translate": [
-            12.5,
-            -11.5,
-            0.0
-        ]
+    "emitFrequency": 0.5,
+    "emitterRotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
     },
-    "endAcce": [
-        1.0,
-        1.0099999904632568,
-        1.0
-    ],
-    "endRote": [
-        0.0,
-        0.0,
-        0.0
-    ],
-    "endScale": [
-        0.0,
-        0.0,
-        0.0
-    ],
+    "emitterScale": {
+        "x": 0.25,
+        "y": 0.25,
+        "z": 0.0
+    },
+    "emitterTranslation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+    },
+    "endAcce": {
+        "x": 1.0,
+        "y": 1.0,
+        "z": 1.0
+    },
+    "endRote": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+    },
+    "endScale": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+    },
+    "fileName": "debug/plane.obj",
     "isAcceMultiply": true,
-    "isActive": true,
+    "isActive": false,
     "isAllRamdomScale": false,
     "isBillBoard": false,
     "isFaceDirection": true,
@@ -57,41 +56,42 @@
     "isVisible": false,
     "lifeTimeMax": 0.800000011920929,
     "lifeTimeMin": 0.800000011920929,
-    "rotateVelocityMax": [
-        0.07000000029802322,
-        0.07000000029802322,
-        0.07000000029802322
-    ],
-    "rotateVelocityMin": [
-        -0.07000000029802322,
-        -0.07000000029802322,
-        -0.07000000029802322
-    ],
+    "rotateVelocityMax": {
+        "x": 0.07000000029802322,
+        "y": 0.07000000029802322,
+        "z": 0.07000000029802322
+    },
+    "rotateVelocityMin": {
+        "x": -0.07000000029802322,
+        "y": -0.07000000029802322,
+        "z": -0.07000000029802322
+    },
     "scaleMax": 0.75,
     "scaleMin": 0.25,
-    "startAcce": [
-        1.0149999856948853,
-        1.0,
-        1.0
-    ],
-    "startRote": [
-        0.0,
-        0.0,
-        0.0
-    ],
-    "startScale": [
-        1.0,
-        1.0,
-        1.0
-    ],
-    "velocityMax": [
-        -1.5,
-        1.0,
-        0.0
-    ],
-    "velocityMin": [
-        -2.0,
-        1.0,
-        0.0
-    ]
+    "startAcce": {
+        "x": 1.0099999904632568,
+        "y": 1.0,
+        "z": 1.0
+    },
+    "startRote": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+    },
+    "startScale": {
+        "x": 1.0,
+        "y": 1.0,
+        "z": 1.0
+    },
+    "texturePath": "game/smoke.png",
+    "velocityMax": {
+        "x": -1.5,
+        "y": 1.0,
+        "z": 0.0
+    },
+    "velocityMin": {
+        "x": -2.0,
+        "y": 1.0,
+        "z": 0.0
+    }
 }

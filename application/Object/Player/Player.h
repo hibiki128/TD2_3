@@ -139,9 +139,9 @@ class Player : public BaseObject {
     std::unique_ptr<Sprite> spriteGoalGuide_;
     std::unique_ptr<Sprite> spriteGoalGuideTitle_;
     // パーティクル
-    std::unique_ptr<ParticleEmitter> coinEmitter_;
-    std::unique_ptr<ParticleEmitter> runEmitter_;
-    std::unique_ptr<ParticleEmitter> changeEmitter_;
+    ParticleEmitter* coinEmitter_= nullptr;
+    ParticleEmitter* runEmitter_=nullptr;
+    ParticleEmitter* changeEmitter_=nullptr;
 
     // プレイヤー反転範囲スプライトのサイズ
     float xSpritePlayerAreaSize_ = 0.0f;

@@ -9,6 +9,7 @@
 
 #include "externals/nlohmann/json.hpp"
 
+#include "Data/DataHandler.h"
 #include <filesystem>
 #include <fstream>
 
@@ -17,7 +18,7 @@ class ParticleEmitter {
     // コンストラクタでメンバ変数を初期化
     ParticleEmitter();
 
-    void Initialize(const std::string &name, const std::string &fileName);
+    void Initialize(std::string name = {}, std::string data = {}, std::string filePath = {});
 
     // 更新処理を行うUpdate関数
     void Update();
@@ -28,7 +29,11 @@ class ParticleEmitter {
 
     void DrawEmitter();
 
-    void imgui(); // ImGui用の関数を追加
+    void Debug(); // ImGui用の関数を追加
+
+    void LoadFromJson(std::string name);
+
+    std::string GetTexturePath() { return Manager_->GetTexturePath(); }
 
     void SetPosition(const Vector3 &position) { transform_.translation_ = position; }
     void SetPositionY(const float &positionY) { transform_.translation_.y = positionY; }
@@ -42,14 +47,12 @@ class ParticleEmitter {
     void SetFrequency(const float &frequency) { emitFrequency_ = frequency; }
     void SetTexture(const std::string &filePath);
     void SetColor(const Vector4 &color) { Manager_->SetColor(color); }
-
-    Vector3 GetPosition() { return transform_.translation_; }
-    bool GetActive() { return isActive_; }
-    bool GetFinish() {
-       return Manager_->GetFinish();
+    void SetName(const std::string &name) {
+        name_ = name;
+        Manager_->CreateParticleGroup(name_, fileName_);
     }
 
-    void LoadFromJson(const std::string &name);
+    void CreateParticle(const std::string &name, const std::string &fileName, const std::string &texturePath);
 
   private:
     // パーティクルを発生させるEmit関数
@@ -57,15 +60,15 @@ class ParticleEmitter {
     void SaveToJson();
     void LoadFromJson();
 
-    std::vector<std::string> GetJsonFiles();
-    void ShowFileSelector();
+    void DebugParticleData();
 
   private:
     using json = nlohmann::json;
     float elapsedTime_; // 経過時間
 
-    std::string name_;         // パーティクルの名前
-    std::string fileName_;     // パーティクルの名前
+    std::string name_;     // パーティクルの名前
+    std::string fileName_; // パーティクルの名前
+    std::string texturePath_;
     WorldTransform transform_; // 位置や回転などのトランスフォーム
     int count_;                // 一度に発生させるパーティクルの数
 
@@ -101,6 +104,9 @@ class ParticleEmitter {
     bool isAcceMultiply_ = false;
     bool isSinMove_ = false;
     bool isFaceDirection_ = false;
+    bool isAuto_ = false;
 
     std::unique_ptr<ParticleManager> Manager_;
+    std::unique_ptr<DataHandler> datas_;
+    std::unique_ptr<DataHandler> data_;
 };

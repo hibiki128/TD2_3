@@ -2,6 +2,7 @@
 #include "SceneManager.h"
 #include <LightGroup.h>
 #include <line/DrawLine3D.h>
+#include <ParticleEditor.h>
 
 void GameScene::Finalize() {
     sceneManager_->SetFilePath(filePath_);
@@ -70,12 +71,9 @@ void GameScene::Initialize() {
     pause_->Init();
     pause_->SetPlayer(player_.get());
 
-    leaf_ = std::make_unique<ParticleEmitter>();
-    leaf_->Initialize("leaf", "game/leaf.obj");
+    leaf_ = ParticleEditor::GetInstance()->GetEmitter("leaf");
 
-    goalEmitter_ = std::make_unique<ParticleEmitter>();
-    goalEmitter_->Initialize("goalplayer", "debug/cube.obj");
-    goalEmitter_->SetTexture("debug/white1x1.png");
+    goalEmitter_ = ParticleEditor::GetInstance()->GetEmitter("goalplayer");
     goalEmitter_->SetColor({1.0f, 1.0f, 0.0f, 1.0f});
 }
 
@@ -259,7 +257,7 @@ void GameScene::Debug() {
     mapChipField_->DebugImGui();
     // UIObjectデバッグ情報
     uiObject_->DebugImGui();
-    leaf_->imgui();
+    leaf_->Debug();
 }
 
 void GameScene::CameraUpdate() {

@@ -359,6 +359,9 @@
     <ClCompile Include="myEngine\utility\Data\DataHandler.cpp">
       <Filter>ソースファイル</Filter>
     </ClCompile>
+    <ClCompile Include="myEngine\3d\particle\ParticleEditor.cpp">
+      <Filter>ソースファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\shaders\Particle\Particle.hlsli">
@@ -614,6 +617,7 @@
     <ClInclude Include="application\Camera\ClearCamera.h" />
     <ClInclude Include="myEngine\utility\loadFile\csv\CsvLoad.h" />
     <ClInclude Include="myEngine\utility\Data\DataHandler.h" />
+    <ClInclude Include="myEngine\3d\particle\ParticleEditor.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resources\shaders\Particle\Particle.PS.hlsl">

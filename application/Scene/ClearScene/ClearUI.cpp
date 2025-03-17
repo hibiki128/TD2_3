@@ -2,6 +2,7 @@
 #include "Audio.h"
 #include "Easing.h"
 #include "Input.h"
+#include <ParticleEditor.h>
 
 void ClearUI::Init(bool isPlayerWhite) {
     book_ = std::make_unique<BaseObject>();
@@ -32,10 +33,12 @@ void ClearUI::Init(bool isPlayerWhite) {
     } else {
         animaChara_->SetTexture("game/player.png");
     }
+    animaChara_->AddAnimation("animation/playerClearAfter2.gltf");
 
     animaGoal_ = std::make_unique<BaseObject>();
     animaGoal_->Init("animaGoal");
     animaGoal_->CreateModel("animation/goalClear.gltf");
+    animaGoal_->AddAnimation("animation/goalClearAfter2.gltf");
 
     input_ = Input::GetInstance();
     if (stageNum_ < 15) {
@@ -45,9 +48,7 @@ void ClearUI::Init(bool isPlayerWhite) {
     }
     isDecision_ = false;
 
-    decisionEmitter_ = std::make_unique<ParticleEmitter>();
-    decisionEmitter_->Initialize("clearDesition", "debug/sphere.obj");
-    decisionEmitter_->SetTexture("clear/UI2_1x1.png");
+    decisionEmitter_ = ParticleEditor::GetInstance()->GetEmitter("clearDesition");
 
     InitNumbers();
 
@@ -150,7 +151,7 @@ void ClearUI::Debug() {
     retry_->DebugImGui();
     singleDigit_->DebugImGui();
     twoDigit_->DebugImGui();
-    decisionEmitter_->imgui();
+    decisionEmitter_->Debug();
     animaChara_->DebugImGui();
     animaGoal_->DebugImGui();
     for (auto &coin : coins_) {

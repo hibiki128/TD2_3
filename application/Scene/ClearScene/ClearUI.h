@@ -32,7 +32,7 @@ class ClearUI {
     std::unique_ptr<BaseObject> twoDigit_;
     std::unique_ptr<BaseObject> animaChara_;
     std::unique_ptr<BaseObject> animaGoal_;
-    std::unique_ptr<ParticleEmitter> decisionEmitter_;
+    ParticleEmitter* decisionEmitter_;
 
     std::vector<std::unique_ptr<BaseObject>> coins_;
 

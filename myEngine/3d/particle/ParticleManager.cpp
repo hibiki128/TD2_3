@@ -28,7 +28,6 @@ void ParticleManager::Update(const ViewProjection &viewProjection) {
     for (auto &[groupName, particleGroup] : particleGroups) {
 
         uint32_t numInstance = 0;
-        bool isAnyParticleAlive = false; // ここで生存しているパーティクルがいるかどうかのフラグを作成
 
         // 各パーティクルの更新
         for (auto particleIterator = particleGroup.particles.begin();
@@ -39,14 +38,11 @@ void ParticleManager::Update(const ViewProjection &viewProjection) {
                 particleIterator = particleGroup.particles.erase(particleIterator);
                 continue;
             }
-
-            // 生存しているパーティクルが一つでもあればisAnyParticleAliveをtrueにする
-            isAnyParticleAlive = true;
-
             // パーティクルの生存時間に基づく進行度 t を計算
             float t = (*particleIterator).currentTime / (*particleIterator).lifeTime;
             t = std::clamp(t, 0.0f, 1.0f);
 
+            // 拡縮処理
             // 拡縮処理
             if (isSinMove_) {
 
@@ -112,9 +108,7 @@ void ParticleManager::Update(const ViewProjection &viewProjection) {
             } else {
                 // 通常のアフィン変換行列を使用
                 worldMatrix = MakeAffineMatrix((*particleIterator).transform.scale_,
-
                                                (*particleIterator).transform.rotation_,
-
                                                (*particleIterator).transform.translation_);
             }
 
@@ -146,9 +140,6 @@ void ParticleManager::Update(const ViewProjection &viewProjection) {
 
         // インスタンス数の更新
         particleGroup.instanceCount = numInstance;
-
-        // 生存しているパーティクルがあったかチェックし、isFinish_を設定
-        isFinish_ = !isAnyParticleAlive;
     }
 }
 

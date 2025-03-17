@@ -1,97 +1,97 @@
 {
-    "allScaleMax": [
-        1.0,
-        1.0,
-        1.0
-    ],
-    "allScaleMin": [
-        1.0,
-        1.0,
-        1.0
-    ],
+    "allScaleMax": {
+        "x": 0.5,
+        "y": 0.5,
+        "z": 0.5
+    },
+    "allScaleMin": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+    },
     "alphaMax": 1.0,
     "alphaMin": 0.8999999761581421,
     "count": 2,
-    "emitFrequency": 0.029999999329447746,
-    "emitter": {
-        "rotation": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "scale": [
-            1.2999999523162842,
-            1.2999999523162842,
-            1.0
-        ],
-        "translate": [
-            0.0,
-            0.0,
-            0.0
-        ]
+    "emitFrequency": 0.019999999552965164,
+    "emitterRotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
     },
-    "endAcce": [
-        0.0,
-        1.0,
-        0.0
-    ],
-    "endRote": [
-        0.0,
-        0.0,
-        0.0
-    ],
-    "endScale": [
-        2.0,
-        2.0,
-        2.0
-    ],
+    "emitterScale": {
+        "x": 1.2999999523162842,
+        "y": 1.2999999523162842,
+        "z": 1.0
+    },
+    "emitterTranslation": {
+        "x": -18.5,
+        "y": 7.400000095367432,
+        "z": 0.0
+    },
+    "endAcce": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+    },
+    "endRote": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+    },
+    "endScale": {
+        "x": 2.0,
+        "y": 2.0,
+        "z": 2.0
+    },
+    "fileName": "debug/plane.obj",
     "isAcceMultiply": true,
-    "isActive": true,
-    "isAllRamdomScale": false,
+    "isActive": false,
+    "isAllRamdomScale": true,
     "isBillBoard": false,
     "isFaceDirection": true,
     "isRandomColor": false,
     "isRandomRotate": false,
-    "isRandomScale": true,
+    "isRandomScale": false,
     "isSinMove": false,
     "isVisible": false,
     "lifeTimeMax": 0.5,
     "lifeTimeMin": 0.30000001192092896,
-    "rotateVelocityMax": [
-        0.07000000029802322,
-        0.07000000029802322,
-        0.07000000029802322
-    ],
-    "rotateVelocityMin": [
-        -0.07000000029802322,
-        -0.07000000029802322,
-        -0.07000000029802322
-    ],
-    "scaleMax": 0.5,
-    "scaleMin": 0.0,
-    "startAcce": [
-        0.0,
-        1.0,
-        0.0
-    ],
-    "startRote": [
-        0.0,
-        0.0,
-        0.0
-    ],
-    "startScale": [
-        1.0,
-        1.0,
-        1.0
-    ],
-    "velocityMax": [
-        -0.009999999776482582,
-        -0.5,
-        0.0
-    ],
-    "velocityMin": [
-        -0.009999999776482582,
-        -3.0,
-        0.0
-    ]
+    "rotateVelocityMax": {
+        "x": 0.07000000029802322,
+        "y": 0.07000000029802322,
+        "z": 0.07000000029802322
+    },
+    "rotateVelocityMin": {
+        "x": -0.07000000029802322,
+        "y": -0.07000000029802322,
+        "z": -0.07000000029802322
+    },
+    "scaleMax": 1.0,
+    "scaleMin": 1.0,
+    "startAcce": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+    },
+    "startRote": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+    },
+    "startScale": {
+        "x": 1.0,
+        "y": 1.0,
+        "z": 1.0
+    },
+    "texturePath": "particle/Arrow.png",
+    "velocityMax": {
+        "x": -0.0010000000474974513,
+        "y": -0.5,
+        "z": 0.0
+    },
+    "velocityMin": {
+        "x": -0.0010000000474974513,
+        "y": -3.0,
+        "z": 0.0
+    }
 }

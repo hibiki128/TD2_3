@@ -6,6 +6,7 @@
 #include <sstream>
 
 // Engine
+#include "ParticleEditor.h"
 #include "math/Easing.h"
 #include "myEngine/utility/graphics/TextureManager.h"
 #include <ParticleCommon.h>
@@ -241,6 +242,10 @@ void MapChipField::LoadFromCSV(const std::string &filePath) {
     // マップチップの二次元配列をサイズ調整
     mapChips_.resize(mapChipData.size());
 
+    // 各エミッターのカウンター
+    int reverseCount = 1;
+    int arrowUpCount = 1;
+
     for (int y = 0; y < mapChipData.size(); ++y) {
         for (int x = 0; x < mapChipData[y].size(); ++x) {
             int chipValue = mapChipData[y][x];                        // CSVから取得したマップチップ番号
@@ -250,9 +255,6 @@ void MapChipField::LoadFromCSV(const std::string &filePath) {
             MapChip chip;
             chip.object = std::make_unique<Block>();
             chip.object->type_ = chipType;
-            chip.normal_ = std::make_unique<ParticleEmitter>();
-            chip.arrow_ = std::make_unique<ParticleEmitter>();
-            chip.goal_ = std::make_unique<ParticleEmitter>();
 
             // チップタイプに応じた初期化
             if (chip.object->type_ != Block::ChipType::Empty) {
@@ -260,14 +262,18 @@ void MapChipField::LoadFromCSV(const std::string &filePath) {
                 chip.object->SetScale({1.0f, 1.0f, 1.0f});
                 chip.object->SetWorldPosition({x * kChipSize, -y * kChipSize, 0.0f});
                 chip.object->CreateCollider();
+
+                // 各チップに個別のエミッターを割り当てる
                 if (chip.object->type_ == Block::ChipType::White || chip.object->type_ == Block::ChipType::Black) {
-                    chip.normal_->Initialize("reverse", "debug/sphere.obj");
+                    std::string emitterName = "reverse" + std::to_string(reverseCount);
+                    chip.normal_ = ParticleEditor::GetInstance()->GetEmitter(emitterName);
+                    reverseCount = (reverseCount % 40) + 1; // 1～40 でループ
                 } else if (chip.object->type_ == Block::ChipType::Gravity) {
-                    chip.arrow_->Initialize("arrow_up", "debug/plane.obj");
-                    chip.arrow_->SetTexture("Particle/Arrow.png");
+                    std::string emitterName = "arrow_up" + std::to_string(arrowUpCount);
+                    chip.arrow_ = ParticleEditor::GetInstance()->GetEmitter(emitterName);
+                    arrowUpCount = (arrowUpCount % 4) + 1; // 1～4 でループ
                 } else if (chip.object->type_ == Block::ChipType::Goal) {
-                    chip.goal_->Initialize("goal", "debug/plane.obj");
-                    chip.goal_->SetTexture("particle/circle.png");
+                    chip.goal_ = ParticleEditor::GetInstance()->GetEmitter("goal");
                 }
 
                 // チップの種類に応じて処理を行う
@@ -530,12 +536,12 @@ void MapChipField::UpdateChipAnimation(MapChip &chip) {
             chip.object->SetRotation({0.0f, chip.currentRotation, 0.0f});
             chip.object->SetScale({chip.currentScale, chip.currentScale, chip.currentScale});
 
-            chip.normal_->SetPosition(chip.object->GetCenterPosition());
-
             if (chip.object->type_ == Block::ChipType::Black) {
+                chip.normal_->SetPosition(chip.object->GetCenterPosition());
                 chip.normal_->SetTexture("particle/blackBlock1x1.png");
             }
             if (chip.object->type_ == Block::ChipType::White) {
+                chip.normal_->SetPosition(chip.object->GetCenterPosition());
                 chip.normal_->SetTexture("particle/whiteBlock1x1.png");
             }
 
@@ -820,20 +826,20 @@ bool MapChipField::HasColorChangeBlockInArea(const Vector3 &center, int xRange, 
             MapChip &chip = mapChips_[targetY][targetX];
             if (chip.object->type_ == Block::ChipType::ColorChange) { // プレイヤー色反転ブロックが見つかったら
                 //// 全てのブロックを探索
-                //for (auto &row : mapChips_) {
-                //    for (auto &chip : row) {
-                //        if (!chip.isAnimating) {
-                //            // 白ブロックまたは黒ブロックの場合のみ
-                //            if (chip.object->type_ == Block::ChipType::White || chip.object->type_ == Block::ChipType::Black) {
-                //                chip.isAnimating = true;
-                //                chip.animState = MapChip::AnimationState::Shrinking;
-                //                chip.animationTime = 0.0f;
-                //                // ここでは type は変更せず、後のアニメーション処理で見た目のみ切り替える
-                //                chip.isColorChangeAnimation = true;
-                //            }
-                //        }
-                //    }
-                //}
+                // for (auto &row : mapChips_) {
+                //     for (auto &chip : row) {
+                //         if (!chip.isAnimating) {
+                //             // 白ブロックまたは黒ブロックの場合のみ
+                //             if (chip.object->type_ == Block::ChipType::White || chip.object->type_ == Block::ChipType::Black) {
+                //                 chip.isAnimating = true;
+                //                 chip.animState = MapChip::AnimationState::Shrinking;
+                //                 chip.animationTime = 0.0f;
+                //                 // ここでは type は変更せず、後のアニメーション処理で見た目のみ切り替える
+                //                 chip.isColorChangeAnimation = true;
+                //             }
+                //         }
+                //     }
+                // }
 
                 for (int x = 0; x < static_cast<int>(mapWidth); ++x) {
                     float delayTime = x * 0.1f; // x座標ごとに遅延を増やす

@@ -17,9 +17,9 @@ class MapChipField {
     // マップチップのデータ構造
     struct MapChip {
         std::unique_ptr<Block> object;
-        std::unique_ptr<ParticleEmitter> normal_;
-        std::unique_ptr<ParticleEmitter> arrow_;
-        std::unique_ptr<ParticleEmitter> goal_;
+        ParticleEmitter* normal_= nullptr;
+        ParticleEmitter* arrow_ = nullptr;
+        ParticleEmitter* goal_= nullptr;
 
         ///
         /// アニメーション関連

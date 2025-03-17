@@ -89,14 +89,14 @@ class GameScene : public BaseScene {
     // 背景
     std::unique_ptr<Sprite> spriteBackGround_;
 
-	std::unique_ptr<ParticleEmitter> leaf_;
-	std::unique_ptr<ParticleEmitter> goalEmitter_;
+    ParticleEmitter *leaf_ = nullptr;
+    ParticleEmitter *goalEmitter_ = nullptr;
 
-// JSON
-private:
-	using json = nlohmann::json;
-	// ポーズ
-	std::unique_ptr<Pause> pause_;
+    // JSON
+  private:
+    using json = nlohmann::json;
+    // ポーズ
+    std::unique_ptr<Pause> pause_;
 
     void SaveToJson();
     void LoadFromJson();

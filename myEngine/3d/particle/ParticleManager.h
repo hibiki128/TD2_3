@@ -32,7 +32,7 @@ class ParticleManager {
     /// <param name="textureFilePath"></param>
     void CreateParticleGroup(const std::string name, const std::string &filename);
 
-    bool GetFinish() { return isFinish_; }
+    std::string GetTexturePath() { return modelData.material.textureFilePath; }
 
     void SetBillBorad(bool isBillBoard) { isBillboard = isBillBoard; }
     void SetRandomRotate(bool isRandomRotate) { isRandomRotate_ = isRandomRotate; }
@@ -134,7 +134,7 @@ class ParticleManager {
     std::unordered_map<std::string, ParticleGroup> particleGroups;
 
     // Δtを定義
-    static const uint32_t kNumMaxInstance = 8192; // 最大インスタンス数の制限
+    static const uint32_t kNumMaxInstance = 10000; // 最大インスタンス数の制限
 
     std::random_device seedGenerator;
     std::mt19937 randomEngine;
@@ -146,7 +146,6 @@ class ParticleManager {
     bool isRandomAllSize_ = false;
     bool isSinMove_ = false;
     bool isFaceDirection_ = false;
-    bool isFinish_ = true;
 
   public:
     // nameで指定した名前のパーティクルグループにパーティクルを発生させる関数

@@ -499,12 +499,12 @@ void Player::UpdateScalingAnimation() {
         if (scaleTimer_ >= kScaleDuration) {
             scaleTimer_ = kScaleDuration;
             if (colorState_ == ColorState::Black) {
-                changeEmitter_->SetTexture("game/changeBlack.png");
+                changeEmitter_->SetTexture("particle/ChangeBlack.png");
                 changeEmitter_->SetPosition({GetCenterPosition().x, GetCenterPosition().y, GetCenterPosition().z});
                 changeEmitter_->UpdateOnce();
             }
             if (colorState_ == ColorState::White) {
-                changeEmitter_->SetTexture("game/changeWhite.png");
+                changeEmitter_->SetTexture("particle/ChangeWhite.png");
                 changeEmitter_->SetPosition({GetCenterPosition().x, GetCenterPosition().y, GetCenterPosition().z});
                 changeEmitter_->UpdateOnce();
             }

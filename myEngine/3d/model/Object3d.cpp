@@ -79,12 +79,12 @@ void Object3d::SetAnimation(const std::string &fileName) {
     model->SetAnimator(currentModelAnimation_->GetAnimator());
     model->SetBone(currentModelAnimation_->GetBone());
     model->SetSkin(currentModelAnimation_->GetSkin());
+    currentModelAnimation_->GetAnimator()->SetIsAnimation(true);
     currentModelAnimation_->GetAnimator()->SetAnimationTime(0.0f);
 
     // ファイルパスを更新
     filePath_ = fileName;
 }
-
 
 void Object3d::AddAnimation(const std::string &fileName) {
     auto animation = std::make_unique<ModelAnimation>();

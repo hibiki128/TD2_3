@@ -3,11 +3,11 @@
 
 // Engine
 #include "Audio.h"
+#include "ParticleEditor.h"
 #include "math/Easing.h"
 #include "math/myMath.h"
 #include "myEngine/3d/line/DrawLine3D.h"
 #include <myEngine/Frame/Frame.h>
-#include"ParticleEditor.h"
 
 void Player::Init(const std::string className, int currentStageNum) {
     // ゴールガイドスプライト生成
@@ -339,10 +339,10 @@ void Player::DebugImGui() {
 }
 
 bool Player::IsGoalReached() {
-  /*   デバッグ用にO押したらクリアにする（あとで絶対消す）
-    if (input_->TriggerKey(DIK_O)) {
-        return true;
-    }*/
+    /*   デバッグ用にO押したらクリアにする（あとで絶対消す）
+      if (input_->TriggerKey(DIK_O)) {
+          return true;
+      }*/
 
     const float colliderYOffset = (kHeight - 1.8f) / 2.0f;
 
@@ -425,8 +425,8 @@ bool Player::IsCollidingCoin(const Coin &coin) {
         {position.x + kWidth / 2, position.y + kHeight / 2, position.z}, // 右上
         {position.x - kWidth / 2, position.y - kHeight / 2, position.z}, // 左下
         {position.x + kWidth / 2, position.y - kHeight / 2, position.z}, // 右下
-        {position.x - kWidth / 2, position.y, position.z}, // 中心左
-        {position.x + kWidth / 2, position.y, position.z}, // 中心右
+        {position.x - kWidth / 2, position.y, position.z},               // 中心左
+        {position.x + kWidth / 2, position.y, position.z},               // 中心右
     };
 
     // コインとの当たり判定
@@ -621,7 +621,7 @@ void Player::HandleInput() {
         // RBボタンが押された瞬間のみ
         if (isPressedRB && !wasPressedRB && blockInvertCooldown_ <= 0.0f) { // クールタイム中には反転できない
             if (!isInverting_ && !collisionMapInfo_.isOverlapping_) {       // ブロック反転中には反転できない && ブロックに埋まっていたら反転できない
-                if (!mapChipField_->IsAnyChipAnimating()) { // ブロックが1つでもアニメーション中なら反転できないように
+                if (!mapChipField_->IsAnyChipAnimating()) {                 // ブロックが1つでもアニメーション中なら反転できないように
                     if (mapChipField_) {
                         // 現在の位置を取得
                         Vector3 position = BaseObject::GetWorldPosition();

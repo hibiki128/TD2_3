@@ -12,7 +12,7 @@
     "alphaMax": 1.0,
     "alphaMin": 1.0,
     "count": 2,
-    "emitFrequency": 0.5,
+    "emitFrequency": 0.4,
     "emitterRotation": {
         "x": 0.0,
         "y": 0.0,

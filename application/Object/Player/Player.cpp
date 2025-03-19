@@ -1367,6 +1367,12 @@ Player::CollisionMapInfo Player::GetMapCollisionInfo(bool title) {
     for (const auto &block : blocks) {
         // ブロックの位置と範囲を計算
         Vector3 blockPosition = block->GetWorldPosition();
+
+        // (0, 0, 0)にあるブロックとは判定しない（なぜかここにブロックの判定があるバグをごり押しで回避）
+        if (blockPosition.x == 0.0f && blockPosition.y == 0.0f && blockPosition.z == 0.0f) {
+            continue;
+        }
+
         float blockLeft = blockPosition.x - blockSize / 2;
         float blockRight = blockPosition.x + blockSize / 2;
         float blockTop = blockPosition.y + blockSize / 2;

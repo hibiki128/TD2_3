@@ -419,14 +419,16 @@ bool Player::IsCollidingCoin(const Coin &coin) {
 
     // 現在位置の取得
     Vector3 position = this->transform_.translation_ + Vector3(0.0f, colliderYOffset, 0.0f);
-    // プレイヤーの6つの点を計算
-    Vector3 corners[6] = {
+    // プレイヤーの8つの点を計算
+    Vector3 corners[8] = {
         {position.x - kWidth / 2, position.y + kHeight / 2, position.z}, // 左上
         {position.x + kWidth / 2, position.y + kHeight / 2, position.z}, // 右上
         {position.x - kWidth / 2, position.y - kHeight / 2, position.z}, // 左下
         {position.x + kWidth / 2, position.y - kHeight / 2, position.z}, // 右下
         {position.x - kWidth / 2, position.y, position.z}, // 中心左
         {position.x + kWidth / 2, position.y, position.z}, // 中心右
+        {position.x, position.y + kHeight / 2, position.z}, // 中心上
+        {position.x, position.y - kHeight / 2, position.z}, // 中心下
     };
 
     // コインとの当たり判定

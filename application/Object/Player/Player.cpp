@@ -921,6 +921,20 @@ bool Player::IsWalking() {
     } else {
         isWalking_ = false;
     }
+
+    // PAD入力の判定を追加
+    XINPUT_STATE joyState;
+    if (input_->GetJoystickState(0, joyState)) {
+        float leftStickX = joyState.Gamepad.sThumbLX;
+        const float kDeadZone = 4000.0f; // デッドゾーンの設定
+
+        if (abs(leftStickX) > kDeadZone) {
+            isWalking_ = true;
+        }
+    } else {
+        isWalking_ = false;
+    }
+
     if (isWalking_ && collisionMapInfo_.hittingGround_) {
         if (walkSEcoolTime_ < 0) {
             walkSEcoolTime_ = 0.4f;

@@ -129,6 +129,12 @@ void MapChipField::DebugImGui() {
     ImGui::Checkbox("重力反転状態", &isGravityReversed_);
     ImGui::Checkbox("プレイヤーは白い？", &isPlayerWhite_);
 
+
+    const auto blocks = GetBlocks();
+    for (const auto &block : blocks) {
+        ImGui::Text("Position : (%.1f, %.1f, %.1f) type : %d", block->GetWorldPosition().x, block->GetWorldPosition().y, block->GetWorldPosition().z, block->type_);
+    }
+
     ImGui::End();
 }
 

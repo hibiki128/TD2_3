@@ -419,8 +419,8 @@ bool Player::IsCollidingCoin(const Coin &coin) {
 
     // 現在位置の取得
     Vector3 position = this->transform_.translation_ + Vector3(0.0f, colliderYOffset, 0.0f);
-    // プレイヤーの6つの点を計算
-    Vector3 corners[6] = {
+    // プレイヤーの8つの点を計算
+    Vector3 corners[8] = {
         {position.x - kWidth / 2, position.y + kHeight / 2, position.z}, // 左上
         {position.x + kWidth / 2, position.y + kHeight / 2, position.z}, // 右上
         {position.x - kWidth / 2, position.y - kHeight / 2, position.z}, // 左下
@@ -925,6 +925,20 @@ bool Player::IsWalking() {
     } else {
         isWalking_ = false;
     }
+
+    // PAD入力の判定を追加
+    XINPUT_STATE joyState;
+    if (input_->GetJoystickState(0, joyState)) {
+        float leftStickX = joyState.Gamepad.sThumbLX;
+        const float kDeadZone = 4000.0f; // デッドゾーンの設定
+
+        if (abs(leftStickX) > kDeadZone) {
+            isWalking_ = true;
+        }
+    } else {
+        isWalking_ = false;
+    }
+
     if (isWalking_ && collisionMapInfo_.hittingGround_) {
         if (walkSEcoolTime_ < 0) {
             walkSEcoolTime_ = 0.4f;
@@ -1384,6 +1398,12 @@ Player::CollisionMapInfo Player::GetMapCollisionInfo(bool title) {
     for (const auto &block : blocks) {
         // ブロックの位置と範囲を計算
         Vector3 blockPosition = block->GetWorldPosition();
+
+        // 空ブロックとは判定をとらない
+        if (block->type_ == Block::ChipType::Empty) {
+            continue;
+        }
+
         float blockLeft = blockPosition.x - blockSize / 2;
         float blockRight = blockPosition.x + blockSize / 2;
         float blockTop = blockPosition.y + blockSize / 2;

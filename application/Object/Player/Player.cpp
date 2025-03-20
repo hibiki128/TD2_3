@@ -1368,11 +1368,9 @@ Player::CollisionMapInfo Player::GetMapCollisionInfo(bool title) {
         // ブロックの位置と範囲を計算
         Vector3 blockPosition = block->GetWorldPosition();
 
-        // (0, 0, 0)にあるブロックとは判定しない（なぜかここにブロックの判定があるバグをごり押しで回避）
-        if (currentStageNum_ == 12) { // ステージ12
-            if (blockPosition.x == 0.0f && blockPosition.y == 0.0f && blockPosition.z == 0.0f) {
-                continue;
-            }
+        // 空ブロックとは判定をとらない
+        if (block->type_ == Block::ChipType::Empty) {
+            continue;
         }
 
         float blockLeft = blockPosition.x - blockSize / 2;

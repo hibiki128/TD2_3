@@ -54,6 +54,8 @@ class GameScene : public BaseScene {
 
     int GetStageNum();
 
+    void DeleteData();
+
   private:
     Audio *audio_;
     Input *input_;

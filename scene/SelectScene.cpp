@@ -10,6 +10,7 @@
 #include "math/Easing.h"
 #include <LightGroup.h>
 #include <myEngine/Frame/Frame.h>
+#include <iostream>
 
 void SelectScene::Initialize() {
     audio_ = Audio::GetInstance();
@@ -73,6 +74,10 @@ void SelectScene::Update() {
         mapPrev->Update();
     }
     selectUI_->Update();
+
+    if (input_->PushKey(DIK_ESCAPE) && input_->PushKey(DIK_RETURN)) {
+        DeleteData();
+    }
 }
 
 void SelectScene::Draw() {
@@ -386,5 +391,23 @@ void SelectScene::SetStage() {
                 }
             }
         }
+    }
+}
+
+void SelectScene::DeleteData() {
+    namespace fs = std::filesystem;
+    std::string directory = "resources/jsons/StageData/";
+
+    try {
+        // Iterate through the directory
+        for (const auto &entry : fs::directory_iterator(directory)) {
+            // Check if it's a regular file ending with .json
+            if (entry.is_regular_file() && entry.path().extension() == ".json") {
+                fs::remove(entry); // Remove the file
+                std::cout << "Deleted: " << entry.path() << std::endl;
+            }
+        }
+    } catch (const fs::filesystem_error &e) {
+        std::cerr << "Filesystem error: " << e.what() << std::endl;
     }
 }

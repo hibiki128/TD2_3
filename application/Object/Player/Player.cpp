@@ -382,12 +382,12 @@ bool Player::IsGoalReached() {
         XINPUT_STATE joyState;
         if (input_->GetJoystickState(0, joyState)) {
             if ((joyState.Gamepad.wButtons & XINPUT_GAMEPAD_B) && collisionMapInfo_.hittingGround_ && !isGravityReversed_) { // 重力反転時はゴールできないようにする
-                SetClearAnima();
+                //SetClearAnima();
                 return true;
             }
         }
         if (input_->TriggerKey(DIK_RETURN) && collisionMapInfo_.hittingGround_ && !isGravityReversed_) { // 重力反転時はゴールできないようにする
-            SetClearAnima();
+          //  SetClearAnima();
             return true;
         }
     } else {
@@ -585,7 +585,7 @@ void Player::HandleInput() {
         bool isPressedA = joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A;
 
         // Aボタンが押された瞬間のみ
-        if (isPressedA && !wasPressedA) {
+        if (isPressedA && !wasPressedA && CanJump()) {
             if (isGravityReversed_) { // 重力反転中
                 // 天井にいる場合のみ
                 if (collisionMapInfo_.hittingCeiling_) {
@@ -593,6 +593,7 @@ void Player::HandleInput() {
 
                     // ジャンプしたことを記録（SE・エフェクト用）
                     isJumpOccurred_ = true;
+                    isJump_ = true;
                 }
             } else {
                 // 地面にいる場合のみ
@@ -601,6 +602,7 @@ void Player::HandleInput() {
 
                     // ジャンプしたことを記録（SE・エフェクト用）
                     isJumpOccurred_ = true;
+                    isJump_ = true;
                 }
             }
         }
@@ -733,13 +735,14 @@ void Player::HandleInput() {
     ///	ジャンプ入力
     ///
 
-    if (input_->TriggerKey(DIK_W)) {
+    if (input_->TriggerKey(DIK_W) && CanJump()) {
         if (isGravityReversed_) { // 重力反転中
             // 天井にいる場合のみ
             if (collisionMapInfo_.hittingCeiling_) {
                 velocity_.y = -jumpAcceleration_; // 下向き (逆)
                 // ジャンプしたことを記録（SE・エフェクト用）
                 isJumpOccurred_ = true;
+                isJump_ = true;
             }
         } else {
             // 地面にいる場合のみ
@@ -748,6 +751,7 @@ void Player::HandleInput() {
 
                 // ジャンプしたことを記録（SE・エフェクト用）
                 isJumpOccurred_ = true;
+                isJump_ = true;
             }
         }
     }
@@ -982,10 +986,10 @@ void Player::Reset(bool title) {
 void Player::PlaySE() {
     Audio *audio = Audio::GetInstance();
     if (IsJumpOccurred()) {
-        audio->PlayWave(jumpSE_, 0.1f);
+        audio->PlayWave(jumpSE_, 0.05f);
     }
-    if (isLanded_) {
-        audio->PlayWave(landingSE_, 0.1f);
+    if (IsLandedOccurred()) {
+        audio->PlayWave(landingSE_, 0.05f);
     }
     if (IsWalking()) {
         audio->PlayWave(walkSE_, 0.1f);
@@ -1009,7 +1013,7 @@ void Player::BaseUpdate() {
 
 void Player::AnimaUpdate(bool title) {
     if (!IsGoalReached()) {
-        if (velocity_.y == 0) {
+        if (velocity_.y == 0 && !isJump_) {
             if (velocity_.x == 0) {
                 BaseObject::SetLoop(true);
                 BaseObject::SetAnima("animation/playerStandby.gltf");
@@ -1017,10 +1021,10 @@ void Player::AnimaUpdate(bool title) {
                 BaseObject::SetLoop(true);
                 BaseObject::SetAnima("animation/playerWalk.gltf");
             }
-        } else {
-            BaseObject::SetLoop(false);
-            BaseObject::SetAnima("animation/playerJump.gltf");
-        }
+        } /* else {
+                 BaseObject::SetLoop(false);
+                 BaseObject::SetAnima("animation/playerJump.gltf");
+         }*/
         if (!isGravityReversed_) {
             if (velocity_.x > 0) {
                 BaseObject::SetRotationY(degreesToRadians(90.0f));
@@ -1043,6 +1047,35 @@ void Player::AnimaUpdate(bool title) {
             BaseObject::SetRotationY(degreesToRadians(90.0f));
         }
     }
+
+    if (isJump_) {
+        BaseObject::SetLoop(false);
+        BaseObject::SetAnima("animation/playerJump.gltf");
+        
+        if (collisionMapInfo_.hittingCeiling_ || collisionMapInfo_.hittingGround_) {
+            jumpCooltime += 0.1f;
+        } else {
+            jumpCooltime = 0.0f;
+        }
+
+        if (jumpCooltime > 0.1f) {
+            isJump_ = false;
+        }
+    } else {
+        jumpCooltime = 0.0f;
+    }
+
+    /*   if (input_->TriggerKey(DIK_W)) {
+           BaseObject::SetLoop(false);
+           BaseObject::SetAnima("animation/playerJump.gltf");
+       }
+       XINPUT_STATE joyState;
+       if (input_->GetJoystickState(0, joyState)) {
+           if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A) {
+               BaseObject::SetLoop(false);
+               BaseObject::SetAnima("animation/playerJump.gltf");
+           }
+       }*/
 }
 
 void Player::InversMove() {

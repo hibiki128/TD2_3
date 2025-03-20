@@ -757,7 +757,8 @@ bool MapChipField::HasBlockInArea(const Vector3 &center, int xRange, int yRange)
             // マスにブロックが存在するかをチェック
             MapChip &chip = mapChips_[targetY][targetX];
             if (chip.object->type_ != Block::ChipType::Empty && // 空ブロックを除外する
-                chip.object->type_ != Block::ChipType::Gray) {  // 動かないブロックを除外する（あとで変更する可能性あり）
+                chip.object->type_ != Block::ChipType::Gray &&
+                chip.object->type_ != Block::ChipType::Goal) { // 動かないブロックを除外する（あとで変更する可能性あり）
                 return true;
             }
         }

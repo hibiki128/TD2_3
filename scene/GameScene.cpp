@@ -1,8 +1,8 @@
 #include "GameScene.h"
 #include "SceneManager.h"
 #include <LightGroup.h>
-#include <line/DrawLine3D.h>
 #include <ParticleEditor.h>
+#include <line/DrawLine3D.h>
 
 void GameScene::Finalize() {
     sceneManager_->SetFilePath(filePath_);
@@ -124,6 +124,10 @@ void GameScene::Update() {
 
     // シーン切り替え
     ChangeScene();
+
+    if (input_->PushKey(DIK_ESCAPE) && input_->PushKey(DIK_RETURN)) {
+        DeleteData();
+    }
 }
 
 void GameScene::Draw() {
@@ -425,4 +429,22 @@ int GameScene::GetStageNum() {
     // #endif // _DEBUG
 
     return stageNumber;
+}
+
+void GameScene::DeleteData() {
+    namespace fs = std::filesystem;
+    std::string directory = "resources/jsons/StageData/";
+
+    try {
+        // Iterate through the directory
+        for (const auto &entry : fs::directory_iterator(directory)) {
+            // Check if it's a regular file ending with .json
+            if (entry.is_regular_file() && entry.path().extension() == ".json") {
+                fs::remove(entry); // Remove the file
+                std::cout << "Deleted: " << entry.path() << std::endl;
+            }
+        }
+    } catch (const fs::filesystem_error &e) {
+        std::cerr << "Filesystem error: " << e.what() << std::endl;
+    }
 }

@@ -53,6 +53,8 @@ class SelectScene : public BaseScene {
 
     void SetStage();
 
+    void DeleteData();
+
   private:
     Audio *audio_;
     Input *input_;

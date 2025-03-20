@@ -58,6 +58,17 @@ class Player : public BaseObject {
         BaseObject::SetAnima("animation/playerGoal.gltf");
         BaseObject::SetRotationY(degreesToRadians(90.0f));
     };
+    bool CanJump() {
+        if (!isJump_) {
+            canJumpCooltime += 0.1f;
+        } else {
+            canJumpCooltime = 0.0f;
+        }
+        if (canJumpCooltime > 0.0f) {
+            return true;
+        } 
+        return false;
+    }
 
     // プレイヤーの反転範囲の取得
     int GetInvertRangeX() { return xInvertRange_; }
@@ -176,6 +187,8 @@ class Player : public BaseObject {
     uint32_t coinGetSE_;
     uint32_t invertDisabledSE_;
     float walkSEcoolTime_ = 0.0f;
+    float jumpCooltime = 0.0f;
+    float canJumpCooltime = 0.0f;
 
   private:
     // 入力操作
@@ -263,6 +276,7 @@ class Player : public BaseObject {
   private:
     // ジャンプした瞬間を判定
     bool isJumpOccurred_ = false;
+    bool isJump_ = false;
     // ブロック反転した瞬間を判定
     bool isBlockInversionOccurred_ = false;
     // リセットした瞬間を判定

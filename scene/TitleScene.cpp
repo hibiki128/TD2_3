@@ -183,7 +183,7 @@ void TitleScene::CameraUpdate() {
 }
 
 void TitleScene::ChangeScene() {
-    if (player_->IsGoalReached()) {
+    if (player_->IsGoalReached(true)) {
         sceneManager_->NextSceneReservation("SELECT");
     }
 }

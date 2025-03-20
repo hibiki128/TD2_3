@@ -338,7 +338,7 @@ void Player::DebugImGui() {
     ImGui::End();
 }
 
-bool Player::IsGoalReached() {
+bool Player::IsGoalReached(bool title) {
     /*   デバッグ用にO押したらクリアにする（あとで絶対消す）
       if (input_->TriggerKey(DIK_O)) {
           return true;
@@ -376,18 +376,18 @@ bool Player::IsGoalReached() {
     }
 
     // ゴールに触れていて、なおかつ操作入力と接地状態があればゴール到達とする
-    if (reached) {
+    if (reached && CanJump()) {
         isTouchGoal_ = true; // ゴールに触れている状態をセット
 
         XINPUT_STATE joyState;
         if (input_->GetJoystickState(0, joyState)) {
             if ((joyState.Gamepad.wButtons & XINPUT_GAMEPAD_B) && collisionMapInfo_.hittingGround_ && !isGravityReversed_) { // 重力反転時はゴールできないようにする
-                //SetClearAnima();
+                SetClearAnima(title);
                 return true;
             }
         }
         if (input_->TriggerKey(DIK_RETURN) && collisionMapInfo_.hittingGround_ && !isGravityReversed_) { // 重力反転時はゴールできないようにする
-          //  SetClearAnima();
+            SetClearAnima(title);
             return true;
         }
     } else {
@@ -1028,7 +1028,7 @@ void Player::BaseUpdate() {
 }
 
 void Player::AnimaUpdate(bool title) {
-    if (!IsGoalReached()) {
+    if (!IsGoalReached(title)) {
         if (velocity_.y == 0 && !isJump_) {
             if (velocity_.x == 0) {
                 BaseObject::SetLoop(true);
@@ -1057,11 +1057,11 @@ void Player::AnimaUpdate(bool title) {
             }
         }
     } else {
-        if (!title) {
+      /*  if (!title) {
             BaseObject::SetLoop(false);
             BaseObject::SetAnima("animation/playerGoal.gltf");
             BaseObject::SetRotationY(degreesToRadians(90.0f));
-        }
+        }*/
     }
 
     if (isJump_) {

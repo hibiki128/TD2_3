@@ -35,7 +35,7 @@ class Player : public BaseObject {
     void BaseUpdate();
 
     // プレイヤーがゴールに到達しているか判定
-    bool IsGoalReached();
+    bool IsGoalReached(bool title = false);
     bool GetSquareTransition() {
         if (squareTransition_->GetCurrentStatus() == SquareTransition::Status::SquareIn) {
             return true;
@@ -53,10 +53,12 @@ class Player : public BaseObject {
             squareTransition_->Start(SquareTransition::Status::SquareIn, kResetTransitionTime);
         }
     }
-    void SetClearAnima() {
-        BaseObject::SetLoop(false);
-        BaseObject::SetAnima("animation/playerGoal.gltf");
-        BaseObject::SetRotationY(degreesToRadians(90.0f));
+    void SetClearAnima(bool title) {
+        if (!title) {
+            BaseObject::SetLoop(false);
+            BaseObject::SetAnima("animation/playerGoal.gltf");
+            BaseObject::SetRotationY(degreesToRadians(90.0f));
+        }
     };
     bool CanJump() {
         if (!isJump_) {
@@ -66,7 +68,7 @@ class Player : public BaseObject {
         }
         if (canJumpCooltime > 0.0f) {
             return true;
-        } 
+        }
         return false;
     }
 
@@ -150,9 +152,9 @@ class Player : public BaseObject {
     std::unique_ptr<Sprite> spriteGoalGuide_;
     std::unique_ptr<Sprite> spriteGoalGuideTitle_;
     // パーティクル
-    ParticleEmitter* coinEmitter_= nullptr;
-    ParticleEmitter* runEmitter_=nullptr;
-    ParticleEmitter* changeEmitter_=nullptr;
+    ParticleEmitter *coinEmitter_ = nullptr;
+    ParticleEmitter *runEmitter_ = nullptr;
+    ParticleEmitter *changeEmitter_ = nullptr;
 
     // プレイヤー反転範囲スプライトのサイズ
     float xSpritePlayerAreaSize_ = 0.0f;

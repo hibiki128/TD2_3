@@ -29,7 +29,7 @@ class ParticleEmitter {
 
     void DrawEmitter();
 
-    void Debug(); // ImGui用の関数を追加
+    void Debug(bool isEditor = false); // ImGui用の関数を追加
 
     void LoadFromJson(std::string name);
 

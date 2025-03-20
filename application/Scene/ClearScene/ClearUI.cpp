@@ -49,6 +49,7 @@ void ClearUI::Init(bool isPlayerWhite) {
     isDecision_ = false;
 
     decisionEmitter_ = ParticleEditor::GetInstance()->GetEmitter("clearDesition");
+    coinEmitter_ = ParticleEditor::GetInstance()->GetEmitter("clearcoin");
 
     InitNumbers();
 
@@ -129,6 +130,7 @@ void ClearUI::Draw(const ViewProjection &vp) {
 void ClearUI::DrawParticle(const ViewProjection &vp) {
     ParticleCommon::GetInstance()->SetBlendMode(BlendMode::kAdd);
     decisionEmitter_->Draw(vp);
+    coinEmitter_->Draw(vp);
 }
 
 void ClearUI::DrawTexts(const ViewProjection &vp) {
@@ -273,7 +275,11 @@ void ClearUI::MoveUI() {
     }
 
     if (currentItem_ == 1) {
-        decisionEmitter_->SetPositionY(-7.7f);
+        if (stageNum_ < 15) {
+            decisionEmitter_->SetPositionY(-7.7f);
+        } else {
+            decisionEmitter_->SetPositionY(-7.4f);
+        }
         // decisionEmitter_->SetScale({ 1.2f,0.2f,0.0f });
         retry_->SetTexture("clear/UI2_1x1.png");
         if (!isDecision_) {
@@ -301,7 +307,11 @@ void ClearUI::MoveUI() {
     }
 
     if (currentItem_ == 2) {
-        decisionEmitter_->SetPositionY(-8.4f);
+        if (stageNum_ < 15) {
+            decisionEmitter_->SetPositionY(-8.4f);
+        } else {
+            decisionEmitter_->SetPositionY(-8.1f);
+        }
         // decisionEmitter_->SetScale({ 1.4f,0.2f,0.0f });
         backSelect_->SetTexture("clear/UI2_1x1.png");
         if (!isDecision_) {
@@ -384,6 +394,8 @@ void ClearUI::CoinUpdate() {
         if (t_[i] >= tMax_) {
             coins_[i]->SetWorldPositionY(startY);
             coins_[i]->SetRotationY(degreesToRadians(startRot));
+            coinEmitter_->SetPosition(coins_[i]->GetCenterPosition());
+            coinEmitter_->UpdateOnce();
         }
     }
 

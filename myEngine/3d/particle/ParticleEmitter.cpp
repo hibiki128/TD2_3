@@ -433,19 +433,25 @@ void ParticleEmitter::DebugParticleData() {
 }
 
 // ImGuiで値を動かす関数
-void ParticleEmitter::Debug() {
+void ParticleEmitter::Debug(bool isEditor) {
 #ifdef _DEBUG
-    if (ImGui::Begin("パーティクルデータ")) {
+    if (!isEditor) {
+        if (ImGui::Begin("パーティクルデータ")) {
+            if (!name_.empty() && Manager_) {
+                DebugParticleData();
+            }
+            ImGui::End();
+        }
+    } else {
         if (!name_.empty() && Manager_) {
             DebugParticleData();
         }
-        ImGui::End();
     }
 #endif
 }
 void ParticleEmitter::LoadFromJson(std::string name) {
     if (!name.empty()) {
-        data_ = std::make_unique<DataHandler>("Particle",name);
+        data_ = std::make_unique<DataHandler>("Particle", name);
         transform_.translation_ = data_->Load<Vector3>("emitterTranslation", {0.0f, 0.0f, 0.0f});
         transform_.rotation_ = data_->Load<Vector3>("emitterRotation", {0.0f, 0.0f, 0.0f});
         transform_.scale_ = data_->Load<Vector3>("emitterScale", {1.0f, 1.0f, 1.0f});

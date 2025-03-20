@@ -323,6 +323,7 @@ void Framework::LoadResource() {
     particleEditor->AddParticleEmitter("ChangePlayer", "ChangePlayer");
     particleEditor->AddParticleEmitter("clearDesition", "clearDesition");
     particleEditor->AddParticleEmitter("coin", "coin");
+    particleEditor->AddParticleEmitter("clearcoin", "clearcoin");
     particleEditor->AddParticleEmitter("goal", "goal");
     particleEditor->AddParticleEmitter("goalplayer", "goalplayer");
     particleEditor->AddParticleEmitter("leaf", "leaf");

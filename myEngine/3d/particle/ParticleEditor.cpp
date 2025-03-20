@@ -62,12 +62,34 @@ void ParticleEditor::DrawAll(const ViewProjection &vp_) {
 }
 
 void ParticleEditor::DebugAll() {
-    for (auto &[name, emitter] : emitters_) {
-        if (emitter) {
-            emitter->Debug();
+    static const char *current_item = nullptr; // ImGui Comboで選択されたアイテムを保持する変数
+
+    ImGui::Begin("全てのエミッターデバッグ");
+    ImGui::Text("エミッター選択:");
+
+    // Combo boxを作成し、各エミッターの名前を表示する
+    if (ImGui::BeginCombo("##emitter_select_combo", current_item)) {
+        for (auto &[name, emitter] : emitters_) {
+            bool is_selected = (current_item && name == current_item);
+            if (ImGui::Selectable(name.c_str(), is_selected)) {
+                current_item = name.c_str(); // 選択された名前を更新
+            }
+        }
+        ImGui::EndCombo();
+    }
+
+    // current_itemがnullでない場合、対応するエミッターのデバッグを呼び出す
+    if (current_item) {
+        auto it = emitters_.find(current_item);
+        if (it != emitters_.end() && it->second) {
+            it->second->Debug(true); // Debug関数の呼び出し
         }
     }
+
+    ImGui::End();
 }
+
+
 
 void ParticleEditor::ShowImGuiEditor() {
     if (ImGui::BeginTabBar("パーティクル")) {

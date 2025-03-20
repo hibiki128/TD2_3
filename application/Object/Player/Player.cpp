@@ -427,6 +427,8 @@ bool Player::IsCollidingCoin(const Coin &coin) {
         {position.x + kWidth / 2, position.y - kHeight / 2, position.z}, // 右下
         {position.x - kWidth / 2, position.y, position.z},               // 中心左
         {position.x + kWidth / 2, position.y, position.z},               // 中心右
+        {position.x, position.y + kHeight / 2, position.z},              // 中心上
+        {position.x, position.y - kHeight / 2, position.z},              // 中心下
     };
 
     // コインとの当たり判定

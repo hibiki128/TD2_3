@@ -44,7 +44,7 @@ void ClearUI::Init(bool isPlayerWhite) {
     if (stageNum_ < 15) {
         currentItem_ = 0;
     } else {
-        currentItem_ = 1;
+        currentItem_ = 2;
     }
     isDecision_ = false;
 

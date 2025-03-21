@@ -273,7 +273,7 @@ void MapChipField::LoadFromCSV(const std::string &filePath) {
                 if (chip.object->type_ == Block::ChipType::White || chip.object->type_ == Block::ChipType::Black) {
                     std::string emitterName = "reverse" + std::to_string(reverseCount);
                     chip.normal_ = ParticleEditor::GetInstance()->GetEmitter(emitterName);
-                    reverseCount = (reverseCount % 40) + 1; // 1～40 でループ
+                    reverseCount = (reverseCount % 90) + 1; // 1～40 でループ
                 } else if (chip.object->type_ == Block::ChipType::Gravity) {
                     std::string emitterName = "arrow_up" + std::to_string(arrowUpCount);
                     chip.arrow_ = ParticleEditor::GetInstance()->GetEmitter(emitterName);

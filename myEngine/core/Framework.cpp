@@ -327,7 +327,7 @@ void Framework::LoadResource() {
     particleEditor->AddParticleEmitter("goal", "goal");
     particleEditor->AddParticleEmitter("goalplayer", "goalplayer");
     particleEditor->AddParticleEmitter("leaf", "leaf");
-    for (int i = 1; i <= 40; i++) {
+    for (int i = 1; i <= 90; i++) {
         particleEditor->AddParticleEmitter("reverse" + std::to_string(i), "reverse");
     }
     particleEditor->AddParticleEmitter("smokerun", "smokerun");

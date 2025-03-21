@@ -172,6 +172,7 @@ class Player : public BaseObject {
     float targetScale_ = 0.45f;        // 最小時スケール
     const float kScaleDuration = 0.5f; // アニメーションにかける時間
     bool isChangedColor_ = true;
+    bool reached = false;
     void UpdateScalingAnimation();
 
     float prevRotY_; // プレイヤーの色反転ブロックを発動した際に現在の回転角を保存しておく
@@ -194,7 +195,7 @@ class Player : public BaseObject {
 
   private:
     // 入力操作
-    void HandleInput();
+    void HandleInput(bool title = false);
     // 全ての衝突判定とプレイヤーの押し戻し
     void CheckCollisionAndResolve(bool title = false);
 

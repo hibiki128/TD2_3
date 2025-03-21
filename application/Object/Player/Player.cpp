@@ -141,7 +141,7 @@ void Player::Update(MapChipField *mapChipField, bool title) {
     ///	入力操作
     ///
 
-    HandleInput();
+    HandleInput(title);
 
     AnimaUpdate(title);
 
@@ -364,7 +364,7 @@ bool Player::IsGoalReached(bool title) {
     float goalBottom = goalPosition.y - MapChipField::kChipSize;
 
     // ループ外でフラグを初期化
-    bool reached = false;
+    reached = false;
 
     // 各角がゴール内にあるかを判定
     for (const auto &corner : corners) {
@@ -381,7 +381,7 @@ bool Player::IsGoalReached(bool title) {
 
         XINPUT_STATE joyState;
         if (input_->GetJoystickState(0, joyState)) {
-            if ((joyState.Gamepad.wButtons & XINPUT_GAMEPAD_B) && collisionMapInfo_.hittingGround_ && !isGravityReversed_) { // 重力反転時はゴールできないようにする
+            if ((joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A) && collisionMapInfo_.hittingGround_ && !isGravityReversed_) { // 重力反転時はゴールできないようにする
                 SetClearAnima(title);
                 return true;
             }
@@ -544,7 +544,7 @@ void Player::UpdateScalingAnimation() {
     }
 }
 
-void Player::HandleInput() {
+void Player::HandleInput(bool title) {
 #pragma region ゲームパッド入力
     // 前フレームの押下状態を保存
     static bool wasPressedA = false;  // Aボタン
@@ -587,7 +587,7 @@ void Player::HandleInput() {
         bool isPressedA = joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A;
 
         // Aボタンが押された瞬間のみ
-        if (isPressedA && !wasPressedA && CanJump()) {
+        if (isPressedA && !wasPressedA && CanJump() && !IsGoalReached(title)) {
             if (isGravityReversed_) { // 重力反転中
                 // 天井にいる場合のみ
                 if (collisionMapInfo_.hittingCeiling_) {

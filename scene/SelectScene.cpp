@@ -184,7 +184,7 @@ void SelectScene::ChangeScene() {
     }
     XINPUT_STATE joyState;
     if (input_->GetJoystickState(0, joyState)) {
-        if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A && !anyDecisionMade) {
+        if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_B && !anyDecisionMade) {
             sceneManager_->NextSceneReservation("TITLE");
         }
     }
@@ -305,7 +305,7 @@ void SelectScene::MapSelect() {
     // ゲームパッドのボタンA入力による決定処理
     XINPUT_STATE joyState;
     if (input_->GetJoystickState(0, joyState)) {
-        if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_B && !mapPrevs_[currentStage]->GetDecision()) {
+        if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A && !mapPrevs_[currentStage]->GetDecision()) {
             mapPrevs_[currentStage]->SetDecision(true);
             audio_->PlayWave(desitionSE_, 0.2f);
         }

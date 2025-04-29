@@ -78,6 +78,10 @@ class Player : public BaseObject {
     bool GetGoalAnimaFinish();
 
   private:
+    #ifdef _DEBUG
+    std::unique_ptr<BaseObject> dummyObject_;
+    #endif
+
     const float kDeltaTime = 1.0f / 60.0f;
 
     // 入力
@@ -93,8 +97,13 @@ class Player : public BaseObject {
     const float kBlank = 0.0001f;
 
     // サイズ
-    const float kWidth = 1.8f;
-    const float kHeight = 3.6f; // 縦長になるよう変更
+    //const float kWidth = 1.8f;
+    //const float kHeight = 3.6f; // 縦長になるよう変更
+    //const Vector3 kDefaultScale = {0.9f, 0.9f, 0.9f};
+
+    const float kWidth = 1.35f;
+    const float kHeight = 2.7f;
+    const Vector3 kDefaultScale = {0.675f, 0.675f, 0.675f};
 
     // リセット時のトランジションにかける時間
     const float kResetTransitionTime = 0.3f;

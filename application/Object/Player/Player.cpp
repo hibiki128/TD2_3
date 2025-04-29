@@ -10,6 +10,13 @@
 #include <myEngine/Frame/Frame.h>
 
 void Player::Init(const std::string className, int currentStageNum) {
+#ifdef _DEBUG
+    dummyObject_ = std::make_unique<BaseObject>();
+    dummyObject_->Init("dummy");
+    dummyObject_->CreateModel("debug/Cube.obj");
+    dummyObject_->SetTexture("debug/white.png");
+    #endif
+
     // ゴールガイドスプライト生成
     spriteGoalGuide_ = std::make_unique<Sprite>();
     spriteGoalGuide_->Initialize("game/goalGuide.png", {0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.5f, 0.5f});
@@ -80,6 +87,11 @@ void Player::Init(const std::string className, int currentStageNum) {
 }
 
 void Player::Update(MapChipField *mapChipField, bool title) {
+#ifdef _DEBUG
+    dummyObject_->SetScale({0.675f, 1.35f, 0.675f});
+    dummyObject_->Update();
+#endif
+
     // 各種瞬間判定フラグをリセット
     isCollectCoinOccurred_ = false; // なぜか下に記述するとずっとfalseになってしまうのでここに記述
 
@@ -253,6 +265,10 @@ void Player::Update(MapChipField *mapChipField, bool title) {
 }
 
 void Player::Draw(const ViewProjection &viewProjection, Vector3 offSet) {
+#ifdef _DEBUG
+    dummyObject_->Draw(viewProjection);
+#endif
+
     BaseObject::Draw(viewProjection, {0.0f, offSetY_, 0.0f});
 
     // 反転可能範囲を描画
@@ -344,7 +360,7 @@ bool Player::IsGoalReached(bool title) {
           return true;
       }*/
 
-    const float colliderYOffset = (kHeight - 1.8f) / 2.0f;
+    const float colliderYOffset = kHeight / 4.0f;
 
     // 現在位置の取得
     Vector3 position = this->transform_.translation_ + Vector3(0.0f, colliderYOffset, 0.0f);
@@ -974,7 +990,7 @@ void Player::Reset(bool title) {
         // 現在の取得コイン数をリセット
         currentCoinCount_ = 0;
         // スケールをリセット
-        this->SetScale({0.9f, 0.9f, 0.9f});
+        this->SetScale(kDefaultScale);
 
         // マップのリセット
         mapChipField_->ResetMapChip();
@@ -1177,7 +1193,7 @@ void Player::CheckCollisionAndResolve(bool title) {
     /// 衝突判定
     CollisionMapInfo collisionMapInfoY = GetMapCollisionInfo(title);
 
-    const float colliderYOffset = (kHeight - 1.8f) / 2.0f; // 0.9f
+    const float colliderYOffset = kHeight / 4.0f;
 
     /// 押し戻し
     if (collisionMapInfoY.hittingGround_) {
@@ -1362,9 +1378,13 @@ Player::CollisionMapInfo Player::GetMapCollisionInfo(bool title) {
     CollisionMapInfo info;
 
     // ずらす分（新しい高さと元の高さの差の半分）
-    const float colliderYOffset = (kHeight - 1.8f) / 2.0f; // 0.9f
+    const float colliderYOffset = kHeight / 4.0f;
     // 衝突判定用の実際の中心は、transform_.translation_ から上方向にオフセット
     Vector3 position = this->transform_.translation_ + Vector3(0.0f, colliderYOffset, 0.0f);
+
+    #ifdef _DEBUG
+    dummyObject_->SetWorldPosition(position);
+    #endif
 
     // 重なり判定のオフセット（プレイヤーの実際のサイズよりも少し減らした値で判定）
     const float overlapOffsetX = (kWidth / 2) - 0.02f;

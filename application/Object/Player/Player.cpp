@@ -266,7 +266,7 @@ void Player::Update(MapChipField *mapChipField, bool title) {
 
 void Player::Draw(const ViewProjection &viewProjection, Vector3 offSet) {
 #ifdef _DEBUG
-    dummyObject_->Draw(viewProjection);
+    /*dummyObject_->Draw(viewProjection);*/
 #endif
 
     BaseObject::Draw(viewProjection, {0.0f, offSetY_, 0.0f});

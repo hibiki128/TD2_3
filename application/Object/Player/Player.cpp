@@ -1117,12 +1117,12 @@ void Player::InversMove() {
     const float EaseTMax = 0.5f;
 
     if (!isGravityReversed_) {
-        startPos = 2.0f;
+        startPos = 1.5f;
         endPos = 0.0f;
         endRote = degreesToRadians(0.0f);
     } else {
         startPos = 0.0f;
-        endPos = 2.0f;
+        endPos = 1.5f;
         endRote = degreesToRadians(180.0f);
     }
 

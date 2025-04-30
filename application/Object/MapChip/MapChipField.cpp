@@ -129,7 +129,6 @@ void MapChipField::DebugImGui() {
     ImGui::Checkbox("重力反転状態", &isGravityReversed_);
     ImGui::Checkbox("プレイヤーは白い？", &isPlayerWhite_);
 
-
     const auto blocks = GetBlocks();
     for (const auto &block : blocks) {
         ImGui::Text("Position : (%.1f, %.1f, %.1f) type : %d", block->GetWorldPosition().x, block->GetWorldPosition().y, block->GetWorldPosition().z, block->type_);
@@ -273,6 +272,10 @@ void MapChipField::LoadFromCSV(const std::string &filePath) {
                 if (chip.object->type_ == Block::ChipType::White || chip.object->type_ == Block::ChipType::Black) {
                     std::string emitterName = "reverse" + std::to_string(reverseCount);
                     chip.normal_ = ParticleEditor::GetInstance()->GetEmitter(emitterName);
+
+                    std::string emitterName2 = "clip" + std::to_string(reverseCount);
+                    chip.clip_ = ParticleEditor::GetInstance()->GetEmitter(emitterName2);
+
                     reverseCount = (reverseCount % 90) + 1; // 1～40 でループ
                 } else if (chip.object->type_ == Block::ChipType::Gravity) {
                     std::string emitterName = "arrow_up" + std::to_string(arrowUpCount);
@@ -436,6 +439,7 @@ void MapChipField::InvertBlock(int x, int y) {
         if (!chip.isAnimating && chip.object->type_ != Block::ChipType::Empty) {
             // アニメーション開始の遅延処理
             chip.isDelaying = true;
+            chip.isCliping = true;
             chip.delayTime = 0.3f; // ここで指定した時間遅延
 
             chip.isAnimating = true; // 遅延後にアニメーションを開始するため有効化
@@ -554,7 +558,11 @@ void MapChipField::UpdateChipAnimation(MapChip &chip) {
             if (chip.object->type_ == Block::ChipType::Black || chip.object->type_ == Block::ChipType::White) {
                 chip.normal_->UpdateOnce();
             }
+            if (chip.isCliping) {
+                // 挟まれたとき用演出
 
+                chip.isCliping = false;
+            }
         } else {
             // 回転角度を更新
             chip.currentRotation = EaseOutQuad(0.0f, 720.0f, chip.animationTime, rotationDuration); // 回転を0° -> 360°へ

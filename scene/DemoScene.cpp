@@ -61,6 +61,12 @@ void DemoScene::Draw() {
     ptEditor_->DrawAll(vp_);
     //-----------------------------
 
+        //-----線描画-----
+#ifdef _DEBUG
+    DrawLine3D::GetInstance()->Draw(vp_);
+#endif // _DEBUG
+    //---------------
+
     /// ----------------------------------
 
     /// -------描画処理終了-------

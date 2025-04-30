@@ -20,6 +20,7 @@ class MapChipField {
         ParticleEmitter* normal_= nullptr;
         ParticleEmitter* arrow_ = nullptr;
         ParticleEmitter* goal_= nullptr;
+        ParticleEmitter *clip_ = nullptr;
 
         ///
         /// アニメーション関連
@@ -31,6 +32,7 @@ class MapChipField {
         bool isAnimating = false;
         bool isDelaying = false;
         bool hasColorChanged = false;
+        bool isCliping = false;
 
         // このアニメーションが「プレイヤー色変更ブロック由来」か否か
         bool isColorChangeAnimation = false;

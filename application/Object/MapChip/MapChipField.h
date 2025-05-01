@@ -155,7 +155,7 @@ class MapChipField {
     // 挟み込み処理を汎用化
     void ProcessCapture(int startX, int startY, Block::ChipType targetType, Block::ChipType ownType, const std::vector<std::pair<int, int>> &directions);
     // 指定された座標のブロックを反転する
-    void InvertBlock(int x, int y);
+    void InvertBlock(int x, int y, bool isVertical = false);
     // 指定された座標が有効範囲内か確認
     bool IsValidPosition(int x, int y) const;
 

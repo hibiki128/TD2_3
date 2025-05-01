@@ -131,7 +131,7 @@ void TitleScene::Draw() {
 
     //-----線描画-----
 #ifdef _DEBUG
-    DrawLine3D::GetInstance()->Draw(vp_);
+   // DrawLine3D::GetInstance()->Draw(vp_);
 #endif // _DEBUG
     //---------------
 

@@ -146,6 +146,10 @@ void MapChipField::DrawParticle(const ViewProjection &vp) {
                 ParticleCommon::GetInstance()->SetBlendMode(BlendMode::kNormal);
                 chip.normal_->Draw(vp);
             }
+            if (chip.object->type_ == Block::ChipType::Black || chip.object->type_ == Block::ChipType::White) {
+                ParticleCommon::GetInstance()->SetBlendMode(BlendMode::kNormal);
+                chip.clip_->Draw(vp);
+            }
             if (chip.object->type_ == Block::ChipType::Gravity) {
                 ParticleCommon::GetInstance()->SetBlendMode(BlendMode::kAdd);
                 chip.arrow_->Draw(vp);
@@ -398,6 +402,9 @@ void MapChipField::ProcessCapture(int startX, int startY, Block::ChipType target
     for (const auto &dir : directions) {
         std::vector<std::pair<int, int>> capturedBlocks;
 
+        // 縦方向かどうかのフラグ
+        bool isVertical = (dir.first == 0); // x方向の変化がない = 縦方向の挟み込み
+
         // 現在位置から方向に沿って探索
         int currX = startX + dir.first;
         int currY = startY + dir.second;
@@ -410,7 +417,8 @@ void MapChipField::ProcessCapture(int startX, int startY, Block::ChipType target
             // 自分のタイプのブロックが見つかれば挟み込み成立
             else if (mapChips_[currY][currX].object->type_ == ownType) {
                 for (const auto &block : capturedBlocks) {
-                    InvertBlock(block.first, block.second);
+                    // 縦方向かどうかの情報を渡す
+                    InvertBlock(block.first, block.second, isVertical);
                 }
                 break;
             }
@@ -426,7 +434,7 @@ void MapChipField::ProcessCapture(int startX, int startY, Block::ChipType target
     }
 }
 
-void MapChipField::InvertBlock(int x, int y) {
+void MapChipField::InvertBlock(int x, int y, bool isVertical) {
     // 有効範囲内のブロックのみ
     if (IsValidPosition(x, y)) {
         MapChip &chip = mapChips_[y][x];
@@ -439,6 +447,21 @@ void MapChipField::InvertBlock(int x, int y) {
         if (!chip.isAnimating && chip.object->type_ != Block::ChipType::Empty) {
             // アニメーション開始の遅延処理
             chip.isDelaying = true;
+            chip.clip_->SetPosition(chip.object->GetCenterPosition());
+
+            // 縦方向の挟み込みの場合は回転を設定
+            if (isVertical) {
+                chip.clip_->SetRotate({0.0f, 0.0f, degreesToRadians(90.0f)});
+            } else {
+                chip.clip_->SetRotate({0.0f, 0.0f, 0.0f});
+            }
+
+            if (chip.object->type_ == Block::ChipType::Black) {
+                chip.clip_->SetTexture("particle/whiteBlock1x1.png");
+            }
+            if (chip.object->type_ == Block::ChipType::White) {
+                chip.clip_->SetTexture("particle/blackBlock1x1.png");
+            }
             chip.isCliping = true;
             chip.delayTime = 0.3f; // ここで指定した時間遅延
 
@@ -554,16 +577,18 @@ void MapChipField::UpdateChipAnimation(MapChip &chip) {
                 chip.normal_->SetPosition(chip.object->GetCenterPosition());
                 chip.normal_->SetTexture("particle/whiteBlock1x1.png");
             }
-
             if (chip.object->type_ == Block::ChipType::Black || chip.object->type_ == Block::ChipType::White) {
                 chip.normal_->UpdateOnce();
             }
-            if (chip.isCliping) {
-                // 挟まれたとき用演出
 
-                chip.isCliping = false;
-            }
+            chip.isCliping = false;
+
         } else {
+            if (chip.isCliping) {
+                if (chip.object->type_ == Block::ChipType::Black || chip.object->type_ == Block::ChipType::White) {
+                    chip.clip_->Update();
+                }
+            } 
             // 回転角度を更新
             chip.currentRotation = EaseOutQuad(0.0f, 720.0f, chip.animationTime, rotationDuration); // 回転を0° -> 360°へ
             chip.object->SetRotation({0.0f, degreesToRadians(chip.currentRotation), 0.0f});

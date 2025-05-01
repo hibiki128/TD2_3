@@ -1,32 +1,32 @@
 {
     "allScaleMax": {
-        "x": 1.0,
-        "y": 1.0,
-        "z": 1.0
+        "x": 0.6499999761581421,
+        "y": 0.6499999761581421,
+        "z": 0.6499999761581421
     },
     "allScaleMin": {
         "x": 0.0,
         "y": 0.0,
         "z": 0.0
     },
-    "alphaMax": 1.0,
-    "alphaMin": 1.0,
-    "count": 6,
-    "emitFrequency": 0.029999999329447746,
+    "alphaMax": 0.3499999940395355,
+    "alphaMin": 0.25,
+    "count": 1,
+    "emitFrequency": 0.009999999776482582,
     "emitterRotation": {
         "x": 0.0,
         "y": 0.0,
         "z": 0.0
     },
     "emitterScale": {
-        "x": 1.0,
+        "x": 1.100000023841858,
         "y": 0.0,
         "z": 0.0
     },
     "emitterTranslation": {
         "x": 0.0,
-        "y": 0.0,
-        "z": -7.800000190734863
+        "y": 0.20000000298023224,
+        "z": -16.0
     },
     "endAcce": {
         "x": 0.0,
@@ -39,13 +39,13 @@
         "z": 0.0
     },
     "endScale": {
-        "x": 0.10000000149011612,
-        "y": 0.10000000149011612,
-        "z": 0.10000000149011612
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
     },
-    "fileName": "debug/plane.obj",
+    "fileName": "debug/sphere.obj",
     "isAcceMultiply": true,
-    "isActive": false,
+    "isActive": true,
     "isAllRamdomScale": false,
     "isBillBoard": false,
     "isFaceDirection": false,
@@ -54,8 +54,8 @@
     "isRandomScale": false,
     "isSinMove": false,
     "isVisible": true,
-    "lifeTimeMax": 1.5,
-    "lifeTimeMin": 1.5,
+    "lifeTimeMax": 1.2000000476837158,
+    "lifeTimeMin": 0.8500000238418579,
     "rotateVelocityMax": {
         "x": 0.07000000029802322,
         "y": 0.07000000029802322,
@@ -79,19 +79,19 @@
         "z": 0.0
     },
     "startScale": {
-        "x": 0.25,
-        "y": 0.25,
-        "z": 0.25
+        "x": 0.550000011920929,
+        "y": 0.550000011920929,
+        "z": 0.550000011920929
     },
-    "texturePath": "particle/circle.png",
+    "texturePath": "particle/blackBlock1x1.png",
     "velocityMax": {
         "x": 1.0,
         "y": 1.0,
         "z": 1.0
     },
     "velocityMin": {
-        "x": -1.0,
-        "y": -1.0,
-        "z": -1.0
+        "x": 1.0,
+        "y": 1.0,
+        "z": 1.0
     }
 }

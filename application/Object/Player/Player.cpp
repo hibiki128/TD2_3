@@ -15,7 +15,7 @@ void Player::Init(const std::string className, int currentStageNum) {
     dummyObject_->Init("dummy");
     dummyObject_->CreateModel("debug/Cube.obj");
     dummyObject_->SetTexture("debug/white.png");
-    #endif
+#endif
 
     // ゴールガイドスプライト生成
     spriteGoalGuide_ = std::make_unique<Sprite>();
@@ -84,6 +84,8 @@ void Player::Init(const std::string className, int currentStageNum) {
     runEmitter_ = ParticleEditor::GetInstance()->GetEmitter("smokerun");
 
     changeEmitter_ = ParticleEditor::GetInstance()->GetEmitter("ChangePlayer");
+
+    moveCoolTime_ = 0.75f;
 }
 
 void Player::Update(MapChipField *mapChipField, bool title) {
@@ -141,6 +143,10 @@ void Player::Update(MapChipField *mapChipField, bool title) {
         velocity_.y = 0.0f;
     }
 
+    if (IsResetOccurred()) {
+        moveCoolTime_ = 0.75f;
+    }
+
     // 各種瞬間判定フラグをリセット
     isJumpOccurred_ = false;
     isBlockInversionOccurred_ = false;
@@ -153,7 +159,11 @@ void Player::Update(MapChipField *mapChipField, bool title) {
     ///	入力操作
     ///
 
-    HandleInput(title);
+    if (moveCoolTime_ < 0.0f) {
+        HandleInput(title);
+    } else {
+        moveCoolTime_ -= 1.0f / 60.0f;
+    }
 
     AnimaUpdate(title);
 
@@ -359,9 +369,7 @@ bool Player::IsGoalReached(bool title) {
       if (input_->TriggerKey(DIK_O)) {
           return true;
       }*/
-
     const float colliderYOffset = kHeight / 4.0f;
-
     // 現在位置の取得
     Vector3 position = this->transform_.translation_ + Vector3(0.0f, colliderYOffset, 0.0f);
     // プレイヤーの4つの角を計算
@@ -371,45 +379,47 @@ bool Player::IsGoalReached(bool title) {
         {position.x - kWidth / 2, position.y - kHeight / 2, position.z}, // 左下
         {position.x + kWidth / 2, position.y - kHeight / 2, position.z}  // 右下
     };
-
     // ゴール位置の取得
     Vector3 goalPosition = mapChipField_->GetGoalPosition();
     float goalLeft = goalPosition.x - MapChipField::kChipSize;
     float goalRight = goalPosition.x + MapChipField::kChipSize;
     float goalTop = goalPosition.y + MapChipField::kChipSize;
     float goalBottom = goalPosition.y - MapChipField::kChipSize;
-
     // ループ外でフラグを初期化
     reached = false;
-
     // 各角がゴール内にあるかを判定
     for (const auto &corner : corners) {
         if (corner.x >= goalLeft && corner.x <= goalRight && corner.y >= goalBottom && corner.y <= goalTop) {
-
             reached = true; // ゴール内の角が見つかったらフラグを立てる
             break;          // 一つでも見つかれば、他の角のチェックは不要
         }
     }
-
     // ゴールに触れていて、なおかつ操作入力と接地状態があればゴール到達とする
     if (reached && CanJump()) {
         isTouchGoal_ = true; // ゴールに触れている状態をセット
 
-        XINPUT_STATE joyState;
-        if (input_->GetJoystickState(0, joyState)) {
-            if ((joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A) && collisionMapInfo_.hittingGround_ && !isGravityReversed_) { // 重力反転時はゴールできないようにする
+        // コントローラーのAボタンのトリガー入力（単押し）を検出
+        XINPUT_STATE joyState, joyStatePre;
+        if (input_->GetJoystickState(0, joyState) && input_->GetJoystickStatePrevious(0, joyStatePre)) {
+            // 前のフレームでAボタンが押されておらず、現在のフレームで押されている状態をチェック
+            bool isCurrentPressed = (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A) != 0;
+            bool isPreviousPressed = (joyStatePre.Gamepad.wButtons & XINPUT_GAMEPAD_A) != 0;
+
+            // 単押し判定（前のフレームで押されていなくて、現在押されている）
+            if (isCurrentPressed && !isPreviousPressed && collisionMapInfo_.hittingGround_ && !isGravityReversed_) {
                 SetClearAnima(title);
                 return true;
             }
         }
-        if (input_->TriggerKey(DIK_RETURN) && collisionMapInfo_.hittingGround_ && !isGravityReversed_) { // 重力反転時はゴールできないようにする
+
+        // キーボードのスペースキーのトリガー入力（単押し）
+        if (input_->TriggerKey(DIK_SPACE) && collisionMapInfo_.hittingGround_ && !isGravityReversed_) { // 重力反転時はゴールできないようにする
             SetClearAnima(title);
             return true;
         }
     } else {
         isTouchGoal_ = false;
     }
-
     return false;
 }
 
@@ -1073,17 +1083,17 @@ void Player::AnimaUpdate(bool title) {
             }
         }
     } else {
-      /*  if (!title) {
-            BaseObject::SetLoop(false);
-            BaseObject::SetAnima("animation/playerGoal.gltf");
-            BaseObject::SetRotationY(degreesToRadians(90.0f));
-        }*/
+        /*  if (!title) {
+              BaseObject::SetLoop(false);
+              BaseObject::SetAnima("animation/playerGoal.gltf");
+              BaseObject::SetRotationY(degreesToRadians(90.0f));
+          }*/
     }
 
     if (isJump_) {
         BaseObject::SetLoop(false);
         BaseObject::SetAnima("animation/playerJump.gltf");
-        
+
         if (collisionMapInfo_.hittingCeiling_ || collisionMapInfo_.hittingGround_) {
             jumpCooltime += 0.1f;
         } else {
@@ -1382,9 +1392,9 @@ Player::CollisionMapInfo Player::GetMapCollisionInfo(bool title) {
     // 衝突判定用の実際の中心は、transform_.translation_ から上方向にオフセット
     Vector3 position = this->transform_.translation_ + Vector3(0.0f, colliderYOffset, 0.0f);
 
-    #ifdef _DEBUG
+#ifdef _DEBUG
     dummyObject_->SetWorldPosition(position);
-    #endif
+#endif
 
     // 重なり判定のオフセット（プレイヤーの実際のサイズよりも少し減らした値で判定）
     const float overlapOffsetX = (kWidth / 2) - 0.02f;

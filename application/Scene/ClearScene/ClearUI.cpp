@@ -249,7 +249,7 @@ void ClearUI::MoveUI() {
     if (currentItem_ == 0) {
         decisionEmitter_->SetPositionY(-7.0f);
         // decisionEmitter_->SetScale({ 1.7f,0.2f,0.0f });
-        nextStage_->SetTexture("clear/UI2_1x1.png");
+        nextStage_->SetTexture("clear/UI1x1.png");
         if (!isDecision_) {
             nextT_ += deltaTime;
             if (nextT_ > easeTMax) {
@@ -265,7 +265,7 @@ void ClearUI::MoveUI() {
         }
 
     } else {
-        nextStage_->SetTexture("clear/UI1x1.png");
+        nextStage_->SetTexture("clear/UI2_1x1.png");
         if (nextT_ > 0.0f) {
             nextT_ -= deltaTime;
         } else {
@@ -281,7 +281,7 @@ void ClearUI::MoveUI() {
             decisionEmitter_->SetPositionY(-7.4f);
         }
         // decisionEmitter_->SetScale({ 1.2f,0.2f,0.0f });
-        retry_->SetTexture("clear/UI2_1x1.png");
+        retry_->SetTexture("clear/UI1x1.png");
         if (!isDecision_) {
 
             retryT_ += deltaTime;
@@ -297,7 +297,7 @@ void ClearUI::MoveUI() {
             retry_->SetScale(EaseInSine<Vector3>(retry_->GetTransform().scale_, endScale, retryT_, easeTMax));
         }
     } else {
-        retry_->SetTexture("clear/UI1x1.png");
+        retry_->SetTexture("clear/UI2_1x1.png");
         if (retryT_ > 0.0f) {
             retryT_ -= deltaTime;
         } else {
@@ -313,7 +313,7 @@ void ClearUI::MoveUI() {
             decisionEmitter_->SetPositionY(-8.1f);
         }
         // decisionEmitter_->SetScale({ 1.4f,0.2f,0.0f });
-        backSelect_->SetTexture("clear/UI2_1x1.png");
+        backSelect_->SetTexture("clear/UI1x1.png");
         if (!isDecision_) {
             selectT_ += deltaTime;
             if (selectT_ > easeTMax) {
@@ -328,7 +328,7 @@ void ClearUI::MoveUI() {
             backSelect_->SetScale(EaseInSine<Vector3>(backSelect_->GetTransform().scale_, endScale, selectT_, easeTMax));
         }
     } else {
-        backSelect_->SetTexture("clear/UI1x1.png");
+        backSelect_->SetTexture("clear/UI2_1x1.png");
         if (selectT_ > 0.0f) {
             selectT_ -= deltaTime;
         } else {

@@ -142,6 +142,7 @@ class Player : public BaseObject {
     float offSetY_ = 0.0f; // 回転時の描画位置ずらすよう
     float inversT_ = 1.0f; // 反転時イージング用
     float startRote_ = 0.0f;
+    float moveCoolTime_ = 0.0f; // 入力遅延用クールタイム
 
     // 反転可能範囲
     int xInvertRange_;

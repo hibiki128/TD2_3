@@ -178,8 +178,8 @@ class Player : public BaseObject {
     bool isScaling_ = false; // スケーリング中かどうか
     bool isGoalAnimaFinish_ = false;
     float scaleTimer_;                 // アニメーションの進行度を管理
-    float initialScale_ = 0.9f;        // アニメーション開始時スケール
-    float targetScale_ = 0.45f;        // 最小時スケール
+    float initialScale_ = 0.675f;        // アニメーション開始時スケール
+    float targetScale_ = 0.3375f;        // 最小時スケール
     const float kScaleDuration = 0.5f; // アニメーションにかける時間
     bool isChangedColor_ = true;
     bool reached = false;

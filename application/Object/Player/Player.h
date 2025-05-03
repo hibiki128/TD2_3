@@ -310,6 +310,16 @@ class Player : public BaseObject {
     bool isInvertDisabled_ = false;
     // ゴールに触れている間を判定
     bool isTouchGoal_ = false;
+    // 反転ボタン押したかどうか
+    bool isInvert_ = false;
+    // 埋まっている状態でisInvertがtrueになったことを記録
+    bool wasInvertWhileOverlapping_ = false;
+
+    // スプライト表示フラグ
+    bool shouldDisplay_ = false;
+
+    // スプライト表示タイマー
+    float displayTimer_ = 0.0f;
 
 // 埋まってます画像表示用
 private:
@@ -318,7 +328,7 @@ private:
 
     float fillAlpha_ = 0.0f; // 透明度（0.0f ~ 1.0f）;
     float fllAlphaSpeed_ = 2.0f; // a変化速度（秒）
-
+ 
     float overlapTimer_ = 0.0f; // 埋まっている時間
     bool wasOverlapping_ = false; // 前フレームの状態記録
 };

@@ -305,28 +305,21 @@ void Player::DrawSprite(const ViewProjection &viewProjection, bool title) {
     ///
     ///	プレイヤーの反転可能範囲画像について
     ///
-
     // プレイヤーのワールド座標をスクリーン座標に変換してspritePlayerAreaの位置をセット
     InvertAreaSpriteToPlayerPosition(viewProjection);
     // 現在の反転可能範囲の数値によってspritePlayerAreaのサイズを変更
     InvertAreaSpriteAdjust();
-
     // 反転無効時と反転成立時にspritePlayerAreaにアニメーションを適用する
     SpritePlayerAreaAnimation();
-
     // プレイヤー反転可能範囲の描画
     spritePlayerArea_->Draw();
-
     ///
     ///	ゴールガイド画像について
     ///
-
     // ゴールガイド画像をプレイヤーの位置に合わせる
     GoalGuideSpriteToPlayerPosition(viewProjection);
-
     // ゴールガイド画像の透明度を変更
     UpdateGoalGuideSpriteAlpha();
-
     // ゴールガイドの描画（alphaが0.0fよりも大きければ描画）
     if (title) {
         spriteGoalGuideTitle_->SetPosition({935.0f, 430.0f});
@@ -340,49 +333,73 @@ void Player::DrawSprite(const ViewProjection &viewProjection, bool title) {
             }
         }
     }
-
     // リセット時トランジションスプライトの描画
     squareTransition_->Draw();
-
     ///
     /// 埋まっています画像　
-    /// memo : 指定秒以上ブロックに埋まっていた場合、埋まっています画像を濃くしていく
-    /// 
-    
-    // この秒数埋まってたら画像を濃くし始める
-    const float kFillTime = 0.4f;
+    /// memo : 埋まっていてisInvert_がtrueになった場合に1秒間表示
+    ///
 
-    if (collisionMapInfo_.isOverlapping_) {
-        if (!wasOverlapping_) {
-            // 埋まり始めた瞬間にタイマーをリセット
-            overlapTimer_ = 0.0f;
+    // 埋まっていてisInvert_がtrueの場合の処理
+    if (collisionMapInfo_.isOverlapping_ && isInvert_) {
+        // まだ表示されていない場合のみ初期化処理を行う
+        if (!shouldDisplay_) {
+            // 表示フラグを立てる
+            shouldDisplay_ = true;
+            // 透明度を0から徐々に上げる
+            fillAlpha_ = 0.0f;
+            displayTimer_ = 0.0f;
         } else {
-            // 埋まり続けている間は時間を加算
-            overlapTimer_ += kDeltaTime;
+            // 既に表示中の場合はタイマーをリセット（表示時間を延長）
+            displayTimer_ = 0.0f;
+            // 現在の透明度はそのまま維持（リセットしない）
         }
+    }
 
-        // 指定秒以上ブロックに埋まっていたら
-        if (overlapTimer_ >= kFillTime) {
-            // 埋まっているので徐々に濃く
-            fillAlpha_ += fllAlphaSpeed_ * kDeltaTime;
+    // 表示フラグが立っている場合の処理
+    if (shouldDisplay_) {
+        displayTimer_ += kDeltaTime;
+
+        // 最初の段階: 徐々に濃くする（0.3秒かけて）
+        const float kFadeInTime = 0.3f;
+        if (displayTimer_ < kFadeInTime && fillAlpha_ < 1.0f) {
+            // フェードイン中かつまだ完全不透明になっていない場合のみ透明度を上げる
+            fillAlpha_ += (1.0f / kFadeInTime) * kDeltaTime;
             if (fillAlpha_ > 1.0f)
                 fillAlpha_ = 1.0f;
         }
-    } else {
-        // 埋まっていないので徐々に薄く
-        overlapTimer_ = 0.0f;
-        fillAlpha_ -= (fllAlphaSpeed_ * 2.0f) * kDeltaTime; // 薄くなるときは早く
-        if (fillAlpha_ < 0.0f) fillAlpha_ = 0.0f;
+
+        // 表示時間1.0秒が経過したら徐々に薄くする
+        const float kDisplayTime = 1.0f;
+        if (displayTimer_ > kDisplayTime) {
+            // 薄くなる速度（0.3秒かけて消える）
+            const float kFadeOutTime = 0.3f;
+            fillAlpha_ -= (1.0f / kFadeOutTime) * kDeltaTime;
+
+            // 完全に透明になったら表示フラグを下ろす
+            if (fillAlpha_ <= 0.0f) {
+                fillAlpha_ = 0.0f;
+                shouldDisplay_ = false;
+            }
+        }
+
+        // アルファ値を0～1の範囲に制限
+        if (fillAlpha_ > 1.0f)
+            fillAlpha_ = 1.0f;
+        if (fillAlpha_ < 0.0f)
+            fillAlpha_ = 0.0f;
+
+        // 透明度設定
+        spritePlayerFilled_->SetAlpha(fillAlpha_);
+        // スプライト描画
+        spritePlayerFilled_->Draw();
     }
 
     // 状態記録
     wasOverlapping_ = collisionMapInfo_.isOverlapping_;
-
-    // 透明度設定
-    spritePlayerFilled_->SetAlpha(fillAlpha_);
-    // スプライト描画
-    spritePlayerFilled_->Draw();
+    isInvert_ = false;
 }
+
 
 void Player::DebugImGui() {
     // デフォルトデバッグ表示（トランスフォーム、コライダー）
@@ -698,6 +715,7 @@ void Player::HandleInput(bool title) {
 
         // RBボタンが押された瞬間のみ
         if (isPressedRB && !wasPressedRB && blockInvertCooldown_ <= 0.0f) { // クールタイム中には反転できない
+            isInvert_ = true;
             if (!isInverting_ && !collisionMapInfo_.isOverlapping_) {       // ブロック反転中には反転できない && ブロックに埋まっていたら反転できない
                 if (!mapChipField_->IsAnyChipAnimating()) {                 // ブロックが1つでもアニメーション中なら反転できないように
                     if (mapChipField_) {
@@ -837,6 +855,7 @@ void Player::HandleInput(bool title) {
     ///
 
     if (input_->TriggerKey(DIK_SPACE) && blockInvertCooldown_ <= 0.0f&&!IsGoalReached()) { // クールタイム中には反転できない
+        isInvert_ = true;
         if (!isInverting_ && !collisionMapInfo_.isOverlapping_) {        // ブロック反転中には反転できない && ブロックに埋まっていたら反転できない
             if (!mapChipField_->IsAnyChipAnimating()) {                  // ブロックが1つでもアニメーション中なら反転できないように
                 if (mapChipField_) {

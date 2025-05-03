@@ -310,4 +310,15 @@ class Player : public BaseObject {
     bool isInvertDisabled_ = false;
     // ゴールに触れている間を判定
     bool isTouchGoal_ = false;
+
+// 埋まってます画像表示用
+private:
+    // "ブロックにうまっています" スプライト
+    std::unique_ptr<Sprite> spritePlayerFilled_;
+
+    float fillAlpha_ = 0.0f; // 透明度（0.0f ~ 1.0f）;
+    float fllAlphaSpeed_ = 2.0f; // a変化速度（秒）
+
+    float overlapTimer_ = 0.0f; // 埋まっている時間
+    bool wasOverlapping_ = false; // 前フレームの状態記録
 };

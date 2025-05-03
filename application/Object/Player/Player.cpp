@@ -86,6 +86,15 @@ void Player::Init(const std::string className, int currentStageNum) {
     changeEmitter_ = ParticleEditor::GetInstance()->GetEmitter("ChangePlayer");
 
     moveCoolTime_ = 0.75f;
+
+
+    ///
+    /// 埋まってます画像
+    /// 
+    
+    spritePlayerFilled_ = std::make_unique<Sprite>();
+    spritePlayerFilled_->Initialize("game/warning2.png", {0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.5f, 0.5f});
+    spritePlayerFilled_->SetPosition({640.0f, 360.0f});
 }
 
 void Player::Update(MapChipField *mapChipField, bool title) {
@@ -334,6 +343,45 @@ void Player::DrawSprite(const ViewProjection &viewProjection, bool title) {
 
     // リセット時トランジションスプライトの描画
     squareTransition_->Draw();
+
+    ///
+    /// 埋まっています画像　
+    /// memo : 指定秒以上ブロックに埋まっていた場合、埋まっています画像を濃くしていく
+    /// 
+    
+    // この秒数埋まってたら画像を濃くし始める
+    const float kFillTime = 0.4f;
+
+    if (collisionMapInfo_.isOverlapping_) {
+        if (!wasOverlapping_) {
+            // 埋まり始めた瞬間にタイマーをリセット
+            overlapTimer_ = 0.0f;
+        } else {
+            // 埋まり続けている間は時間を加算
+            overlapTimer_ += kDeltaTime;
+        }
+
+        // 指定秒以上ブロックに埋まっていたら
+        if (overlapTimer_ >= kFillTime) {
+            // 埋まっているので徐々に濃く
+            fillAlpha_ += fllAlphaSpeed_ * kDeltaTime;
+            if (fillAlpha_ > 1.0f)
+                fillAlpha_ = 1.0f;
+        }
+    } else {
+        // 埋まっていないので徐々に薄く
+        overlapTimer_ = 0.0f;
+        fillAlpha_ -= (fllAlphaSpeed_ * 2.0f) * kDeltaTime; // 薄くなるときは早く
+        if (fillAlpha_ < 0.0f) fillAlpha_ = 0.0f;
+    }
+
+    // 状態記録
+    wasOverlapping_ = collisionMapInfo_.isOverlapping_;
+
+    // 透明度設定
+    spritePlayerFilled_->SetAlpha(fillAlpha_);
+    // スプライト描画
+    spritePlayerFilled_->Draw();
 }
 
 void Player::DebugImGui() {

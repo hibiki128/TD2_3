@@ -86,7 +86,7 @@ void GameScene::Update() {
     ///
     ///	各オブジェクト更新
     ///
-
+    player_->SetPause(pause_->IsFinish());
     if (!pause_->IsPause() && !clearCamera_->GetActive()) {
         if (pause_->IsFinish()) {
             // プレイヤー更新
@@ -278,7 +278,7 @@ void GameScene::CameraUpdate() {
     }*/
 #endif // _DEBUG
 
-    if (player_->IsGoalReached()) {
+    if (player_->IsGoalReached()&&pause_->IsFinish()) {
         clearCamera_->SetActive(true);
     }
     if (clearCamera_->GetActive()) {

@@ -87,14 +87,15 @@ void Player::Init(const std::string className, int currentStageNum) {
 
     moveCoolTime_ = 0.75f;
 
-
     ///
     /// 埋まってます画像
-    /// 
-    
+    ///
+
     spritePlayerFilled_ = std::make_unique<Sprite>();
     spritePlayerFilled_->Initialize("game/warning2.png", {0.0f, 0.0f}, {1.0f, 1.0f, 1.0f, 1.0f}, {0.5f, 0.5f});
     spritePlayerFilled_->SetPosition({640.0f, 360.0f});
+
+    isGoal_ = false;
 }
 
 void Player::Update(MapChipField *mapChipField, bool title) {
@@ -169,15 +170,17 @@ void Player::Update(MapChipField *mapChipField, bool title) {
     ///
 
     if (moveCoolTime_ < 0.0f) {
-        HandleInput(title);
+        if (!isGoal_) {
+            HandleInput(title);
+        }
     } else {
         moveCoolTime_ -= 1.0f / 60.0f;
     }
 
     AnimaUpdate(title);
-
-    RunParitcle();
-
+    if (!isGoal_) {
+        RunParitcle();
+    }
     ///
     ///	重力を常に受ける
     ///
@@ -400,7 +403,6 @@ void Player::DrawSprite(const ViewProjection &viewProjection, bool title) {
     isInvert_ = false;
 }
 
-
 void Player::DebugImGui() {
     // デフォルトデバッグ表示（トランスフォーム、コライダー）
     BaseObject::DebugImGui();
@@ -471,15 +473,17 @@ bool Player::IsGoalReached(bool title) {
             bool isPreviousPressed = (joyStatePre.Gamepad.wButtons & XINPUT_GAMEPAD_A) != 0;
 
             // 単押し判定（前のフレームで押されていなくて、現在押されている）
-            if (isCurrentPressed && !isPreviousPressed && collisionMapInfo_.hittingGround_ && !isGravityReversed_) {
+            if (isCurrentPressed && !isPreviousPressed && collisionMapInfo_.hittingGround_ && !isGravityReversed_&&isPause_) {
                 SetClearAnima(title);
+                isGoal_ = true;
                 return true;
             }
         }
 
         // キーボードのスペースキーのトリガー入力（単押し）
-        if (input_->TriggerKey(DIK_SPACE) && collisionMapInfo_.hittingGround_ && !isGravityReversed_) { // 重力反転時はゴールできないようにする
+        if (input_->TriggerKey(DIK_SPACE) && collisionMapInfo_.hittingGround_ && !isGravityReversed_&&isPause_) { // 重力反転時はゴールできないようにする
             SetClearAnima(title);
+            isGoal_ = true;
             return true;
         }
     } else {
@@ -716,8 +720,8 @@ void Player::HandleInput(bool title) {
         // RBボタンが押された瞬間のみ
         if (isPressedRB && !wasPressedRB && blockInvertCooldown_ <= 0.0f) { // クールタイム中には反転できない
             isInvert_ = true;
-            if (!isInverting_ && !collisionMapInfo_.isOverlapping_) {       // ブロック反転中には反転できない && ブロックに埋まっていたら反転できない
-                if (!mapChipField_->IsAnyChipAnimating()) {                 // ブロックが1つでもアニメーション中なら反転できないように
+            if (!isInverting_ && !collisionMapInfo_.isOverlapping_) { // ブロック反転中には反転できない && ブロックに埋まっていたら反転できない
+                if (!mapChipField_->IsAnyChipAnimating()) {           // ブロックが1つでもアニメーション中なら反転できないように
                     if (mapChipField_) {
                         // 現在の位置を取得
                         Vector3 position = BaseObject::GetWorldPosition();
@@ -792,13 +796,13 @@ void Player::HandleInput(bool title) {
         ///	リセット
         ///
 
-        //bool isPressedLB = joyState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER;
+        // bool isPressedLB = joyState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER;
 
-        //if (isPressedLB && !wasPressedLB) {
-        //    // トランジション中には押せないようにする
-        //    if (squareTransition_->IsFinished()) {
-        //        // SquareInを開始する
-        //        squareTransition_->Start(SquareTransition::Status::SquareIn, kResetTransitionTime);
+        // if (isPressedLB && !wasPressedLB) {
+        //     // トランジション中には押せないようにする
+        //     if (squareTransition_->IsFinished()) {
+        //         // SquareInを開始する
+        //         squareTransition_->Start(SquareTransition::Status::SquareIn, kResetTransitionTime);
 
         //        // リセットしたことを記録（SE・エフェクト用）
         //        isResetOccurred_ = true;
@@ -806,7 +810,7 @@ void Player::HandleInput(bool title) {
         //}
 
         //// 前フレームの状態を記録
-        //wasPressedLB = isPressedLB;
+        // wasPressedLB = isPressedLB;
     }
 #pragma endregion
 
@@ -854,10 +858,10 @@ void Player::HandleInput(bool title) {
     ///	範囲内のブロック反転入力
     ///
 
-    if (input_->TriggerKey(DIK_SPACE) && blockInvertCooldown_ <= 0.0f&&!IsGoalReached()) { // クールタイム中には反転できない
+    if (input_->TriggerKey(DIK_SPACE) && blockInvertCooldown_ <= 0.0f && !IsGoalReached()) { // クールタイム中には反転できない
         isInvert_ = true;
-        if (!isInverting_ && !collisionMapInfo_.isOverlapping_) {        // ブロック反転中には反転できない && ブロックに埋まっていたら反転できない
-            if (!mapChipField_->IsAnyChipAnimating()) {                  // ブロックが1つでもアニメーション中なら反転できないように
+        if (!isInverting_ && !collisionMapInfo_.isOverlapping_) { // ブロック反転中には反転できない && ブロックに埋まっていたら反転できない
+            if (!mapChipField_->IsAnyChipAnimating()) {           // ブロックが1つでもアニメーション中なら反転できないように
                 if (mapChipField_) {
                     // 現在の位置を取得
                     Vector3 position = BaseObject::GetWorldPosition();
@@ -1109,7 +1113,7 @@ void Player::PlaySE() {
     if (IsGravityReversedOccurred()) {
         audio->PlayWave(gravitySE_, 0.1f);
     }
-    if (IsInvertDisabled() &&!IsGoalReached()) {
+    if (IsInvertDisabled() && !IsGoalReached()) {
         audio->PlayWave(invertDisabledSE_, 0.1f);
     }
 }

@@ -64,11 +64,11 @@ void TitleScene::Update() {
 
     objectTitleUI_->Update();
 
-    // プレイヤー更新
+    // マップチップフィールド更新
+    mapChipField_->Update(player_->GetCenterPosition(), player_->GetInvertRangeX(), player_->GetInvertRangeY(), true);
+    player_->SetPause(true);
     player_->Update(mapChipField_.get(), true);
     player_->BaseUpdate();
-    // マップチップフィールド更新
-    mapChipField_->Update(player_->GetCenterPosition(), player_->GetInvertRangeX(), player_->GetInvertRangeY(),true);
 
     player_->Reset(true);
     player_->PlaySE();
@@ -131,7 +131,7 @@ void TitleScene::Draw() {
 
     //-----線描画-----
 #ifdef _DEBUG
-   // DrawLine3D::GetInstance()->Draw(vp_);
+    // DrawLine3D::GetInstance()->Draw(vp_);
 #endif // _DEBUG
     //---------------
 

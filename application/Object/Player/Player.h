@@ -71,6 +71,7 @@ class Player : public BaseObject {
         }
         return false;
     }
+    void SetPause(bool isPause) { isPause_ = isPause; }
 
     // プレイヤーの反転範囲の取得
     int GetInvertRangeX() { return xInvertRange_; }
@@ -320,6 +321,9 @@ class Player : public BaseObject {
 
     // スプライト表示タイマー
     float displayTimer_ = 0.0f;
+    bool isGoal_ = false;
+
+    bool isPause_ = false;
 
 // 埋まってます画像表示用
 private:

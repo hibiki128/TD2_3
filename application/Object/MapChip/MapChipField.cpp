@@ -145,10 +145,8 @@ void MapChipField::DrawParticle(const ViewProjection &vp) {
             if (chip.object->type_ == Block::ChipType::Black || chip.object->type_ == Block::ChipType::White) {
                 ParticleCommon::GetInstance()->SetBlendMode(BlendMode::kNormal);
                 chip.normal_->Draw(vp);
-            }
-            if (chip.object->type_ == Block::ChipType::Black || chip.object->type_ == Block::ChipType::White) {
-                ParticleCommon::GetInstance()->SetBlendMode(BlendMode::kNormal);
                 chip.clip_->Draw(vp);
+                chip.clip2_->Draw(vp);
             }
             if (chip.object->type_ == Block::ChipType::Gravity) {
                 ParticleCommon::GetInstance()->SetBlendMode(BlendMode::kAdd);
@@ -279,6 +277,9 @@ void MapChipField::LoadFromCSV(const std::string &filePath) {
 
                     std::string emitterName2 = "clip" + std::to_string(reverseCount);
                     chip.clip_ = ParticleEditor::GetInstance()->GetEmitter(emitterName2);
+
+                    std::string emitterName3 = "2clip" + std::to_string(reverseCount);
+                    chip.clip2_ = ParticleEditor::GetInstance()->GetEmitter(emitterName3);
 
                     reverseCount = (reverseCount % 90) + 1; // 1～40 でループ
                 } else if (chip.object->type_ == Block::ChipType::Gravity) {
@@ -448,28 +449,36 @@ void MapChipField::InvertBlock(int x, int y, bool isVertical) {
             // アニメーション開始の遅延処理
             chip.isDelaying = true;
             chip.clip_->SetPosition(chip.object->GetCenterPosition());
+            chip.clip2_->SetPosition(chip.object->GetCenterPosition());
 
             // 縦方向の挟み込みの場合は回転を設定
             if (isVertical) {
                 chip.clip_->SetRotate({0.0f, 0.0f, degreesToRadians(90.0f)});
+                chip.clip2_->SetRotate({0.0f, 0.0f, degreesToRadians(90.0f)});
             } else {
                 chip.clip_->SetRotate({0.0f, 0.0f, 0.0f});
+                chip.clip2_->SetRotate({0.0f, 0.0f, 0.0f});
             }
 
             if (chip.object->type_ == Block::ChipType::Black) {
                 chip.clip_->SetTexture("particle/whiteBlock1x1.png");
+                chip.clip2_->SetTexture("particle/whiteBlock1x1.png");
             }
             if (chip.object->type_ == Block::ChipType::White) {
                 chip.clip_->SetTexture("particle/blackBlock1x1.png");
+                chip.clip2_->SetTexture("particle/blackBlock1x1.png");
             }
             chip.isCliping = true;
-            chip.delayTime = 0.3f; // ここで指定した時間遅延
+            chip.delayTime = 0.4f; // 遅延時間を0.3fから0.5fに増やす
 
-            chip.isAnimating = true; // 遅延後にアニメーションを開始するため有効化
+            // 最初のパーティクルの更新をここで行う
+            chip.clip_->Update();
+            chip.clip2_->Update();
+
+            chip.isAnimating = true;
         }
     }
 }
-
 bool MapChipField::IsValidPosition(int x, int y) const { return x >= 0 && x < static_cast<int>(mapWidth) && y >= 0 && y < static_cast<int>(mapHeight); }
 
 void MapChipField::GravityParticleUpdate() {
@@ -530,14 +539,21 @@ void MapChipField::UpdateChipAnimation(MapChip &chip) {
     ///
 
     if (chip.isDelaying) {
-        chip.delayTime -= 1.0f / 60.0f; // フレーム減少
+        // パーティクルを遅延フェーズでも更新する（このコードを追加）
+        if (chip.isCliping) {
+            if (chip.object->type_ == Block::ChipType::Black || chip.object->type_ == Block::ChipType::White) {
+                chip.clip_->Update();
+                chip.clip2_->Update();
+            }
+        }
 
+        chip.delayTime -= 1.0f / 60.0f;
         if (chip.delayTime <= 0.0f) {
-            chip.isDelaying = false;                             // 遅延終了
-            chip.animState = MapChip::AnimationState::Shrinking; // 回転アニメーションに移行
+            chip.isDelaying = false;
+            chip.animState = MapChip::AnimationState::Shrinking;
             chip.animationTime = 0.0f;
         }
-        return; // 遅延中はここで処理を終了する
+        return;
     }
 
     constexpr float rotationDuration = 0.4f;                    // 回転アニメーションの時間
@@ -587,8 +603,9 @@ void MapChipField::UpdateChipAnimation(MapChip &chip) {
             if (chip.isCliping) {
                 if (chip.object->type_ == Block::ChipType::Black || chip.object->type_ == Block::ChipType::White) {
                     chip.clip_->Update();
+                    chip.clip2_->Update();
                 }
-            } 
+            }
             // 回転角度を更新
             chip.currentRotation = EaseOutQuad(0.0f, 720.0f, chip.animationTime, rotationDuration); // 回転を0° -> 360°へ
             chip.object->SetRotation({0.0f, degreesToRadians(chip.currentRotation), 0.0f});

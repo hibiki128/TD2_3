@@ -21,6 +21,7 @@ class MapChipField {
         ParticleEmitter* arrow_ = nullptr;
         ParticleEmitter* goal_= nullptr;
         ParticleEmitter *clip_ = nullptr;
+        ParticleEmitter *clip2_ = nullptr;
 
         ///
         /// アニメーション関連

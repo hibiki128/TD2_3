@@ -11,21 +11,21 @@
     },
     "alphaMax": 0.3499999940395355,
     "alphaMin": 0.25,
-    "count": 8,
-    "emitFrequency": 0.004999999888241291,
+    "count": 1,
+    "emitFrequency": 0.009999999776482582,
     "emitterRotation": {
         "x": 0.0,
         "y": 0.0,
         "z": 0.0
     },
     "emitterScale": {
-        "x": 1.0,
-        "y": 1.0,
-        "z": 1.0
+        "x": 1.100000023841858,
+        "y": 0.0,
+        "z": 0.0
     },
     "emitterTranslation": {
         "x": 0.0,
-        "y": -1.600000023841858,
+        "y": 0.20000000298023224,
         "z": -16.0
     },
     "endAcce": {
@@ -49,7 +49,7 @@
     "isAllRamdomScale": false,
     "isBillBoard": false,
     "isFaceDirection": false,
-    "isOnEdge": true,
+    "isOnEdge": false,
     "isRandomColor": false,
     "isRandomRotate": false,
     "isRandomScale": false,
@@ -80,9 +80,9 @@
         "z": 0.0
     },
     "startScale": {
-        "x": 0.07999999821186066,
-        "y": 0.07999999821186066,
-        "z": 0.07999999821186066
+        "x": 0.10000000149011612,
+        "y": 0.10000000149011612,
+        "z": 0.10000000149011612
     },
     "texturePath": "particle/blackBlock1x1.png",
     "velocityMax": {

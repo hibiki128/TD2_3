@@ -40,6 +40,7 @@ class ParticleManager {
     void SetRandomSize(bool isRandomSize) { isRandomSize_ = isRandomSize; }
     void SetAllRandomSize(bool isAllRandomSize) { isRandomAllSize_ = isAllRandomSize; }
     void SetSinMove(bool isSinMove) { isSinMove_ = isSinMove; }
+    void SetOnEdge(bool onEdge) { emitOnEdge = onEdge; }
     void SetFaceDirection(bool flag) { isFaceDirection_ = flag; }
     void SetTexture(const std::string &filePath);
     void SetColor(const Vector4 &color) { materialData->color = color; }
@@ -146,16 +147,18 @@ class ParticleManager {
     bool isRandomAllSize_ = false;
     bool isSinMove_ = false;
     bool isFaceDirection_ = false;
+    bool emitOnEdge = false;
 
   public:
     // nameで指定した名前のパーティクルグループにパーティクルを発生させる関数
-    std::list<Particle> Emit(const std::string name, const Vector3 &position, uint32_t count, const Vector3 &scale,
-                             const Vector3 &velocityMin, const Vector3 &velocityMax, float lifeTimeMin, float lifeTimeMax,
-                             const Vector3 &particleStartScale, const Vector3 &particleEndScale, const Vector3 &startAcce, const Vector3 &endAcce,
-                             const Vector3 &startRote, const Vector3 &endRote, bool isRandomColor, float alphaMin, float alphaMax,
-                             const Vector3 &rotateVelocityMin, const Vector3 &rotateVelocityMax,
-                             const Vector3 &allScaleMax, const Vector3 &allScaleMin,
-                             const float &scaleMin, const float &scaleMax, const Vector3 &rotation);
+    std::list<Particle>
+    Emit(const std::string name, const Vector3 &position, uint32_t count, const Vector3 &scale,
+         const Vector3 &velocityMin, const Vector3 &velocityMax, float lifeTimeMin, float lifeTimeMax,
+         const Vector3 &particleStartScale, const Vector3 &particleEndScale, const Vector3 &startAcce, const Vector3 &endAcce,
+         const Vector3 &startRote, const Vector3 &endRote, bool isRandomColor, float alphaMin, float alphaMax,
+         const Vector3 &rotateVelocityMin, const Vector3 &rotateVelocityMax,
+         const Vector3 &allScaleMax, const Vector3 &allScaleMin,
+         const float &scaleMin, const float &scaleMax, const Vector3 &rotation);
 
   private:
     /// <summary>

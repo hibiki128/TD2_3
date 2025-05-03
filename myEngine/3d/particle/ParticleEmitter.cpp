@@ -37,6 +37,7 @@ void ParticleEmitter::Update() {
         Manager_->SetAllRandomSize(isAllRamdomScale_);
         Manager_->SetSinMove(isSinMove_);
         Manager_->SetFaceDirection(isFaceDirection_);
+        Manager_->SetOnEdge(isOnEdge_);
         Emit();                         // パーティクルを発生させる
         elapsedTime_ -= emitFrequency_; // 過剰に進んだ時間を考慮
     }
@@ -52,6 +53,7 @@ void ParticleEmitter::UpdateOnce() {
         Manager_->SetAllRandomSize(isAllRamdomScale_);
         Manager_->SetSinMove(isSinMove_);
         Manager_->SetFaceDirection(isFaceDirection_);
+        Manager_->SetOnEdge(isOnEdge_);
         Emit(); // パーティクルを発生させる
         isActive_ = true;
     }
@@ -198,6 +200,7 @@ void ParticleEmitter::SaveToJson() {
     datas_->Save("isAcceMultiply", isAcceMultiply_);
     datas_->Save("isSinMove", isSinMove_);
     datas_->Save("isFaceDirection", isFaceDirection_);
+    datas_->Save("isOnEdge", isOnEdge_);
     datas_->Save("fileName", fileName_);
     datas_->Save("texturePath", texturePath_);
 }
@@ -237,6 +240,7 @@ void ParticleEmitter::LoadFromJson() {
         isAcceMultiply_ = datas_->Load<bool>("isAcceMultiply", false);
         isSinMove_ = datas_->Load<bool>("isSinMove", false);
         isFaceDirection_ = datas_->Load<bool>("isFaceDirection", false);
+        isOnEdge_ = datas_->Load<bool>("isOnEdge", false);
         fileName_ = datas_->Load<std::string>("fileName", fileName_);
         texturePath_ = datas_->Load<std::string>("texturePath", texturePath_);
     }
@@ -293,6 +297,13 @@ void ParticleEmitter::DebugParticleData() {
                     ImGui::DragFloat("最小値", &lifeTimeMin_, 0.1f, 0.0f);
                     lifeTimeMin_ = std::clamp(lifeTimeMin_, 0.0f, lifeTimeMax_);
                     lifeTimeMax_ = std::clamp(lifeTimeMax_, lifeTimeMin_, 10.0f);
+                    ImGui::TreePop();
+                }
+
+                ImGui::Separator();
+
+                if (ImGui::TreeNode("位置")) {
+                    ImGui::Checkbox("外周", &isOnEdge_);
                     ImGui::TreePop();
                 }
 

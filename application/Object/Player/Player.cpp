@@ -726,21 +726,21 @@ void Player::HandleInput(bool title) {
         ///	リセット
         ///
 
-        bool isPressedLB = joyState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER;
+        //bool isPressedLB = joyState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER;
 
-        if (isPressedLB && !wasPressedLB) {
-            // トランジション中には押せないようにする
-            if (squareTransition_->IsFinished()) {
-                // SquareInを開始する
-                squareTransition_->Start(SquareTransition::Status::SquareIn, kResetTransitionTime);
+        //if (isPressedLB && !wasPressedLB) {
+        //    // トランジション中には押せないようにする
+        //    if (squareTransition_->IsFinished()) {
+        //        // SquareInを開始する
+        //        squareTransition_->Start(SquareTransition::Status::SquareIn, kResetTransitionTime);
 
-                // リセットしたことを記録（SE・エフェクト用）
-                isResetOccurred_ = true;
-            }
-        }
+        //        // リセットしたことを記録（SE・エフェクト用）
+        //        isResetOccurred_ = true;
+        //    }
+        //}
 
-        // 前フレームの状態を記録
-        wasPressedLB = isPressedLB;
+        //// 前フレームの状態を記録
+        //wasPressedLB = isPressedLB;
     }
 #pragma endregion
 

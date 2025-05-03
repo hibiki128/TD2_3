@@ -788,7 +788,7 @@ void Player::HandleInput(bool title) {
     ///	範囲内のブロック反転入力
     ///
 
-    if (input_->TriggerKey(DIK_SPACE) && blockInvertCooldown_ <= 0.0f) { // クールタイム中には反転できない
+    if (input_->TriggerKey(DIK_SPACE) && blockInvertCooldown_ <= 0.0f&&!IsGoalReached()) { // クールタイム中には反転できない
         if (!isInverting_ && !collisionMapInfo_.isOverlapping_) {        // ブロック反転中には反転できない && ブロックに埋まっていたら反転できない
             if (!mapChipField_->IsAnyChipAnimating()) {                  // ブロックが1つでもアニメーション中なら反転できないように
                 if (mapChipField_) {
@@ -1042,7 +1042,7 @@ void Player::PlaySE() {
     if (IsGravityReversedOccurred()) {
         audio->PlayWave(gravitySE_, 0.1f);
     }
-    if (IsInvertDisabled()) {
+    if (IsInvertDisabled() &&!IsGoalReached()) {
         audio->PlayWave(invertDisabledSE_, 0.1f);
     }
 }

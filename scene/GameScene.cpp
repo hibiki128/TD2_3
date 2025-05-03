@@ -144,9 +144,9 @@ void GameScene::Draw() {
     uiObject_->DrawSprite();
 
     // プレイヤーUI
-    if (!clearCamera_->GetActive()) { // クリアカメラがアクティブになったら非表示にするため
-        player_->DrawSprite(vp_);
-    }
+    //if (!clearCamera_->GetActive()) { // クリアカメラがアクティブになったら非表示にするため
+    //    player_->DrawSprite(vp_);
+    //}
 
     //------------------------
 
@@ -185,6 +185,10 @@ void GameScene::Draw() {
     /// Spriteの描画準備
     spCommon_->DrawCommonSetting();
     //-----Spriteの描画開始-----
+
+    if (!clearCamera_->GetActive()) { // クリアカメラがアクティブになったら非表示にするため
+        player_->DrawSprite(vp_);
+    }
 
     // ポーズ描画
     pause_->Draw(vp_);

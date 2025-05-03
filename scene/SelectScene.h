@@ -69,7 +69,7 @@ class SelectScene : public BaseScene {
     std::vector<std::unique_ptr<MapPrev>> mapPrevs_;
     std::unique_ptr<SelectUI> selectUI_;
 
-    int stageNum = 15;
+    int stageNum = 17;
     int currentStage = 0;
     float cameraT_ = 0.0f;
     bool isMoveCamera_ = false;

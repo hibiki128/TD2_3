@@ -11,8 +11,8 @@
     },
     "alphaMax": 0.3499999940395355,
     "alphaMin": 0.25,
-    "count": 8,
-    "emitFrequency": 0.004999999888241291,
+    "count": 3,
+    "emitFrequency": 0.009999999888241291,
     "emitterRotation": {
         "x": 0.0,
         "y": 0.0,

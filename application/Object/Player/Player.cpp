@@ -1450,6 +1450,14 @@ void Player::ChangeInvertRangeSizeForStageNum() {
         xInvertRange_ = 3;
         yInvertRange_ = 3;
         break;
+    case 16:
+        xInvertRange_ = 3;
+        yInvertRange_ = 3;
+        break;
+    case 17:
+        xInvertRange_ = 3;
+        yInvertRange_ = 3;
+        break;
     default:
         break;
     }

@@ -334,7 +334,7 @@ void UIObject::AdjustUIPositionForStageNum() {
         ///
         /// 本オブジェクトのトランスフォーム
         ///
-        objectBook_->SetWorldPosition({16.19f, -7.33f, 7.87f});
+        objectBook_->SetWorldPosition({14.39f, -9.33f, 7.87f});
         objectBook_->SetRotation({-1.57f, 0.0f, 0.0f});
         objectBook_->SetScale({5.0f, 4.5f, 4.6f});
 
@@ -342,7 +342,7 @@ void UIObject::AdjustUIPositionForStageNum() {
         /// フィルターのトランスフォーム
         ///
 
-        filter_->SetWorldPosition({15.5f, -7.4f, 0.0f});
+        filter_->SetWorldPosition({13.8f, -9.1f, 0.0f});
         filter_->SetRotation({0.0f, 0.0f, 0.0f});
         filter_->SetScale({19.2f, 12.2f, 1.0f});
 
@@ -351,14 +351,14 @@ void UIObject::AdjustUIPositionForStageNum() {
         ///
         /// 栞オブジェクトのトランスフォーム
         ///
-        objectUI_->SetWorldPosition({-9.3f, -14.0f, 0.0f});
+        objectUI_->SetWorldPosition({-7.8f, -14.0f, 0.0f});
         objectUI_->SetRotation({degreesToRadians(-86.699f), degreesToRadians(-27.5f), 0.314f});
         objectUI_->SetScale({2.5f, 2.5f, 2.5f});
 
         ///
         /// 本オブジェクトのトランスフォーム
         ///
-        objectBook_->SetWorldPosition({12.69f, -9.73f, 7.87f});
+        objectBook_->SetWorldPosition({15.49f, -9.73f, 7.87f});
         objectBook_->SetRotation({-1.57f, 0.0f, 0.0f});
         objectBook_->SetScale({4.5f, 4.5f, 4.5f});
 
@@ -366,7 +366,7 @@ void UIObject::AdjustUIPositionForStageNum() {
         /// フィルターのトランスフォーム
         ///
 
-        filter_->SetWorldPosition({12.4f, -9.8f, 3.1f});
+        filter_->SetWorldPosition({15.2f, -9.8f, 3.1f});
         filter_->SetRotation({0.0f, 0.0f, 0.0f});
         filter_->SetScale({19.0f, 13.0f, 1.0f});
 
@@ -375,21 +375,21 @@ void UIObject::AdjustUIPositionForStageNum() {
         ///
         /// 栞オブジェクトのトランスフォーム
         ///
-        objectUI_->SetWorldPosition({-8.5f, -16.0f, 0.0f});
+        objectUI_->SetWorldPosition({-8.5f, -14.3f, 0.0f});
         objectUI_->SetRotation({degreesToRadians(-86.699f), degreesToRadians(-27.5f), 0.314f});
         objectUI_->SetScale({2.5f, 2.5f, 2.5f});
 
         ///
         /// 本オブジェクトのトランスフォーム
         ///
-        objectBook_->SetWorldPosition({13.09f, -10.83f, 7.87f});
+        objectBook_->SetWorldPosition({15.59f, -10.13f, 7.87f});
         objectBook_->SetRotation({-1.57f, 0.0f, 0.0f});
         objectBook_->SetScale({4.7f, 4.5f, 4.5f});
 
         ///
         /// フィルターのトランスフォーム
         ///
-        filter_->SetWorldPosition({12.7f, -11.0f, 3.0f});
+        filter_->SetWorldPosition({15.1f, -10.6f, 3.0f});
         filter_->SetRotation({0.0f, 0.0f, 0.0f});
         filter_->SetScale({19.7f, 13.1f, 1.0f});
         break;
@@ -397,43 +397,43 @@ void UIObject::AdjustUIPositionForStageNum() {
         ///
         /// 栞オブジェクトのトランスフォーム
         ///
-        objectUI_->SetWorldPosition({-5.7f, -16.9f, 0.0f});
+        objectUI_->SetWorldPosition({-5.1f, -14.5f, 0.0f});
         objectUI_->SetRotation({degreesToRadians(-86.699f), degreesToRadians(-27.5f), 0.314f});
         objectUI_->SetScale({2.5f, 2.5f, 2.5f});
 
         ///
         /// 本オブジェクトのトランスフォーム
         ///
-        objectBook_->SetWorldPosition({16.39f, -11.83f, 7.87f});
+        objectBook_->SetWorldPosition({17.99f, -10.63f, 7.87f});
         objectBook_->SetRotation({-1.57f, 0.0f, 0.0f});
         objectBook_->SetScale({5.1f, 4.5f, 4.5f});
 
         ///
         /// フィルターのトランスフォーム
         ///
-        filter_->SetWorldPosition({16.0f, -11.8f, 2.5f});
+        filter_->SetWorldPosition({17.7f, -11.0f, 2.5f});
         filter_->SetRotation({0.0f, 0.0f, 0.0f});
-        filter_->SetScale({32.0f, 12.8f, 1.0f});
+        filter_->SetScale({21.0f, 12.8f, 1.0f});
         break;
     case 8:
         ///
         /// 栞オブジェクトのトランスフォーム
         ///
-        objectUI_->SetWorldPosition({-8.5f, -17.2f, 0.0f});
+        objectUI_->SetWorldPosition({-6.6f, -16.2f, 0.0f});
         objectUI_->SetRotation({degreesToRadians(-86.699f), degreesToRadians(-27.5f), 0.314f});
         objectUI_->SetScale({2.5f, 2.5f, 2.5f});
 
         ///
         /// 本オブジェクトのトランスフォーム
         ///
-        objectBook_->SetWorldPosition({14.99f, -13.13f, 7.87f});
+        objectBook_->SetWorldPosition({16.99f, -13.13f, 7.87f});
         objectBook_->SetRotation({-1.57f, 0.0f, 0.0f});
         objectBook_->SetScale({4.6f, 4.6f, 4.6f});
 
         ///
         /// フィルターのトランスフォーム
         ///
-        filter_->SetWorldPosition({14.5f, -13.1f, 2.9f});
+        filter_->SetWorldPosition({16.7f, -13.1f, 2.9f});
         filter_->SetRotation({0.0f, 0.0f, 0.0f});
         filter_->SetScale({19.2f, 13.3f, 1.0f});
         break;

@@ -41,7 +41,7 @@ void ClearUI::Init(bool isPlayerWhite) {
     animaGoal_->AddAnimation("animation/goalClearAfter2.gltf");
 
     input_ = Input::GetInstance();
-    if (stageNum_ < 15) {
+    if (stageNum_ < 17) {
         currentItem_ = 0;
     } else {
         currentItem_ = 2;
@@ -73,7 +73,7 @@ void ClearUI::Update() {
     retry_->Update();
     singleDigit_->Update();
     twoDigit_->Update();
-    if (stageNum_ > 14) {
+    if (stageNum_ > 16) {
         backSelect_->SetWorldPositionY(-8.1f);
         retry_->SetWorldPositionY(-7.4f);
     }
@@ -134,7 +134,7 @@ void ClearUI::DrawParticle(const ViewProjection &vp) {
 }
 
 void ClearUI::DrawTexts(const ViewProjection &vp) {
-    if (stageNum_ < 15) {
+    if (stageNum_ < 17) {
         nextStage_->Draw(vp);
     }
     backSelect_->Draw(vp);
@@ -199,7 +199,7 @@ void ClearUI::MenuOperation() {
         coolTime_ = 0.0f;
     }
 
-    if (stageNum_ < 15) {
+    if (stageNum_ < 17) {
         if (currentItem_ < 0) {
             currentItem_ = 2;
         }
@@ -275,7 +275,7 @@ void ClearUI::MoveUI() {
     }
 
     if (currentItem_ == 1) {
-        if (stageNum_ < 15) {
+        if (stageNum_ < 17) {
             decisionEmitter_->SetPositionY(-7.7f);
         } else {
             decisionEmitter_->SetPositionY(-7.4f);
@@ -307,7 +307,7 @@ void ClearUI::MoveUI() {
     }
 
     if (currentItem_ == 2) {
-        if (stageNum_ < 15) {
+        if (stageNum_ < 17) {
             decisionEmitter_->SetPositionY(-8.4f);
         } else {
             decisionEmitter_->SetPositionY(-8.1f);

@@ -45,6 +45,11 @@ public: // メンバ関数
 	/// <returns></returns>
 	bool ProcessMessage();
 
+	 /// <summary>
+        /// フルスクリーンの切り替え
+        /// </summary>
+        void ToggleFullScreen();
+
 	/// <summary>
 	/// getter
 	/// </summary>
@@ -60,5 +65,8 @@ private: // メンバ変数
 
 	HWND hwnd = nullptr; // ウィンドウハンドル
 	WNDCLASS wc{}; // ウィンドウクラスの設定
+        bool isFullScreen_ = false;
+        // ウィンドウモードの復元用の矩形
+        RECT windowRect_ = {0, 0, kClientWidth, kClientHeight};
 };
 

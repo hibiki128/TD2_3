@@ -31,6 +31,9 @@ void MyGame::Update()
 {
 	Framework::Update();
 	// -----ゲーム固有の処理-----
+        if (input->TriggerKey(DIK_F11)) {
+            winApp->ToggleFullScreen();
+        }
 
 	// -----------------------
 

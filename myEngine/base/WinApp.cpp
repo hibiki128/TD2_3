@@ -110,3 +110,38 @@ bool WinApp::ProcessMessage()
 
 	return false;
 }
+
+
+void WinApp::ToggleFullScreen() {
+
+    // 現在のフルスクリーン状態を確認
+    if (!isFullScreen_) {
+        // ウィンドウモードからフルスクリーンに変更
+
+        // 現在のウィンドウの位置とサイズを保存
+        GetWindowRect(hwnd, &windowRect_);
+
+        // ディスプレイの解像度を取得
+        uint32_t screenWidth = GetSystemMetrics(SM_CXSCREEN);
+        uint32_t screenHeight = GetSystemMetrics(SM_CYSCREEN);
+
+        // フルスクリーンに設定
+        SetWindowLongPtr(hwnd, GWL_STYLE, WS_POPUP | WS_VISIBLE);
+        SetWindowPos(hwnd, HWND_TOP, 0, 0, screenWidth, screenHeight, SWP_FRAMECHANGED | SWP_NOZORDER | SWP_NOOWNERZORDER);
+        ShowWindow(hwnd, SW_MAXIMIZE);
+
+        // フルスクリーンフラグを設定
+        isFullScreen_ = true;
+    } else {
+        // フルスクリーンからウィンドウモードに変更
+
+        // ウィンドウスタイルを元に戻す
+        SetWindowLongPtr(hwnd, GWL_STYLE, WS_OVERLAPPEDWINDOW | WS_VISIBLE);
+        SetWindowPos(hwnd, HWND_TOP, windowRect_.left, windowRect_.top,
+                     windowRect_.right - windowRect_.left, windowRect_.bottom - windowRect_.top, SWP_FRAMECHANGED | SWP_NOZORDER | SWP_NOOWNERZORDER);
+        ShowWindow(hwnd, SW_RESTORE);
+
+        // フルスクリーンフラグを解除
+        isFullScreen_ = false;
+    }
+}

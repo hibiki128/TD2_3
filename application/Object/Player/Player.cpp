@@ -262,6 +262,7 @@ void Player::Update(MapChipField *mapChipField, bool title) {
             ImGui::Checkbox("コインを取得した瞬間", &flag[5]);
             ImGui::Checkbox("反転操作が無効の瞬間", &flag[6]);
             ImGui::Checkbox("ゴールに触れていて地面にいる間", &flag[7]);
+            ImGui::Checkbox("歩いているか", &isWalking_);
 
             if (colorState_ == ColorState::White) {
                 ImGui::Text("現在の色 : 白");
@@ -473,7 +474,7 @@ bool Player::IsGoalReached(bool title) {
             bool isPreviousPressed = (joyStatePre.Gamepad.wButtons & XINPUT_GAMEPAD_A) != 0;
 
             // 単押し判定（前のフレームで押されていなくて、現在押されている）
-            if (isCurrentPressed && !isPreviousPressed && collisionMapInfo_.hittingGround_ && !isGravityReversed_&&isPause_) {
+            if (isCurrentPressed && !isPreviousPressed && collisionMapInfo_.hittingGround_ && !isGravityReversed_ && isPause_) {
                 SetClearAnima(title);
                 isGoal_ = true;
                 return true;
@@ -481,7 +482,7 @@ bool Player::IsGoalReached(bool title) {
         }
 
         // キーボードのスペースキーのトリガー入力（単押し）
-        if (input_->TriggerKey(DIK_SPACE) && collisionMapInfo_.hittingGround_ && !isGravityReversed_&&isPause_) { // 重力反転時はゴールできないようにする
+        if (input_->TriggerKey(DIK_SPACE) && collisionMapInfo_.hittingGround_ && !isGravityReversed_ && isPause_) { // 重力反転時はゴールできないようにする
             SetClearAnima(title);
             isGoal_ = true;
             return true;
@@ -1019,11 +1020,6 @@ void Player::SpritePlayerAreaAnimation() {
 }
 
 bool Player::IsWalking() {
-    if (input_->PushKey(DIK_D) || input_->PushKey(DIK_A)) {
-        isWalking_ = true;
-    } else {
-        isWalking_ = false;
-    }
 
     // PAD入力の判定を追加
     XINPUT_STATE joyState;
@@ -1033,9 +1029,15 @@ bool Player::IsWalking() {
 
         if (abs(leftStickX) > kDeadZone) {
             isWalking_ = true;
+        } else {
+            isWalking_ = false;
         }
     } else {
-        isWalking_ = false;
+        if (input_->PushKey(DIK_D) || input_->PushKey(DIK_A)) {
+            isWalking_ = true;
+        } else {
+            isWalking_ = false;
+        }
     }
 
     if (isWalking_ && collisionMapInfo_.hittingGround_) {

@@ -382,6 +382,7 @@
     <None Include=".editorconfig">
       <Filter>ソースファイル</Filter>
     </None>
+    <None Include="resources\shaders\Object\Skinning.hlsli" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="externals\imgui\imconfig.h">
@@ -675,6 +676,7 @@
       <Filter>リソース ファイル\OffScreen</Filter>
     </FxCompile>
     <FxCompile Include="resources\shaders\OffScreen\Cinematic.PS.hlsl" />
+    <FxCompile Include="resources\shaders\Object\Skinning.CS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt">

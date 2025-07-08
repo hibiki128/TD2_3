@@ -52,6 +52,12 @@ void Object3d::Update(const WorldTransform &worldTransform, const ViewProjection
     transformationMatrixData->World = worldTransform.matWorld_;
     Matrix4x4 worldInverseMatrix = Inverse(worldMatrix);
     transformationMatrixData->WorldInverseTranspose = Transpose(worldInverseMatrix);
+    if (model && model->IsGltf()) {
+        if (currentModelAnimation_->GetAnimator()->HaveAnimation()) {
+            obj3dCommon->computeSkinningDrawCommonSetting();
+            model->Update();
+        }
+    }
 }
 
 void Object3d::AnimationUpdate(bool roop) {

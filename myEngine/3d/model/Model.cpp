@@ -27,37 +27,53 @@ void Model::Initialize(ModelCommon *modelCommon, const std::string &directorypat
     modelData.material.textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(modelData.material.textureFilePath);
 }
 
+void Model::Update() {
+    if (isGltf && animator_ && animator_->HaveAnimation()) {
+        // 1. 入力頂点データ更新
+        skin_->UpdateInputVertices(modelData);
+
+        // 2. コンピュートシェーダ実行のためのバリア
+        ID3D12GraphicsCommandList *commandList = modelCommon_->GetDxCommon()->GetCommandList().Get();
+
+        // UAV -> SRV バリア (前回の結果があれば)
+        D3D12_RESOURCE_BARRIER barrier = {};
+        barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_UAV;
+        barrier.UAV.pResource = skin_->GetOutputVertexResource();
+        commandList->ResourceBarrier(1, &barrier);
+
+        // 3. スキニング実行
+        skin_->ExecuteSkinning(commandList);
+
+        // 4. UAV -> VBV バリア
+        barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+        barrier.Transition.pResource = skin_->GetOutputVertexResource();
+        barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+        barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
+        commandList->ResourceBarrier(1, &barrier);
+    }
+}
+
 void Model::Draw() {
-    D3D12_VERTEX_BUFFER_VIEW influenceBufferView;
-    uint32_t SrvIndex;
-    if (isGltf) {
-        influenceBufferView = skin_->GetSkinCluster().influenceBufferView;
-        SrvIndex = skin_->GetSrvIndex();
+    ID3D12GraphicsCommandList *commandList = modelCommon_->GetDxCommon()->GetCommandList().Get();
+
+    // インデックスバッファ設定
+    commandList->IASetIndexBuffer(&indexBufferView);
+
+    // 頂点バッファ設定 - アニメーション有無で使用するバッファを切り替え
+    if (isGltf && animator_ && animator_->HaveAnimation()) {
+        // スキニング後の頂点バッファを使用
+        D3D12_VERTEX_BUFFER_VIEW vbv = skin_->GetOutputVertexBufferView();
+        commandList->IASetVertexBuffers(0, 1, &vbv);
+
+        // パレット情報をシェーダーに渡す
+        srvManager_->SetGraphicsRootDescriptorTable(6, skin_->GetPaletteSrvIndex());
     } else {
-        influenceBufferView = {};
-        SrvIndex = {};
+        // 元の頂点バッファを使用
+        commandList->IASetVertexBuffers(0, 1, &vertexBufferView);
     }
-    D3D12_VERTEX_BUFFER_VIEW vbvs[2] = {
-        vertexBufferView, // VertexDataのVBV
-        influenceBufferView};
-    modelCommon_->GetDxCommon()->GetCommandList()->IASetIndexBuffer(&indexBufferView);
-    if (isGltf) {
-        if (!animator_->HaveAnimation()) {
-            modelCommon_->GetDxCommon()->GetCommandList()->IASetVertexBuffers(0, 1, vbvs); // VBVを設定
-        } else {
-            modelCommon_->GetDxCommon()->GetCommandList()->IASetVertexBuffers(0, 2, vbvs); // VBVを設定
-            srvManager_->SetGraphicsRootDescriptorTable(6, SrvIndex);
-        }
-    } else {
-        modelCommon_->GetDxCommon()->GetCommandList()->IASetVertexBuffers(0, 1, vbvs); // VBVを設定
-    }
-    // 描画！（DrawCall/ドローコール）
-    modelCommon_->GetDxCommon()->GetCommandList()->DrawIndexedInstanced(UINT(modelData.indices.size()), 1, 0, 0, 0);
-    if (animator_) {
-        if (animator_->HaveAnimation()) {
-            Object3dCommon::GetInstance()->DrawCommonSetting();
-        }
-    }
+
+    // 描画コール
+    commandList->DrawIndexedInstanced(UINT(modelData.indices.size()), 1, 0, 0, 0);
 }
 
 void Model::SetTextureIndex(const std::string &filePath) {
@@ -127,7 +143,7 @@ ModelData Model::LoadModelFile(const std::string &directoryPath, const std::stri
     } else if (filename.size() >= 4 && filename.substr(filename.size() - 4) == ".obj") {
         isGltf = false;
     } else {
-        assert(false && "Unsupported file format"); // サポート外のフォーマットの場合にアサート
+        assert(false && "Unsupported file format");
     }
 
     Assimp::Importer importer;
@@ -144,18 +160,30 @@ ModelData Model::LoadModelFile(const std::string &directoryPath, const std::stri
     // メッシュの処理
     for (uint32_t meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex) {
         aiMesh *mesh = scene->mMeshes[meshIndex];
-        assert(mesh->HasNormals());        // 法線がないMeshは今回は非対応
-        assert(mesh->HasTextureCoords(0)); // TexcoordがないMeshは今回は非対応
+        assert(mesh->HasNormals()); // 法線がないMeshは今回は非対応
+
+        // テクスチャ座標の有無を確認
+        bool hasTexcoord = mesh->HasTextureCoords(0);
+
         modelData.vertices.resize(mesh->mNumVertices);
+
         for (uint32_t vertexIndex = 0; vertexIndex < mesh->mNumVertices; ++vertexIndex) {
             aiVector3D &position = mesh->mVertices[vertexIndex];
             aiVector3D &normal = mesh->mNormals[vertexIndex];
-            aiVector3D &texcoord = mesh->mTextureCoords[0][vertexIndex];
-            // 右手系->左手系への変換を忘れずに
+
+            // 右手系->左手系への変換
             modelData.vertices[vertexIndex].position = {-position.x, position.y, position.z, 1.0f};
             modelData.vertices[vertexIndex].normal = {-normal.x, normal.y, normal.z};
-            modelData.vertices[vertexIndex].texcoord = {texcoord.x, texcoord.y};
+
+            if (hasTexcoord) {
+                aiVector3D &texcoord = mesh->mTextureCoords[0][vertexIndex];
+                modelData.vertices[vertexIndex].texcoord = {texcoord.x, texcoord.y};
+            } else {
+                modelData.vertices[vertexIndex].texcoord = {0.0f, 0.0f};
+            }
         }
+
+        // インデックスの処理（既存のインデックスに追加）
         for (uint32_t faceIndex = 0; faceIndex < mesh->mNumFaces; ++faceIndex) {
             aiFace &face = mesh->mFaces[faceIndex];
             assert(face.mNumIndices == 3);
@@ -165,36 +193,44 @@ ModelData Model::LoadModelFile(const std::string &directoryPath, const std::stri
             }
         }
 
+        // スキニング情報の処理（修正版）
         for (uint32_t boneIndex = 0; boneIndex < mesh->mNumBones; ++boneIndex) {
             aiBone *bone = mesh->mBones[boneIndex];
             std::string jointName = bone->mName.C_Str();
 
-            // ジョイント名の重複確認
-            assert(jointNames.find(jointName) == jointNames.end() && "Duplicate joint name detected!");
-            jointNames.insert(jointName);
+            // ジョイント名の重複確認（グローバルで管理）
+            if (jointNames.find(jointName) == jointNames.end()) {
+                jointNames.insert(jointName);
 
+                JointWeightData &jointWeightData = modelData.skinClusterData[jointName];
+
+                // バインドポーズ行列の逆行列の計算
+                aiMatrix4x4 bindPoseMatrixAssimp = bone->mOffsetMatrix.Inverse();
+                aiVector3D scale, translate;
+                aiQuaternion rotate;
+                bindPoseMatrixAssimp.Decompose(scale, rotate, translate);
+
+                Matrix4x4 bindPoseMatrix = MakeAffineMatrix(
+                    {scale.x, scale.y, scale.z},
+                    {rotate.x, -rotate.y, -rotate.z, rotate.w},
+                    {-translate.x, translate.y, translate.z});
+
+                jointWeightData.inverseBindPoseMatrix = Inverse(bindPoseMatrix);
+            }
+
+            // ウェイト情報の格納（修正版：グローバル頂点インデックスを使用）
             JointWeightData &jointWeightData = modelData.skinClusterData[jointName];
-
-            // バインドポーズ行列の逆行列の計算
-            aiMatrix4x4 bindPoseMatrixAssimp = bone->mOffsetMatrix.Inverse();
-            aiVector3D scale, translate;
-            aiQuaternion rotate;
-            bindPoseMatrixAssimp.Decompose(scale, rotate, translate);
-
-            Matrix4x4 bindPoseMatrix = MakeAffineMatrix(
-                {scale.x, scale.y, scale.z},
-                {rotate.x, -rotate.y, -rotate.z, rotate.w},
-                {-translate.x, translate.y, translate.z});
-
-            jointWeightData.inverseBindPoseMatrix = Inverse(bindPoseMatrix);
-
-            // ウェイト情報の格納
             for (uint32_t weightIndex = 0; weightIndex < bone->mNumWeights; ++weightIndex) {
+                uint32_t globalVertexIndex = bone->mWeights[weightIndex].mVertexId;
+
+                // 前者の構造に合わせて修正（メッシュインデックスも追加）
                 jointWeightData.vertexWeights.push_back({bone->mWeights[weightIndex].mWeight,
-                                                         bone->mWeights[weightIndex].mVertexId});
+                                                         globalVertexIndex,
+                                                         meshIndex});
             }
         }
     }
+
     // 処理後にクリア
     jointNames.clear();
 

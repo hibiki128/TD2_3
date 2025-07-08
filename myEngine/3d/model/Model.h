@@ -59,6 +59,8 @@ public:
 	/// <param name="modelCommon"></param>
 	void Initialize(ModelCommon* modelCommon, const std::string& directorypath, const std::string& filename);
 
+	void Update();
+
 	/// <summary>
 	/// 描画
 	/// </summary>

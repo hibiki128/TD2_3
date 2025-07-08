@@ -1,26 +1,57 @@
 #pragma once
-#include <cstdint>
 #include <ModelStructs.h>
-class Skin
-{
-private:
-	SkinCluster skinCluster_;
-	uint32_t skinClusterSrvIndex_ = 0;
-public:
-	void Initialize(const Skeleton& skeleton, const ModelData& modelData);
-	void Update(const Skeleton& skeleton);
-	uint32_t GetSrvIndex() { return skinClusterSrvIndex_; }
-	SkinCluster GetSkinCluster() { return skinCluster_; }
-private:
-	/// <summary>
-	/// SkinClusterの生成
-	/// </summary>
-	/// <param name="device"></param>
-	/// <param name="skeleton"></param>
-	/// <param name="modelData"></param>
-	/// <param name="descriptorHeap"></param>
-	/// <param name="descriptorSize"></param>
-	/// <returns></returns>
-	SkinCluster CreateSkinCluster(const Skeleton& skeleton, const ModelData& modelData);
-};
+#include <cstdint>
+#include"DirectXCommon.h"
+#include"SrvManager.h"
+class Skin {
+  private:
+    SkinCluster skinCluster_;
+    uint32_t skinClusterPaletteSrvIndex_ = 0;
+    uint32_t skinClusterInfluenceSrvIndex_ = 0;
+    uint32_t skinClusterOutputVertexSrvIndex_ = 0;
+    uint32_t skinClusterInputVertexSrvIndex_ = 0;
 
+    size_t totalVertexCount = 0;
+
+    DirectXCommon *dxCommon_;
+    SrvManager *srvManager_;
+
+  public:
+    void Initialize(const Skeleton &skeleton, const ModelData &modelData);
+    void Update(const Skeleton &skeleton);
+    uint32_t GetPaletteSrvIndex() { return skinClusterPaletteSrvIndex_; }
+    SkinCluster GetSkinCluster() { return skinCluster_; }
+  
+    uint32_t GetInfluenceSrvIndex() { return skinClusterInfluenceSrvIndex_; }
+    uint32_t GetInputVertexSrvIndex() { return skinClusterInputVertexSrvIndex_; }
+    uint32_t GetOutputVertexSrvIndex() { return skinClusterOutputVertexSrvIndex_; }
+    Microsoft::WRL::ComPtr<ID3D12Resource> GetSkinningInformationResource() { return skinCluster_.skinningInformationResource; }
+
+    // 出力頂点バッファのリソースを取得
+    ID3D12Resource *GetOutputVertexResource() { return skinCluster_.outputVertexResource.Get(); }
+
+    // 出力頂点バッファビューを取得
+    D3D12_VERTEX_BUFFER_VIEW GetOutputVertexBufferView() { return skinCluster_.outputVertexBufferView; }
+
+    void UpdateInputVertices(const ModelData &modelData);
+    void ExecuteSkinning(ID3D12GraphicsCommandList *commandList);
+
+
+  private:
+    /// <summary>
+    /// SkinClusterの生成
+    /// </summary>
+    /// <param name="device"></param>
+    /// <param name="skeleton"></param>
+    /// <param name="modelData"></param>
+    /// <param name="descriptorHeap"></param>
+    /// <param name="descriptorSize"></param>
+    /// <returns></returns>
+    SkinCluster CreateSkinCluster(const Skeleton &skeleton, const ModelData &modelData);
+
+    void CreatePaletteResource(SkinCluster &skinCluster, const Skeleton &skeleton);
+    void CreateInfluenceResource(SkinCluster &skinCluster, const Skeleton &skeleton);
+    void CreateInputVertexResource(SkinCluster &skinCluster, const Skeleton &skeleton);
+    void CreateOutputVertexResource(SkinCluster &skinCluster, const Skeleton &skeleton);
+    void CreateSkinningInformationResource(SkinCluster &skinCluster, const Skeleton &skeleton);
+};

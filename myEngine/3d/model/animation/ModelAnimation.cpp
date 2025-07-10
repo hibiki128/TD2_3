@@ -19,7 +19,7 @@ void ModelAnimation::Update(bool roop)
 {
 	if (animator_->HaveAnimation()) {
 		animator_->Update(roop);
-		bone_->Update(animator_->GetAnimation(), animator_->GetAnimationTime());
+		bone_->Update(animator_->GetCurrentAnimation(), animator_->GetAnimationTime());
 		skin_->Update(bone_->GetSkeleton());
 	}
 }

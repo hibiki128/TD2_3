@@ -67,6 +67,8 @@ class Object3d {
     Vector3 rotation = {0.0f, 0.0f, 0.0f};
     Vector3 size = {1.0f, 1.0f, 1.0f};
     bool HaveAnimation;
+    bool isAnimationSwitchPending_ = false;
+    std::string nextAnimationFileName_;
 
     std::string filePath_;
 
@@ -85,6 +87,8 @@ class Object3d {
     /// アニメーションの更新
     /// </summary>
     void AnimationUpdate(bool roop);
+
+    void SetAnimationImmediate(const std::string &fileName);
 
     /// <summary>
     /// アニメーションの有無

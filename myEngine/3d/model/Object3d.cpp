@@ -63,33 +63,80 @@ void Object3d::Update(const WorldTransform &worldTransform, const ViewProjection
 void Object3d::AnimationUpdate(bool roop) {
     if (currentModelAnimation_) {
         currentModelAnimation_->Update(roop);
+
+        // 補間完了後の切り替え処理
+        if (isAnimationSwitchPending_) {
+            Animator *currentAnimator = currentModelAnimation_->GetAnimator();
+
+            // 補間が完了しているかチェック
+            if (!currentAnimator->IsBlending()) {
+                // ファイル名の比較（パスを除いた部分のみ比較）
+                std::string currentFile = currentAnimator->GetCurrentFilename();
+                std::string nextFile = nextAnimationFileName_;
+
+                // ファイル名が異なる場合のみ更新
+                if (currentFile != nextFile) {
+                    currentAnimator->UpdateCurrentFileInfo("resources/models/", nextFile);
+                    filePath_ = nextFile;
+                }
+
+                // 切り替え完了フラグをリセット
+                isAnimationSwitchPending_ = false;
+                nextAnimationFileName_.clear();
+            }
+        }
     }
 }
 
-void Object3d::SetAnimation(const std::string &fileName) {
-    // すでにセット済みのアニメーションなら何もしない
+void Object3d::SetAnimationImmediate(const std::string &fileName) {
     if (fileName == filePath_) {
         return;
     }
 
-    // modelAnimations_ 内に fileName に対応するアニメーションがあるか検索
     auto it = modelAnimations_.find(fileName);
-
-    // アニメーションが見つからなかった場合、強制的にプログラムを停止
     assert(it != modelAnimations_.end() && "Error: Animation file not found in modelAnimations_!");
 
-    // 見つかったアニメーションを shared_ptr に格納
     currentModelAnimation_ = it->second;
+    currentModelAnimation_->GetAnimator()->SetAnimationTime(0.0f);
+    currentModelAnimation_->GetAnimator()->SetIsAnimation(true);
 
-    // Animator などを model にセット
     model->SetAnimator(currentModelAnimation_->GetAnimator());
     model->SetBone(currentModelAnimation_->GetBone());
     model->SetSkin(currentModelAnimation_->GetSkin());
-    currentModelAnimation_->GetAnimator()->SetIsAnimation(true);
-    currentModelAnimation_->GetAnimator()->SetAnimationTime(0.0f);
 
-    // ファイルパスを更新
     filePath_ = fileName;
+}
+
+
+void Object3d::SetAnimation(const std::string &animationFileName) {
+    if (!currentModelAnimation_) {
+        return;
+    }
+
+    Animator *animator = currentModelAnimation_->GetAnimator();
+    if (!animator) {
+        return;
+    }
+
+    // 現在のファイル名と比較
+    std::string currentFile = animator->GetCurrentFilename();
+
+    // 同じアニメーションの場合は何もしない
+    if (currentFile == animationFileName && !isAnimationSwitchPending_) {
+        return;
+    }
+
+    // 既に同じアニメーションへの切り替えが待機中の場合は何もしない
+    if (isAnimationSwitchPending_ && nextAnimationFileName_ == animationFileName) {
+        return;
+    }
+
+    // 新しいアニメーションへの補間開始
+    animator->BlendToAnimation("resources/models/", animationFileName, 0.25f); // 0.5秒で補間
+
+    // 切り替え待機状態にする
+    isAnimationSwitchPending_ = true;
+    nextAnimationFileName_ = animationFileName;
 }
 
 void Object3d::AddAnimation(const std::string &fileName) {

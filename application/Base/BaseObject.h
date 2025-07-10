@@ -37,7 +37,7 @@ class BaseObject : public Collider {
     // 初期化、更新、描画
     virtual void Init(const std::string className);
     virtual void Update();
-    virtual void Draw(const ViewProjection &viewProjection, Vector3 offSet = {0.0f,0.0f,0.0f});
+    virtual void Draw(const ViewProjection &viewProjection, Vector3 offSet = {0.0f, 0.0f, 0.0f});
 
     virtual void CreateModel(const std::string modelname);
     virtual void CreateCollider();
@@ -78,9 +78,17 @@ class BaseObject : public Collider {
     void SetModel(std::unique_ptr<Object3d> obj) {
         obj3d_ = std::move(obj);
     }
-    void SetModel(const std::string &filePath) { obj3d_->SetModel(filePath); }
+    void SetModel(const std::string &filePath) {
+        obj3d_->SetModel(filePath);
+    }
     void SetParent(const WorldTransform &wt) { transform_.parent_ = &wt; }
-    void SetAnima(const std::string &filePath) { obj3d_->SetAnimation(filePath); }
+    void SetAnima(const std::string &filePath, bool isLerp = true) { 
+       if (isLerp) {
+            obj3d_->SetAnimation(filePath);
+        } else {
+            obj3d_->SetAnimationImmediate(filePath);
+        }
+    }
     void SetLoop(bool flag) { isLoop_ = flag; }
     void AddAnimation(std::string filePath) { obj3d_->AddAnimation(filePath); }
 

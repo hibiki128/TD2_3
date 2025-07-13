@@ -299,7 +299,7 @@ void MapPrev::RotationMap() {
 
 void MapPrev::ApproachMap() {
     const float startPos = center_.z;
-    const float endPos = 50.0f;
+    const float endPos = 70.0f;
     const float startPosBook = book_->GetWorldPosition().z;
     const float endPosBook = 80.0f;
     const float easeTMax = 1.5f;

@@ -13,6 +13,7 @@ void MyGame::Initialize() {
     // シーンマネージャに最初のシーンをセット
     sceneManager_->SetSceneFactory(sceneFactory_);
     sceneManager_->NextSceneReservation("TITLE");
+    winApp->ToggleFullScreen();
     // -----------------------
 }
 
@@ -28,8 +29,9 @@ void MyGame::Update() {
     Framework::Update();
 
     // -----ゲーム固有の処理-----
-    if (input->TriggerKey(DIK_F11)) {
-        winApp->ToggleFullScreen();
+
+    if (input->TriggerKey(DIK_ESCAPE)) {
+        winApp->ClosedWindow();
     }
 
     // -----------------------

@@ -327,14 +327,14 @@ void UIObject::AdjustUIPositionForStageNum() {
         ///
         /// 栞オブジェクトのトランスフォーム
         ///
-        objectUI_->SetWorldPosition({-3.4f, -13.2f, -3.5f});
+        objectUI_->SetWorldPosition({-5.1f, -12.3f, -3.5f});
         objectUI_->SetRotation({degreesToRadians(-86.699f), degreesToRadians(-27.5f), 0.314f});
         objectUI_->SetScale({2.0f, 2.0f, 2.0f});
 
         ///
         /// 本オブジェクトのトランスフォーム
         ///
-        objectBook_->SetWorldPosition({19.09f, -9.33f, 6.97f});
+        objectBook_->SetWorldPosition({16.19f, -7.83f, 7.87f});
         objectBook_->SetRotation({-1.57f, 0.0f, 0.0f});
         objectBook_->SetScale({5.0f, 4.5f, 4.6f});
 
@@ -342,7 +342,7 @@ void UIObject::AdjustUIPositionForStageNum() {
         /// フィルターのトランスフォーム
         ///
 
-        filter_->SetWorldPosition({18.59f, -9.1f, -0.9f});
+        filter_->SetWorldPosition({15.69f, -8.0f, 0.1f});
         filter_->SetRotation({0.0f, 0.0f, 0.0f});
         filter_->SetScale({19.2f, 12.2f, 1.0f});
 

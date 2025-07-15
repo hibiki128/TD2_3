@@ -24,7 +24,7 @@ void SelectScene::Initialize() {
     debugCamera_ = std::make_unique<DebugCamera>();
     debugCamera_->Initialize(&vp_);
 
-    //SetStage();
+    SetStage();
 
     MapLoad();
 

@@ -13,7 +13,7 @@ void MyGame::Initialize() {
     // シーンマネージャに最初のシーンをセット
     sceneManager_->SetSceneFactory(sceneFactory_);
     sceneManager_->NextSceneReservation("TITLE");
-    winApp->ToggleFullScreen();
+    //winApp->ToggleFullScreen();
     // -----------------------
 }
 

@@ -178,6 +178,7 @@ class Player : public BaseObject {
     // プレイヤー本体の色反転時の拡縮アニメーション
     bool isScaling_ = false; // スケーリング中かどうか
     bool isGoalAnimaFinish_ = false;
+    bool isFalling_ = false;             // 落下中かどうか
     float scaleTimer_;                 // アニメーションの進行度を管理
     float initialScale_ = 0.675f;        // アニメーション開始時スケール
     float targetScale_ = 0.3375f;        // 最小時スケール
@@ -203,6 +204,10 @@ class Player : public BaseObject {
     float walkSEcoolTime_ = 0.0f;
     float jumpCooltime = 0.0f;
     float canJumpCooltime = 0.0f;
+    bool isOnGoalBlock_ = false;            // ゴールブロックの上にいるかどうか
+    const float kGoalSlideSpeed_ = 0.05f;   // ゴールブロック上でのずり落ち速度
+    const float kGoalSlideGravity_ = 0.02f; // ゴールブロック上での追加重力
+    float slideVelocityX_ = 0.0f;           // プレイヤーがゴールブロック上でずり落ちるための横方向速度
 
   private:
     // 入力操作

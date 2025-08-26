@@ -153,6 +153,12 @@ void Player::Update(MapChipField *mapChipField, bool title) {
         velocity_.y = 0.0f;
     }
 
+    if (velocity_.y < 0 && !isOnGoalBlock_) {
+        isFalling_ = true;
+    } else {
+        isFalling_ = false;
+    }
+
     if (IsResetOccurred()) {
         moveCoolTime_ = 0.75f;
     }
@@ -1128,7 +1134,7 @@ void Player::BaseUpdate() {
 
 void Player::AnimaUpdate(bool title) {
     if (!IsGoalReached(title)) {
-        if (velocity_.y == 0 && !isJump_) {
+        if (!isFalling_ && !isJump_) {
             if (velocity_.x == 0) {
                 BaseObject::SetLoop(true);
                 BaseObject::SetAnima("animation/playerStandby.gltf");
@@ -1163,9 +1169,7 @@ void Player::AnimaUpdate(bool title) {
           }*/
     }
 
-    if (isJump_) {
-        BaseObject::SetLoop(false);
-        BaseObject::SetAnima("animation/playerJump.gltf");
+    if ((isJump_ || isFalling_)) {
 
         if (collisionMapInfo_.hittingCeiling_ || collisionMapInfo_.hittingGround_) {
             jumpCooltime += 0.1f;
@@ -1175,6 +1179,10 @@ void Player::AnimaUpdate(bool title) {
 
         if (jumpCooltime > 0.1f) {
             isJump_ = false;
+        }
+        if (!isOnGoalBlock_) {
+            BaseObject::SetLoop(false);
+            BaseObject::SetAnima("animation/playerJump.gltf");
         }
     } else {
         jumpCooltime = 0.0f;
@@ -1251,6 +1259,7 @@ void Player::RunParitcle() {
 void Player::CheckCollisionAndResolve(bool title) {
     /// X移動
     BaseObject::transform_.translation_.x += velocity_.x;
+    BaseObject::transform_.translation_.x += slideVelocityX_; // 滑り用速度も加算
 
     /// 衝突判定
     CollisionMapInfo collisionMapInfoX = GetMapCollisionInfo(title);
@@ -1259,16 +1268,18 @@ void Player::CheckCollisionAndResolve(bool title) {
     if (collisionMapInfoX.hittingLeft_) {
         Vector3 blockPosition = collisionMapInfoX.blockX->GetWorldPosition();
         float blockRight = blockPosition.x + MapChipField::kChipSize / 2;
-        BaseObject::transform_.translation_.x = blockRight + kWidth / 2 + kBlank; // 左側に衝突した場合、右に押し戻し
+        BaseObject::transform_.translation_.x = blockRight + kWidth / 2 + kBlank;
+        slideVelocityX_ = 0.0f; // 壁に当たったら滑り停止
     } else if (collisionMapInfoX.hittingRight_) {
         Vector3 blockPosition = collisionMapInfoX.blockX->GetWorldPosition();
         float blockLeft = blockPosition.x - MapChipField::kChipSize / 2;
-        BaseObject::transform_.translation_.x = blockLeft - kWidth / 2 - kBlank; // 右側に衝突した場合、左に押し戻し
+        BaseObject::transform_.translation_.x = blockLeft - kWidth / 2 - kBlank;
+        slideVelocityX_ = 0.0f; // 壁に当たったら滑り停止
     }
 
     /// Y移動
-    if (!isInverting_) {                            // ブロック反転中には移動しない
-        if (!mapChipField_->IsAnyChipAnimating()) { // ブロックがどれか1つでもアニメーションしていたら移動しない
+    if (!isInverting_) {
+        if (!mapChipField_->IsAnyChipAnimating()) {
             BaseObject::transform_.translation_.y += velocity_.y;
         }
     }
@@ -1276,32 +1287,56 @@ void Player::CheckCollisionAndResolve(bool title) {
     /// 衝突判定
     CollisionMapInfo collisionMapInfoY = GetMapCollisionInfo(title);
 
+    /// ゴールブロック上でのずり落ち処理（滑り専用速度を計算）
+    if (isOnGoalBlock_ && collisionMapInfoY.hittingGround_) {
+        float blockCenterX = collisionMapInfoY.blockY->GetWorldPosition().x;
+        float playerCenterX = BaseObject::transform_.translation_.x;
+
+        float distanceFromCenter = playerCenterX - blockCenterX;
+
+        const float slideSpeed = 0.02f;
+
+        // 常に中心から遠ざかる方向へ滑らせる
+        if (distanceFromCenter > 0.0f) {
+            slideVelocityX_ = slideSpeed;
+        } else if (distanceFromCenter < 0.0f) {
+            slideVelocityX_ = -slideSpeed;
+        } else {
+            slideVelocityX_ = 0.0f;
+        }
+    } else {
+        slideVelocityX_ = 0.0f;
+    }
+
     const float colliderYOffset = kHeight / 4.0f;
 
     /// 押し戻し
     if (collisionMapInfoY.hittingGround_) {
         Vector3 blockPosition = collisionMapInfoY.blockY->GetWorldPosition();
         float blockBottom = blockPosition.y + MapChipField::kChipSize / 2;
-        BaseObject::transform_.translation_.y = blockBottom + kHeight / 2 - colliderYOffset + kBlank; // 地面の位置に押し戻し
+        BaseObject::transform_.translation_.y = blockBottom + kHeight / 2 - colliderYOffset + kBlank;
     } else if (collisionMapInfoY.hittingCeiling_) {
         Vector3 blockPosition = collisionMapInfoY.blockY->GetWorldPosition();
         float blockTop = blockPosition.y - MapChipField::kChipSize / 2;
-        BaseObject::transform_.translation_.y = blockTop - kHeight / 2 - kBlank - colliderYOffset; // 天井の位置に押し戻し
+        BaseObject::transform_.translation_.y = blockTop - kHeight / 2 - kBlank - colliderYOffset;
+    }
+
+    /// ゴールブロック上にいるかどうかを判定
+    if (collisionMapInfoY.hittingGround_ && collisionMapInfoY.blockY) {
+        isOnGoalBlock_ = (collisionMapInfoY.blockY->type_ == Block::ChipType::Goal);
+    } else {
+        isOnGoalBlock_ = false;
     }
 
     /// 衝突判定を格納
     collisionMapInfo_.hittingGround_ = collisionMapInfoY.hittingGround_;
     collisionMapInfo_.hittingCeiling_ = collisionMapInfoY.hittingCeiling_;
-
     collisionMapInfo_.hittingLeft_ = collisionMapInfoX.hittingLeft_;
     collisionMapInfo_.hittingRight_ = collisionMapInfoX.hittingRight_;
-
-    collisionMapInfo_.isOverlapping_ = collisionMapInfoX.isOverlapping_;
-    collisionMapInfo_.isOverlapping_ = collisionMapInfoY.isOverlapping_;
+    collisionMapInfo_.isOverlapping_ = collisionMapInfoX.isOverlapping_ || collisionMapInfoY.isOverlapping_;
 
     /// 速度リセット
     velocity_.x = 0.0f;
-    /*velocity_.y = 0.0f;*/
 }
 
 void Player::DrawInvertArea() {
@@ -1532,6 +1567,28 @@ Player::CollisionMapInfo Player::GetMapCollisionInfo(bool title) {
             if (checkPoints[i].x >= blockLeft && checkPoints[i].x <= blockRight && checkPoints[i].y >= blockBottom && checkPoints[i].y < blockTop) {
                 info.isOverlapping_ = true;
                 break;
+            }
+        }
+
+        if (block->type_ == Block::ChipType::Goal) {
+            // プレイヤーの下の2つの角がゴールブロック内にあるかチェック
+            Vector3 bottomLeft = {position.x - kWidth / 2, position.y - kHeight / 2, position.z};
+            Vector3 bottomRight = {position.x + kWidth / 2, position.y - kHeight / 2, position.z};
+
+            bool leftBottomInGoal = (bottomLeft.x >= blockLeft && bottomLeft.x <= blockRight &&
+                                     bottomLeft.y >= blockBottom && bottomLeft.y <= blockTop);
+            bool rightBottomInGoal = (bottomRight.x >= blockLeft && bottomRight.x <= blockRight &&
+                                      bottomRight.y >= blockBottom && bottomRight.y <= blockTop);
+
+            // どちらかの下角がゴール内にあり、かつプレイヤーがブロックの上面付近にいる場合
+            if ((leftBottomInGoal || rightBottomInGoal)) {
+                float playerBottom = position.y - kHeight / 2;
+                float blockTopSurface = blockPosition.y + blockSize / 2;
+
+                // プレイヤーの下端がブロックの上面に近い場合のみ「上に乗っている」と判定
+                if (playerBottom <= blockTopSurface && playerBottom >= blockTopSurface - 0.1f) {
+                    isOnGoalBlock_ = true;
+                }
             }
         }
 

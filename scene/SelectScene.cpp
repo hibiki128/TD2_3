@@ -6,11 +6,12 @@
 #ifdef _DEBUG
 #include <imgui.h>
 #endif // _DEBUG
+#include "Logger.h"
 #include "line/DrawLine3D.h"
 #include "math/Easing.h"
 #include <LightGroup.h>
-#include <myEngine/Frame/Frame.h>
 #include <iostream>
+#include <myEngine/Frame/Frame.h>
 
 void SelectScene::Initialize() {
     audio_ = Audio::GetInstance();
@@ -45,6 +46,11 @@ void SelectScene::Initialize() {
 
     spriteBackGround_ = std::make_unique<Sprite>();
     spriteBackGround_->Initialize("title/backGround.png", {0.0f, 0.0f});
+
+    // 入力受付を遅延させる (追加)
+    canAcceptInput_ = false;
+    inputDelayTimer_ = 0.0f;
+    prevFrameAButton_ = false;
 }
 
 void SelectScene::Finalize() {
@@ -57,6 +63,21 @@ void SelectScene::Update() {
     // デバッグ
     Debug();
 #endif // _DEBUG
+
+    // 入力遅延タイマーの更新と、遅延中のボタン状態を記録
+    if (!canAcceptInput_) {
+        inputDelayTimer_ += Frame::DeltaTime();
+        if (inputDelayTimer_ >= INPUT_DELAY_TIME) {
+            canAcceptInput_ = true;
+        }
+
+        XINPUT_STATE joyState;
+        if (input_->GetJoystickState(0, joyState)) {
+            if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A) {
+                prevFrameAButton_ = true;
+            }
+        }
+    }
 
     // カメラ更新
     CameraUpdate();
@@ -233,7 +254,7 @@ void SelectScene::MapSelect() {
         }
     }
 
-    // anyDecisionMade が true の場合はスペースキー処理以外をスキップ
+    // anyDecisionMade が true の場合はスキップ
     if (!anyDecisionMade) {
         // すべての mapPrevs_ の選択状態を false に設定
         for (size_t i = 0; i < mapPrevs_.size(); ++i) {
@@ -242,116 +263,136 @@ void SelectScene::MapSelect() {
 
         // currentStage のみ選択状態を true に設定
         mapPrevs_[currentStage]->SetIsSelect(true);
+    }
+
+    // 入力が受付可能になるまで決定処理をスキップ
+    if (!canAcceptInput_) {
+        return;
+    }
+
+    // 現在のボタン状態を取得
+    bool currentSpaceKey = input_->PushKey(DIK_SPACE);
+    bool currentAButton = false;
+
+    XINPUT_STATE joyState;
+    if (input_->GetJoystickState(0, joyState)) {
+        currentAButton = (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A) != 0;
+    }
+
+    // キーボード入力による決定処理（押した瞬間のみ）
+    // 前フレームで押されておらず、今フレームで押された場合のみ反応
+    if (currentSpaceKey && !mapPrevs_[currentStage]->GetDecision() && !isMoveCamera_) {
+        mapPrevs_[currentStage]->SetDecision(true);
+        audio_->PlayWave(desitionSE_, 0.2f);
+        isDecision_ = true;
+    }
+
+    // ゲームパッドのボタンA入力による決定処理（押した瞬間のみ）
+    // 前フレームで押されておらず、今フレームで押された場合のみ反応
+    if (currentAButton && !prevFrameAButton_ && !mapPrevs_[currentStage]->GetDecision() && !isMoveCamera_) {
+        Logger::Log("Push A\n");
+        mapPrevs_[currentStage]->SetDecision(true);
+        audio_->PlayWave(desitionSE_, 0.2f);
+        isDecision_ = true;
+    }
+
+    // 次フレーム用に現在のボタン状態を保存
+    prevFrameAButton_ = currentAButton;
+}
+
+void SelectScene::CameraMove() {
+    const float easeTMax = 0.5f;
+
+    // 決定後はカメラ移動しない
+    if (anyDecisionMade) {
+        return;
+    }
+
+    // カメラ移動中でない場合のみ、入力を受け付ける
+    if (!isMoveCamera_ && !isDecision_) {
+        bool shouldMove = false;
+
+        // 入力が受付可能になるまでスキップ (追加)
+        if (!canAcceptInput_) {
+            // イージングによる補間だけは継続
+            vp_.translation_.x = EaseInSine<float>(startPos, endPos, cameraT_, easeTMax);
+            if (isMoveCamera_) {
+                cameraT_ += Frame::DeltaTime();
+                if (cameraT_ >= easeTMax) {
+                    cameraT_ = easeTMax;
+                    isMoveCamera_ = false;
+                }
+            }
+            return;
+        }
 
         // キーボード入力によるステージ変更
-        if (input_->PushKey(DIK_D) && !isMoveCamera_) {
+        if (input_->PushKey(DIK_D) && !isDecision_) {
             currentStage++;
             audio_->PlayWave(selectSE_, 0.2f);
-        }
-        if (input_->PushKey(DIK_A) && !isMoveCamera_) {
+            shouldMove = true;
+        } else if (input_->PushKey(DIK_A) && !isDecision_) {
             currentStage--;
             audio_->PlayWave(selectSE_, 0.2f);
+            shouldMove = true;
         }
 
-        // ゲームパッドの左スティック入力、十字ボタン、RB/LBによるステージ変更
+        // ゲームパッド入力によるステージ変更
         XINPUT_STATE joyState;
-        if (input_->GetJoystickState(0, joyState)) {
+        if (input_->GetJoystickState(0, joyState) && !shouldMove) {
             float stickX = joyState.Gamepad.sThumbLX;
 
-            // 左スティックのx軸の値に基づいて currentStage を変更
-            if (stickX > XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE && !isMoveCamera_) {
+            // 左スティック
+            if (stickX > XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
                 currentStage++;
                 audio_->PlayWave(selectSE_, 0.2f);
-            } else if (stickX < -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE && !isMoveCamera_) {
+                shouldMove = true;
+            } else if (stickX < -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE) {
                 currentStage--;
                 audio_->PlayWave(selectSE_, 0.2f);
+                shouldMove = true;
             }
 
-            // 十字ボタンの入力処理
-            if ((joyState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT) && !isMoveCamera_) {
+            // 十字ボタン
+            if (!shouldMove && (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT)) {
+                Logger::Log("Push RIGHT\n");
                 currentStage++;
                 audio_->PlayWave(selectSE_, 0.2f);
-            } else if ((joyState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT) && !isMoveCamera_) {
+                shouldMove = true;
+            } else if (!shouldMove && (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT)) {
+                Logger::Log("Push LEFT\n");
                 currentStage--;
                 audio_->PlayWave(selectSE_, 0.2f);
+                shouldMove = true;
             }
 
-            // RB (右バンパー) の入力処理
-            if ((joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) && !isMoveCamera_) {
+            // RB/LB
+            if (!shouldMove && (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER)) {
                 currentStage++;
                 audio_->PlayWave(selectSE_, 0.2f);
-            }
-            // LB (左バンパー) の入力処理
-            else if ((joyState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) && !isMoveCamera_) {
+                shouldMove = true;
+            } else if (!shouldMove && (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER)) {
                 currentStage--;
                 audio_->PlayWave(selectSE_, 0.2f);
+                shouldMove = true;
             }
+        }
+
+        // BackGameScene_ の処理
+        if (BackGameScene_) {
+            shouldMove = true;
+            BackGameScene_ = false;
         }
 
         // currentStage が範囲外にならないように制限
         if (currentStage >= stageNum) {
-            currentStage = 0; // 末尾を超えたら最初に戻る
+            currentStage = 0;
         } else if (currentStage < 0) {
-            currentStage = stageNum - 1; // 先頭を超えたら末尾に戻る
+            currentStage = stageNum - 1;
         }
-    }
 
-    // キーボード入力による決定処理
-    if (input_->TriggerKey(DIK_SPACE) && !mapPrevs_[currentStage]->GetDecision()) {
-        mapPrevs_[currentStage]->SetDecision(true);
-        audio_->PlayWave(desitionSE_, 0.2f);
-    }
-
-    // ゲームパッドのボタンA入力による決定処理
-    XINPUT_STATE joyState;
-    if (input_->GetJoystickState(0, joyState)) {
-        if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A && !mapPrevs_[currentStage]->GetDecision()) {
-            mapPrevs_[currentStage]->SetDecision(true);
-            audio_->PlayWave(desitionSE_, 0.2f);
-        }
-    }
-}
-
-void SelectScene::CameraMove() {
-    const float easeTMax = 0.5f; // イージングの最大時間（スムーズさを調整）
-
-    // キーボードの右キーが押されたとき
-    if ((input_->PushKey(DIK_D) && !isMoveCamera_) || BackGameScene_) {
-        startPos = vp_.translation_.x;
-        endPos = currentStage * 100.0f;
-        cameraT_ = 0.0f;
-        isMoveCamera_ = true;
-        BackGameScene_ = false;
-    }
-    // キーボードの左キーが押されたとき
-    if (input_->PushKey(DIK_A) && !isMoveCamera_) {
-        startPos = vp_.translation_.x;
-        endPos = currentStage * 100.0f;
-        cameraT_ = 0.0f;
-        isMoveCamera_ = true;
-    }
-
-    // ゲームパッドの左スティック入力によるカメラ移動
-    XINPUT_STATE joyState;
-    // ゲームパッドの左スティック入力、十字ボタン、RB/LBによるカメラ移動
-    if (input_->GetJoystickState(0, joyState)) {
-        float stickX = joyState.Gamepad.sThumbLX;
-
-        // 右へ移動（スティック右 / 十字右 / RB）
-        if ((stickX > XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE ||
-             (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT) ||
-             (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER)) &&
-            !isMoveCamera_) {
-            startPos = vp_.translation_.x;
-            endPos = currentStage * 100.0f;
-            cameraT_ = 0.0f;
-            isMoveCamera_ = true;
-        }
-        // 左へ移動（スティック左 / 十字左 / LB）
-        else if ((stickX < -XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE ||
-                  (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT) ||
-                  (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER)) &&
-                 !isMoveCamera_) {
+        // カメラ移動開始
+        if (shouldMove) {
             startPos = vp_.translation_.x;
             endPos = currentStage * 100.0f;
             cameraT_ = 0.0f;

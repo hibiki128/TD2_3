@@ -353,7 +353,7 @@ void Player::DrawSprite(const ViewProjection &viewProjection, bool title) {
     // 埋まっていてisInvert_がtrueの場合の処理
     if (collisionMapInfo_.isOverlapping_ && isInvert_) {
         // まだ表示されていない場合のみ初期化処理を行う
-        if (!shouldDisplay_) {
+        if (!shouldDisplay_ && !isSliding_) {
             // 表示フラグを立てる
             shouldDisplay_ = true;
             // 透明度を0から徐々に上げる

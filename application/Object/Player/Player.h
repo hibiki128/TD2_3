@@ -320,6 +320,8 @@ class Player : public BaseObject {
     bool isInvert_ = false;
     // 埋まっている状態でisInvertがtrueになったことを記録
     bool wasInvertWhileOverlapping_ = false;
+    // ゴールブロック上でずり落ちているかのフラグ
+    bool isSliding_ = false; 
 
     // スプライト表示フラグ
     bool shouldDisplay_ = false;

@@ -93,6 +93,6 @@ class SelectScene : public BaseScene {
     // 入力遅延用フラグ (追加)
     bool canAcceptInput_ = false;
     float inputDelayTimer_ = 0.0f;
-    const float INPUT_DELAY_TIME = 0.3f; // 0.3秒の遅延
+    const float INPUT_DELAY_TIME = 2.0f; // 0.3秒の遅延
     bool prevFrameAButton_ = false;
 };

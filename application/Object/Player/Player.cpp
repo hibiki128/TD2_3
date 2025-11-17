@@ -439,10 +439,6 @@ void Player::DebugImGui() {
 }
 
 bool Player::IsGoalReached(bool title) {
-    /*   デバッグ用にO押したらクリアにする（あとで絶対消す）
-      if (input_->TriggerKey(DIK_O)) {
-          return true;
-      }*/
     const float colliderYOffset = kHeight / 4.0f;
     // 現在位置の取得
     Vector3 position = this->transform_.translation_ + Vector3(0.0f, colliderYOffset, 0.0f);
@@ -469,17 +465,18 @@ bool Player::IsGoalReached(bool title) {
         }
     }
     // ゴールに触れていて、なおかつ操作入力と接地状態があればゴール到達とする
-    if (reached && CanJump()) {
+    // ただし、ゴールブロック上でずり落ちている間はゴールできない
+    if (reached && CanJump() && !isSliding_) {
         isTouchGoal_ = true; // ゴールに触れている状態をセット
 
-        // コントローラーのAボタンのトリガー入力（単押し）を検出
+        // コントローラーのAボタンのトリガー入力(単押し)を検出
         XINPUT_STATE joyState, joyStatePre;
         if (input_->GetJoystickState(0, joyState) && input_->GetJoystickStatePrevious(0, joyStatePre)) {
             // 前のフレームでAボタンが押されておらず、現在のフレームで押されている状態をチェック
             bool isCurrentPressed = (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_A) != 0;
             bool isPreviousPressed = (joyStatePre.Gamepad.wButtons & XINPUT_GAMEPAD_A) != 0;
 
-            // 単押し判定（前のフレームで押されていなくて、現在押されている）
+            // 単押し判定(前のフレームで押されていなくて、現在押されている)
             if (isCurrentPressed && !isPreviousPressed && collisionMapInfo_.hittingGround_ && !isGravityReversed_ && isPause_) {
                 SetClearAnima(title);
                 isGoal_ = true;
@@ -487,7 +484,7 @@ bool Player::IsGoalReached(bool title) {
             }
         }
 
-        // キーボードのスペースキーのトリガー入力（単押し）
+        // キーボードのスペースキーのトリガー入力(単押し)
         if (input_->TriggerKey(DIK_SPACE) && collisionMapInfo_.hittingGround_ && !isGravityReversed_ && isPause_) { // 重力反転時はゴールできないようにする
             SetClearAnima(title);
             isGoal_ = true;
@@ -1243,7 +1240,7 @@ void Player::CoinParticle() {
 }
 
 void Player::RunParitcle() {
-    if (isWalking_ && collisionMapInfo_.hittingGround_) {
+    if (isSliding_ || (isWalking_ && collisionMapInfo_.hittingGround_)) {
         runEmitter_->SetPosition({GetCenterPosition().x, GetCenterPosition().y - 0.3f, GetCenterPosition().z});
         // runEmitter_->SetPositionY(GetCenterPosition().y - 0.8f);
         if (velocity_.x > 0) {
@@ -1253,6 +1250,11 @@ void Player::RunParitcle() {
             runEmitter_->SetRotateY(degreesToRadians(180.0f));
         }
         runEmitter_->Update();
+    }
+    if (isSliding_) {
+        runEmitter_->SetFrequency(0.15f);
+    } else if (isWalking_ && collisionMapInfo_.hittingGround_) {
+        runEmitter_->SetFrequency(0.4f);
     }
 }
 
@@ -1287,20 +1289,23 @@ void Player::CheckCollisionAndResolve(bool title) {
     /// 衝突判定
     CollisionMapInfo collisionMapInfoY = GetMapCollisionInfo(title);
 
-    /// ゴールブロック上でのずり落ち処理（滑り専用速度を計算）
+    /// ゴールブロック上でのずり落ち処理(滑り専用速度を計算)
+    isSliding_ = false; // 毎フレームリセット
     if (isOnGoalBlock_ && collisionMapInfoY.hittingGround_) {
         float blockCenterX = collisionMapInfoY.blockY->GetWorldPosition().x;
         float playerCenterX = BaseObject::transform_.translation_.x;
 
         float distanceFromCenter = playerCenterX - blockCenterX;
 
-        const float slideSpeed = 0.02f;
+        const float slideSpeed = 0.12f;
 
         // 常に中心から遠ざかる方向へ滑らせる
         if (distanceFromCenter > 0.0f) {
             slideVelocityX_ = slideSpeed;
+            isSliding_ = true;
         } else if (distanceFromCenter < 0.0f) {
             slideVelocityX_ = -slideSpeed;
+            isSliding_ = true;
         } else {
             slideVelocityX_ = 0.0f;
         }

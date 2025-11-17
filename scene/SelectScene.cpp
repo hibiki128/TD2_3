@@ -271,7 +271,6 @@ void SelectScene::MapSelect() {
     }
 
     // 現在のボタン状態を取得
-    bool currentSpaceKey = input_->PushKey(DIK_SPACE);
     bool currentAButton = false;
 
     XINPUT_STATE joyState;
@@ -281,7 +280,7 @@ void SelectScene::MapSelect() {
 
     // キーボード入力による決定処理（押した瞬間のみ）
     // 前フレームで押されておらず、今フレームで押された場合のみ反応
-    if (currentSpaceKey && !mapPrevs_[currentStage]->GetDecision() && !isMoveCamera_) {
+    if (input_->TriggerKey(DIK_SPACE) && !mapPrevs_[currentStage]->GetDecision() && !isMoveCamera_) {
         mapPrevs_[currentStage]->SetDecision(true);
         audio_->PlayWave(desitionSE_, 0.2f);
         isDecision_ = true;
@@ -289,8 +288,7 @@ void SelectScene::MapSelect() {
 
     // ゲームパッドのボタンA入力による決定処理（押した瞬間のみ）
     // 前フレームで押されておらず、今フレームで押された場合のみ反応
-    if (currentAButton && !prevFrameAButton_ && !mapPrevs_[currentStage]->GetDecision() && !isMoveCamera_) {
-        Logger::Log("Push A\n");
+    if (currentAButton && !prevFrameAButton_ && !mapPrevs_[currentStage]->GetDecision() && !isMoveCamera_) {\
         mapPrevs_[currentStage]->SetDecision(true);
         audio_->PlayWave(desitionSE_, 0.2f);
         isDecision_ = true;
@@ -355,12 +353,10 @@ void SelectScene::CameraMove() {
 
             // 十字ボタン
             if (!shouldMove && (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT)) {
-                Logger::Log("Push RIGHT\n");
                 currentStage++;
                 audio_->PlayWave(selectSE_, 0.2f);
                 shouldMove = true;
             } else if (!shouldMove && (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT)) {
-                Logger::Log("Push LEFT\n");
                 currentStage--;
                 audio_->PlayWave(selectSE_, 0.2f);
                 shouldMove = true;

@@ -1508,27 +1508,23 @@ void Player::ChangeInvertRangeSizeForStageNum() {
 Player::CollisionMapInfo Player::GetMapCollisionInfo(bool title) {
     CollisionMapInfo info;
 
-    // ずらす分（新しい高さと元の高さの差の半分）
     const float colliderYOffset = kHeight / 4.0f;
-    // 衝突判定用の実際の中心は、transform_.translation_ から上方向にオフセット
     Vector3 position = this->transform_.translation_ + Vector3(0.0f, colliderYOffset, 0.0f);
 
 #ifdef _DEBUG
     dummyObject_->SetWorldPosition(position);
 #endif
 
-    // 重なり判定のオフセット（プレイヤーの実際のサイズよりも少し減らした値で判定）
-    const float overlapOffsetX = (kWidth / 2) - 0.02f;
-    const float overlapOffsetY = (kHeight / 2) - 0.02f;
+    // 重なり判定のオフセット(より厳しい判定にする)
+    const float overlapOffsetX = (kWidth / 2) - 0.2f;  // 0.02f -> 0.2f に変更
+    const float overlapOffsetY = (kHeight / 2) - 0.2f; // 0.02f -> 0.2f に変更
 
-    // 重なり判定用の6点
-    Vector3 checkPoints[6] = {
+    // 重なり判定用の4点(中心に近い部分のみでチェック)
+    Vector3 checkPoints[4] = {
         {position.x - overlapOffsetX, position.y + overlapOffsetY, position.z}, // 左上
         {position.x + overlapOffsetX, position.y + overlapOffsetY, position.z}, // 右上
         {position.x - overlapOffsetX, position.y - overlapOffsetY, position.z}, // 左下
         {position.x + overlapOffsetX, position.y - overlapOffsetY, position.z}, // 右下
-        {position.x - overlapOffsetX, position.y, position.z},                  // 中心左
-        {position.x + overlapOffsetX, position.y, position.z}                   // 中心右
     };
 
     // プレイヤーの4つの角を計算
@@ -1540,8 +1536,8 @@ Player::CollisionMapInfo Player::GetMapCollisionInfo(bool title) {
     };
 
     // 中心左と中心右の点を計算
-    Vector3 centerLeft = {position.x - kWidth / 2, position.y, position.z};  // 中心左
-    Vector3 centerRight = {position.x + kWidth / 2, position.y, position.z}; // 中心右
+    Vector3 centerLeft = {position.x - kWidth / 2, position.y, position.z};
+    Vector3 centerRight = {position.x + kWidth / 2, position.y, position.z};
 
     // 全てのブロックを取得
     const auto blocks = mapChipField_->GetBlocks();
@@ -1549,10 +1545,8 @@ Player::CollisionMapInfo Player::GetMapCollisionInfo(bool title) {
 
     // 全てのブロックとの衝突判定
     for (const auto &block : blocks) {
-        // ブロックの位置と範囲を計算
         Vector3 blockPosition = block->GetWorldPosition();
 
-        // 空ブロックとは判定をとらない
         if (block->type_ == Block::ChipType::Empty) {
             continue;
         }
@@ -1562,21 +1556,27 @@ Player::CollisionMapInfo Player::GetMapCollisionInfo(bool title) {
         float blockTop = blockPosition.y + blockSize / 2;
         float blockBottom = blockPosition.y - blockSize / 2;
 
-        // titleフラグがtrueで、Goalの場合の上方向判定の増加
         if (title && block->type_ == Block::ChipType::Goal) {
-            blockTop += blockSize; // 上方向に1ブロック分増やす
+            blockTop += blockSize;
         }
 
-        // 重なり判定（プレイヤーの中心+-オフセットがブロックに接触しているか）
-        for (int i = 0; i < 6; ++i) {
-            if (checkPoints[i].x >= blockLeft && checkPoints[i].x <= blockRight && checkPoints[i].y >= blockBottom && checkPoints[i].y < blockTop) {
-                info.isOverlapping_ = true;
-                break;
+        // 重なり判定(4点全てがブロック内にある場合のみ埋まっていると判定)
+        int pointsInside = 0;
+        for (int i = 0; i < 4; ++i) {
+            if (checkPoints[i].x >= blockLeft && checkPoints[i].x <= blockRight &&
+                checkPoints[i].y >= blockBottom && checkPoints[i].y < blockTop) {
+                pointsInside++;
             }
         }
 
+        // 4点全てが内部にある場合のみ埋まっている判定
+        if (pointsInside >= 4) {
+            info.isOverlapping_ = true;
+            break; // 埋まっていることが確定したらループを抜ける
+        }
+
+        // 以降は通常の衝突判定(変更なし)
         if (block->type_ == Block::ChipType::Goal) {
-            // プレイヤーの下の2つの角がゴールブロック内にあるかチェック
             Vector3 bottomLeft = {position.x - kWidth / 2, position.y - kHeight / 2, position.z};
             Vector3 bottomRight = {position.x + kWidth / 2, position.y - kHeight / 2, position.z};
 
@@ -1585,57 +1585,53 @@ Player::CollisionMapInfo Player::GetMapCollisionInfo(bool title) {
             bool rightBottomInGoal = (bottomRight.x >= blockLeft && bottomRight.x <= blockRight &&
                                       bottomRight.y >= blockBottom && bottomRight.y <= blockTop);
 
-            // どちらかの下角がゴール内にあり、かつプレイヤーがブロックの上面付近にいる場合
             if ((leftBottomInGoal || rightBottomInGoal)) {
                 float playerBottom = position.y - kHeight / 2;
                 float blockTopSurface = blockPosition.y + blockSize / 2;
 
-                // プレイヤーの下端がブロックの上面に近い場合のみ「上に乗っている」と判定
                 if (playerBottom <= blockTopSurface && playerBottom >= blockTopSurface - 0.1f) {
                     isOnGoalBlock_ = true;
                 }
             }
         }
 
-        // プレイヤーとブロックの色が同じ場合には上下左右の判定を取らない（押し戻しを行わないため）
-        if (this->colorState_ == ColorState::White && block->type_ == Block::ChipType::White) { // プレイヤーが白状態で、白ブロックの場合
+        if (this->colorState_ == ColorState::White && block->type_ == Block::ChipType::White) {
             continue;
-        } else if (this->colorState_ == ColorState::Black && block->type_ == Block::ChipType::Black) { // プレイヤーが黒状態で、黒ブロックの場合
+        } else if (this->colorState_ == ColorState::Black && block->type_ == Block::ChipType::Black) {
             continue;
         }
 
         // 各角の衝突を判定
         for (int i = 0; i < 4; ++i) {
-            if (corners[i].x >= blockLeft && corners[i].x <= blockRight && corners[i].y >= blockBottom && corners[i].y <= blockTop) {
-                // 上下判定
-                if (i < 2) { // 左上・右上
+            if (corners[i].x >= blockLeft && corners[i].x <= blockRight &&
+                corners[i].y >= blockBottom && corners[i].y <= blockTop) {
+                if (i < 2) {
                     info.hittingCeiling_ = true;
-                    info.blockY = block; // Y方向で衝突したブロックを格納
-                } else if (i >= 2) {     // 左下・右下
+                    info.blockY = block;
+                } else if (i >= 2) {
                     info.hittingGround_ = true;
-                    info.blockY = block; // Y方向で衝突したブロックを格納
+                    info.blockY = block;
                 }
-                // 左右判定
                 if (corners[i].x < blockPosition.x) {
                     info.hittingRight_ = true;
-                    info.blockX = block; // X方向で衝突したブロックを格納
+                    info.blockX = block;
                 }
                 if (corners[i].x > blockPosition.x) {
                     info.hittingLeft_ = true;
-                    info.blockX = block; // X方向で衝突したブロックを格納
+                    info.blockX = block;
                 }
             }
         }
 
-        // 中心左の衝突判定
-        if (centerLeft.x >= blockLeft && centerLeft.x <= blockRight && centerLeft.y >= blockBottom && centerLeft.y <= blockTop) {
+        if (centerLeft.x >= blockLeft && centerLeft.x <= blockRight &&
+            centerLeft.y >= blockBottom && centerLeft.y <= blockTop) {
             info.hittingLeft_ = true;
-            info.blockX = block; // 中心左のX方向で衝突したブロックを格納
+            info.blockX = block;
         }
-        // 中心右の衝突判定
-        if (centerRight.x >= blockLeft && centerRight.x <= blockRight && centerRight.y >= blockBottom && centerRight.y <= blockTop) {
+        if (centerRight.x >= blockLeft && centerRight.x <= blockRight &&
+            centerRight.y >= blockBottom && centerRight.y <= blockTop) {
             info.hittingRight_ = true;
-            info.blockX = block; // 中心右のX方向で衝突したブロックを格納
+            info.blockX = block;
         }
     }
 

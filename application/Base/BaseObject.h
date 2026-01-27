@@ -57,10 +57,12 @@ class BaseObject : public Collider {
     const WorldTransform &GetTransform() { return transform_; }
     const Object3d *GetObject3d() { return obj3d_.get(); }
     bool AnimaIsFinish() { return obj3d_->IsFinish(); }
+    bool GetStopAnima() const { return isStopAnima; }
 
     /// ===================================================
     /// setter
     /// ===================================================
+    void SetStopAnima(bool flag) { isStopAnima = flag; }
     void SetObjColor(Vector4 c) { objColor_.SetColor(c); }
     void SetWorldPosition(Vector3 pos) { transform_.translation_ = pos; }
     void SetWorldPositionY(float pos) { transform_.translation_.y = pos; }
@@ -104,4 +106,5 @@ class BaseObject : public Collider {
     std::vector<std::string> GetGltfFiles();
 
     bool isCollider = false;
+    bool isStopAnima = false;
 };

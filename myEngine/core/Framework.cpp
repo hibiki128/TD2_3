@@ -162,7 +162,7 @@ void Framework::Update() {
     sceneManager_->Update();
     collisionManager_->Update();
 #ifdef _DEBUG
-    DisplayFPS();
+    //DisplayFPS();
     ImGuiManager::GetInstance()->End();
 #endif // _DEBUG
 

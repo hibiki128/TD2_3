@@ -20,17 +20,22 @@ void SelectScene::Initialize() {
     ptCommon_ = ParticleCommon::GetInstance();
     input_ = Input::GetInstance();
     vp_.Initialize();
-    vp_.translation_ = {0.0f, 0.0f, -40.0f};
+    //vp_.translation_ = {0.0f, 0.0f, -40.0f};
 
     debugCamera_ = std::make_unique<DebugCamera>();
     debugCamera_->Initialize(&vp_);
 
     SetStage();
 
+    vp_.translation_ = {currentStage * 100.0f, 0.0f, -40.0f};
+
     MapLoad();
 
-    startPos = 0.0f;
-    endPos = 0.0f;
+    //startPos = 0.0f;
+    //endPos = 0.0f;
+    
+    startPos = currentStage * 100.0f; // 初期位置を現在のステージに設定
+    endPos = currentStage * 100.0f;
 
     BGM_ = audio_->LoadWave("select/selectBgm.wav");
     audio_->PlayWave(BGM_, 0.2f, true);
